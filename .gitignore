@@ -10,3 +10,4 @@ test/nbtJSONSchemas.json
 test/nbtSchemaTypeScriptInterfaces.d.ts
 test/nbtSchemaTypeScriptTypes.d.ts
 *.js
+*.js.map
