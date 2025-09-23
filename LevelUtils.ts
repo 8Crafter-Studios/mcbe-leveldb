@@ -526,9 +526,9 @@ export const entryContentTypeToFormatMap = {
     SubChunkPrefix: {
         type: "custom",
         resultType: "JSONNBT",
-        async parse(data: Buffer): Promise<DataTypes_SubChunkPrefix> {
+        async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.SubChunkPrefix> {
             let currentOffset: number = 0;
-            const layers: DataTypes_SubChunkPrefixLayer[] = [];
+            const layers: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"][] = [];
             /**
              * The version of the SubChunkPrefix.
              *
@@ -609,15 +609,15 @@ export const entryContentTypeToFormatMap = {
                           subChunkIndex: NBT.byte(subChunkIndex!),
                       }
                     : {}),
-            });
+            } as const satisfies NBTSchemas.NBTSchemaTypes.SubChunkPrefix["value"]);
         },
-        serialize(data: DataTypes_SubChunkPrefix): Buffer {
+        serialize(data: NBTSchemas.NBTSchemaTypes.SubChunkPrefix): Buffer {
             const buffer: Buffer = Buffer.from([
                 data.value.version.value,
                 data.value.layerCount.value,
                 ...(data.value.version.value >= 0x09 ? [data.value.subChunkIndex!.value] : []),
             ]);
-            const layerBuffers: Buffer[] = data.value.layers.value.value.map((layer: DataTypes_SubChunkPrefixLayer): Buffer => {
+            const layerBuffers: Buffer[] = data.value.layers.value.value.map((layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer => {
                 const bitsPerBlock: number = layer.storageVersion.value >> 1;
                 const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
                 const numints: number = Math.ceil(4096 / blocksPerWord);
@@ -1113,34 +1113,32 @@ export interface BiomePalette {
 // }
 
 
-// TO-DO: Convert this into an NBT schema and move it into the nbtSchema.ts file
-export interface DataTypes_SubChunkPrefix extends NBT.Compound {
-    type: `${NBT.TagType.Compound}`;
-    value: {
-        version: NBT.Byte & { value: 0x08 | 0x09 };
-        layerCount: NBT.Byte;
-        layers: {
-            type: `${NBT.TagType.List}`;
-            value: {
-                type: `${NBT.TagType.Compound}`;
-                value: DataTypes_SubChunkPrefixLayer[];
-            };
-        };
-        subChunkIndex?: NBT.Byte;
-    };
-}
+// export interface DataTypes_SubChunkPrefix extends NBT.Compound {
+//     type: `${NBT.TagType.Compound}`;
+//     value: {
+//         version: NBT.Byte & { value: 0x08 | 0x09 };
+//         layerCount: NBT.Byte;
+//         layers: {
+//             type: `${NBT.TagType.List}`;
+//             value: {
+//                 type: `${NBT.TagType.Compound}`;
+//                 value: DataTypes_SubChunkPrefixLayer[];
+//             };
+//         };
+//         subChunkIndex?: NBT.Byte;
+//     };
+// }
 
-// TO-DO: Convert this into an NBT schema and move it into the nbtSchema.ts file
-export interface DataTypes_SubChunkPrefixLayer extends Omit<NBT.Compound["value"], never> {
-    storageVersion: NBT.Byte;
-    palette: {
-        type: `${NBT.TagType.Compound}`;
-        value: {
-            [paletteIndex: string]: NBTSchemas.NBTSchemaTypes.Block;
-        };
-    };
-    block_indices: NBT.List<NBT.TagType.Int>;
-}
+// export interface DataTypes_SubChunkPrefixLayer extends Omit<NBT.Compound["value"], never> {
+//     storageVersion: NBT.Byte;
+//     palette: {
+//         type: `${NBT.TagType.Compound}`;
+//         value: {
+//             [paletteIndex: string]: NBTSchemas.NBTSchemaTypes.Block;
+//         };
+//     };
+//     block_indices: NBT.List<NBT.TagType.Int>;
+// }
 
 // /**
 //  * The correct NBT structure of the {@link entryContentTypeToFormatMap.StructureTemplate | StructureTemplate} content type.

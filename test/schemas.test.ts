@@ -12,7 +12,6 @@ writeFileSync(
 //     'import type { NBTSchemas } from "../nbtSchemas.ts";\n\n' +  Object.entries(NBTSchemas.nbtSchemas)
 //         .map(([name, schema]) =>
 //             NBTSchemas.Utils.Conversion.ToTypeScriptInterface.nbtSchemaToTypeScriptInterface(schema, "DataTypes_" + name, {
-//                 refLookup: Object.keys(NBTSchemas.nbtSchemas).reduce((acc, key) => ({ ...acc, [key]: `DataTypes_${key}` }), {}), // This makes it map references to their interface types instead of inlining them.
 //                 schemaIDToSymbolNameResolver(schemaID: string): string {
 //                     return `DataTypes_${schemaID}`;
 //                 },
@@ -27,11 +26,10 @@ writeFileSync(
     Object.entries(NBTSchemas.nbtSchemas)
         .map(([name, schema]) =>
             NBTSchemas.Utils.Conversion.ToTypeScriptType.nbtSchemaToTypeScriptType(schema, name, {
-                refLookup: Object.keys(NBTSchemas.nbtSchemas).reduce((acc, key) => ({ ...acc, [key]: `${key}` }), {}), // This makes it map references to their interface types instead of inlining them.
                 schemaIDToSymbolNameResolver(schemaID: string): string {
                     return `${schemaID}`;
                 },
-                originalSymbolReference: `NBTSchemas.nbtSchemas.${name}`,
+                originalSymbolReference: `NBTSchemas.nbtSchemas.${name}`, // This makes the generated types have a clickable link to go to the original NBT schema.
             })
         )
         .join("\n\n")

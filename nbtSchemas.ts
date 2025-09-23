@@ -15,12 +15,18 @@ export namespace NBTSchemas {
         schemas: T,
         mappings: M
     ): T & {
-        readonly [K in keyof M]: Omit<T[M[K]["key"]], "description"> &
-            (Extract<M[K], { description: string }>["description"] extends string
+        readonly [K in keyof M]: Omit<T[M[K]["key"]], "description" | "title"> &
+            (Extract<M[K], { description: string }> extends never
+                ? unknown extends T[M[K]["key"]]["description"]
+                    ? NonNullable<unknown>
+                    : { description: T[M[K]["key"]]["description"] }
+                : Extract<M[K], { description: string }>["description"] extends string
                 ? { description: Extract<M[K], { description: string }>["description"] }
                 : { description: T[M[K]["key"]]["description"] }) &
             (Extract<M[K], { title: string }> extends never
-                ? { title: T[M[K]["key"]]["title"] }
+                ? unknown extends T[M[K]["key"]]["title"]
+                    ? NonNullable<unknown>
+                    : { title: T[M[K]["key"]]["title"] }
                 : Extract<M[K], { title: string }>["title"] extends string
                 ? { title: Extract<M[K], { title: string }>["title"] }
                 : { title: T[M[K]["key"]]["title"] }) & {
@@ -40,12 +46,18 @@ export namespace NBTSchemas {
                     },
                 ])
             ) as unknown as {
-                readonly [K in keyof M]: Omit<T[M[K]["key"]], "description"> &
-                    (Extract<M[K], { description: string }>["description"] extends string
+                readonly [K in keyof M]: Omit<T[M[K]["key"]], "description" | "title"> &
+                    (Extract<M[K], { description: string }> extends never
+                        ? unknown extends T[M[K]["key"]]["description"]
+                            ? NonNullable<unknown>
+                            : { description: T[M[K]["key"]]["description"] }
+                        : Extract<M[K], { description: string }>["description"] extends string
                         ? { description: Extract<M[K], { description: string }>["description"] }
                         : { description: T[M[K]["key"]]["description"] }) &
                     (Extract<M[K], { title: string }> extends never
-                        ? { title: T[M[K]["key"]]["title"] }
+                        ? unknown extends T[M[K]["key"]]["title"]
+                            ? NonNullable<unknown>
+                            : { title: T[M[K]["key"]]["title"] }
                         : Extract<M[K], { title: string }>["title"] extends string
                         ? { title: Extract<M[K], { title: string }>["title"] }
                         : { title: T[M[K]["key"]]["title"] }) & {
@@ -2357,9 +2369,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
                 $fragment: false,
             },
-            VILLAGE_DWELLERS: {
-                id: "VILLAGE_DWELLERS",
-                title: "The VILLAGE_DWELLERS schema.",
+            VillageDwellers: {
+                id: "VillageDwellers",
+                title: "The VillageDwellers schema.",
                 description: "The village dwellers data.",
                 type: "compound",
                 properties: {
@@ -2402,9 +2414,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
                 $fragment: false,
             },
-            VILLAGE_INFO: {
-                id: "VILLAGE_INFO",
-                title: "The VILLAGE_INFO schema.",
+            VillageInfo: {
+                id: "VillageInfo",
+                title: "The VillageInfo schema.",
                 description: "The village info data.",
                 type: "compound",
                 properties: {
@@ -2468,9 +2480,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
                 $fragment: false,
             },
-            VILLAGE_PLAYERS: {
-                id: "VILLAGE_PLAYERS",
-                title: "The VILLAGE_PLAYERS schema.",
+            VillagePlayers: {
+                id: "VillagePlayers",
+                title: "The VillagePlayers schema.",
                 description: "The village players data.",
                 type: "compound",
                 properties: {
@@ -2480,9 +2492,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
                 $fragment: false,
             },
-            VILLAGE_POI: {
-                id: "VILLAGE_POI",
-                title: "The VILLAGE_POI schema.",
+            VillagePOI: {
+                id: "VillagePOI",
+                title: "The VillagePOI schema.",
                 description: "The village POIs data.",
                 type: "compound",
                 properties: {
@@ -7770,6 +7782,66 @@ however when the corresponding block in the block layer is broken, this block ge
                 $fragment: false,
             },
             //#endregion
+            //#region Custom NBT Schemas
+            SubChunkPrefix: {
+                id: "SubChunkPrefix",
+                title: "The SubChunkPrefix schema.",
+                description: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
+                type: "compound",
+                required: ["version", "layerCount", "layers"],
+                properties: {
+                    version: {
+                        type: "byte",
+                        enum: [
+                            {
+                                type: "byte",
+                                value: 0x08,
+                            },
+                            {
+                                type: "byte",
+                                value: 0x09,
+                            },
+                        ],
+                    },
+                    layerCount: {
+                        type: "byte",
+                    },
+                    layers: {
+                        type: "list",
+                        items: {
+                            $ref: "SubChunkPrefixLayer",
+                        },
+                    },
+                    subChunkIndex: {
+                        type: "byte",
+                    },
+                },
+                $fragment: false,
+            },
+            SubChunkPrefixLayer: {
+                id: "SubChunkPrefixLayer",
+                title: "The SubChunkPrefixLayer schema.",
+                description: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
+                type: "compound",
+                required: ["storageVersion", "palette", "block_indices"],
+                properties: {
+                    storageVersion: {
+                        type: "byte",
+                    },
+                    palette: {
+                        type: "compound",
+                        additionalProperties: { $ref: "Block" },
+                    },
+                    block_indices: {
+                        type: "list",
+                        items: {
+                            type: "int",
+                        },
+                    },
+                },
+                $fragment: true,
+            },
+            //#endregion
         } as const satisfies Record<string, NBTSchema | NBTSchemaFragment> & Partial<Record<DBEntryContentType, NBTSchema>>,
         {
             /**
@@ -7782,12 +7854,50 @@ however when the corresponding block in the block layer is broken, this block ge
                 description: "The players data.",
             },
             /**
+             * This is an alias of {@link nbtSchemas.Entity_Player}.
+             */
+            Player: {
+                key: "Entity_Player",
+            },
+            /**
              * This is an alias of {@link nbtSchemas.TickingArea}, this only exists because it is what it is called on the Minecraft Wiki, so it is here for the Minecraft Wiki data to schema converter.
              *
              * @deprecated Use {@link nbtSchemas.TickingArea} instead.
              */
             Tickingarea: {
                 key: "TickingArea",
+            },
+            /**
+             * This is an alias of {@link nbtSchemas.VillageDwellers}, this only exists because it is what it is called on the Minecraft Wiki, so it is here for the Minecraft Wiki data to schema converter.
+             *
+             * @deprecated Use {@link nbtSchemas.VillageDwellers} instead.
+             */
+            VILLAGE_DWELLERS: {
+                key: "VillageDwellers",
+            },
+            /**
+             * This is an alias of {@link nbtSchemas.VillageInfo}, this only exists because it is what it is called on the Minecraft Wiki, so it is here for the Minecraft Wiki data to schema converter.
+             *
+             * @deprecated Use {@link nbtSchemas.VillageInfo} instead.
+             */
+            VILLAGE_INFO: {
+                key: "VillageInfo",
+            },
+            /**
+             * This is an alias of {@link nbtSchemas.VillagePlayers}, this only exists because it is what it is called on the Minecraft Wiki, so it is here for the Minecraft Wiki data to schema converter.
+             *
+             * @deprecated Use {@link nbtSchemas.VillagePlayers} instead.
+             */
+            VILLAGE_PLAYERS: {
+                key: "VillagePlayers",
+            },
+            /**
+             * This is an alias of {@link nbtSchemas.VillagePOI}, this only exists because it is what it is called on the Minecraft Wiki, so it is here for the Minecraft Wiki data to schema converter.
+             *
+             * @deprecated Use {@link nbtSchemas.VillagePOI} instead.
+             */
+            VILLAGE_POI: {
+                key: "VillagePOI",
             },
         }
     );
@@ -8551,7 +8661,7 @@ however when the corresponding block in the block layer is broken, this block ge
                      *     Object.entries(NBTSchemas.nbtSchemas)
                      *         .map(([name, schema]) =>
                      *             NBTSchemas.Utils.Conversion.ToTypeScriptType.nbtSchemaToTypeScriptType(schema, "DataTypes_" + name, {
-                     *                 refLookup: Object.keys(NBTSchemas.nbtSchemas).reduce((acc, key) => ({ ...acc, [key]: `DataTypes_${key}` }), {}), // This makes it map references to their interface types instead of inlining them.
+                     *                 originalSymbolReference: `NBTSchemas.nbtSchemas.${name}`, // This makes the generated types have a clickable link to go to the original NBT schema.
                      *             })
                      *         )
                      *         .join("\n\n")
@@ -8745,7 +8855,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         const defVal: string = formatValue(schema.default);
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(defVal) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(defVal)) {
-                            parts.push(`@default\n${indent}${defVal}`);
+                            parts.push(`@default\n${defVal}`);
                         } else {
                             parts.push(`@default ${defVal}`);
                         }
@@ -8756,7 +8866,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         for (const ex of schema.examples) {
                             const exVal = formatValue(ex);
                             if (/[^a-zA-Z0-9_]/.test(exVal)) {
-                                parts.push(`@example\n${indent}${exVal}`);
+                                parts.push(`@example\n${exVal}`);
                             } else {
                                 parts.push(`@example ${exVal}`);
                             }
@@ -8769,7 +8879,7 @@ however when the corresponding block in the block layer is broken, this block ge
 
                         if (schema.enumDescriptions && Array.isArray(schema.enumDescriptions)) {
                             parts.push(
-                                `@enumDescriptions\n${indent}${schema.enumDescriptions
+                                `@enumDescriptions\n${schema.enumDescriptions
                                     .map(
                                         (d: string, i: number): string =>
                                             `- ${schema.enum![i]?.value !== undefined ? `\`${schema.enum![i]?.value}\`` : `UNKNOWN_ENUM_MEMBER_${i}`}: ${d}`
@@ -8797,7 +8907,8 @@ however when the corresponding block in the block layer is broken, this block ge
                     ref: T,
                     indent: string,
                     opts: NBTSchemaToTypeScriptInterfaceConversionOptions,
-                    ctx: NBTSchemaToTypeScriptInterfaceConversionContext
+                    ctx: NBTSchemaToTypeScriptInterfaceConversionContext,
+                    additionalInformation?: { isListChild?: boolean }
                 ):
                     | (T extends true ? SpecificBuiltType<"any", "any"> : never)
                     | (T extends false ? SpecificBuiltType<"never", "never"> : never)
@@ -8807,7 +8918,8 @@ however when the corresponding block in the block layer is broken, this block ge
                     ref: T,
                     indent: string,
                     opts: NBTSchemaToTypeScriptInterfaceConversionOptions = {},
-                    ctx: NBTSchemaToTypeScriptInterfaceConversionContext = { helperTypes: [], helperCounter: 0 }
+                    ctx: NBTSchemaToTypeScriptInterfaceConversionContext = { helperTypes: [], helperCounter: 0 },
+                    additionalInformation: { isListChild?: boolean } = {}
                 ):
                     | SpecificBuiltType<"any", "any">
                     | SpecificBuiltType<"never", "never">
@@ -8855,7 +8967,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         if (resolvedRef.length === 0) return { type: "never", value: "never" };
 
                         // tuple-style list -> union of each item
-                        const children: BuiltType[] = resolvedRef.map((r) => refToType(r, indent, opts, ctx));
+                        const children: BuiltType[] = resolvedRef.map((r) => refToType(r, indent, opts, ctx, { ...additionalInformation, isListChild: true }));
 
                         const allSameType: boolean = children.every((c) => c.type === children[0]!.type);
 
@@ -8884,15 +8996,16 @@ however when the corresponding block in the block layer is broken, this block ge
                     }
 
                     // single schema
-                    return schemaToBuiltType(resolvedRef, indent, opts, ctx) as any;
+                    return schemaToBuiltType(resolvedRef, indent, opts, ctx, additionalInformation) as any;
                 }
 
                 function schemaToBuiltType(
                     schema: NBTSubSchema,
                     indent: string,
                     opts: NBTSchemaToTypeScriptInterfaceConversionOptions,
-                    ctx: NBTSchemaToTypeScriptInterfaceConversionContext
-                ): BuiltType {
+                    ctx: NBTSchemaToTypeScriptInterfaceConversionContext,
+                    additionalInformation: { isListChild?: boolean } = {}
+                ): SpecificBuiltType<string, `"${string}"` | "any" | "unknown"> {
                     const refLookup = opts.refLookup ?? nbtSchemas;
                     const st = schema.type as Exclude<NBTSubSchema["type"], any[]>;
                     const mainSchemaRefName: string | undefined = schema.$ref
@@ -8909,7 +9022,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         opts.inlineRefs ?? false
                             ? undefined
                             : typeof schema === "object" && schema.$ref !== undefined && mainSchemaRefName !== undefined /*  && schema.$ref in refLookup */
-                            ? [mainSchemaRefName]
+                            ? [mainSchemaRefName + (additionalInformation.isListChild ? '["value"]' : "")]
                             : undefined;
                     if (!(opts.inlineRefs ?? false) && schema.allOf !== undefined) {
                         const refAllOfs: (NBTSubSchema & { $ref: string })[] = schema.allOf.filter(
@@ -8918,7 +9031,10 @@ however when the corresponding block in the block layer is broken, this block ge
                         if (refAllOfs.length > 0) {
                             allOfRefTypes ??= [] as unknown as [string];
                             for (const refAllOf of refAllOfs) {
-                                allOfRefTypes.push(resolveSchemaRefName(refAllOf.$ref, !(opts.inlineRefs ?? false), opts));
+                                allOfRefTypes.push(
+                                    resolveSchemaRefName(refAllOf.$ref, !(opts.inlineRefs ?? false), opts) +
+                                        (additionalInformation.isListChild ? '["value"]' : "")
+                                );
                             }
                         }
                     }
@@ -8930,7 +9046,10 @@ however when the corresponding block in the block layer is broken, this block ge
                         if (refOneOfs.length > 0) {
                             oneOfRefTypes ??= [] as unknown as [string];
                             for (const refOneOf of refOneOfs) {
-                                oneOfRefTypes.push(resolveSchemaRefName(refOneOf.$ref, !(opts.inlineRefs ?? false), opts));
+                                oneOfRefTypes.push(
+                                    resolveSchemaRefName(refOneOf.$ref, !(opts.inlineRefs ?? false), opts) +
+                                        (additionalInformation.isListChild ? '["value"]' : "")
+                                );
                             }
                         }
                     }
@@ -8973,32 +9092,39 @@ however when the corresponding block in the block layer is broken, this block ge
                         if (resolvedSchema.properties) {
                             const compoundType: SpecificBuiltType<string> = buildBuiltTypeForTag("compound", resolvedSchema, indent, opts, ctx!);
                             return {
-                                type: "compound",
+                                type: '"compound"',
                                 value:
                                     opts.inlineRefs ?? false
-                                        ? `(${compoundType.value})${inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""}${
-                                              inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""
-                                          }`
-                                        : `(${compoundType.value})${allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""}${
-                                              oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""
-                                          }`,
+                                        ? `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
+                                              inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                                          }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
+                                        : `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
+                                              allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
+                                          }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
                             };
                         }
-                        // BUG: This is not resolving $ref properties.
+                        if (!(opts.inlineRefs ?? false) && schema.$ref) {
+                            const refType = (refLookup[resolveSchemaRefName(schema.$ref, false, opts) as keyof typeof refLookup] as NBTSubSchema | undefined)
+                                ?.type;
+                            return {
+                                type: typeof refType === "string" ? `"${refType}"` : "unknown",
+                                value: mainSchemaRefName! + (additionalInformation.isListChild ? '["value"]' : ""),
+                            };
+                        }
                         return { type: "unknown", value: "any" };
                     }
 
-                    const builtType: SpecificBuiltType<string> = buildBuiltTypeForTag(st, resolvedSchema, indent, opts, ctx!);
+                    const builtType = buildBuiltTypeForTag(st, resolvedSchema, indent, opts, ctx!);
                     return {
                         type: builtType.type,
                         value:
                             opts.inlineRefs ?? false
-                                ? `(${builtType.value})${inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""}${
-                                      inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""
-                                  }`
-                                : `(${builtType.value})${allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""}${
-                                      oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""
-                                  }`,
+                                ? `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                      inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                                  }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
+                                : `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                      allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
+                                  }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
                     };
                 }
 
@@ -9111,7 +9237,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         // homogeneous list
 
                         if (Array.isArray(items)) {
-                            const child = refToType(items, indent + "  ", opts, ctx);
+                            const child = refToType(items, indent + "    ", opts, ctx);
                             function builtTypeValueToTupleList(value: BuiltType["value"]): string {
                                 return typeof value === "string"
                                     ? value
@@ -9132,7 +9258,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             };
                         } else {
                             // TO-DO: Test this, as it may not work correctly.
-                            const child = refToType(items, indent + "  ", opts, ctx);
+                            const child = refToType(items, indent + "    ", opts, ctx, { isListChild: true });
                             function builtTypeValueToUnionList(value: BuiltType["value"]): string {
                                 return typeof value === "string"
                                     ? value
@@ -9156,7 +9282,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             const required = parentReq.has(key) || (childSchema as any).required === true;
                             const sep = required ? ":" : "?:";
 
-                            return comment + `${indent}${JSON.stringify(key)}${sep} ${schemaToType(childSchema, indent + "  ", opts, ctx)};`;
+                            return comment + `${indent}${JSON.stringify(key)}${sep} ${schemaToType(childSchema, indent + "    ", opts, ctx)};`;
                         });
 
                         const propLinesCount: number = lines.length;
@@ -9193,7 +9319,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                         keyType = `\`${key.replaceAll("\\d+", "${number}")}\``;
                                         break;
                                 }
-                                found.push([keyType, schemaToType(value, indent + "  ", opts, ctx)]);
+                                found.push([keyType, schemaToType(value, indent + "    ", opts, ctx)]);
                             }
                             for (const key of new Set(found.map(([key]) => key))) {
                                 if (found.filter(([key2]) => key2 === key).length === 1) {
@@ -9215,14 +9341,18 @@ however when the corresponding block in the block layer is broken, this block ge
                                 if (schema.additionalProperties === true) {
                                     lines.push(`${propLinesCount > 0 ? `${indent}} & {\n` : ""}${indent}[key: string]: { type: any, value: any };`);
                                 } else {
-                                    lines.push(
-                                        `${propLinesCount > 0 ? `${indent}} & {\n` : ""}${indent}[key: string]: ${schemaToType(
-                                            schema.additionalProperties,
-                                            indent + "  ",
-                                            opts,
-                                            ctx
-                                        )};`
-                                    );
+                                    const builtType = schemaToBuiltType(schema.additionalProperties, indent + "    ", opts, ctx);
+                                    if (schema.additionalProperties.$ref) {
+                                        lines.push(`${propLinesCount > 0 ? `${indent}} & {\n` : ""}${indent}[key: string]: ${builtType.value};`);
+                                    } else {
+                                        lines.push(
+                                            `${propLinesCount > 0 ? `${indent}} & {\n` : ""}${indent}[key: string]: ${
+                                                builtType.value.includes("\n")
+                                                    ? `{\n${indent}type: ${builtType.type},\n${indent}value: ${builtType.value}\n${indent}}`
+                                                    : `{ type: ${builtType.type}, value: ${builtType.value} }`
+                                            };`
+                                        );
+                                    }
                                 }
                             }
                         } else if (opts.allowExtraProps) {
@@ -9321,102 +9451,108 @@ however when the corresponding block in the block layer is broken, this block ge
                     ctx: NBTSchemaToTypeScriptInterfaceConversionContext = { helperTypes: [], helperCounter: 0 }
                 ): string {
                     const refLookup = opts.refLookup ?? nbtSchemas;
-                    if (schema.$ref !== undefined && schema.$ref in refLookup && typeof refLookup[schema.$ref as keyof typeof refLookup] === "string") {
-                        return ((Object.keys(schema).length > 1
-                            ? `(${schemaToType(Object.fromEntries(Object.entries(schema).filter(([key]): boolean => key !== "$ref")), indent, opts, ctx)}) & `
-                            : "") + refLookup[schema.$ref as keyof typeof refLookup]) as string;
-                    }
-                    const resolvedSchema: NBTSubSchema =
-                        schema.$ref !== undefined && schema.$ref in refLookup
-                            ? /* opts.inlineRefs ?? false
-                                ? {
-                                      ...(refLookup[schema.$ref as keyof typeof refLookup] as NBTSubSchema),
-                                      //   ...(allOfRefTypes && allOfRefTypes.length > 0
-                                      //       ? allOfRefTypes.reduce(
-                                      //             (a, b): NBTSubSchema => ({
-                                      //                 ...a,
-                                      //                 ...(typeof refLookup[b as keyof typeof refLookup] === "object"
-                                      //                     ? (refLookup[b as keyof typeof refLookup] as Extract<
-                                      //                           (typeof refLookup)[keyof typeof refLookup],
-                                      //                           object
-                                      //                       >)
-                                      //                     : {}),
-                                      //             }),
-                                      //             {}
-                                      //         )
-                                      //       : {}),
-                                      ...Object.fromEntries(Object.entries(schema).filter(([key]): boolean => key !== "$ref")),
-                                  }
-                                : */ {
-                                  type: (refLookup[schema.$ref as keyof typeof refLookup] as NBTSubSchema).type,
-                                  ...Object.fromEntries(Object.entries(schema).filter(([key]): boolean => key !== "$ref")),
+                    const st = schema.type as Exclude<NBTSubSchema["type"], any[]>;
+                    const mainSchemaRefName: string | undefined = schema.$ref
+                        ? resolveSchemaRefName(schema.$ref, !(opts.inlineRefs ?? false), opts)
+                        : undefined;
+                    const resolvedSchema =
+                        opts.inlineRefs && schema.$ref && mainSchemaRefName && mainSchemaRefName in refLookup
+                            ? {
+                                  ...(refLookup[mainSchemaRefName as keyof typeof refLookup] as NBTSubSchema),
+                                  ...schema,
                               }
                             : schema;
-                    // const inlineRefTypes = {
-                    //     allOf: [] as string[],
-                    //     oneOf: [] as string[],
-                    // };
-                    // if (opts.inlineRefs ?? false) {
-                    //     if (allOfRefTypes)
-                    //         for (const refType of allOfRefTypes) {
-                    //             const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? schema.type;
-                    //             if (!types) continue;
-                    //             inlineRefTypes.allOf.push(
-                    //                 Array.isArray(types)
-                    //                     ? types
-                    //                           .map((t: string): string =>
-                    //                               buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
-                    //                           )
-                    //                           .join("|")
-                    //                     : buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
-                    //             );
-                    //         }
-                    //     if (oneOfRefTypes)
-                    //         for (const refType of oneOfRefTypes) {
-                    //             const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? schema.type;
-                    //             if (!types) continue;
-                    //             inlineRefTypes.oneOf.push(
-                    //                 Array.isArray(types)
-                    //                     ? types
-                    //                           .map((t: string): string =>
-                    //                               buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
-                    //                           )
-                    //                           .join("|")
-                    //                     : buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
-                    //             );
-                    //         }
-                    // }
-                    if (Array.isArray(resolvedSchema.type)) {
-                        const types: string[] = resolvedSchema.type.map((t: string): string => {
-                            const built: string = buildTypeForTag(t, resolvedSchema, indent, opts, ctx);
-                            if (opts.emitHelperTypes) {
-                                const helperName: string = makeHelperName("NBT", ctx);
-                                ctx.helperTypes.push(`export type ${helperName} = ${built};`);
-                                return helperName;
+                    let allOfRefTypes: [string, ...string[]] | undefined =
+                        opts.inlineRefs ?? false
+                            ? undefined
+                            : typeof schema === "object" && schema.$ref !== undefined && mainSchemaRefName !== undefined /*  && schema.$ref in refLookup */
+                            ? [mainSchemaRefName]
+                            : undefined;
+                    if (!(opts.inlineRefs ?? false) && schema.allOf !== undefined) {
+                        const refAllOfs: (NBTSubSchema & { $ref: string })[] = schema.allOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                        );
+                        if (refAllOfs.length > 0) {
+                            allOfRefTypes ??= [] as unknown as [string];
+                            for (const refAllOf of refAllOfs) {
+                                allOfRefTypes.push(resolveSchemaRefName(refAllOf.$ref, !(opts.inlineRefs ?? false), opts));
                             }
-                            return built;
-                        });
-                        return `(${types.join(" | ")})`;
-                        // if (opts.inlineRefs ?? false) {
-                        //     return `(${types.join(" | ")})${inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""}${
-                        //         inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""
-                        //     }`;
-                        // } else {
-                        //     return `(${types.join(" | ")})${allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""}${
-                        //         oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""
-                        //     }`;
-                        // }
+                        }
+                    }
+                    let oneOfRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (!(opts.inlineRefs ?? false) && schema.oneOf !== undefined) {
+                        const refOneOfs: (NBTSubSchema & { $ref: string })[] = schema.oneOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                        );
+                        if (refOneOfs.length > 0) {
+                            oneOfRefTypes ??= [] as unknown as [string];
+                            for (const refOneOf of refOneOfs) {
+                                oneOfRefTypes.push(resolveSchemaRefName(refOneOf.$ref, !(opts.inlineRefs ?? false), opts));
+                            }
+                        }
+                    }
+                    const inlineRefTypes = {
+                        allOf: [] as string[],
+                        oneOf: [] as string[],
+                    };
+                    if (opts.inlineRefs ?? false) {
+                        if (allOfRefTypes)
+                            for (const refType of allOfRefTypes) {
+                                const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                inlineRefTypes.allOf.push(
+                                    Array.isArray(types)
+                                        ? types
+                                              .map((t: string): string =>
+                                                  buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                              )
+                                              .join("|")
+                                        : buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                );
+                            }
+                        if (oneOfRefTypes)
+                            for (const refType of oneOfRefTypes) {
+                                const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                inlineRefTypes.oneOf.push(
+                                    Array.isArray(types)
+                                        ? types
+                                              .map((t: string): string =>
+                                                  buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                              )
+                                              .join("|")
+                                        : buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                );
+                            }
                     }
 
-                    const st = resolvedSchema.type;
                     if (!st) {
                         if (resolvedSchema.properties) {
-                            return buildTypeForTag("compound", resolvedSchema, indent, opts, ctx);
+                            const compoundType = buildTypeForTag("compound", resolvedSchema, indent, opts, ctx!);
+                            return opts.inlineRefs ?? false
+                                ? `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType) ? "" : `(${compoundType})`}${
+                                      inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                                  }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
+                                : `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType) ? "" : `(${compoundType})`}${
+                                      allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
+                                  }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
                         }
-                        return "any";
+                        if (!(opts.inlineRefs ?? false) && schema.$ref) {
+                            const refType = (refLookup[resolveSchemaRefName(schema.$ref, false, opts) as keyof typeof refLookup] as NBTSubSchema | undefined)
+                                ?.type;
+                            return mainSchemaRefName!;
+                        }
+                        return `{ type: unknown, value: any }`;
                     }
 
-                    return buildTypeForTag(st, resolvedSchema, indent, opts, ctx);
+                    const builtType = buildTypeForTag(st, resolvedSchema, indent, opts, ctx!);
+                    return opts.inlineRefs ?? false
+                        ? `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType) ? "" : `(${builtType})`}${
+                              inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                          }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
+                        : `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType) ? "" : `(${builtType})`}${
+                              allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
+                          }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
                 }
 
                 /**
@@ -9561,7 +9697,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 //             if (schema.additionalProperties === true) {
                 //                 extendsLines.push(`Omit<{ [key: string]: { type: any, value: any } }, never>`);
                 //             } else {
-                //                 extendsLines.push(`Omit<{ [key: string]: ${schemaToType(schema.additionalProperties, indent + "  ", opts, ctx)} }, never>`);
+                //                 extendsLines.push(`Omit<{ [key: string]: ${schemaToType(schema.additionalProperties, indent + "    ", opts, ctx)} }, never>`);
                 //             }
                 //         }
                 //     } else if (opts.allowExtraProps) {
@@ -10521,7 +10657,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         attackmobs?: { type: "byte"; value: 0 | 1 };
@@ -10531,7 +10667,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         attackplayers?: { type: "byte"; value: 0 | 1 };
@@ -10541,7 +10677,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         build?: { type: "byte"; value: 0 | 1 };
@@ -10551,7 +10687,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         doorsandswitches?: { type: "byte"; value: 0 | 1 };
@@ -10561,7 +10697,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         flying?: { type: "byte"; value: 0 | 1 };
@@ -10577,7 +10713,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         instabuild?: { type: "byte"; value: 0 | 1 };
@@ -10587,7 +10723,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         invulnerable?: { type: "byte"; value: 0 | 1 };
@@ -10597,7 +10733,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         lightning?: { type: "byte"; value: 0 | 1 };
@@ -10607,7 +10743,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         mayfly?: { type: "byte"; value: 0 | 1 };
@@ -10617,7 +10753,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         mine?: { type: "byte"; value: 0 | 1 };
@@ -10627,7 +10763,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         mute?: { type: "byte"; value: 0 | 1 };
@@ -10637,7 +10773,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         noclip?: { type: "byte"; value: 0 | 1 };
@@ -10647,7 +10783,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         op?: { type: "byte"; value: 0 | 1 };
@@ -10657,7 +10793,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         opencontainers?: { type: "byte"; value: 0 | 1 };
@@ -10679,7 +10815,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         teleport?: { type: "byte"; value: 0 | 1 };
@@ -10695,7 +10831,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         worldbuilder?: { type: "byte"; value: 0 | 1 };
@@ -10707,7 +10843,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 allowdestructiveobjects?: { type: "byte"; value: 0 | 1 };
@@ -10717,7 +10853,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 allowmobs?: { type: "byte"; value: 0 | 1 };
@@ -10725,7 +10861,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * The version of Minecraft that is the maximum version to load resources from. Eg. setting this to `1.16.0` removes any features that were added after version `1.16.0`.
                  *
                  * @default
-                 *     "*"
+                 * "*"
                  */
                 baseGameVersion?: { type: "string"; value: string };
                 /**
@@ -10738,7 +10874,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 bonusChestEnabled?: { type: "byte"; value: 0 | 1 };
@@ -10748,7 +10884,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 bonusChestSpawned?: { type: "byte"; value: 0 | 1 };
@@ -10758,7 +10894,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 codebuilder?: { type: "byte"; value: 0 | 1 };
@@ -10768,7 +10904,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 commandblockoutput?: { type: "byte"; value: 0 | 1 };
@@ -10778,7 +10914,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 CenterMapsToOrigin?: { type: "byte"; value: 0 | 1 };
@@ -10788,7 +10924,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 commandblocksenabled?: { type: "byte"; value: 0 | 1 };
@@ -10798,7 +10934,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 commandsEnabled?: { type: "byte"; value: 0 | 1 };
@@ -10808,7 +10944,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 ConfirmedPlatformLockedContent?: { type: "byte"; value: 0 | 1 };
@@ -10822,7 +10958,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1 | 2 | 3
                  *
                  * @enumDescriptions
-                 *     - `0`: Peaceful
+                 * - `0`: Peaceful
                  * - `1`: Easy
                  * - `2`: Normal
                  * - `3`: Hard
@@ -10834,7 +10970,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1 | 2
                  *
                  * @enumDescriptions
-                 *     - `0`: Overworld
+                 * - `0`: Overworld
                  * - `1`: Nether
                  * - `2`: The End
                  */
@@ -10845,7 +10981,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 dodaylightcycle?: { type: "byte"; value: 0 | 1 };
@@ -10855,7 +10991,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 doentitiydrops?: { type: "byte"; value: 0 | 1 };
@@ -10865,7 +11001,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 dofiretick?: { type: "byte"; value: 0 | 1 };
@@ -10875,7 +11011,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 doimmediaterespawn?: { type: "byte"; value: 0 | 1 };
@@ -10885,7 +11021,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 doinsomnia?: { type: "byte"; value: 0 | 1 };
@@ -10895,7 +11031,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 dolimitedcrafting?: { type: "byte"; value: 0 | 1 };
@@ -10905,7 +11041,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 domobloot?: { type: "byte"; value: 0 | 1 };
@@ -10915,7 +11051,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 domobspawning?: { type: "byte"; value: 0 | 1 };
@@ -10925,7 +11061,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 dotiledrops?: { type: "byte"; value: 0 | 1 };
@@ -10935,7 +11071,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 doweathercycle?: { type: "byte"; value: 0 | 1 };
@@ -10945,7 +11081,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 drowningdamage?: { type: "byte"; value: 0 | 1 };
@@ -10955,7 +11091,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 educationFeaturesEnabled?: { type: "byte"; value: 0 | 1 };
@@ -10975,7 +11111,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 eduOffer?: { type: "int"; value: 0 | 1 };
@@ -11004,7 +11140,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         experiments_ever_used?: { type: "byte"; value: 0 | 1 };
@@ -11014,7 +11150,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         saved_with_toggled_experiments?: { type: "byte"; value: 0 | 1 };
@@ -11024,7 +11160,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         gametest?: { type: "byte"; value: 0 | 1 };
@@ -11034,7 +11170,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         camera_aim_assist?: { type: "byte"; value: 0 | 1 };
@@ -11044,7 +11180,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         data_driven_biomes?: { type: "byte"; value: 0 | 1 };
@@ -11054,7 +11190,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         experimental_creator_cameras?: { type: "byte"; value: 0 | 1 };
@@ -11064,7 +11200,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         jigsaw_structures?: { type: "byte"; value: 0 | 1 };
@@ -11074,7 +11210,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         locator_bar?: { type: "byte"; value: 0 | 1 };
@@ -11084,7 +11220,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         upcoming_creator_features?: { type: "byte"; value: 0 | 1 };
@@ -11094,7 +11230,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         y_2025_drop_1?: { type: "byte"; value: 0 | 1 };
@@ -11104,7 +11240,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         y_2025_drop_2?: { type: "byte"; value: 0 | 1 };
@@ -11114,7 +11250,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         *       - `0`: true
+                         * - `0`: true
                          * - `1`: false
                          */
                         y_2025_drop_3?: { type: "byte"; value: 0 | 1 };
@@ -11128,7 +11264,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 falldamage?: { type: "byte"; value: 0 | 1 };
@@ -11138,7 +11274,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 firedamage?: { type: "byte"; value: 0 | 1 };
@@ -11146,7 +11282,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * JSON that controls generation of flat worlds. Default is `{"biome_id":1,"block_layers":[{"block_name":"minecraft:bedrock","count":1},{"block_name":"minecraft:dirt","count":2},{"block_name":"minecraft:grass_block","count":1}],"encoding_version":6,"structure_options":null,"world_version":"version.post_1_18"}`.
                  *
                  * @default
-                 *     "{\"biome_id\":1,\"block_layers\":[{\"block_name\":\"minecraft:bedrock\",\"count\":1},{\"block_name\":\"minecraft:dirt\",\"count\":2},{\"block_name\":\"minecraft:grass_block\",\"count\":1}],\"encoding_version\":6,\"structure_options\":null,\"world_version\":\"version.post_1_18\"}"
+                 * "{\"biome_id\":1,\"block_layers\":[{\"block_name\":\"minecraft:bedrock\",\"count\":1},{\"block_name\":\"minecraft:dirt\",\"count\":2},{\"block_name\":\"minecraft:grass_block\",\"count\":1}],\"encoding_version\":6,\"structure_options\":null,\"world_version\":\"version.post_1_18\"}"
                  */
                 FlatWorldLayers?: { type: "string"; value: string };
                 /**
@@ -11155,7 +11291,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 freezedamage?: { type: "byte"; value: 0 | 1 };
@@ -11165,7 +11301,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 functioncommandlimit?: { type: "int"; value: 0 | 1 };
@@ -11175,7 +11311,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 globalmute?: { type: "byte"; value: 0 | 1 };
@@ -11185,7 +11321,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 ForceGameType?: { type: "byte"; value: 0 | 1 };
@@ -11203,7 +11339,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 hasBeenLoadedInCreative?: { type: "byte"; value: 0 | 1 };
@@ -11213,7 +11349,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 hasLockedBehaviorPack?: { type: "byte"; value: 0 | 1 };
@@ -11223,7 +11359,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 hasLockedResourcePack?: { type: "byte"; value: 0 | 1 };
@@ -11233,7 +11369,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 immutableWorld?: { type: "byte"; value: 0 | 1 };
@@ -11247,7 +11383,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 isCreatedInEditor?: { type: "byte"; value: 0 | 1 };
@@ -11257,7 +11393,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 isExportedFromEditor?: { type: "byte"; value: 0 | 1 };
@@ -11267,7 +11403,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 isFromLockedTemplate?: { type: "byte"; value: 0 | 1 };
@@ -11277,7 +11413,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 isFromWorldTemplate?: { type: "byte"; value: 0 | 1 };
@@ -11287,7 +11423,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 IsHardcore?: { type: "byte"; value: 0 | 1 };
@@ -11297,7 +11433,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 IsSingleUseWorld?: { type: "byte"; value: 0 | 1 };
@@ -11307,7 +11443,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 isWorldTemplateOptionLocked?: { type: "byte"; value: 0 | 1 };
@@ -11317,7 +11453,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 keepinventory?: { type: "byte"; value: 0 | 1 };
@@ -11327,7 +11463,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 LANBroadcast?: { type: "byte"; value: 0 | 1 };
@@ -11337,7 +11473,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 LANBroadcastIntent?: { type: "byte"; value: 0 | 1 };
@@ -11407,7 +11543,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 mobgriefing?: { type: "byte"; value: 0 | 1 };
@@ -11417,7 +11553,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 MultiplayerGame?: { type: "byte"; value: 0 | 1 };
@@ -11427,7 +11563,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 MultiplayerGameIntent?: { type: "byte"; value: 0 | 1 };
@@ -11437,7 +11573,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 naturalregeneration?: { type: "byte"; value: 0 | 1 };
@@ -11471,7 +11607,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 pvp?: { type: "byte"; value: 0 | 1 };
@@ -11499,7 +11635,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 recipesunlock?: { type: "byte"; value: 0 | 1 };
@@ -11509,7 +11645,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 requiresCopiedPackRemovalCheck?: { type: "byte"; value: 0 | 1 };
@@ -11519,7 +11655,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 respawnblocksexplode?: { type: "byte"; value: 0 | 1 };
@@ -11529,7 +11665,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 sendcommandfeedback?: { type: "byte"; value: 0 | 1 };
@@ -11545,7 +11681,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 showbordereffect?: { type: "byte"; value: 0 | 1 };
@@ -11555,7 +11691,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 showcoordinates?: { type: "byte"; value: 0 | 1 };
@@ -11565,7 +11701,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 showdaysplayed?: { type: "byte"; value: 0 | 1 };
@@ -11575,7 +11711,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 showdeathmessages?: { type: "byte"; value: 0 | 1 };
@@ -11585,7 +11721,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 showtags?: { type: "byte"; value: 0 | 1 };
@@ -11595,7 +11731,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 spawnMobs?: { type: "byte"; value: 0 | 1 };
@@ -11605,7 +11741,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 spawnradius?: { type: "int"; value: 0 | 1 };
@@ -11615,7 +11751,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 SpawnV1Villagers?: { type: "byte"; value: 0 | 1 };
@@ -11643,7 +11779,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 startWithMapEnabled?: { type: "byte"; value: 0 | 1 };
@@ -11659,7 +11795,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 texturePacksRequired?: { type: "byte"; value: 0 | 1 };
@@ -11667,7 +11803,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](daylight cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](Daylight cycle#Daytime), 12000 is the start of [sunset](Daylight cycle#Sunset/dusk), 13800 is the start of [nighttime](Daylight cycle#Nighttime), 22200 is the start of [sunrise](Daylight cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.
                  *
                  * @default
-                 *     [high: 0, low: 0]
+                 * [high: 0, low: 0]
                  */
                 Time?: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -11676,7 +11812,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 tntexplodes?: { type: "byte"; value: 0 | 1 };
@@ -11686,7 +11822,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 *     - `0`: true
+                 * - `0`: true
                  * - `1`: false
                  */
                 useMsaGamertagsOnly?: { type: "byte"; value: 0 | 1 };
@@ -12115,7 +12251,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                         /**
                                          * The block palette.
                                          */
-                                        block_palette: { type: "list"; value: { type: unknown; value: any[] } };
+                                        block_palette: { type: "list"; value: { type: "compound"; value: Block["value"][] } };
                                     };
                                 };
                             };
@@ -12138,7 +12274,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         /**
                          * The list of entities in the structure.
                          */
-                        entities: { type: "list"; value: { type: unknown; value: any[] } };
+                        entities: { type: "list"; value: { type: "compound"; value: ActorPrefix["value"][] } };
                     };
                 };
                 /**
@@ -12182,13 +12318,13 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * The VILLAGE_DWELLERS schema.
+         * The VillageDwellers schema.
          *
          * The village dwellers data.
          *
-         * @see {@link NBTSchemas.nbtSchemas.VILLAGE_DWELLERS}
+         * @see {@link NBTSchemas.nbtSchemas.VillageDwellers}
          */
-        export type VILLAGE_DWELLERS = {
+        export type VillageDwellers = {
             type: "compound";
             value: {
                 Dwellers?: {
@@ -12214,13 +12350,13 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * The VILLAGE_INFO schema.
+         * The VillageInfo schema.
          *
          * The village info data.
          *
-         * @see {@link NBTSchemas.nbtSchemas.VILLAGE_INFO}
+         * @see {@link NBTSchemas.nbtSchemas.VillageInfo}
          */
-        export type VILLAGE_INFO = {
+        export type VillageInfo = {
             type: "compound";
             value: {
                 BDTime?: { type: "long"; value: [high: number, low: number] };
@@ -12246,13 +12382,13 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * The VILLAGE_PLAYERS schema.
+         * The VillagePlayers schema.
          *
          * The village players data.
          *
-         * @see {@link NBTSchemas.nbtSchemas.VILLAGE_PLAYERS}
+         * @see {@link NBTSchemas.nbtSchemas.VillagePlayers}
          */
-        export type VILLAGE_PLAYERS = {
+        export type VillagePlayers = {
             type: "compound";
             value: {
                 Players?: {
@@ -12277,13 +12413,13 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * The VILLAGE_POI schema.
+         * The VillagePOI schema.
          *
          * The village POIs data.
          *
-         * @see {@link NBTSchemas.nbtSchemas.VILLAGE_POI}
+         * @see {@link NBTSchemas.nbtSchemas.VillagePOI}
          */
-        export type VILLAGE_POI = {
+        export type VillagePOI = {
             type: "compound";
             value: {
                 POI?: {
@@ -12453,7 +12589,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) List of [Modifiers](https://minecraft.wiki/w/Attribute#Modifiers).
                  */
-                Modifiers?: { type: "list"; value: { type: "compound"; value: {} & AttributeModifier[] } };
+                Modifiers?: { type: "list"; value: { type: "compound"; value: AttributeModifier["value"][] } };
                 /**
                  * The name of this Attribute.
                  */
@@ -12470,7 +12606,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Attributes}
          */
-        export type Attributes = { type: "list"; value: { type: "compound"; value: {} & Attribute[] } };
+        export type Attributes = { type: "list"; value: { type: "compound"; value: Attribute["value"][] } };
 
         /**
          * NBT structure of an attribute [modifier](https://minecraft.wiki/w/modifier).
@@ -12860,7 +12996,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) The list of potion effects on this mob.
                  */
-                ActiveEffects?: { type: "list"; value: { type: "compound"; value: {} & MobEffect[] } };
+                ActiveEffects?: { type: "list"; value: { type: "compound"; value: MobEffect["value"][] } };
                 /**
                  * How much air the living entity has, in ticks.
                  */
@@ -12870,7 +13006,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Armor: {
                     type: "list";
-                    value: { type: "compound"; value: [{} & Item_ItemStack, {} & Item_ItemStack, {} & Item_ItemStack, {} & Item_ItemStack] };
+                    value: { type: "compound"; value: [Item_ItemStack["value"], Item_ItemStack["value"], Item_ItemStack["value"], Item_ItemStack["value"]] };
                 };
                 /**
                  * Number of ticks the mob attacks for. 0 when not attacking.
@@ -12879,7 +13015,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * A list of [Attribute](https://minecraft.wiki/w/Attribute)s for this mob. These are used for many purposes in internal calculations. Valid Attributes for a given mob are listed in the [main article](https://minecraft.wiki/w/Attribute).
                  */
-                Attributes: { type: "list"; value: { type: "compound"; value: {} & Attribute[] } };
+                Attributes: { type: "list"; value: { type: "compound"; value: Attribute["value"][] } };
                 /**
                  * (May not exist) Unknown.
                  */
@@ -12931,7 +13067,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The item being held in the mob's main hand.
                  */
-                Mainhand: { type: "list"; value: { type: "compound"; value: {} & Item_ItemStack[] } };
+                Mainhand: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
                 /**
                  * 1 or 0 (true/false) - true if it is naturally spawned.
                  */
@@ -12939,7 +13075,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The item being held in the mob's off hand.
                  */
-                Offhand: { type: "list"; value: { type: "compound"; value: {} & Item_ItemStack[] } };
+                Offhand: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
                 /**
                  * (May not exist) Unknown.
                  */
@@ -13086,7 +13222,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & Component_Inventory;
 
         /**
          * Additional fields for [area effect cloud](https://minecraft.wiki/w/area effect cloud).
@@ -13111,7 +13247,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * A list of the applied [effect](https://minecraft.wiki/w/effect)s.
                  */
-                mobEffects: { type: "list"; value: { type: unknown; value: any[] } };
+                mobEffects: { type: "list"; value: { type: "compound"; value: MobEffect["value"][] } };
                 /**
                  * The Unique ID of the entity who created the cloud. If it has no owner, defaults to -1.
                  */
@@ -13188,7 +13324,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [armor stand](https://minecraft.wiki/w/armor stand).
@@ -13240,7 +13376,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * Effects on a tipped arrow.
                  */
-                mobEffects: { type: "list"; value: { type: "compound"; value: {} & MobEffect[] } };
+                mobEffects: { type: "list"; value: { type: "compound"; value: MobEffect["value"][] } };
                 /**
                  * The level of [Power](https://minecraft.wiki/w/Power) enchantment on the bow that shot this arrow, where 1 is level 1. 0 if no Power enchantment.
                  */
@@ -13250,7 +13386,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 enchantPunch: { type: "byte"; value: number };
             };
-        };
+        } & Component_Projectile;
 
         /**
          * Additional fields for [axolotl](https://minecraft.wiki/w/axolotl).
@@ -13269,7 +13405,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 TicksRemainingUntilDryOut: { type: "int"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [bat](https://minecraft.wiki/w/bat).
@@ -13307,7 +13443,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [boat with chest](https://minecraft.wiki/w/boat with chest).
@@ -13378,7 +13514,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [cow](https://minecraft.wiki/w/cow).
@@ -13415,7 +13551,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 TicksRemainingUntilDryOut: { type: "int"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [donkey](https://minecraft.wiki/w/donkey).
@@ -13430,7 +13566,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Temper: { type: "int"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [egg](https://minecraft.wiki/w/egg).
@@ -13460,7 +13596,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 BlockTargetZ?: { type: "int"; value: number };
             };
-        };
+        } & Component_Explode;
 
         /**
          * Additional fields for [enderman](https://minecraft.wiki/w/enderman).
@@ -13562,7 +13698,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 power: { type: "list"; value: { type: "float"; value: [number, number, number] } };
             };
-        };
+        } & Component_Explode;
 
         /**
          * Additional fields for [firework rocket](https://minecraft.wiki/w/firework).
@@ -13605,7 +13741,7 @@ however when the corresponding block in the block layer is broken, this block ge
             } & {
                 [key: `TrustedPlayer${bigint}`]: { type: "long"; value: [high: number, low: number] };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [frog](https://minecraft.wiki/w/frog).
@@ -13627,7 +13763,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 GoatHornCount: { type: "int"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [guardian](https://minecraft.wiki/w/guardian) and [elder guardian](https://minecraft.wiki/w/elder guardian).
@@ -13642,7 +13778,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Elder: { type: "byte"; value: number };
             };
-        };
+        } & Component_Home;
 
         /**
          * Additional fields for [hoglin](https://minecraft.wiki/w/hoglin).
@@ -13664,7 +13800,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Temper: { type: "int"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [husk](https://minecraft.wiki/w/husk).
@@ -13720,7 +13856,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Temper: { type: "int"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [llama spit](https://minecraft.wiki/w/Llama_Spit).
@@ -13789,7 +13925,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Temper: { type: "int"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [NPC](https://minecraft.wiki/w/NPC).
@@ -14084,7 +14220,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 WardenThreatLevelIncreaseCooldown: { type: "int"; value: number };
             };
-        };
+        } & Abilities;
 
         /**
          * Additional fields for [polar bear](https://minecraft.wiki/w/polar bear).
@@ -14117,7 +14253,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 MoreCarrotTicks: { type: "int"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [ravager](https://minecraft.wiki/w/ravager).
@@ -14153,7 +14289,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ItemInHand: { type: "compound"; value: {} } & Item_ItemStack;
             };
-        };
+        } & Component_Timer;
 
         /**
          * Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton horse).
@@ -14225,7 +14361,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 PotionId: { type: "short"; value: number };
             };
-        };
+        } & Component_Projectile;
 
         /**
          * Additional fields for thrown [trident](https://minecraft.wiki/w/trident).
@@ -14244,7 +14380,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Trident: { type: "compound"; value: {} } & Item_ItemStack;
             };
-        };
+        } & Component_Projectile;
 
         /**
          * Additional fields for [tnt](https://minecraft.wiki/w/tnt).
@@ -14266,7 +14402,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 IsPregnant: { type: "byte"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [vex](https://minecraft.wiki/w/vex).
@@ -14304,7 +14440,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ReactToBell: { type: "byte"; value: number };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [vindicator](https://minecraft.wiki/w/vindicator).
@@ -14338,7 +14474,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & Component_Economy_trade_table;
 
         /**
          * Additional fields for [warden](https://minecraft.wiki/w/warden).
@@ -14535,7 +14671,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & Component_Ageable;
 
         /**
          * Additional fields for [zombie](https://minecraft.wiki/w/zombie).
@@ -14934,7 +15070,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * List of books in the bookshelf.
                  */
-                Items: { type: "list"; value: { type: "compound"; value: {} & Item_ItemStack[] } };
+                Items: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
                 /**
                  * Last interacted slot (1-6), or 0 if no slot has been interacted with yet.
                  */
@@ -14979,7 +15115,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 powered: { type: "byte"; value: number };
             };
-        };
+        } & CommandBlock;
 
         /**
          * Additional fields for [comparator](https://minecraft.wiki/w/comparator).
@@ -15579,7 +15715,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 facing: { type: "float"; value: number };
             };
-        };
+        } & Block_Chests;
 
         /**
          * Additional fields for [sign](https://minecraft.wiki/w/sign) and hanging sign.
@@ -15993,7 +16129,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         /**
                          * List of item stacks that have been rolled by the loot table and are waiting to be ejected.
                          */
-                        items_to_eject: { type: "list"; value: { type: "compound"; value: {} & Item_ItemStack[] } };
+                        items_to_eject: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
                         /**
                          * A set of player UUIDs that have already received their rewards from this vault.
                          */
@@ -16157,7 +16293,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         GroupName?: { type: "string"; value: string };
                     };
-                };
+                } & ActorPrefix;
             };
         } & Item_ItemStack;
 
@@ -16238,7 +16374,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 /**
                                  * List of compounds representing each explosion this firework causes.
                                  */
-                                Explosions: { type: "list"; value: { type: "compound"; value: {} & FireworkExplosion[] } };
+                                Explosions: { type: "list"; value: { type: "compound"; value: FireworkExplosion["value"][] } };
                                 /**
                                  * Indicates the flight duration of the firework (equals the amount of gunpowder used in crafting the rocket). Can be anything from -128 to 127.
                                  */
@@ -17099,6 +17235,47 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The SubChunkPrefix schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefix}
+         */
+        export type SubChunkPrefix = {
+            type: "compound";
+            value: {
+                /**
+                 * @enum 8 | 9
+                 */
+                version: { type: "byte"; value: 8 | 9 };
+                layerCount: { type: "byte"; value: number };
+                layers: { type: "list"; value: { type: "compound"; value: SubChunkPrefixLayer["value"][] } };
+                subChunkIndex?: { type: "byte"; value: number };
+            };
+        };
+
+        /**
+         * The SubChunkPrefixLayer schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefixLayer}
+         */
+        export type SubChunkPrefixLayer = {
+            type: "compound";
+            value: {
+                storageVersion: { type: "byte"; value: number };
+                palette: {
+                    type: "compound";
+                    value: {
+                        [key: string]: Block;
+                    };
+                };
+                block_indices: { type: "list"; value: { type: "int"; value: number[] } };
+            };
+        };
+
+        /**
          * The PlayerClient schema.
          *
          * The players data.
@@ -17113,6 +17290,194 @@ however when the corresponding block in the block layer is broken, this block ge
                 ServerId?: { type: "string"; value: string };
             };
         };
+
+        /**
+         * Additional fields for [player](https://minecraft.wiki/w/player).
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Player}
+         */
+        export type Player = {
+            type: "compound";
+            value: {
+                /**
+                 * The Unique ID of the player's agent.
+                 */
+                AgentID: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * The ID of the dimension the player is in.
+                 */
+                DimensionId: { type: "int"; value: number };
+                /**
+                 * The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment table)s.
+                 */
+                EnchantmentSeed: { type: "int"; value: number };
+                /**
+                 * Each compound tag in this list is an item in the player's 27-slot ender chest inventory.
+                 */
+                EnderChestInventory: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * The slot the item is in.
+                             */
+                            Slot: { type: "byte"; value: number };
+                        }[];
+                    };
+                };
+                /**
+                 * Unknown.
+                 */
+                fogCommandStack: { type: "list"; value: { type: "string"; value: string[] } };
+                /**
+                 * The format version of this NBT.
+                 */
+                format_version: { type: "string"; value: string };
+                /**
+                 * 1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End portal).
+                 */
+                HasSeenCredits: { type: "byte"; value: number };
+                /**
+                 * Each compound tag in this list is an item in the player's inventory.
+                 */
+                Inventory: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * The slot the item is in.
+                             */
+                            Slot: { type: "byte"; value: number };
+                        }[];
+                    };
+                };
+                /**
+                 * The Unique ID of the entity that is on the player's left shoulder.
+                 */
+                LeftShoulderRiderID: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * Unknown.
+                 */
+                MapIndex: { type: "int"; value: number };
+                /**
+                 * The game mode of the player.
+                 */
+                PlayerGameMode: { type: "int"; value: number };
+                /**
+                 * The level shown on the [XP](https://minecraft.wiki/w/XP) bar.
+                 */
+                PlayerLevel: { type: "int"; value: number };
+                /**
+                 * The progress/percent across the XP bar to the next level.
+                 */
+                PlayerLevelProgress: { type: "float"; value: number };
+                /**
+                 * Unknown
+                 */
+                PlayerUIItems: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * The slot the item is in.
+                             */
+                            Slot: { type: "byte"; value: number };
+                        }[];
+                    };
+                };
+                /**
+                 * Contains information about the recipes that the player has unlocked.
+                 */
+                recipe_unlocking: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * A list of all recipes the player has unlocked.
+                         */
+                        unlocked_recipes: { type: "list"; value: { type: "string"; value: string[] } };
+                        /**
+                         * Unknown. Defaults to 2.
+                         */
+                        used_contexts: { type: "int"; value: number };
+                    };
+                };
+                /**
+                 * The Unique ID of the entity that the player is riding.
+                 */
+                RideID: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * The Unique ID of the entity that is on the player's right shoulder.
+                 */
+                RightShoulderRiderID: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * The ID of the selected container.*needs testing*
+                 */
+                SelectedContainerId: { type: "int"; value: number };
+                /**
+                 * The selected inventory slot of the player.
+                 */
+                SelectedInventorySlot: { type: "int"; value: number };
+                /**
+                 * 1 or 0 (true/false) - true if the player is sleeping.
+                 */
+                Sleeping: { type: "byte"; value: number };
+                /**
+                 * The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0.*needs testing*
+                 */
+                SleepTimer: { type: "short"; value: number };
+                /**
+                 * 1 or 0 (true/false) - true if the player is sneaking.
+                 */
+                Sneaking: { type: "byte"; value: number };
+                /**
+                 * The X coordinate of the player's spawn block.
+                 */
+                SpawnBlockPositionX: { type: "int"; value: number };
+                /**
+                 * The Y coordinate of the player's spawn block.
+                 */
+                SpawnBlockPositionY: { type: "int"; value: number };
+                /**
+                 * The Z coordinate of the player's spawn block.
+                 */
+                SpawnBlockPositionZ: { type: "int"; value: number };
+                /**
+                 * The dimension of the player's spawn point.
+                 */
+                SpawnDimension: { type: "int"; value: number };
+                /**
+                 * The X coordinate of the player's spawn point.
+                 */
+                SpawnX: { type: "int"; value: number };
+                /**
+                 * The Y coordinate of the player's spawn point.
+                 */
+                SpawnY: { type: "int"; value: number };
+                /**
+                 * The Z coordinate of the player's spawn point.
+                 */
+                SpawnZ: { type: "int"; value: number };
+                /**
+                 * The time in ticks since last rest.
+                 */
+                TimeSinceRest: { type: "int"; value: number };
+                /**
+                 * The number of ticks since the player was threatened for warden spawning. Increases by 1 every tick. After 12000 ticks (10 minutes) it will be set back to 0, and the `WardenThreatLevel` will be decreased by 1.
+                 */
+                WardenThreatDecreaseTimer: { type: "int"; value: number };
+                /**
+                 * A threat level between 0 and 4 (inclusive). The warden will spawn at level 4.
+                 */
+                WardenThreatLevel: { type: "int"; value: number };
+                /**
+                 * The number of ticks before the `WardenThreatLevel` can be increased again. Decreases by 1 every tick. It is set 200 ticks (10 seconds) every time the threat level is increased.
+                 */
+                WardenThreatLevelIncreaseCooldown: { type: "int"; value: number };
+            };
+        } & Abilities;
 
         /**
          * The TickingArea schema.
@@ -17132,6 +17497,144 @@ however when the corresponding block in the block layer is broken, this block ge
                 MinZ?: { type: "int"; value: number };
                 Name?: { type: "string"; value: string };
                 Preload?: { type: "byte"; value: number };
+            };
+        };
+
+        /**
+         * The VillageDwellers schema.
+         *
+         * The village dwellers data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.VILLAGE_DWELLERS}
+         */
+        export type VILLAGE_DWELLERS = {
+            type: "compound";
+            value: {
+                Dwellers?: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            actors?: {
+                                type: "list";
+                                value: {
+                                    type: "compound";
+                                    value: {
+                                        ID?: { type: "long"; value: [high: number, low: number] };
+                                        last_saved_pos?: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                        TS?: { type: "long"; value: [high: number, low: number] };
+                                    }[];
+                                };
+                            };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The VillageInfo schema.
+         *
+         * The village info data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.VILLAGE_INFO}
+         */
+        export type VILLAGE_INFO = {
+            type: "compound";
+            value: {
+                BDTime?: { type: "long"; value: [high: number, low: number] };
+                GDTime?: { type: "long"; value: [high: number, low: number] };
+                Initialized?: { type: "byte"; value: number };
+                MTick?: { type: "long"; value: [high: number, low: number] };
+                PDTick?: { type: "long"; value: [high: number, low: number] };
+                RX0?: { type: "int"; value: number };
+                RX1?: { type: "int"; value: number };
+                RY0?: { type: "int"; value: number };
+                RY1?: { type: "int"; value: number };
+                RZ0?: { type: "int"; value: number };
+                RZ1?: { type: "int"; value: number };
+                Tick?: { type: "long"; value: [high: number, low: number] };
+                Version?: { type: "byte"; value: number };
+                X0?: { type: "int"; value: number };
+                X1?: { type: "int"; value: number };
+                Y0?: { type: "int"; value: number };
+                Y1?: { type: "int"; value: number };
+                Z0?: { type: "int"; value: number };
+                Z1?: { type: "int"; value: number };
+            };
+        };
+
+        /**
+         * The VillagePlayers schema.
+         *
+         * The village players data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.VILLAGE_PLAYERS}
+         */
+        export type VILLAGE_PLAYERS = {
+            type: "compound";
+            value: {
+                Players?: {
+                    type: "list";
+                    value: (
+                        | { type: "byte"; value: number[] }
+                        | { type: "short"; value: number[] }
+                        | { type: "int"; value: number[] }
+                        | { type: "long"; value: [high: number, low: number][] }
+                        | { type: "float"; value: number[] }
+                        | { type: "double"; value: number[] }
+                        | { type: "string"; value: number[] }
+                        | { type: "byteArray"; value: number[][] }
+                        | { type: "shortArray"; value: number[][] }
+                        | { type: "intArray"; value: number[][] }
+                        | { type: "longArray"; value: [high: number, low: number][][] }
+                        | { type: "compound"; value: Record<string, any> }
+                        | { type: "list"; value: any[] }
+                    )[];
+                };
+            };
+        };
+
+        /**
+         * The VillagePOI schema.
+         *
+         * The village POIs data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.VILLAGE_POI}
+         */
+        export type VILLAGE_POI = {
+            type: "compound";
+            value: {
+                POI?: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            instances?: {
+                                type: "list";
+                                value: {
+                                    type: "compound";
+                                    value: {
+                                        Capacity?: { type: "long"; value: [high: number, low: number] };
+                                        InitEvent?: { type: "string"; value: string };
+                                        Name?: { type: "string"; value: string };
+                                        OwnerCount?: { type: "long"; value: [high: number, low: number] };
+                                        Radius?: { type: "float"; value: number };
+                                        Skip?: { type: "byte"; value: number };
+                                        SoundEvent?: { type: "string"; value: string };
+                                        Type?: { type: "int"; value: number };
+                                        UseAABB?: { type: "byte"; value: number };
+                                        Weight?: { type: "long"; value: [high: number, low: number] };
+                                        X?: { type: "int"; value: number };
+                                        Y?: { type: "int"; value: number };
+                                        Z?: { type: "int"; value: number };
+                                    }[];
+                                };
+                            };
+                            VillagerID?: { type: "long"; value: [high: number, low: number] };
+                        }[];
+                    };
+                };
             };
         };
     }

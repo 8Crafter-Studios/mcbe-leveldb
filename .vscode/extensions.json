@@ -11,5 +11,12 @@
         "MarkosTh09.color-picker",
         "github.vscode-github-actions"
     ],
-    "unwantedRecommendations": ["golang.Go", "firefox-devtools.vscode-firefox-debug", "ms-dotnettools.csdevkit"]
+    "unwantedRecommendations": [
+        "golang.Go",
+        "firefox-devtools.vscode-firefox-debug",
+        "ms-dotnettools.csdevkit",
+        "christian-kohler.npm-intellisense",
+        "donjayamanne.githistory",
+        "GitHub.vscode-pull-request-github"
+    ]
 }
