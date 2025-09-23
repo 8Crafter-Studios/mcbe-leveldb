@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "index.ts",
     "scripts": {
-        "prepublish": "tsc -p ./tsconfig.production.json",
+        "prepublishOnly": "tsc -p ./tsconfig.production.json",
         "postpublish": "node --experimental-transform-types development_scripts/postPublishCleanup.ts",
         "generateNBTSchemaFromWikiData": "node --experimental-transform-types generation_scripts/generateNBTSchemaFromWikiData.ts",
         "schemasTest": "node --experimental-transform-types test/schemas.test.ts"
