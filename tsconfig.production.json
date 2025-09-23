@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        // "outDir": "./",
+        // "rootDir": "./",
+        "declaration": false,
+        // "declarationDir": "./",
+        "sourceMap": true,
+        "declarationMap": false,
+        "lib": ["ESNext"],
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "resolveJsonModule": true,
+        "verbatimModuleSyntax": true,
+        "rewriteRelativeImportExtensions": true,
+        "noCheck": true,
+        "noFallthroughCasesInSwitch": true,
+        "skipLibCheck": true
+    },
+    "include": ["index.ts"]
+}

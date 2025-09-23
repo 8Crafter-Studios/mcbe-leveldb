@@ -1,0 +1,12 @@
+results*
+testWorld*
+test*.bin
+test*.txt
+node_modules
+package-lock.json
+development_scripts/nbtSchema.json
+development_scripts/nbtSchemas.json
+test/nbtJSONSchemas.json
+test/nbtSchemaTypeScriptInterfaces.d.ts
+test/nbtSchemaTypeScriptTypes.d.ts
+*.js

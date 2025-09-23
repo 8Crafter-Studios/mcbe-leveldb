@@ -1,0 +1,60 @@
+{
+    "name": "mcbe-leveldb",
+    "version": "1.0.0",
+    "main": "index.ts",
+    "scripts": {
+        "prepublish": "tsc -p ./tsconfig.production.json",
+        "postpublish": "node --experimental-transform-types development_scripts/postPublishCleanup.ts",
+        "generateNBTSchemaFromWikiData": "node --experimental-transform-types generation_scripts/generateNBTSchemaFromWikiData.ts",
+        "schemasTest": "node --experimental-transform-types test/schemas.test.ts"
+    },
+    "keywords": [
+        "LevelDB",
+        "ldb",
+        "MCBE",
+        "MCPE",
+        "NodeJS",
+        "Minecraft Bedrock",
+        "Minecraft",
+        "Bedrock Edition",
+        "Pocket Edition"
+    ],
+    "author": {
+        "email": "8crafteryt@gmail.com",
+        "name": "8Crafter",
+        "url": "https://www.8crafter.com"
+    },
+    "license": "MIT",
+    "type": "module",
+    "description": "A utility module for easily working with Minecraft Bedrock Edition world data.",
+    "dependencies": {
+        "prismarine-nbt": "^2.7.0"
+    },
+    "devDependencies": {
+        "leveldb-zlib": "^1.2.0",
+        "@types/node": "^24.3.0"
+    },
+    "optionalDependencies": {
+        "leveldb-zlib": "^1.2.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/8Crafter-Studios/mcbe-leveldb.git"
+    },
+    "bugs": {
+        "url": "https://github.com/8Crafter-Studios/mcbe-leveldb/issues",
+        "email": "8crafteryt@gmail.com"
+    },
+    "homepage": "https://github.com/8Crafter-Studios/mcbe-leveldb",
+    "exports": {
+        ".": {
+            "types": "./index.ts",
+            "default": "./index.js"
+        },
+        "./ts": {
+            "types": "./index.ts",
+            "default": "./index.ts"
+        }
+    }
+}
+
