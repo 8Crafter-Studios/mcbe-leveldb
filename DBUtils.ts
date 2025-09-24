@@ -1,4 +1,4 @@
-import type { LevelDB } from "leveldb-zlib";
+import type { LevelDB } from "@8crafter/leveldb-zlib";
 import { getContentTypeFromDBKey, type DBEntryContentType } from "./LevelUtils.ts";
 import NBT from "prismarine-nbt";
 import { JSONB } from "./utils/JSONB.ts";
@@ -9,7 +9,7 @@ import { JSONB } from "./utils/JSONB.ts";
  * Gets the keys from the LevelDB with a specific content type.
  *
  * @template T The content type to look for.
- * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/leveldb-zlib | leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
+ * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/@8crafter/leveldb-zlib | @8crafter/leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
  * @param type The {@link DBEntryContentType | content type} to look for.
  * @returns The keys from the LevelDB with the specified content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
@@ -38,7 +38,7 @@ export function getKeysOfType<T extends DBEntryContentType>(dbOrDBKeys: LevelDB 
  * Gets the keys from the LevelDB with one of the specified content types.
  *
  * @template T The content types to look for.
- * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/leveldb-zlib | leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
+ * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/@8crafter/leveldb-zlib | @8crafter/leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
  * @param types The {@link DBEntryContentType | content types} to look for.
  * @returns An object mapping each of the specified content types to the keys from the LevelDB with that content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
@@ -85,7 +85,7 @@ export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntry
  * if you have your own add-on that you would like this to be able to read the player's names from, {@link https://www.8crafter.com/main/contact | contact 8Crafter},
  * or make a pull request.
  *
- * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/leveldb-zlib | leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
+ * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/@8crafter/leveldb-zlib | @8crafter/leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
  * @param uuid The UUID of the play to get the name of.
  * @returns The name of the player, or `null` if the player's name cannot be found or the world has no dynamic properties.
  *

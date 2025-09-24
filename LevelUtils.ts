@@ -1,7 +1,7 @@
 import { appendFileSync } from "node:fs";
 import NBT from "prismarine-nbt";
 import BiomeData from "./__biome_data__.ts";
-import type { LevelDB } from "leveldb-zlib";
+import type { LevelDB } from "@8crafter/leveldb-zlib";
 import type { NBTSchemas } from "./nbtSchemas.ts";
 
 //#region Local Constants

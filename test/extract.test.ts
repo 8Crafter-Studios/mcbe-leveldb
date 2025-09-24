@@ -1,4 +1,4 @@
-import { LevelDB } from "leveldb-zlib";
+import { LevelDB } from "@8crafter/leveldb-zlib";
 import { appendFileSync, cpSync, existsSync, mkdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import NBT from "prismarine-nbt";
 import { prettyPrintSNBT, prismarineToSNBT } from "../SNBTUtils.ts";
