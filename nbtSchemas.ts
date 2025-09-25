@@ -1,9 +1,21 @@
 import type { DBEntryContentType } from "./LevelUtils.ts";
 import * as NBT from "prismarine-nbt";
 import { toLongParts } from "./SNBTUtils.ts";
-import type { LooseAutocomplete, MergeObjectTypes } from "./types.js";
+import type { LooseAutocomplete } from "./types.js";
 
+/**
+ * Types, constants, and functions related to NBT schemas.
+ */
 export namespace NBTSchemas {
+    /**
+     * Used for the {@link nbtSchemas} constant to define NBT schema aliases.
+     *
+     * @param schemas The NBT schemas.
+     * @param mappings The alias mappings.
+     * @returns The schemas with the aliases added.
+     *
+     * @internal
+     */
     function defineNBTSchemasMapping<
         T extends Record<string, NBTSchema | NBTSchemaFragment>,
         M extends {
@@ -66,6 +78,9 @@ export namespace NBTSchemas {
             }),
         };
     }
+    /**
+     * The NBT schemas.
+     */
     export const nbtSchemas = defineNBTSchemasMapping(
         {
             //#region Top-Level Schemas
@@ -1762,6 +1777,7 @@ export namespace NBTSchemas {
                     world_policies: {
                         type: "compound",
                         properties: {},
+                        additionalProperties: true,
                         description: "UNDOCUMENTED.",
                     },
                     worldStartCount: {
@@ -3132,6 +3148,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Villagers: {
@@ -3146,6 +3163,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Monster: {
@@ -3159,6 +3177,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_HumanoidMonster: {
@@ -3172,6 +3191,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Item_ItemStack",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Mob: {
@@ -3359,6 +3379,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_AbstractArrow: {
@@ -3380,6 +3401,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Throwable: {
@@ -3401,6 +3423,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Allay: {
@@ -3469,6 +3492,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Inventory",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_AreaEffectCloud: {
@@ -3558,6 +3582,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "long",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Armadillo: {
@@ -3591,6 +3616,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ArmorStand: {
@@ -3615,6 +3641,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Arrow: {
@@ -3662,6 +3689,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Projectile",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Axolotl: {
@@ -3685,6 +3713,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Bat: {
@@ -3698,6 +3727,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Bee: {
@@ -3723,13 +3753,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_BoatWithChest: {
                 id: "Entity_BoatWithChest",
                 description: "Additional fields for [boat with chest](https://minecraft.wiki/w/boat with chest).",
                 type: "compound",
-                $ref: "Component_Inventory",
+                allOf: [{ $ref: "Component_Inventory" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Breeze: {
@@ -3750,20 +3782,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Camel: {
                 id: "Entity_Camel",
                 description: "Additional fields for [camel](https://minecraft.wiki/w/camel).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Cat: {
                 id: "Entity_Cat",
                 description: "Additional fields for [cat](https://minecraft.wiki/w/cat).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Chicken: {
@@ -3795,20 +3830,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Cow: {
                 id: "Entity_Cow",
                 description: "Additional fields for [cow](https://minecraft.wiki/w/cow).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Creeper: {
                 id: "Entity_Creeper",
                 description: "Additional fields for [creeper](https://minecraft.wiki/w/creeper).",
                 type: "compound",
-                $ref: "Component_Explode",
+                allOf: [{ $ref: "Component_Explode" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Dolphin: {
@@ -3836,6 +3874,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Donkey: {
@@ -3855,13 +3894,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Egg: {
                 id: "Entity_Egg",
                 description: "Additional fields for [egg](https://minecraft.wiki/w/egg).",
                 type: "compound",
-                $ref: "Component_Projectile",
+                allOf: [{ $ref: "Component_Projectile" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_EnderCrystal: {
@@ -3887,6 +3928,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Explode",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Enderman: {
@@ -3901,6 +3943,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Block",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Endermite: {
@@ -3914,13 +3957,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Evoker: {
                 id: "Entity_Evoker",
                 description: "Additional fields for [evoker](https://minecraft.wiki/w/evoker).",
                 type: "compound",
-                $ref: "Component_Dweller",
+                allOf: [{ $ref: "Component_Dweller" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ExperienceOrb: {
@@ -3938,13 +3983,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ExperiencePotion: {
                 id: "Entity_ExperiencePotion",
                 description: "Additional fields for [experience potion](https://minecraft.wiki/w/experience potion).",
                 type: "compound",
-                $ref: "Component_Projectile",
+                allOf: [{ $ref: "Component_Projectile" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_FallingBlock: {
@@ -3963,6 +4010,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Fireball: {
@@ -4017,6 +4065,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Explode",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_FireworksRocket: {
@@ -4035,13 +4084,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_FishingBobber: {
                 id: "Entity_FishingBobber",
                 description: "Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing bobber).",
                 type: "compound",
-                $ref: "Component_Projectile",
+                allOf: [{ $ref: "Component_Projectile" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Fox: {
@@ -4066,13 +4117,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Frog: {
                 id: "Entity_Frog",
                 description: "Additional fields for [frog](https://minecraft.wiki/w/frog).",
                 type: "compound",
-                $ref: "Component_Breedable",
+                allOf: [{ $ref: "Component_Breedable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Goat: {
@@ -4091,6 +4144,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_GuardianAndElderGuardian: {
@@ -4110,13 +4164,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Home",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Hoglin: {
                 id: "Entity_Hoglin",
                 description: "Additional fields for [hoglin](https://minecraft.wiki/w/hoglin).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Horse: {
@@ -4136,20 +4192,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Husk: {
                 id: "Entity_Husk",
                 description: "Additional fields for [husk](https://minecraft.wiki/w/husk).",
                 type: "compound",
-                $ref: "Component_Timer",
+                allOf: [{ $ref: "Component_Timer" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_IronGolem: {
                 id: "Entity_IronGolem",
                 description: "Additional fields for [iron golem](https://minecraft.wiki/w/iron golem).",
                 type: "compound",
-                $ref: "Component_Dweller",
+                allOf: [{ $ref: "Component_Dweller" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ItemEntity: {
@@ -4177,6 +4236,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "long",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Llama: {
@@ -4196,20 +4256,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_LlamaSpit: {
                 id: "Entity_LlamaSpit",
                 description: "Additional fields for [llama spit](https://minecraft.wiki/w/Llama_Spit).",
                 type: "compound",
-                $ref: "Component_Projectile",
+                allOf: [{ $ref: "Component_Projectile" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_MinecartWithChest: {
                 id: "Entity_MinecartWithChest",
                 description: "Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart with chest).",
                 type: "compound",
-                $ref: "Component_Inventory",
+                allOf: [{ $ref: "Component_Inventory" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_MinecartWithCommandBlock: {
@@ -4227,27 +4290,31 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_MinecartWithHopper: {
                 id: "Entity_MinecartWithHopper",
                 description: "Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart with hopper).",
                 type: "compound",
-                $ref: "Component_Inventory",
+                allOf: [{ $ref: "Component_Inventory" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_MinecartWithTNT: {
                 id: "Entity_MinecartWithTNT",
                 description: "Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart with tnt).",
                 type: "compound",
-                $ref: "Component_Explode",
+                allOf: [{ $ref: "Component_Explode" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Mooshroom: {
                 id: "Entity_Mooshroom",
                 description: "Additional fields for [mooshroom](https://minecraft.wiki/w/mooshroom).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Mule: {
@@ -4267,6 +4334,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_NPC: {
@@ -4306,13 +4374,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "string",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Ocelot: {
                 id: "Entity_Ocelot",
                 description: "Additional fields for [ocelot](https://minecraft.wiki/w/ocelot).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Painting: {
@@ -4334,41 +4404,47 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "string",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Panda: {
                 id: "Entity_Panda",
                 description: "Additional fields for [panda](https://minecraft.wiki/w/panda).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Pig: {
                 id: "Entity_Pig",
                 description: "Additional fields for [pig](https://minecraft.wiki/w/pig).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Piglin: {
                 id: "Entity_Piglin",
                 description: "Additional fields for [piglin](https://minecraft.wiki/w/piglin).",
                 type: "compound",
-                $ref: "Component_Inventory",
+                allOf: [{ $ref: "Component_Inventory" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_PiglinBrute: {
                 id: "Entity_PiglinBrute",
                 description: "Additional fields for [piglin brute](https://minecraft.wiki/w/piglin brute).",
                 type: "compound",
-                $ref: "Component_Home",
+                allOf: [{ $ref: "Component_Home" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Pillager: {
                 id: "Entity_Pillager",
                 description: "Additional fields for [pillager](https://minecraft.wiki/w/pillager).",
                 type: "compound",
-                $ref: "Component_Dweller",
+                allOf: [{ $ref: "Component_Dweller" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Player: {
@@ -4605,20 +4681,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Abilities",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_PolarBear: {
                 id: "Entity_PolarBear",
                 description: "Additional fields for [polar bear](https://minecraft.wiki/w/polar bear).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Pufferfish: {
                 id: "Entity_Pufferfish",
                 description: "Additional fields for [pufferfish](https://minecraft.wiki/w/pufferfish).",
                 type: "compound",
-                $ref: "Component_Timer",
+                allOf: [{ $ref: "Component_Timer" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Rabbit: {
@@ -4641,27 +4720,31 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Ravager: {
                 id: "Entity_Ravager",
                 description: "Additional fields for [ravager](https://minecraft.wiki/w/ravager).",
                 type: "compound",
-                $ref: "Component_Dweller",
+                allOf: [{ $ref: "Component_Dweller" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Sheep: {
                 id: "Entity_Sheep",
                 description: "Additional fields for [sheep](https://minecraft.wiki/w/sheep).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ShulkerBullet: {
                 id: "Entity_ShulkerBullet",
                 description: "Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker bullet).",
                 type: "compound",
-                $ref: "Component_Projectile",
+                allOf: [{ $ref: "Component_Projectile" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Skeleton: {
@@ -4681,13 +4764,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Timer",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_SkeletonHorse: {
                 id: "Entity_SkeletonHorse",
                 description: "Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton horse).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Slime: {
@@ -4701,41 +4786,47 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Sniffer: {
                 id: "Entity_Sniffer",
                 description: "Additional fields for [sniffer](https://minecraft.wiki/w/sniffer).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Snowball: {
                 id: "Entity_Snowball",
                 description: "Additional fields for [snowball](https://minecraft.wiki/w/snowball).",
                 type: "compound",
-                $ref: "Component_Projectile",
+                allOf: [{ $ref: "Component_Projectile" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Strider: {
                 id: "Entity_Strider",
                 description: "Additional fields for [strider](https://minecraft.wiki/w/strider).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Tadpole: {
                 id: "Entity_Tadpole",
                 description: "Additional fields for [tadpole](https://minecraft.wiki/w/tadpole).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ThrownEnderPearl: {
                 id: "Entity_ThrownEnderPearl",
                 description: "Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender pearl).",
                 type: "compound",
-                $ref: "Component_Projectile",
+                allOf: [{ $ref: "Component_Projectile" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ThrownPotion: {
@@ -4754,6 +4845,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Projectile",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ThrownTrident: {
@@ -4778,13 +4870,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Projectile",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_TNT: {
                 id: "Entity_TNT",
                 description: "Additional fields for [tnt](https://minecraft.wiki/w/tnt).",
                 type: "compound",
-                $ref: "Component_Explode",
+                allOf: [{ $ref: "Component_Explode" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Turtle: {
@@ -4803,6 +4897,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Vex: {
@@ -4817,6 +4912,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Item_ItemStack",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Villager_V2: {
@@ -4843,13 +4939,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Vindicator: {
                 id: "Entity_Vindicator",
                 description: "Additional fields for [vindicator](https://minecraft.wiki/w/vindicator).",
                 type: "compound",
-                $ref: "Component_Dweller",
+                allOf: [{ $ref: "Component_Dweller" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_WanderingTrader: {
@@ -4881,6 +4979,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Economy_trade_table",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Warden: {
@@ -4963,20 +5062,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_WindChargeProjectile: {
                 id: "Entity_WindChargeProjectile",
                 description: "Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind charge projectile).",
                 type: "compound",
-                $ref: "Component_Projectile",
+                allOf: [{ $ref: "Component_Projectile" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Witch: {
                 id: "Entity_Witch",
                 description: "Additional fields for [witch](https://minecraft.wiki/w/witch).",
                 type: "compound",
-                $ref: "Component_Dweller",
+                allOf: [{ $ref: "Component_Dweller" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Wither: {
@@ -5051,13 +5153,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "float",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_WitherSkull: {
                 id: "Entity_WitherSkull",
                 description: "Additional fields for [wither skull](https://minecraft.wiki/w/Wither).",
                 type: "compound",
-                $ref: "Component_Explode",
+                allOf: [{ $ref: "Component_Explode" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Wolf: {
@@ -5091,20 +5195,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_Zombie: {
                 id: "Entity_Zombie",
                 description: "Additional fields for [zombie](https://minecraft.wiki/w/zombie).",
                 type: "compound",
-                $ref: "Component_Timer",
+                allOf: [{ $ref: "Component_Timer" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ZombieHorse: {
                 id: "Entity_ZombieHorse",
                 description: "Additional fields for [zombie horse](https://minecraft.wiki/w/zombie horse).",
                 type: "compound",
-                $ref: "Component_Ageable",
+                allOf: [{ $ref: "Component_Ageable" }],
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ZombieVillager: {
@@ -5118,6 +5225,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             Entity_ZombifiedPiglin: {
@@ -5131,6 +5239,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "short",
                     },
                 },
+                $ref: "ActorPrefix",
                 $fragment: false,
             },
             //#endregion
@@ -7902,6 +8011,9 @@ however when the corresponding block in the block layer is broken, this block ge
         }
     );
 
+    /**
+     * The JSON schema for Prismarine-NBT JSON.
+     */
     export const GenericPrismarineJSONNBTSchema: JSONSchema = {
         $schema: "https://json-schema.org/draft/2020-12/schema",
         $id: "https://example.com/compound.schema.json",
@@ -8103,8 +8215,17 @@ however when the corresponding block in the block layer is broken, this block ge
      * This type should NOT be used for top-level schemas or schema fragments, use {@link NBTSchema} or {@link NBTSchemaFragment} instead.
      */
     export interface NBTSubSchema {
+        /**
+         * The ID of this schema.
+         */
         id?: string;
+        /**
+         * The ID of this schema.
+         */
         $id?: string;
+        /**
+         * The schema that this schema is based on.
+         */
         $schema?: string;
         /**
          * If this is a schema fragment.
@@ -8114,13 +8235,16 @@ however when the corresponding block in the block layer is broken, this block ge
          * @default false
          */
         $fragment?: boolean;
+        /**
+         * The type of NBT tag this schema describes.
+         */
         type?: `${NBT.TagType}` | `${NBT.TagType}`[];
         /**
-         * @todo
+         * The title of this schema.
          */
         title?: string;
         /**
-         * @todo
+         * The default value for this schema.
          */
         default?: any;
         /**
@@ -8130,15 +8254,15 @@ however when the corresponding block in the block layer is broken, this block ge
             [name: string]: NBTSchema;
         };
         /**
-         * @todo
+         * The description of this schema.
          */
         description?: string;
         /**
-         * @todo
+         * The properties of this compound schema.
          */
         properties?: NBTSchemaMap;
         /**
-         * @todo
+         * A map of RegExp patterns to the NBT schemas for the properties that match.
          */
         patternProperties?: NBTSchemaMap;
         /**
@@ -8146,7 +8270,7 @@ however when the corresponding block in the block layer is broken, this block ge
          */
         patternPropertiesTS?: NBTSchemaMap;
         /**
-         * @todo
+         * Whether additional properties are allowed, or a schema to use for them.
          */
         additionalProperties?: boolean | NBTSubSchemaRef;
         /**
@@ -8222,7 +8346,7 @@ however when the corresponding block in the block layer is broken, this block ge
          */
         required?: string[];
         /**
-         * @todo
+         * The ID of another schema to reference.
          */
         $ref?: string;
         /**
@@ -8242,7 +8366,7 @@ however when the corresponding block in the block layer is broken, this block ge
          */
         not?: NBTSubSchemaRef;
         /**
-         * @todo
+         * The values of this enum.
          */
         enum?: NBT.Tags[NBT.TagType][];
         /**
@@ -8285,10 +8409,25 @@ however when the corresponding block in the block layer is broken, this block ge
          * @todo
          */
         defaultSnippets?: {
+            /**
+             * The label of this snippet.
+             */
             label?: string;
+            /**
+             * The description of this snippet.
+             */
             description?: string;
+            /**
+             * The markdown description of this snippet.
+             */
             markdownDescription?: string;
+            /**
+             * The body of this snippet.
+             */
             body?: any;
+            /**
+             * The body text of this snippet.
+             */
             bodyText?: string;
         }[];
         /**
@@ -8304,7 +8443,7 @@ however when the corresponding block in the block layer is broken, this block ge
          */
         deprecationMessage?: string;
         /**
-         * @todo
+         * Descriptions for each enum value, in the same order as {@link NBTSubSchema.enum}.
          */
         enumDescriptions?: string[];
         /**
@@ -8357,12 +8496,28 @@ however when the corresponding block in the block layer is broken, this block ge
              * Utilities for converting NBT schemas to JSON schemas.
              */
             export namespace ToJSONSchema {
+                /**
+                 * Options for converting NBT schemas to JSON schemas.
+                 *
+                 * @see {@link nbtSchemaToJsonSchema}
+                 * @see {@link convertAllSchemas}
+                 */
                 export interface ConvertOptions {
-                    inlineRefs?: boolean; // default: true (backwards-compatible)
+                    /**
+                     * If `$ref`s should be inlined.
+                     *
+                     * @default true
+                     */
+                    inlineRefs?: boolean;
                 }
 
                 /**
                  * Convert a custom NBT schema into JSON Schema for NBT tags.
+                 *
+                 * @param schema The NBT schema to convert.
+                 * @param allSchemas The NBT schemas to use for resolving `$ref`s. Defaults to {@link nbtSchemas}.
+                 * @param options Options for the conversion.
+                 * @returns The resulting JSON Schema.
                  */
                 export function nbtSchemaToJsonSchema(
                     schema: Partial<(Omit<NBTSchema, keyof NBTSubSchema> & NBTSubSchema) | boolean>,
@@ -8601,6 +8756,10 @@ however when the corresponding block in the block layer is broken, this block ge
 
                 /**
                  * Convert the whole nbtSchemas object.
+                 *
+                 * @param schemas The NBT schemas to convert.
+                 * @param options The conversion options.
+                 * @returns The converted NBT schemas.
                  */
                 export function convertAllSchemas(
                     schemas: Record<string, NBTSchema | NBTSchemaFragment>,
@@ -8617,7 +8776,13 @@ however when the corresponding block in the block layer is broken, this block ge
              * Utilities for converting NBT schemas to TypeScript types.
              */
             export namespace ToTypeScriptType {
+                /**
+                 * The type of the generated NBT schema type.
+                 */
                 export type GeneratedNBTSchemaTypeScriptType = NBT.Compound;
+                /**
+                 * The type of the generated NBT schema fragment type.
+                 */
                 export type GeneratedNBTSchemaTypeScriptTypeFragment = GeneratedNBTSchemaTypeScriptType["value"];
                 /**
                  * Options for converting NBT schemas to TypeScript interfaces.
@@ -10228,6 +10393,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 }
             }
         }
+        /**
+         * Miscellaneous utilities for working with NBT schemas.
+         */
         export namespace Misc {
             /**
              * Fixes the order of properties in an NBT schema, schema fragment, or sub-schema.
@@ -11829,7 +11997,12 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * UNDOCUMENTED.
                  */
-                world_policies?: { type: "compound"; value: {} };
+                world_policies?: {
+                    type: "compound";
+                    value: {
+                        [key: string]: { type: any; value: any };
+                    };
+                };
                 /**
                  * Counts how many times the game has been closed since the world was created, with its value decreasing by 1 each time.
                  */
@@ -12938,7 +13111,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 DisplayOffset?: { type: "int"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Villager entities include.
@@ -12953,7 +13126,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Willing: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Monster entities include.
@@ -12968,7 +13141,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 SpawnedByNight: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Humanoid monster entities include.
@@ -12983,7 +13156,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ItemInHand?: { type: "compound"; value: {} } & Item_ItemStack;
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Mob entities include.
@@ -13109,7 +13282,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 WantsToBeJockey?: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Abstract arrow entities include.
@@ -13132,7 +13305,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 player: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Throwable entities include.
@@ -13155,7 +13328,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 shake: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [allay](https://minecraft.wiki/w/allay).
@@ -13222,7 +13395,8 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        } & Component_Inventory;
+        } & ActorPrefix &
+            Component_Inventory;
 
         /**
          * Additional fields for [area effect cloud](https://minecraft.wiki/w/area effect cloud).
@@ -13293,7 +13467,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 SpawnTick: { type: "long"; value: [high: number, low: number] };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [armadillo](https://minecraft.wiki/w/armadillo).
@@ -13324,7 +13498,8 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [armor stand](https://minecraft.wiki/w/armor stand).
@@ -13351,7 +13526,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [arrow](https://minecraft.wiki/w/arrow).
@@ -13386,7 +13561,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 enchantPunch: { type: "byte"; value: number };
             };
-        } & Component_Projectile;
+        } & ActorPrefix &
+            Component_Projectile;
 
         /**
          * Additional fields for [axolotl](https://minecraft.wiki/w/axolotl).
@@ -13405,7 +13581,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 TicksRemainingUntilDryOut: { type: "int"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [bat](https://minecraft.wiki/w/bat).
@@ -13420,7 +13597,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 BatFlags: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [bee](https://minecraft.wiki/w/bee).
@@ -13443,14 +13620,15 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [boat with chest](https://minecraft.wiki/w/boat with chest).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_BoatWithChest}
          */
-        export type Entity_BoatWithChest = { type: "compound"; value: {} } & Component_Inventory;
+        export type Entity_BoatWithChest = { type: "compound"; value: {} } & ActorPrefix & Component_Inventory;
 
         /**
          * Additional fields for [breeze](https://minecraft.wiki/w/breeze).
@@ -13473,21 +13651,21 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [camel](https://minecraft.wiki/w/camel).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Camel}
          */
-        export type Entity_Camel = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Camel = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [cat](https://minecraft.wiki/w/cat).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Cat}
          */
-        export type Entity_Cat = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Cat = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [chicken](https://minecraft.wiki/w/chicken).
@@ -13514,21 +13692,22 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [cow](https://minecraft.wiki/w/cow).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Cow}
          */
-        export type Entity_Cow = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Cow = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [creeper](https://minecraft.wiki/w/creeper).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Creeper}
          */
-        export type Entity_Creeper = { type: "compound"; value: {} } & Component_Explode;
+        export type Entity_Creeper = { type: "compound"; value: {} } & ActorPrefix & Component_Explode;
 
         /**
          * Additional fields for [dolphin](https://minecraft.wiki/w/dolphin).
@@ -13551,7 +13730,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 TicksRemainingUntilDryOut: { type: "int"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [donkey](https://minecraft.wiki/w/donkey).
@@ -13566,14 +13746,15 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Temper: { type: "int"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [egg](https://minecraft.wiki/w/egg).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Egg}
          */
-        export type Entity_Egg = { type: "compound"; value: {} } & Component_Projectile;
+        export type Entity_Egg = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [ender crystal](https://minecraft.wiki/w/ender crystal).
@@ -13596,7 +13777,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 BlockTargetZ?: { type: "int"; value: number };
             };
-        } & Component_Explode;
+        } & ActorPrefix &
+            Component_Explode;
 
         /**
          * Additional fields for [enderman](https://minecraft.wiki/w/enderman).
@@ -13611,7 +13793,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 carriedBlock: { type: "compound"; value: {} } & Block;
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [endermite](https://minecraft.wiki/w/endermite).
@@ -13626,14 +13808,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Lifetime: { type: "int"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [evoker](https://minecraft.wiki/w/evoker).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Evoker}
          */
-        export type Entity_Evoker = { type: "compound"; value: {} } & Component_Dweller;
+        export type Entity_Evoker = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [experience orb](https://minecraft.wiki/w/experience orb).
@@ -13652,14 +13834,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 "experience value": { type: "int"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [experience potion](https://minecraft.wiki/w/experience potion).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ExperiencePotion}
          */
-        export type Entity_ExperiencePotion = { type: "compound"; value: {} } & Component_Projectile;
+        export type Entity_ExperiencePotion = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [falling block](https://minecraft.wiki/w/falling block).
@@ -13675,7 +13857,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Time: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [fireball](https://minecraft.wiki/w/fireball).
@@ -13698,7 +13880,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 power: { type: "list"; value: { type: "float"; value: [number, number, number] } };
             };
-        } & Component_Explode;
+        } & ActorPrefix &
+            Component_Explode;
 
         /**
          * Additional fields for [firework rocket](https://minecraft.wiki/w/firework).
@@ -13717,14 +13900,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LifeTime: { type: "int"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing bobber).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_FishingBobber}
          */
-        export type Entity_FishingBobber = { type: "compound"; value: {} } & Component_Projectile;
+        export type Entity_FishingBobber = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [fox](https://minecraft.wiki/w/fox).
@@ -13741,14 +13924,15 @@ however when the corresponding block in the block layer is broken, this block ge
             } & {
                 [key: `TrustedPlayer${bigint}`]: { type: "long"; value: [high: number, low: number] };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [frog](https://minecraft.wiki/w/frog).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Frog}
          */
-        export type Entity_Frog = { type: "compound"; value: {} } & Component_Breedable;
+        export type Entity_Frog = { type: "compound"; value: {} } & ActorPrefix & Component_Breedable;
 
         /**
          * Additional fields for [goat](https://minecraft.wiki/w/goat).
@@ -13763,7 +13947,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 GoatHornCount: { type: "int"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [guardian](https://minecraft.wiki/w/guardian) and [elder guardian](https://minecraft.wiki/w/elder guardian).
@@ -13778,14 +13963,15 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Elder: { type: "byte"; value: number };
             };
-        } & Component_Home;
+        } & ActorPrefix &
+            Component_Home;
 
         /**
          * Additional fields for [hoglin](https://minecraft.wiki/w/hoglin).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Hoglin}
          */
-        export type Entity_Hoglin = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Hoglin = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [horse](https://minecraft.wiki/w/horse).
@@ -13800,21 +13986,22 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Temper: { type: "int"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [husk](https://minecraft.wiki/w/husk).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Husk}
          */
-        export type Entity_Husk = { type: "compound"; value: {} } & Component_Timer;
+        export type Entity_Husk = { type: "compound"; value: {} } & ActorPrefix & Component_Timer;
 
         /**
          * Additional fields for [iron golem](https://minecraft.wiki/w/iron golem).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_IronGolem}
          */
-        export type Entity_IronGolem = { type: "compound"; value: {} } & Component_Dweller;
+        export type Entity_IronGolem = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [item entity](https://minecraft.wiki/w/Item (entity)).
@@ -13841,7 +14028,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 OwnerID: { type: "long"; value: [high: number, low: number] };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [llama](https://minecraft.wiki/w/llama).
@@ -13856,21 +14043,22 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Temper: { type: "int"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [llama spit](https://minecraft.wiki/w/Llama_Spit).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_LlamaSpit}
          */
-        export type Entity_LlamaSpit = { type: "compound"; value: {} } & Component_Projectile;
+        export type Entity_LlamaSpit = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart with chest).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithChest}
          */
-        export type Entity_MinecartWithChest = { type: "compound"; value: {} } & Component_Inventory;
+        export type Entity_MinecartWithChest = { type: "compound"; value: {} } & ActorPrefix & Component_Inventory;
 
         /**
          * Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart with command block).
@@ -13889,28 +14077,28 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Ticking: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart with hopper).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithHopper}
          */
-        export type Entity_MinecartWithHopper = { type: "compound"; value: {} } & Component_Inventory;
+        export type Entity_MinecartWithHopper = { type: "compound"; value: {} } & ActorPrefix & Component_Inventory;
 
         /**
          * Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart with tnt).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithTNT}
          */
-        export type Entity_MinecartWithTNT = { type: "compound"; value: {} } & Component_Explode;
+        export type Entity_MinecartWithTNT = { type: "compound"; value: {} } & ActorPrefix & Component_Explode;
 
         /**
          * Additional fields for [mooshroom](https://minecraft.wiki/w/mooshroom).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Mooshroom}
          */
-        export type Entity_Mooshroom = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Mooshroom = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [mule](https://minecraft.wiki/w/mule).
@@ -13925,7 +14113,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Temper: { type: "int"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [NPC](https://minecraft.wiki/w/NPC).
@@ -13967,14 +14156,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 RawtextName?: { type: "string"; value: string };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [ocelot](https://minecraft.wiki/w/ocelot).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Ocelot}
          */
-        export type Entity_Ocelot = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Ocelot = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [painting](https://minecraft.wiki/w/painting).
@@ -13997,42 +14186,42 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Motif?: { type: "string"; value: string };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [panda](https://minecraft.wiki/w/panda).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Panda}
          */
-        export type Entity_Panda = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Panda = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [pig](https://minecraft.wiki/w/pig).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pig}
          */
-        export type Entity_Pig = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Pig = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [piglin](https://minecraft.wiki/w/piglin).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Piglin}
          */
-        export type Entity_Piglin = { type: "compound"; value: {} } & Component_Inventory;
+        export type Entity_Piglin = { type: "compound"; value: {} } & ActorPrefix & Component_Inventory;
 
         /**
          * Additional fields for [piglin brute](https://minecraft.wiki/w/piglin brute).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_PiglinBrute}
          */
-        export type Entity_PiglinBrute = { type: "compound"; value: {} } & Component_Home;
+        export type Entity_PiglinBrute = { type: "compound"; value: {} } & ActorPrefix & Component_Home;
 
         /**
          * Additional fields for [pillager](https://minecraft.wiki/w/pillager).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pillager}
          */
-        export type Entity_Pillager = { type: "compound"; value: {} } & Component_Dweller;
+        export type Entity_Pillager = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [player](https://minecraft.wiki/w/player).
@@ -14220,21 +14409,22 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 WardenThreatLevelIncreaseCooldown: { type: "int"; value: number };
             };
-        } & Abilities;
+        } & ActorPrefix &
+            Abilities;
 
         /**
          * Additional fields for [polar bear](https://minecraft.wiki/w/polar bear).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_PolarBear}
          */
-        export type Entity_PolarBear = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_PolarBear = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [pufferfish](https://minecraft.wiki/w/pufferfish).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pufferfish}
          */
-        export type Entity_Pufferfish = { type: "compound"; value: {} } & Component_Timer;
+        export type Entity_Pufferfish = { type: "compound"; value: {} } & ActorPrefix & Component_Timer;
 
         /**
          * Additional fields for [rabbit](https://minecraft.wiki/w/rabbit).
@@ -14253,28 +14443,29 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 MoreCarrotTicks: { type: "int"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [ravager](https://minecraft.wiki/w/ravager).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Ravager}
          */
-        export type Entity_Ravager = { type: "compound"; value: {} } & Component_Dweller;
+        export type Entity_Ravager = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [sheep](https://minecraft.wiki/w/sheep).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Sheep}
          */
-        export type Entity_Sheep = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Sheep = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker bullet).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ShulkerBullet}
          */
-        export type Entity_ShulkerBullet = { type: "compound"; value: {} } & Component_Projectile;
+        export type Entity_ShulkerBullet = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [skeleton](https://minecraft.wiki/w/skeleton).
@@ -14289,14 +14480,15 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ItemInHand: { type: "compound"; value: {} } & Item_ItemStack;
             };
-        } & Component_Timer;
+        } & ActorPrefix &
+            Component_Timer;
 
         /**
          * Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton horse).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_SkeletonHorse}
          */
-        export type Entity_SkeletonHorse = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_SkeletonHorse = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [slime](https://minecraft.wiki/w/slime).
@@ -14311,42 +14503,42 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Size: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [sniffer](https://minecraft.wiki/w/sniffer).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Sniffer}
          */
-        export type Entity_Sniffer = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Sniffer = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [snowball](https://minecraft.wiki/w/snowball).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Snowball}
          */
-        export type Entity_Snowball = { type: "compound"; value: {} } & Component_Projectile;
+        export type Entity_Snowball = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [strider](https://minecraft.wiki/w/strider).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Strider}
          */
-        export type Entity_Strider = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Strider = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [tadpole](https://minecraft.wiki/w/tadpole).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Tadpole}
          */
-        export type Entity_Tadpole = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_Tadpole = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender pearl).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ThrownEnderPearl}
          */
-        export type Entity_ThrownEnderPearl = { type: "compound"; value: {} } & Component_Projectile;
+        export type Entity_ThrownEnderPearl = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for thrown [potion](https://minecraft.wiki/w/potion).
@@ -14361,7 +14553,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 PotionId: { type: "short"; value: number };
             };
-        } & Component_Projectile;
+        } & ActorPrefix &
+            Component_Projectile;
 
         /**
          * Additional fields for thrown [trident](https://minecraft.wiki/w/trident).
@@ -14380,14 +14573,15 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Trident: { type: "compound"; value: {} } & Item_ItemStack;
             };
-        } & Component_Projectile;
+        } & ActorPrefix &
+            Component_Projectile;
 
         /**
          * Additional fields for [tnt](https://minecraft.wiki/w/tnt).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_TNT}
          */
-        export type Entity_TNT = { type: "compound"; value: {} } & Component_Explode;
+        export type Entity_TNT = { type: "compound"; value: {} } & ActorPrefix & Component_Explode;
 
         /**
          * Additional fields for [turtle](https://minecraft.wiki/w/turtle).
@@ -14402,7 +14596,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 IsPregnant: { type: "byte"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [vex](https://minecraft.wiki/w/vex).
@@ -14417,7 +14612,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ItemInHand: { type: "compound"; value: {} } & Item_ItemStack;
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [villager](https://minecraft.wiki/w/villager) (v2).
@@ -14440,14 +14635,15 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ReactToBell: { type: "byte"; value: number };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [vindicator](https://minecraft.wiki/w/vindicator).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Vindicator}
          */
-        export type Entity_Vindicator = { type: "compound"; value: {} } & Component_Dweller;
+        export type Entity_Vindicator = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [wandering trader](https://minecraft.wiki/w/wandering trader).
@@ -14474,7 +14670,8 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        } & Component_Economy_trade_table;
+        } & ActorPrefix &
+            Component_Economy_trade_table;
 
         /**
          * Additional fields for [warden](https://minecraft.wiki/w/warden).
@@ -14560,21 +14757,21 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind charge projectile).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_WindChargeProjectile}
          */
-        export type Entity_WindChargeProjectile = { type: "compound"; value: {} } & Component_Projectile;
+        export type Entity_WindChargeProjectile = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [witch](https://minecraft.wiki/w/witch).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Witch}
          */
-        export type Entity_Witch = { type: "compound"; value: {} } & Component_Dweller;
+        export type Entity_Witch = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [wither](https://minecraft.wiki/w/wither).
@@ -14633,14 +14830,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 swellAmount: { type: "float"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [wither skull](https://minecraft.wiki/w/Wither).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_WitherSkull}
          */
-        export type Entity_WitherSkull = { type: "compound"; value: {} } & Component_Explode;
+        export type Entity_WitherSkull = { type: "compound"; value: {} } & ActorPrefix & Component_Explode;
 
         /**
          * Additional fields for [wolf](https://minecraft.wiki/w/wolf).
@@ -14671,21 +14868,22 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
             };
-        } & Component_Ageable;
+        } & ActorPrefix &
+            Component_Ageable;
 
         /**
          * Additional fields for [zombie](https://minecraft.wiki/w/zombie).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Zombie}
          */
-        export type Entity_Zombie = { type: "compound"; value: {} } & Component_Timer;
+        export type Entity_Zombie = { type: "compound"; value: {} } & ActorPrefix & Component_Timer;
 
         /**
          * Additional fields for [zombie horse](https://minecraft.wiki/w/zombie horse).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ZombieHorse}
          */
-        export type Entity_ZombieHorse = { type: "compound"; value: {} } & Component_Ageable;
+        export type Entity_ZombieHorse = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [zombie villager](https://minecraft.wiki/w/zombie villager).
@@ -14700,7 +14898,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 SpawnedFromVillage: { type: "byte"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [zombified piglin](https://minecraft.wiki/w/zombified piglin).
@@ -14715,7 +14913,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Anger: { type: "short"; value: number };
             };
-        };
+        } & ActorPrefix;
 
         /**
          * Additional fields for [banner](https://minecraft.wiki/w/banner).
@@ -17477,7 +17675,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 WardenThreatLevelIncreaseCooldown: { type: "int"; value: number };
             };
-        } & Abilities;
+        } & ActorPrefix &
+            Abilities;
 
         /**
          * The TickingArea schema.
@@ -17642,10 +17841,19 @@ however when the corresponding block in the block layer is broken, this block ge
 
 // const jsonSchemas = {} as const satisfies Record<string, JSONSchema> & Partial<Record<DBEntryContentType, JSONSchema>>;
 
+/**
+ * A reference to a JSON schema or a boolean.
+ */
 type JSONSchemaRef = JSONSchema | boolean;
+/**
+ * A map of JSON schema references.
+ */
 interface JSONSchemaMap {
     [name: string]: JSONSchemaRef;
 }
+/**
+ * A JSON schema.
+ */
 interface JSONSchema {
     id?: string;
     $id?: string;

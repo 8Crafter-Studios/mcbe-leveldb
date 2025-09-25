@@ -39,74 +39,219 @@ function uuidToIntArray(uuidStr: string): number[] {
     return arr;
 }
 
+/**
+ * The type of an SNBT parse error.
+ */
 export type SNBTParseErrorType =
-    | NonNullable<Extract<SNBTParseErrorCauseStackItem, { error?: any }>["error"]>["type"]
+    | NonNullable<
+          Extract<
+              SNBTParseErrorCauseStackItem,
+              {
+                  /**
+                   * @ignore
+                   */
+                  error?: any;
+              }
+          >["error"]
+      >["type"]
     | "ExpectedEndOfInput"
     | "ExpectedCompoundOrList";
 
+/**
+ * Maps SNBT parse error types to error codes.
+ */
 export const SNBTParseErrorTypeToCode = {
+    /**
+     * An error that occurred because a disallowed type was found in a typed array.
+     */
     DisallowedTypeInTypedArray: "disallowed-type-in-typed-array",
+    /**
+     * An error that occurred because an expected compound or list was not found.
+     */
     ExpectedCompoundOrList: "expected-compound-or-list",
+    /**
+     * An error that occurred because an argument to a function was invalid.
+     */
     InvalidArgumentToFunction: "invalid-argument-to-function",
+    /**
+     * An error that occurred because an SNBT key was invalid.
+     */
     InvalidSNBTKey: "invalid-snbt-key",
+    /**
+     * An error that occurred because an SNBT string was invalid.
+     */
     InvalidSNBTString: "invalid-snbt-string",
+    /**
+     * An error that occurred because a UUID was invalid.
+     */
     InvalidUUID: "invalid-uuid",
+    /**
+     * An error that occurred because an unsupported function was called.
+     */
     UnsupportedFunction: "unsupported-function",
+    /**
+     * An error that occurred because an unsupported SNBT primitive was found.
+     */
     UnsupportedSNBTPrimitive: "unsupported-snbt-primitive",
+    /**
+     * An error that occurred because a list contained multiple types.
+     */
     MixedListTypesNotAllowed: "mixed-list-types-not-allowed",
+    /**
+     * An error that occurred because an unsupported type was found in a typed array.
+     */
     UnsupportedTypeInTypedArray: "unsupported-type-in-typed-array",
+    /**
+     * An error that occurred because the end of the input was expected.
+     */
     ExpectedEndOfInput: "expected-end-of-input",
 } as const satisfies Record<SNBTParseErrorType, string>;
 
+/**
+ * The namespace of SNBT parse errors.
+ */
 export const SNBTParseErrorDisplayNamespace = "mcbe-leveldb";
 
+/**
+ * A stack item in an SNBT parse error.
+ */
 export type SNBTParseErrorCauseStackItem =
     | {
+          /**
+           * The position of the error in the input.
+           */
           positionInInput: number;
+          /**
+           * The input.
+           */
           input: any;
+          /**
+           * The function associated with this stack item.
+           */
           function: "parseSNBTPrimitive";
+          /**
+           * The error associated with this stack item.
+           */
           error?:
               | {
+                    /**
+                     * The type of this error.
+                     */
                     type: "InvalidArgumentToFunction";
+                    /**
+                     * The name of the function.
+                     */
                     functionName: "bool" | "uuid";
+                    /**
+                     * The argument that caused this error.
+                     */
                     argument: string;
                 }
               | {
+                    /**
+                     * The type of this error.
+                     */
                     type: "UnsupportedFunction";
+                    /**
+                     * The name of the unsupported function.
+                     */
                     functionName: string;
                 }
               | {
+                    /**
+                     * The type of this error.
+                     */
                     type: "UnsupportedSNBTPrimitive";
+                    /**
+                     * The raw SNBT primitive value that caused this error.
+                     */
                     raw: any;
                 }
               | {
+                    /**
+                     * The type of this error.
+                     */
                     type: "InvalidSNBTString";
+                    /**
+                     * The raw SNBT string value that caused this error.
+                     */
                     raw: any;
                 };
       }
     | {
+          /**
+           * The position of the error in the input.
+           */
           positionInInput: number;
+          /**
+           * The input.
+           */
           input: string;
+          /**
+           * The function associated with this stack item.
+           */
           function: "uuidToIntArray";
+          /**
+           * The error associated with this stack item.
+           */
           error: {
+              /**
+               * The type of this error.
+               */
               type: "InvalidUUID";
+              /**
+               * The invalid UUID that caused this error.
+               */
               uuid: string;
           };
       }
     | {
+          /**
+           * The position of the error in the input item.
+           */
           positionInInputItem: number;
+          /**
+           * The input items (the items in the typed array).
+           */
           inputItems: string[];
+          /**
+           * The input item associated with this stack item.
+           */
           inputItem: string;
+          /**
+           * The index of the input item associated with this stack item.
+           */
           inputItemIndex: number;
+          /**
+           * The type of the typed array associated with this stack item.
+           */
           arrayType: `${TypedArrayLetterTypes.B | TypedArrayLetterTypes.S | TypedArrayLetterTypes.I | TypedArrayLetterTypes.L}`;
+          /**
+           * The function associated with this stack item.
+           */
           function: "parseTypedArray";
+          /**
+           * The error associated with this stack item.
+           */
           error?:
               | {
+                    /**
+                     * The type of this error.
+                     */
                     type: "DisallowedTypeInTypedArray";
+                    /**
+                     * The type of the item that caused this error.
+                     */
                     itemType: `${TypedArrayLetterTypes.B | TypedArrayLetterTypes.S | TypedArrayLetterTypes.I | TypedArrayLetterTypes.L}`;
+                    /**
+                     * The allowed types.
+                     */
                     allowedTypes: `${TypedArrayLetterTypes.B | TypedArrayLetterTypes.S | TypedArrayLetterTypes.I | TypedArrayLetterTypes.L}`[];
                 }
               | {
+                    /**
+                     * The type of this error.
+                     */
                     type: "UnsupportedTypeInTypedArray";
                     /**
                      * Should only be undefined if the item is unable to be parsed.
@@ -115,29 +260,83 @@ export type SNBTParseErrorCauseStackItem =
                 };
       }
     | {
+          /**
+           * The position of the error in the input item.
+           */
           positionInInputItem: number;
+          /**
+           * The input items (the items in the list).
+           */
           inputItems: string[];
+          /**
+           * The input item associated with this stack item.
+           */
           inputItem: string;
+          /**
+           * The index of the input item associated with this stack item.
+           */
           inputItemIndex: number;
+          /**
+           * The function associated with this stack item.
+           */
           function: "parseList";
+          /**
+           * The error associated with this stack item.
+           */
           error?: {
+              /**
+               * The type of this error.
+               */
               type: "MixedListTypesNotAllowed";
+              /**
+               * The type of the item that caused this error.
+               */
               itemType: `${NBT.TagType}`;
+              /**
+               * The detected type of the item that caused this error.
+               */
               item: NBT.Tags[NBT.TagType];
+              /**
+               * The detected type of the list.
+               */
               detectedArrayType: `${NBT.TagType}`;
           };
       }
     | {
+          /**
+           * The position of the error in the input.
+           */
           positionInInput: number;
+          /**
+           * The input.
+           */
           input: string;
+          /**
+           * The property key associated with this stack item.
+           */
           key?: string;
+          /**
+           * The function associated with this stack item.
+           */
           function: "extractSNBT" | "parseSNBTCompoundString";
+          /**
+           * The error associated with this stack item.
+           */
           error?: {
+              /**
+               * The type of this error.
+               */
               type: "InvalidSNBTKey";
+              /**
+               * The raw SNBT key value that caused this error.
+               */
               raw: any;
           };
       };
 
+/**
+ * The cause of an SNBT parse error.
+ */
 export interface SNBTParseErrorCause {
     /**
      * The position of the error in the input.
@@ -195,6 +394,9 @@ export interface SNBTParseError<T extends boolean = boolean> extends Error {
     getErrorPositionForStackItem(stackItem: SNBTParseErrorCauseStackItem): [line: number, column: number];
 }
 
+/**
+ * The options for an SNBT parse error.
+ */
 export interface SNBTParseErrorOptions extends ErrorOptions {
     /**
      * The cause of the error.
@@ -214,13 +416,39 @@ export interface SNBTParseErrorOptions extends ErrorOptions {
     originalInput?: string | undefined;
 }
 
+/**
+ * The constructor for an SNBT parse error.
+ */
 export interface SNBTParseErrorConstructor extends Omit<ErrorConstructor, "prototype"> {
+    /**
+     * Creates a new SNBTParseError.
+     *
+     * @param message The message of the error.
+     * @param options The options for the error.
+     * @returns A new SNBTParseError.
+     */
     new (message: string, options: SNBTParseErrorOptions): SNBTParseError;
+    /**
+     * Creates a new SNBTParseError.
+     *
+     * @param message The message of the error.
+     * @param options The options for the error.
+     * @returns A new SNBTParseError.
+     */
     (message: string, options: SNBTParseErrorOptions): SNBTParseError;
+    /**
+     * The prototype of an SNBTParseError.
+     */
     prototype: SNBTParseError;
 }
 
+/**
+ * An SNBT parse error.
+ */
 export var SNBTParseError: SNBTParseErrorConstructor = new Proxy(
+    /**
+     * An SNBT parse error.
+     */
     class SNBTParseError extends Error implements SNBTParseError {
         public declare cause: SNBTParseErrorCause;
         public isResolved: boolean = false;
@@ -334,6 +562,11 @@ export var SNBTParseError: SNBTParseErrorConstructor = new Proxy(
     }
 );
 
+/**
+ * Options for parsing an SNBT-like primitive.
+ *
+ * @internal
+ */
 interface ParseSNBTPrimitiveOptions extends ParseSNBTBaseOptions {}
 
 /**
@@ -345,9 +578,22 @@ function parseSNBTPrimitive(
     raw: any,
     options: ParseSNBTPrimitiveOptions & { keepGoingAfterError: true }
 ): { value?: NBT.Tags[NBT.TagType]; errors: SNBTParseError[] };
+/**
+ * Parses an SNBT-like primitive.
+ *
+ * @internal
+ */
 function parseSNBTPrimitive(raw: any, options?: ParseSNBTPrimitiveOptions & { keepGoingAfterError?: false }): NBT.Tags[NBT.TagType];
+/**
+ * Parses an SNBT-like primitive.
+ *
+ * @internal
+ */
 function parseSNBTPrimitive(raw: any, options?: ParseSNBTPrimitiveOptions): NBT.Tags[NBT.TagType] | { value?: NBT.Tags[NBT.TagType]; errors: SNBTParseError[] };
-function parseSNBTPrimitive(raw: any, options: ParseSNBTPrimitiveOptions = {}): NBT.Tags[NBT.TagType] | { value?: NBT.Tags[NBT.TagType]; errors: SNBTParseError[] } {
+function parseSNBTPrimitive(
+    raw: any,
+    options: ParseSNBTPrimitiveOptions = {}
+): NBT.Tags[NBT.TagType] | { value?: NBT.Tags[NBT.TagType]; errors: SNBTParseError[] } {
     const errors: SNBTParseError[] = [];
     function structureResult(val?: NBT.Tags[NBT.TagType]): ReturnType<typeof parseSNBTPrimitive> {
         if (options.keepGoingAfterError) return { value: val, errors };
@@ -568,13 +814,35 @@ function parseSNBTPrimitive(raw: any, options: ParseSNBTPrimitiveOptions = {}): 
     }
 }
 
+/**
+ * The letter types of typed arrays.
+ *
+ * @internal
+ */
 enum TypedArrayLetterTypes {
+    /**
+     * A byte array.
+     */
     B = "byte",
+    /**
+     * A short array.
+     */
     S = "short",
+    /**
+     * An integer array.
+     */
     I = "int",
+    /**
+     * A long array.
+     */
     L = "long",
 }
 
+/**
+ * A typed array.
+ *
+ * @internal
+ */
 type TypedArray = NBT.Tags[NBT.TagType.ByteArray | NBT.TagType.ShortArray | NBT.TagType.IntArray | NBT.TagType.LongArray];
 
 function parseTypedArray(
@@ -875,6 +1143,9 @@ function parseList(items: string[], options: ParseListOptions = {}): NBT.List<NB
     return options.keepGoingAfterError ? { value: result, errors } : result;
 }
 
+/**
+ * Options for parsing SNBT.
+ */
 export interface ParseSNBTBaseOptions {
     /**
      * Whether to allow lists of mixed types.
@@ -916,15 +1187,30 @@ export interface ParseSNBTBaseOptions {
 }
 
 /**
- * Parse an SNBT compound string into Prismarine-NBT JSON.
+ * The result of the {@link parseSNBTCompoundString} function when {@link ParseSNBTBaseOptions.keepGoingAfterError} is `true`.
  */
-export function parseSNBTCompoundString(
-    input: string,
-    options: ParseSNBTBaseOptions & { keepGoingAfterError: true }
-): { value: Compound; errors: SNBTParseError[] };
+export type ParseSNBTCompoundStringResultWithErrors = {
+    /**
+     * The parsed SNBT compound.
+     */
+    value: Compound;
+    /**
+     * The errors that occurred while parsing the SNBT compound.
+     */
+    errors: SNBTParseError[];
+};
+
+/**
+ * Parse an SNBT compound string into Prismarine-NBT JSON.
+ *
+ * @param input The SNBT compound string to parse.
+ * @param options Options for parsing the SNBT compound string.
+ * @returns The parsed SNBT compound.
+ */
+export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOptions & { keepGoingAfterError: true }): ParseSNBTCompoundStringResultWithErrors;
 export function parseSNBTCompoundString(input: string, options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false }): Compound;
-export function parseSNBTCompoundString(input: string, options?: ParseSNBTBaseOptions): Compound | { value: Compound; errors: SNBTParseError[] };
-export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOptions = {}): Compound | { value: Compound; errors: SNBTParseError[] } {
+export function parseSNBTCompoundString(input: string, options?: ParseSNBTBaseOptions): Compound | ParseSNBTCompoundStringResultWithErrors;
+export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOptions = {}): Compound | ParseSNBTCompoundStringResultWithErrors {
     const errors: SNBTParseError[] = [];
     const originalInput: string = input;
     input = input.trim();
@@ -1086,32 +1372,48 @@ export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOpt
 }
 
 /**
+ * The result of the {@link extractSNBT} function when {@link ParseSNBTBaseOptions.keepGoingAfterError} is `false` or not provided.
+ */
+export interface ExtractSNBTResult {
+    /**
+     * The parsed value.
+     */
+    value: Compound | NBT.List<NBT.TagType>;
+    /**
+     * The start position of the parsed value in the input string.
+     */
+    startPos: number;
+    /**
+     * The end position of the parsed value in the input string.
+     */
+    endPos: number;
+    /**
+     * The remaining text after the parsed value.
+     */
+    remaining: string;
+}
+
+/**
+ * The result of the {@link extractSNBT} function when {@link ParseSNBTBaseOptions.keepGoingAfterError} is `true`.
+ */
+export interface ExtractSNBTResultWithErrors extends ExtractSNBTResult {
+    /**
+     * The errors that occurred while parsing the input string.
+     */
+    errors: SNBTParseError[];
+}
+
+/**
  * Parses an SNBT string into Prismarine-NBT JSON.
  *
  * @param input The SNBT string to parse.
  * @param options The options to use when parsing the SNBT string.
  * @returns An object containing the parsed value, start position, end position, remaining text, and errors.
  */
-export function extractSNBT(
-    input: string,
-    options: ParseSNBTBaseOptions & { keepGoingAfterError: true }
-): { value: Compound | NBT.List<NBT.TagType>; startPos: number; endPos: number; remaining: string; errors: SNBTParseError[] };
-export function extractSNBT(
-    input: string,
-    options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false }
-): { value: Compound | NBT.List<NBT.TagType>; startPos: number; endPos: number; remaining: string };
-export function extractSNBT(
-    input: string,
-    options?: ParseSNBTBaseOptions
-):
-    | { value: Compound | NBT.List<NBT.TagType>; startPos: number; endPos: number; remaining: string }
-    | { value: Compound | NBT.List<NBT.TagType>; startPos: number; endPos: number; remaining: string; errors: SNBTParseError[] };
-export function extractSNBT(
-    input: string,
-    options: ParseSNBTBaseOptions = {}
-):
-    | { value: Compound | NBT.List<NBT.TagType>; startPos: number; endPos: number; remaining: string }
-    | { value: Compound | NBT.List<NBT.TagType>; startPos: number; endPos: number; remaining: string; errors: SNBTParseError[] } {
+export function extractSNBT(input: string, options: ParseSNBTBaseOptions & { keepGoingAfterError: true }): ExtractSNBTResultWithErrors;
+export function extractSNBT(input: string, options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false }): ExtractSNBTResult;
+export function extractSNBT(input: string, options?: ParseSNBTBaseOptions): ExtractSNBTResult | ExtractSNBTResultWithErrors;
+export function extractSNBT(input: string, options: ParseSNBTBaseOptions = {}): ExtractSNBTResult | ExtractSNBTResultWithErrors {
     const errors: SNBTParseError[] = [];
     const originalInput: string = input;
     input = input.trim();
@@ -1501,47 +1803,149 @@ function parseFormattedKey(key: string): string {
           })();
 }
 
+/**
+ * The tag types of SNBT-like JSON.
+ */
 export enum SNBTLikeJSONTagType {
+    /**
+     * A byte.
+     */
     Byte = "byte",
+    /**
+     * A short.
+     */
     Short = "short",
+    /**
+     * An integer.
+     */
     Int = "int",
+    /**
+     * A long.
+     */
     Long = "long",
+    /**
+     * A float.
+     */
     Float = "float",
+    /**
+     * A double.
+     */
     Double = "double",
+    /**
+     * A string.
+     */
     String = "string",
+    /**
+     * A list.
+     */
     List = "list",
+    /**
+     * A compound.
+     */
     Compound = "compound",
+    /**
+     * An array of bytes.
+     */
     ByteArray = "byteArray",
+    /**
+     * An array of shorts.
+     */
     ShortArray = "shortArray",
+    /**
+     * An array of integers.
+     */
     IntArray = "intArray",
+    /**
+     * An array of longs.
+     */
     LongArray = "longArray",
 }
 
+/**
+ * The types of tag types of SNBT-like JSON.
+ */
 export type SNBTLikeJSONTags = {
+    /**
+     * A byte.
+     */
     [SNBTLikeJSONTagType.Byte]: `${bigint}${"b" | "B"}`;
+    /**
+     * A short.
+     */
     [SNBTLikeJSONTagType.Short]: `${bigint}${"s" | "S"}`;
+    /**
+     * An integer.
+     */
     [SNBTLikeJSONTagType.Int]: `${bigint}${"" | "i" | "I"}`;
+    /**
+     * A long.
+     */
     [SNBTLikeJSONTagType.Long]: `${bigint}${"l" | "L"}`;
+    /**
+     * A float.
+     */
     [SNBTLikeJSONTagType.Float]: `${number}${"f" | "F"}`;
+    /**
+     * A double.
+     */
     [SNBTLikeJSONTagType.Double]: `${number}${"d" | "D"}`;
+    /**
+     * A string.
+     */
     [SNBTLikeJSONTagType.String]: `"${string}"` | `'${string}'` | `${string}`;
+    /**
+     * A list.
+     */
     [SNBTLikeJSONTagType.List]: SNBTLikeJSONList<SNBTLikeJSONTagType>;
+    /**
+     * A compound.
+     */
     [SNBTLikeJSONTagType.Compound]: SNBTLikeJSONCompound;
+    /**
+     * An array of bytes.
+     */
     [SNBTLikeJSONTagType.ByteArray]: SNBTLikeJSONTypedArray<TypedArrayLetterTypes.B>;
+    /**
+     * An array of shorts.
+     */
     [SNBTLikeJSONTagType.ShortArray]: SNBTLikeJSONTypedArray<TypedArrayLetterTypes.S>;
+    /**
+     * An array of integers.
+     */
     [SNBTLikeJSONTagType.IntArray]: SNBTLikeJSONTypedArray<TypedArrayLetterTypes.I>;
+    /**
+     * An array of longs.
+     */
     [SNBTLikeJSONTagType.LongArray]: SNBTLikeJSONTypedArray<TypedArrayLetterTypes.L>;
 };
 
+/**
+ * A list tag of SNBT-like JSON.
+ */
 export type SNBTLikeJSONList<T extends SNBTLikeJSONTagType> = SNBTLikeJSONTags[T][];
 
+/**
+ * A typed array tag of SNBT-like JSON.
+ */
 export type SNBTLikeJSONTypedArray<T extends TypedArrayLetterTypes> = {
+    /**
+     * The type of the typed array.
+     */
     __typed: keyof OmitNeverValueKeys<{ [key in keyof typeof TypedArrayLetterTypes]: (typeof TypedArrayLetterTypes)[key] extends T ? key : never }>;
+    /**
+     * The values of the typed array.
+     */
     value: SNBTLikeJSONTags[VerifyConstraint<T, `${SNBTLikeJSONTagType}`>][];
 };
 
+/**
+ * A compound tag of SNBT-like JSON.
+ */
 export type SNBTLikeJSONCompound = { [key: string]: SNBTLikeJSONTag<SNBTLikeJSONTagType> };
 
+/**
+ * An SNBT-like JSON tag.
+ */
 export type SNBTLikeJSONTag<T extends `${SNBTLikeJSONTagType}` | SNBTLikeJSONTagType> = { [key in SNBTLikeJSONTagType as `${key}`]: SNBTLikeJSONTags[key] }[T];
 
 /**
@@ -1630,7 +2034,7 @@ export function parseLong(literal: string): [high: number, low: number] {
 
 /**
  * Converts a long in tuple form to bigint form.
- * 
+ *
  * @param param0 The long as a tuple.
  * @returns The long as a bigint.
  */

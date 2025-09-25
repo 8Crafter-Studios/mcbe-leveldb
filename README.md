@@ -9,5 +9,8 @@
 [![NPM Unpacked Size](https://img.shields.io/npm/unpacked-size/mcbe-leveldb)](https://npmjs.com/package/mcbe-leveldb)
 [![GitHub last commit](https://img.shields.io/github/last-commit/8Crafter-Studios/mcbe-leveldb)](https://github.com/8Crafter-Studios/mcbe-leveldb/commits/main)
 [![Discord](https://img.shields.io/discord/1213197616570048512?logo=discord&label=discord&link=https%3A%2F%2Fdiscord.8crafter.com)](https://discord.8crafter.com)
+[![API Coverage](https://raw.githubusercontent.com/8Crafter-Studios/api.8crafter.com/refs/heads/main/docs/mcbe-leveldb/stable/coverage.svg)](https://docs.api.8crafter.com/mcbe-leveldb)
 
 A utility module for easily working with Minecraft Bedrock Edition world data.
+
+[API Docs](https://docs.api.8crafter.com/mcbe-leveldb)

@@ -243,13 +243,32 @@ export type DeepPartial<T> = T extends object
           [P in keyof T]?: DeepPartial<T[P]>;
       }
     : T;
+/**
+ * Gets the keys of a union type.
+ *
+ * @template T The union type.
+ */
 export type KeysOfUnion<T> = T extends T ? keyof T : never;
+/**
+ * Gets the values of an object type.
+ *
+ * @template T The object type.
+ */
 export type ValueTypes<T> = T extends { [key: string]: infer U } ? U : never;
-export type AllValues<T> = T extends { [key: string]: infer V } ? V : never;
+/**
+ * Gets the key-value pairs of an object type.
+ *
+ * @template T The object type.
+ */
 export type KeyValuePairs<T> = {
-    [K in KeysOfUnion<T>]: AllValues<Extract<T, Record<K, any>>>;
+    [K in KeysOfUnion<T>]: ValueTypes<Extract<T, Record<K, any>>>;
 };
 /**
+ * Removes all elements from a tuple that are assignable to a specified type.
+ *
+ * @template T The tuple to filter.
+ * @template E The type to filter against.
+ *
  * @see https://stackoverflow.com/a/58986589
  * @author jcalz <https://stackoverflow.com/users/2887218/jcalz>
  */
@@ -258,11 +277,22 @@ export type ExcludeFromTuple<T extends readonly any[], E> = T extends [infer F, 
         ? ExcludeFromTuple<R, E>
         : [F, ...ExcludeFromTuple<R, E>]
     : [];
+/**
+ * Removes all elements from a tuple that are not assignable to a specified type.
+ *
+ * @template T The tuple to filter.
+ * @template E The type to filter against.
+ */
 export type IncludeFromTuple<T extends readonly any[], E> = T extends [infer F, ...infer R]
     ? [F] extends [E]
         ? [F, ...IncludeFromTuple<R, E>]
         : IncludeFromTuple<R, E>
     : [];
+/**
+ * Adds a null type to a tuple.
+ *
+ * @template T The tuple to add a null type to.
+ */
 export type NullableArray<T extends any[] | readonly any[]> = T | [null, ...T] | [...T, null];
 /**
  * @see https://stackoverflow.com/a/49579497/16872762
@@ -352,7 +382,17 @@ export type DeepMergeObjectTypes<T> = {
 };
 
 /**
+ * Gets the property paths of an object type as concatenated strings separated by `.`.
+ *
+ * @template T The object type.
+ *
  * @author 8Crafter
+ *
+ * @example
+ * ```ts
+ * // type Example = "a" | "a.b" | "a.c" | "a.c.d";
+ * type Example = PropertyNamesWithPath<{ a: { b: number, c: { d: number} } }>;
+ * ```
  */
 export type PropertyNamesWithPath<T> = T extends object
     ? {
@@ -365,7 +405,22 @@ export type PropertyNamesWithPath<T> = T extends object
     : never;
 
 /**
+ * Gets the property names of an object type.
+ *
+ * @template T The object type.
+ * @template U The property name type. Defaults to `keyof T`.
+ *
+ * @internal
+ *
+ * @see {@link PropertyNames}
+ *
  * @author 8Crafter
+ *
+ * @example
+ * ```ts
+ * // type Example = "a" | "b" | "c" | "d";
+ * type Example = PropertyNamesInner<{ a: { b: number, c: { d: number} } }>;
+ * ```
  */
 export type PropertyNamesInner<T, U = keyof T> = T extends object
     ? {
@@ -378,12 +433,33 @@ export type PropertyNamesInner<T, U = keyof T> = T extends object
     : never;
 
 /**
+ * Gets the property names of an object type.
+ *
+ * @template T The object type.
+ * @template U The property name type. Defaults to `string | number`.
+ *
  * @author 8Crafter
+ *
+ * @example
+ * ```ts
+ * // type Example = "a" | "b" | "c" | "d";
+ * type Example = PropertyNames<{ a: { b: number, c: { d: number} } }>;
+ * ```
  */
 export type PropertyNames<T, U = string | number> = VerifyConstraint<PropertyNamesInner<T, U>, U>;
 
 /**
+ * Gets the property paths of an object type as concatenated strings separated by `.`, excluding names that are for outer containing properties.
+ *
+ * @template T The object type.
+ *
  * @author 8Crafter
+ *
+ * @example
+ * ```ts
+ * // type Example = "a.b" | "a.c.d";
+ * type Example = PropertyNamesWithPathWithoutOuterContainingProperties<{ a: { b: number, c: { d: number} } }>;
+ * ```
  */
 export type PropertyNamesWithPathWithoutOuterContainingProperties<T> = T extends object
     ? {
@@ -396,7 +472,22 @@ export type PropertyNamesWithPathWithoutOuterContainingProperties<T> = T extends
     : never;
 
 /**
+ * Gets the property names of an object type, excluding names that are for outer containing properties.
+ *
+ * @template T The object type.
+ * @template U The property name type. Defaults to `keyof T`.
+ *
+ * @internal
+ *
+ * @see {@link PropertyNamesWithoutOuterContainingProperties}
+ *
  * @author 8Crafter
+ *
+ * @example
+ * ```ts
+ * // type Example = "b" | "d";
+ * type Example = PropertyNamesInnerWithoutOuterContainingProperties<{ a: { b: number, c: { d: number} } }>;
+ * ```
  */
 export type PropertyNamesInnerWithoutOuterContainingProperties<T, U = keyof T> = T extends object
     ? {
@@ -409,7 +500,18 @@ export type PropertyNamesInnerWithoutOuterContainingProperties<T, U = keyof T> =
     : never;
 
 /**
+ * Gets the property names of an object type, excluding names that are for outer containing properties.
+ *
+ * @template T The object type.
+ * @template U The property name type. Defaults to `string | number`.
+ *
  * @author 8Crafter
+ *
+ * @example
+ * ```ts
+ * // type Example = "b" | "d";
+ * type Example = PropertyNamesWithoutOuterContainingProperties<{ a: { b: number, c: { d: number} } }>;
+ * ```
  */
 export type PropertyNamesWithoutOuterContainingProperties<T, U = string | number> = VerifyConstraint<
     PropertyNamesInnerWithoutOuterContainingProperties<T, U>,
@@ -417,7 +519,17 @@ export type PropertyNamesWithoutOuterContainingProperties<T, U = string | number
 >;
 
 /**
+ * Gets the property paths of an object type.
+ *
+ * @template T The object type.
+ *
  * @author 8Crafter
+ *
+ * @example
+ * ```ts
+ * // type Example = ["a"] | ["a", "b"] | ["a", "c"] | ["a", "c", "d"];
+ * type Example = PropertyPaths<{ a: { b: number, c: { d: number} } }>;
+ * ```
  */
 export type PropertyPaths<T> = T extends object
     ? {
@@ -430,7 +542,17 @@ export type PropertyPaths<T> = T extends object
     : never;
 
 /**
+ * Gets the property paths of an object type, excluding paths that include outer containing properties.
+ *
+ * @template T The object type.
+ *
  * @author 8Crafter
+ *
+ * @example
+ * ```ts
+ * // type Example = ["a", "b"] | ["a", "c", "d"];
+ * type Example = PropertyPathsWithoutOuterContainingProperties<{ a: { b: number, c: { d: number} } }>;
+ * ```
  */
 export type PropertyPathsWithoutOuterContainingProperties<T> = T extends object
     ? {
@@ -458,6 +580,14 @@ export type PropertyPathsWithoutOuterContainingProperties<T> = T extends object
       }[(string | number) & keyof T]
     : never;
 
+/**
+ * Gets the type of the property at the specified path in an object type.
+ *
+ * @template T The object type.
+ * @template U The property path.
+ *
+ * @author 8Crafter
+ */
 export type GetPropertyValueAtPath<T extends object, U extends PropertyPaths<T> | []> = U extends [infer K extends keyof T]
     ? T[K]
     : U extends [infer K extends keyof T, ...infer R]
@@ -465,11 +595,20 @@ export type GetPropertyValueAtPath<T extends object, U extends PropertyPaths<T> 
     : T;
 
 /**
+ * Verifies that type T extends U, otherwise resolves to never.
+ *
+ * @template T The type to verify.
+ * @template U The type to verify against.
+ *
  * @author 8Crafter
  */
 export type VerifyConstraint<T, U> = T extends U ? T : never;
 
 /**
+ * Checks if an array contains any `never` values.
+ *
+ * @template T The array type to check.
+ *
  * @author 8Crafter
  */
 export type IncludesNever<T extends any[]> = {
@@ -478,13 +617,28 @@ export type IncludesNever<T extends any[]> = {
     ? false
     : true;
 
+/**
+ * Gets the keys of an object type that have `never` as their value type.
+ *
+ * @template T The object type to get keys from.
+ */
 export type NeverValueKeys<T extends object> = {
     [K in keyof T]: T[K] extends never ? K : never;
 }[keyof T];
 
+/**
+ * Omits the keys of an object type that have `never` as their value type.
+ *
+ * @template T The object type to omit keys from.
+ */
 export type OmitNeverValueKeys<T extends object> = Omit<T, NeverValueKeys<T>>;
 
 /**
+ * Extracts the return type of an overloaded function type based on its argument types.
+ *
+ * @template T The overloaded function type.
+ * @template ARGS_T The argument types of the function.
+ *
  * @see https://stackoverflow.com/a/60822641/16872762
  */
 export type ReturnTypeWithArgs<T extends (...args: any[]) => any, ARGS_T> = Extract<

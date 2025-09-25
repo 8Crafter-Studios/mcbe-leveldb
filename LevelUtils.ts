@@ -10,10 +10,15 @@ const DEBUG = false;
 const fileNameEncodeCharacterRegExp = /[/:>?\\]/g;
 const fileNameCharacterFilterRegExp = /[^a-zA-Z0-9-_+,-.;=@~/:>?\\]/g;
 
-//#endregion Local Constants
+//#endregion
 
 //#region Local Functions
 
+/**
+ * A tuple of length 16.
+ *
+ * @template T The type of the elements in the tuple.
+ */
 type TupleOfLength16<T> = [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T];
 
 function readInt16LE(buf: Uint8Array, offset: number): number {
@@ -123,6 +128,12 @@ function writeInt32LE(value: number): Buffer {
 
 //     return { heightMap, biomeMap };
 // }
+/**
+ * Reads the value of the Data3D content type.
+ *
+ * @param rawvalue The raw value to read.
+ * @returns The height map and biome map.
+ */
 export function readData3dValue(rawvalue: Uint8Array | null): {
     /**
      * A height map in the form [x][z].
@@ -177,6 +188,13 @@ export function readData3dValue(rawvalue: Uint8Array | null): {
     return { heightMap, biomes };
 }
 
+/**
+ * Writes the value of the Data3D content type.
+ *
+ * @param heightMap A height map in the form [x][z].
+ * @param biomes A biome map as an array of 24 or more BiomePalette objects.
+ * @returns The raw value to write.
+ */
 export function writeData3DValue(heightMap: TupleOfLength16<TupleOfLength16<number>>, biomes: BiomePalette[]): Buffer {
     // heightMap is 16x16, flatten to 256 shorts
     const flatHeight: number[] = heightMap.flatMap((v: TupleOfLength16<number>, i: number): number[] =>
@@ -194,13 +212,21 @@ export function writeData3DValue(heightMap: TupleOfLength16<TupleOfLength16<numb
     return Buffer.concat([heightBuf, biomeBuf]);
 }
 
-function readChunkBiomes(rawvalue: Uint8Array): BiomePalette[] {
+/**
+ * Reads chunk biome data from a buffer.
+ *
+ * @param rawValue The raw value to read.
+ * @returns The biome data.
+ *
+ * @internal
+ */
+function readChunkBiomes(rawValue: Uint8Array): BiomePalette[] {
     let p: number = 0;
-    const end: number = rawvalue.length;
+    const end: number = rawValue.length;
     const result: BiomePalette[] = [];
 
     while (p < end) {
-        const { values, isPersistent, paletteSize, newOffset } = readSubchunkPaletteIds(rawvalue, p, end);
+        const { values, isPersistent, paletteSize, newOffset } = readSubchunkPaletteIds(rawValue, p, end);
         p = newOffset;
 
         if (values === null) {
@@ -218,7 +244,7 @@ function readChunkBiomes(rawvalue: Uint8Array): BiomePalette[] {
 
         const palette: number[] = [];
         for (let i: number = 0; i < paletteSize; i++) {
-            const val: number = rawvalue[p]! | (rawvalue[p + 1]! << 8) | (rawvalue[p + 2]! << 16) | (rawvalue[p + 3]! << 24);
+            const val: number = rawValue[p]! | (rawValue[p + 1]! << 8) | (rawValue[p + 2]! << 16) | (rawValue[p + 3]! << 24);
             palette.push(val);
             p += 4;
         }
@@ -229,7 +255,15 @@ function readChunkBiomes(rawvalue: Uint8Array): BiomePalette[] {
     return result;
 }
 
-export function writeChunkBiomes(biomes: BiomePalette[]): Buffer {
+/**
+ * Writes the chunk biome data from a BiomePalette array to a buffer.
+ *
+ * @param biomes The biome data to write.
+ * @returns The resulting buffer.
+ *
+ * @internal
+ */
+function writeChunkBiomes(biomes: BiomePalette[]): Buffer {
     const buffers: Buffer[] = [];
 
     for (const bb of biomes) {
@@ -367,7 +401,7 @@ function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer 
     return Buffer.concat([header, packed]);
 }
 
-//#endregion Local Functions
+//#endregion
 
 // --------------------------------------------------------------------------------
 // Constants
@@ -450,11 +484,29 @@ export const DBEntryContentTypes = [
  */
 export const entryContentTypeToFormatMap = {
     /**
-     * @todo Make a parser for this.
+     * The Data3D content type contains heightmap and biome data for 16x16x16 chunks of the world.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.Data3D}
      */
     Data3D: {
+        /**
+         * The format type of the data.
+         */
         type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.Data3D.parse | parse} method.
+         */
         resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {Error} If the value does not contain at least one subchunk of biome data.
+         */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.Data3D {
             const result = readData3dValue(data);
             return {
@@ -474,32 +526,42 @@ export const entryContentTypeToFormatMap = {
                         type: "list",
                         value: {
                             type: "compound",
-                            value: result!.biomes.map((subchunk: BiomePalette): NBTSchemas.NBTSchemaTypes.Data3D["value"]["biomes"]["value"]["value"][number] => ({
-                                values: {
-                                    type: "list",
-                                    value: subchunk.values
-                                        ? {
-                                              type: "int",
-                                              value: subchunk.values,
-                                          }
-                                        : ({
-                                              type: "end",
-                                              value: [],
-                                          } as any),
-                                },
-                                palette: {
-                                    type: "list",
-                                    value: {
-                                        type: "int",
-                                        value: subchunk.palette,
+                            value: result!.biomes.map(
+                                (subchunk: BiomePalette): NBTSchemas.NBTSchemaTypes.Data3D["value"]["biomes"]["value"]["value"][number] => ({
+                                    values: {
+                                        type: "list",
+                                        value: subchunk.values
+                                            ? {
+                                                  type: "int",
+                                                  value: subchunk.values,
+                                              }
+                                            : ({
+                                                  type: "end",
+                                                  value: [],
+                                              } as any),
                                     },
-                                },
-                            })),
+                                    palette: {
+                                        type: "list",
+                                        value: {
+                                            type: "int",
+                                            value: subchunk.palette,
+                                        },
+                                    },
+                                })
+                            ),
                         },
                     },
                 },
             };
         },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
         serialize(data: NBTSchemas.NBTSchemaTypes.Data3D): Buffer {
             return writeData3DValue(
                 data.value.heightMap.value.value.map((row: { type: "short"; value: number[] }): number[] => row.value) as any,
@@ -521,11 +583,34 @@ export const entryContentTypeToFormatMap = {
     Data2D: { type: "unknown" },
     /**
      * @deprecated Only used in versions < 1.0.0.
+     *
+     * @todo Make a parser for this so that versions < 1.0.0 can be supported.
      */
     Data2DLegacy: { type: "unknown" },
+    /**
+     * The SubChunkPrefix content type contains block data for 16x16x16 chunks of the world.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefix}
+     */
     SubChunkPrefix: {
+        /**
+         * The format type of the data.
+         */
         type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.SubChunkPrefix.parse | parse} method.
+         */
         resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {Error} If the SubChunkPrefix version is unknown.
+         */
         async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.SubChunkPrefix> {
             let currentOffset: number = 0;
             const layers: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"][] = [];
@@ -611,6 +696,14 @@ export const entryContentTypeToFormatMap = {
                     : {}),
             } as const satisfies NBTSchemas.NBTSchemaTypes.SubChunkPrefix["value"]);
         },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
         serialize(data: NBTSchemas.NBTSchemaTypes.SubChunkPrefix): Buffer {
             const buffer: Buffer = Buffer.from([
                 data.value.version.value,
@@ -642,9 +735,18 @@ export const entryContentTypeToFormatMap = {
     },
     /**
      * @deprecated Only used in versions < 1.0.0.
+     *
+     * @todo Make a parser for this so that versions < 1.0.0 can be supported.
      */
     LegacyTerrain: { type: "unknown" },
+    /**
+     * @see {@link NBTSchemas.nbtSchemas.BlockEntity}
+     */
     BlockEntity: { type: "NBT" },
+    /**
+     * 
+     * @see {@link NBTSchemas.nbtSchemas.ActorPrefix}
+     */
     Entity: { type: "NBT" },
     PendingTicks: { type: "NBT" },
     /**
@@ -915,7 +1017,7 @@ export type EntryContentTypeFormatData = (
     rawFileExtension?: string;
 };
 
-//#endregion Constants
+//#endregion
 
 // --------------------------------------------------------------------------------
 // Types
@@ -923,6 +1025,9 @@ export type EntryContentTypeFormatData = (
 
 //#region Types
 
+/**
+ * Represents a two-directional vector.
+ */
 export interface Vector2 {
     /**
      * X component of this vector.
@@ -934,6 +1039,9 @@ export interface Vector2 {
     y: number;
 }
 
+/**
+ * Represents a two-directional vector with X and Z components.
+ */
 export interface VectorXZ {
     /**
      * X component of this vector.
@@ -945,6 +1053,9 @@ export interface VectorXZ {
     z: number;
 }
 
+/**
+ * Represents a three-directional vector.
+ */
 export interface Vector3 {
     /**
      * X component of this vector.
@@ -960,8 +1071,14 @@ export interface Vector3 {
     z: number;
 }
 
+/**
+ * An ID of a Minecraft dimension.
+ */
 export type Dimension = (typeof dimensions)[number];
 
+/**
+ * Represents a three-directional vector with an associated dimension.
+ */
 export interface DimensionLocation extends Vector3 {
     /**
      * Dimension that this coordinate is associated with.
@@ -969,6 +1086,9 @@ export interface DimensionLocation extends Vector3 {
     dimension: Dimension;
 }
 
+/**
+ * Represents a two-directional vector with an associated dimension.
+ */
 export interface DimensionVector2 extends Vector2 {
     /**
      * Dimension that this coordinate is associated with.
@@ -976,6 +1096,9 @@ export interface DimensionVector2 extends Vector2 {
     dimension: Dimension;
 }
 
+/**
+ * Represents a two-directional vector with X and Z components and an associated dimension.
+ */
 export interface DimensionVectorXZ extends VectorXZ {
     /**
      * Dimension that this coordinate is associated with.
@@ -983,6 +1106,9 @@ export interface DimensionVectorXZ extends VectorXZ {
     dimension: Dimension;
 }
 
+/**
+ * Represents a two-directional vector with X and Z components and an associated dimension and a sub-chunk index.
+ */
 export interface SubChunkIndexDimensionVectorXZ extends DimensionVectorXZ {
     /**
      * The index of this sub-chunk.
@@ -996,7 +1122,21 @@ export interface SubChunkIndexDimensionVectorXZ extends DimensionVectorXZ {
  * @todo
  */
 export interface StructureSectionData extends NBT.Compound {
+    /**
+     * The size of the structure, as a tuple of 3 integers.
+     */
     size: NBTSchemas.NBTSchemaTypes.StructureTemplate["value"]["size"];
+    /**
+     * The block indices.
+     *
+     * These are two arrays of indices in the block palette.
+     *
+     * The first layer is the block layer.
+     *
+     * The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
+     * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
+     * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
+     */
     block_indices: {
         type: `${NBT.TagType.List}`;
         value: {
@@ -1013,6 +1153,9 @@ export interface StructureSectionData extends NBT.Compound {
             ];
         };
     };
+    /**
+     * The block palette.
+     */
     palette: {
         type: `${NBT.TagType.List}`;
         value: {
@@ -1038,290 +1181,12 @@ export interface BiomePalette {
     palette: number[];
 }
 
-// /**
-//  * The correct NBT structure of a block in a block palette.
-//  *
-//  * Note: This is what the structure SHOULD be, it may not be, but if it is different then Minecraft would be unable to parse it.
-//  */
-// export interface DataTypes_Block extends NBT.Compound {
-//     type: `${NBT.TagType.Compound}`;
-//     value: {
-//         /**
-//          * The namespaced ID of the block.
-//          */
-//         name: NBT.String;
-//         /**
-//          * The block states of the block.
-//          */
-//         states: NBT.Compound;
-//         /**
-//          * The data version of the block.
-//          */
-//         version: NBT.Int;
-//     };
-// }
-
-// /**
-//  * The NBT structure of the parsed data of the {@link entryContentTypeToFormatMap.Data3D | Data3D} content type.
-//  *
-//  * Note: This NBT structure is specific to the parser and serializer implemented by this module.
-//  * This is because the actual data is stored in binary format.
-//  */
-// export interface DataTypes_Data3D extends NBT.Compound {
-//     type: `${NBT.TagType.Compound}`;
-//     value: {
-//         /**
-//          * The height map data.
-//          */
-//         heightMap: {
-//             type: `${NBT.TagType.List}`;
-//             value: {
-//                 type: `${NBT.TagType.List}`;
-//                 value: {
-//                     type: `${NBT.TagType.Short}`;
-//                     /**
-//                      * The height map values.
-//                      */
-//                     value: number[];
-//                 }[];
-//             };
-//         };
-//         /**
-//          * The biome data.
-//          */
-//         biomes: {
-//             type: `${NBT.TagType.List}`;
-//             value: {
-//                 type: `${NBT.TagType.Compound}`;
-//                 value: {
-//                     /**
-//                      * The biome values.
-//                      *
-//                      * This is an array of indices in the biome palette, one for each block.
-//                      */
-//                     values: NBT.List<NBT.TagType.Int>;
-//                     /**
-//                      * The biome palette.
-//                      *
-//                      * These are the biome numeric IDs.
-//                      */
-//                     palette: NBT.List<NBT.TagType.Int>;
-//                 }[];
-//             };
-//         };
-//     };
-// }
-
-
-// export interface DataTypes_SubChunkPrefix extends NBT.Compound {
-//     type: `${NBT.TagType.Compound}`;
-//     value: {
-//         version: NBT.Byte & { value: 0x08 | 0x09 };
-//         layerCount: NBT.Byte;
-//         layers: {
-//             type: `${NBT.TagType.List}`;
-//             value: {
-//                 type: `${NBT.TagType.Compound}`;
-//                 value: DataTypes_SubChunkPrefixLayer[];
-//             };
-//         };
-//         subChunkIndex?: NBT.Byte;
-//     };
-// }
-
-// export interface DataTypes_SubChunkPrefixLayer extends Omit<NBT.Compound["value"], never> {
-//     storageVersion: NBT.Byte;
-//     palette: {
-//         type: `${NBT.TagType.Compound}`;
-//         value: {
-//             [paletteIndex: string]: NBTSchemas.NBTSchemaTypes.Block;
-//         };
-//     };
-//     block_indices: NBT.List<NBT.TagType.Int>;
-// }
-
-// /**
-//  * The correct NBT structure of the {@link entryContentTypeToFormatMap.StructureTemplate | StructureTemplate} content type.
-//  *
-//  * Note: This is what the structure SHOULD be, it may not be, but if it is different then Minecraft would be unable to parse it.
-//  */
-// export interface DataTypes_StructureTemplate extends NBT.Compound {
-//     type: `${NBT.TagType.Compound}`;
-//     value: {
-//         /**
-//          * The structure data.
-//          */
-//         structure: {
-//             type: `${NBT.TagType.Compound}`;
-//             value: {
-//                 /**
-//                  * The block palette.
-//                  */
-//                 palette: {
-//                     type: `${NBT.TagType.Compound}`;
-//                     value: {
-//                         /**
-//                          * The default block palette.
-//                          */
-//                         default: {
-//                             type: `${NBT.TagType.Compound}`;
-//                             value: {
-//                                 /**
-//                                  * The block entity data.
-//                                  *
-//                                  * @todo
-//                                  */
-//                                 block_position_data: {
-//                                     type: `${NBT.TagType.Compound}`;
-//                                     value: {
-//                                         [key in `${bigint}`]: NBTSchemas.NBTSchemaTypes.BlockEntity;
-//                                     };
-//                                 };
-//                                 /**
-//                                  * The block palette.
-//                                  */
-//                                 block_palette: {
-//                                     type: `${NBT.TagType.List}`;
-//                                     value: {
-//                                         type: `${NBT.TagType.Compound}`;
-//                                         /**
-//                                          * The block palette array.
-//                                          */
-//                                         value: NBTSchemas.NBTSchemaTypes.Block["value"][];
-//                                     };
-//                                 };
-//                             };
-//                         };
-//                     };
-//                 };
-//                 /**
-//                  * The block indices.
-//                  *
-//                  * These are two arrays of indices in the block palette.
-//                  *
-//                  * The first layer is the block layer.
-//                  *
-//                  * The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
-//                  * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
-//                  * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
-//                  */
-//                 block_indices: {
-//                     /**
-//                      * The type of the NBT tag.
-//                      */
-//                     type: `${NBT.TagType.List}`;
-//                     /**
-//                      * The value of the NBT tag.
-//                      */
-//                     value: {
-//                         /**
-//                          * The type of the NBT tags in this list.
-//                          */
-//                         type: `${NBT.TagType.List}`;
-//                         /**
-//                          * The layers.
-//                          */
-//                         value: [
-//                             /**
-//                              * The block layer.
-//                              */
-//                             blockLayer: {
-//                                 /**
-//                                  * The type of the NBT tags in this list.
-//                                  */
-//                                 type: `${NBT.TagType.Int}`;
-//                                 /**
-//                                  * The block indices in this layer.
-//                                  */
-//                                 value: number[];
-//                             },
-//                             /**
-//                              * The waterlog layer.
-//                              */
-//                             waterlogLayer: {
-//                                 /**
-//                                  * The type of the NBT tags in this list.
-//                                  */
-//                                 type: `${NBT.TagType.Int}`;
-//                                 /**
-//                                  * The block indices in this layer.
-//                                  */
-//                                 value: number[];
-//                             }
-//                         ];
-//                     };
-//                 };
-//                 /**
-//                  * @todo
-//                  */
-//                 entities: {
-//                     type: `${NBT.TagType.List}`;
-//                     value: {
-//                         type: `${NBT.TagType.Compound}`;
-//                         value: DataTypes_ActorPrefix["value"][];
-//                     };
-//                 };
-//             };
-//         };
-//         /**
-//          * The size of the structure.
-//          */
-//         size: {
-//             /**
-//              * The type of the NBT tag.
-//              */
-//             type: `${NBT.TagType.List}`;
-//             /**
-//              * The value of the NBT tag.
-//              */
-//             value: {
-//                 /**
-//                  * The type of the NBT tags in this list.
-//                  */
-//                 type: `${NBT.TagType.Int}`;
-//                 /**
-//                  * The size, as a tuple of 3 integers.
-//                  */
-//                 value: [x: number, y: number, z: number];
-//             };
-//         };
-//         /**
-//          * The world origin of the structure.
-//          *
-//          * This is used for entity and block entity data, to get relative positions.
-//          */
-//         structure_world_origin: {
-//             /**
-//              * The type of the NBT tag.
-//              */
-//             type: `${NBT.TagType.List}`;
-//             /**
-//              * The value of the NBT tag.
-//              */
-//             value: {
-//                 /**
-//                  * The type of the NBT tags in this list.
-//                  */
-//                 type: `${NBT.TagType.Int}`;
-//                 /**
-//                  * The world origin, as a tuple of 3 integers.
-//                  */
-//                 value: [x: number, y: number, z: number];
-//             };
-//         };
-//         /**
-//          * The format version of the structure.
-//          */
-//         format_version: NBT.Int;
-//     };
-// }
-
 /**
  * The content type of a LevelDB entry.
  */
 export type DBEntryContentType = (typeof DBEntryContentTypes)[number];
 
-//#endregion Types
+//#endregion
 
 // --------------------------------------------------------------------------------
 // Functions
@@ -1580,7 +1445,7 @@ export function writeBlockIndices(buffer: Buffer, blockDataOffset: number, block
  * Gets the chunk indices from a LevelDB key.
  *
  * The key must be a [chunk key](https://minecraft.wiki/w/Bedrock_Edition_level_format#Chunk_key_format).
- * 
+ *
  * @param key The key to get the chunk indices for, as a Buffer.
  * @returns The chunk indices.
  */
@@ -1810,57 +1675,7 @@ export function getBiomeIDFromType(type: keyof (typeof BiomeData)["int_map"]): n
     return BiomeData.int_map[type];
 }
 
-// Removed as it turns out the long tags were just having their high and low parts swapped.
-// /**
-//  * Converts a 64-bit Q32.32 Unix timestamp to a Date object.
-//  *
-//  * A 64-bit Q32.32 Unix timestamp is the format of the LastPlayed property in `level.dat`.
-//  *
-//  * @param q The timestamp to convert.
-//  * @returns The corresponding Date object.
-//  */
-// export function q32_32ToDate(q: bigint): Date {
-//     // extract whole seconds
-//     const seconds: number = Number(q >> 32n);
-
-//     // extract fractional part (0 .. 2^32-1)
-//     const frac: number = Number(q & 0xffff_ffffn);
-
-//     // convert fraction to milliseconds
-//     const millisFrac: number = (frac * 1000) / 2 ** 32;
-
-//     // total milliseconds since epoch
-//     const ms: number = seconds * 1000 + millisFrac;
-
-//     return new Date(ms);
-// }
-
-// /**
-//  * Converts a Date object to a 64-bit Q32.32 Unix timestamp.
-//  *
-//  * A 64-bit Q32.32 Unix timestamp is the format of the LastPlayed property in `level.dat`.
-//  *
-//  * @param q The Date object to convert.
-//  * @returns The corresponding timestamp.
-//  */
-
-// export function dateToQ32_32(date: Date): bigint {
-//     // milliseconds since epoch
-//     const ms: number = date.getTime();
-
-//     // whole seconds
-//     const seconds: bigint = BigInt(Math.floor(ms / 1000));
-
-//     // fractional part in milliseconds
-//     const msFrac: number = ms % 1000;
-
-//     // convert fraction to Q32.32 units (scale milliseconds to 2^32)
-//     const frac: bigint = BigInt(Math.round((msFrac * 2 ** 32) / 1000));
-
-//     return (seconds << 32n) | frac;
-// }
-
-//#endregion Functions
+//#endregion
 
 // --------------------------------------------------------------------------------
 // Classes
@@ -1872,6 +1687,9 @@ export function getBiomeIDFromType(type: keyof (typeof BiomeData)["int_map"]): n
  * @todo
  */
 export class Structure {
+    /**
+     * @todo
+     */
     public target?:
         | {
               /**
@@ -1898,6 +1716,9 @@ export class Structure {
               path: string;
           }
         | undefined;
+    /**
+     * @todo
+     */
     public constructor(options: { target?: Structure["target"] }) {
         this.target = options.target;
     }
@@ -1907,42 +1728,81 @@ export class Structure {
     public fillBlocks(from: Vector3, to: Vector3, block: NBTSchemas.NBTSchemaTypes.Block): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public saveChanges(): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public delete(): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public expand(min: Vector3, max: Vector3): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public shrink(min: Vector3, max: Vector3): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public move(min: Vector3, max: Vector3): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public scale(scale: Vector3 | number): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public rotate(angle: 0 | 90 | 180 | 270, axis: "x" | "y" | "z" = "y"): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public mirror(axis: "x" | "y" | "z"): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public clear(): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public clearSectionData(from: Vector3, to: Vector3): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public getSectionData(from: Vector3, to: Vector3): StructureSectionData {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public replaceSectionData(offset: Vector3, data: StructureSectionData, options: StructureReplaceSectionDataOptions = {}): any {
         throw new Error("Method not implemented.");
     }
+    /**
+     * @todo
+     */
     public exportPrismarineNBT(): NBTSchemas.NBTSchemaTypes.StructureTemplate {
         throw new Error("Method not implemented.");
     }
@@ -1960,4 +1820,4 @@ export interface StructureReplaceSectionDataOptions {
     autoExpand?: boolean;
 }
 
-//#endregion Classes
+//#endregion

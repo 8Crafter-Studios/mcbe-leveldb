@@ -1,11 +1,27 @@
+# v1.2.1
+
+## Additions
+
+-   Documented a lot more of the module.
+
+## Fixes
+
+-   Fixed the `Entity` NBT schemas and the `world_policies` property of the `LevelDat` NBT schema.
+
+# v1.2.0
+
+## Changes
+
+-   Replaced the `leveldb-zlib` package with the `@8crafter/leveldb-zlib` package.
+
 # v1.1.0
 
 ## Additions
 
 -   Added a Changelog file.
 -   Added two new schemas:
-    -   SubChunkPrefix
-    -   SubChunkPrefixLayer
+    -   `SubChunkPrefix`
+    -   `SubChunkPrefixLayer`
 -   Added some more schema aliases. 
 
 ## Fixes

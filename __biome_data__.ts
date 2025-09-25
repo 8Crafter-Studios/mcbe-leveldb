@@ -1,3 +1,8 @@
+/**
+ * The biome types for Minecraft Bedrock Edition.
+ *
+ * @version 1.21.80
+ */
 export default {
     $source: "https://github.com/gentlegiantJGC/PyMCTranslate/blob/main/PyMCTranslate/json/versions/bedrock_1_21_80/__biome_data__.json",
     $source_version_list: "https://api.github.com/repos/gentlegiantJGC/PyMCTranslate/contents/PyMCTranslate/json/versions",
