@@ -2357,12 +2357,22 @@ however when the corresponding block in the block layer is broken, this block ge
                 title: "The TickingArea schema.",
                 description: "The tickingarea data.",
                 type: "compound",
+                required: ["Dimension", "IsCircle", "MaxX", "MaxZ", "MinX", "MinZ", "Name"],
                 properties: {
                     Dimension: {
                         type: "int",
                     },
+                    EntityId: {
+                        type: "long",
+                    },
+                    IsAlwaysActive: {
+                        type: "byte",
+                    },
                     IsCircle: {
                         type: "byte",
+                    },
+                    MaxDistToPlayers: {
+                        type: "float",
                     },
                     MaxX: {
                         type: "int",
@@ -2378,6 +2388,10 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     Name: {
                         type: "string",
+                        default: {
+                            type: "string",
+                            value: "",
+                        },
                     },
                     Preload: {
                         type: "byte",
@@ -12479,13 +12493,20 @@ however when the corresponding block in the block layer is broken, this block ge
         export type TickingArea = {
             type: "compound";
             value: {
-                Dimension?: { type: "int"; value: number };
-                IsCircle?: { type: "byte"; value: number };
-                MaxX?: { type: "int"; value: number };
-                MaxZ?: { type: "int"; value: number };
-                MinX?: { type: "int"; value: number };
-                MinZ?: { type: "int"; value: number };
-                Name?: { type: "string"; value: string };
+                Dimension: { type: "int"; value: number };
+                EntityId?: { type: "long"; value: [high: number, low: number] };
+                IsAlwaysActive?: { type: "byte"; value: number };
+                IsCircle: { type: "byte"; value: number };
+                MaxDistToPlayers?: { type: "float"; value: number };
+                MaxX: { type: "int"; value: number };
+                MaxZ: { type: "int"; value: number };
+                MinX: { type: "int"; value: number };
+                MinZ: { type: "int"; value: number };
+                /**
+                 * @default
+                 * ""
+                 */
+                Name: { type: "string"; value: string };
                 Preload?: { type: "byte"; value: number };
             };
         };
@@ -17688,13 +17709,20 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Tickingarea = {
             type: "compound";
             value: {
-                Dimension?: { type: "int"; value: number };
-                IsCircle?: { type: "byte"; value: number };
-                MaxX?: { type: "int"; value: number };
-                MaxZ?: { type: "int"; value: number };
-                MinX?: { type: "int"; value: number };
-                MinZ?: { type: "int"; value: number };
-                Name?: { type: "string"; value: string };
+                Dimension: { type: "int"; value: number };
+                EntityId?: { type: "long"; value: [high: number, low: number] };
+                IsAlwaysActive?: { type: "byte"; value: number };
+                IsCircle: { type: "byte"; value: number };
+                MaxDistToPlayers?: { type: "float"; value: number };
+                MaxX: { type: "int"; value: number };
+                MaxZ: { type: "int"; value: number };
+                MinX: { type: "int"; value: number };
+                MinZ: { type: "int"; value: number };
+                /**
+                 * @default
+                 * ""
+                 */
+                Name: { type: "string"; value: string };
                 Preload?: { type: "byte"; value: number };
             };
         };

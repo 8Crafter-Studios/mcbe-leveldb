@@ -1,3 +1,9 @@
+# v1.2.2
+
+## Changes
+
+-   Updated the TickingArea schema.
+
 # v1.2.1
 
 ## Additions
