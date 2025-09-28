@@ -1,3 +1,9 @@
+# v1.2.4
+
+## Fixes
+
+-   The `getChunkKeyIndices` function now correctly converts the sub-chunk index to a signed integer instead of an unsigned integer.
+
 # v1.2.3
 
 ## Fixes

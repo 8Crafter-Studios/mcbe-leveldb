@@ -1454,7 +1454,7 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
         x: getInt32Val(key, 0),
         z: getInt32Val(key, 4),
         dimension: [13, 14].includes(key.length) ? dimensions[getInt32Val(key, 8)] ?? "overworld" : "overworld",
-        subChunkIndex: [10, 14].includes(key.length) ? key.at(-1)! : undefined,
+        subChunkIndex: [10, 14].includes(key.length) ? (key.at(-1)! << 24) >> 24 : undefined,
     };
 }
 

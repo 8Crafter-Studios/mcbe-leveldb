@@ -33,7 +33,7 @@ for (const key of await getKeysOfType(db, "SubChunkPrefix")) {
         if (!raw) continue;
         const subChunkPrefix: NBTSchemas.NBTSchemaTypes.SubChunkPrefix = await entryContentTypeToFormatMap.SubChunkPrefix.parse(raw);
         const indices: SubChunkIndexDimensionVectorXZ = getChunkKeyIndices(key) as SubChunkIndexDimensionVectorXZ;
-        const chunkLocation: Vector3 = { x: indices.x * 16, y: ((indices.subChunkIndex << 24) >> 24) * 16, z: indices.z * 16 };
+        const chunkLocation: Vector3 = { x: indices.x * 16, y: indices.subChunkIndex * 16, z: indices.z * 16 };
         // console.log(indices, "subChunkIndex" in indices ? (indices.subChunkIndex << 24) >> 24 : undefined);
         for (const layer of subChunkPrefix.value.layers.value.value) {
             if (!Object.values(layer.palette.value).some((v: NBTSchemas.NBTSchemaTypes.Block): boolean => blockTypes.includes(v.value.name.value))) continue;
@@ -42,7 +42,12 @@ for (const key of await getKeysOfType(db, "SubChunkPrefix")) {
                 .filter(([blockIndex]: [blockIndex: number, i: number]): boolean => blockTypes.includes(layer.palette.value[blockIndex]!.value.name.value))
                 .forEach(([_blockIndex, i]: [blockIndex: number, i: number]): void => {
                     const offset: Vector3 = chunkBlockIndexToOffset(i);
-                    blockLocations.push({ x: chunkLocation.x + offset.x, y: chunkLocation.y + offset.y, z: chunkLocation.z + offset.z, dimension: indices.dimension });
+                    blockLocations.push({
+                        x: chunkLocation.x + offset.x,
+                        y: chunkLocation.y + offset.y,
+                        z: chunkLocation.z + offset.z,
+                        dimension: indices.dimension,
+                    });
                 });
         }
     } catch (e) {
