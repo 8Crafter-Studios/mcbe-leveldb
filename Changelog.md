@@ -1,3 +1,11 @@
+# v1.3.0
+
+## Additions
+
+-   Added the `generateChunkKeyFromIndices` function.
+-   Added the `getIntFromChunkKeyType` function.
+-   Added the `DBChunkKeyEntryContentType` type.
+
 # v1.2.4
 
 ## Fixes

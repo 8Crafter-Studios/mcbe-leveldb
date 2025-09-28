@@ -1186,6 +1186,35 @@ export interface BiomePalette {
  */
 export type DBEntryContentType = (typeof DBEntryContentTypes)[number];
 
+/**
+ * A content type of a LevelDB chunk key entry.
+ */
+export type DBChunkKeyEntryContentType =
+    | "Data3D"
+    | "Version"
+    | "Data2D"
+    | "Data2DLegacy"
+    | "SubChunkPrefix"
+    | "LegacyTerrain"
+    | "BlockEntity"
+    | "Entity"
+    | "PendingTicks"
+    | "LegacyBlockExtraData"
+    | "BiomeState"
+    | "FinalizedState"
+    | "ConversionData"
+    | "BorderBlocks"
+    | "HardcodedSpawners"
+    | "RandomTicks"
+    | "Checksums"
+    | "MetaDataHash"
+    | "GeneratedPreCavesAndCliffsBlending"
+    | "BlendingBiomeHeight"
+    | "BlendingData"
+    | "ActorDigestVersion"
+    | "LegacyVersion"
+    | "AABBVolumes";
+
 //#endregion
 
 // --------------------------------------------------------------------------------
@@ -1456,6 +1485,82 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
         dimension: [13, 14].includes(key.length) ? dimensions[getInt32Val(key, 8)] ?? "overworld" : "overworld",
         subChunkIndex: [10, 14].includes(key.length) ? (key.at(-1)! << 24) >> 24 : undefined,
     };
+}
+
+/**
+ * Generates a raw chunk key from chunk indices.
+ *
+ * @param indices The chunk indices.
+ * @param chunkKeyType The chunk key type.
+ * @returns The raw chunk key.
+ */
+export function generateChunkKeyFromIndices(indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ, chunkKeyType: DBChunkKeyEntryContentType): Buffer {
+    const buffer: Buffer<ArrayBuffer> = Buffer.alloc((indices.dimension === "overworld" ? 9 : 13) + +("subChunkIndex" in indices));
+    setInt32Val(buffer, 0, indices.x);
+    setInt32Val(buffer, 4, indices.z);
+    if (indices.dimension !== "overworld") setInt32Val(buffer, 8, dimensions.indexOf(indices.dimension) ?? 0);
+    buffer[8 + +(indices.dimension !== "overworld") * 4] = getIntFromChunkKeyType(chunkKeyType);
+    if ("subChunkIndex" in indices) buffer[9 + +(indices.dimension !== "overworld") * 4] = indices.subChunkIndex;
+    return buffer;
+}
+
+/**
+ * Converts a chunk key type to the integer value that represents it.
+ *
+ * @param chunkKeyType The chunk key type.
+ * @returns The integer value.
+ */
+function getIntFromChunkKeyType(chunkKeyType: DBChunkKeyEntryContentType): number {
+    switch (chunkKeyType) {
+        case "Data3D":
+            return 0x2b;
+        case "Version":
+            return 0x2c;
+        case "Data2D":
+            return 0x2d;
+        case "Data2DLegacy":
+            return 0x2e;
+        case "SubChunkPrefix":
+            return 0x2f;
+        case "LegacyTerrain":
+            return 0x30;
+        case "BlockEntity":
+            return 0x31;
+        case "Entity":
+            return 0x32;
+        case "PendingTicks":
+            return 0x33;
+        case "LegacyBlockExtraData":
+            return 0x34;
+        case "BiomeState":
+            return 0x35;
+        case "FinalizedState":
+            return 0x36;
+        case "ConversionData":
+            return 0x37;
+        case "BorderBlocks":
+            return 0x38;
+        case "HardcodedSpawners":
+            return 0x39;
+        case "RandomTicks":
+            return 0x3a;
+        case "Checksums":
+            return 0x3b;
+        case "MetaDataHash":
+            return 0x3d;
+        case "GeneratedPreCavesAndCliffsBlending":
+            return 0x3e;
+        case "BlendingBiomeHeight":
+            return 0x3f;
+        case "BlendingData":
+            return 0x40;
+        case "ActorDigestVersion":
+            return 0x41;
+        case "LegacyVersion":
+            return 0x76;
+        case "AABBVolumes":
+            return 0x77;
+    }
 }
 
 /**
