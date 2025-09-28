@@ -11,3 +11,4 @@ test/nbtSchemaTypeScriptInterfaces.d.ts
 test/nbtSchemaTypeScriptTypes.d.ts
 *.js
 *.js.map
+trialSpawnerLocations.json

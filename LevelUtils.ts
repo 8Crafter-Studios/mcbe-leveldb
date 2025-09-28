@@ -744,7 +744,7 @@ export const entryContentTypeToFormatMap = {
      */
     BlockEntity: { type: "NBT" },
     /**
-     * 
+     *
      * @see {@link NBTSchemas.nbtSchemas.ActorPrefix}
      */
     Entity: { type: "NBT" },
@@ -1348,8 +1348,8 @@ export function sanitizeDisplayKey(key: string): string {
 export function chunkBlockIndexToOffset(index: number): Vector3 {
     return {
         x: (index >> 8) & 0xf,
-        y: (index >> 4) & 0xf,
-        z: (index >> 0) & 0xf,
+        y: (index >> 0) & 0xf,
+        z: (index >> 4) & 0xf,
     };
 }
 
@@ -1360,7 +1360,7 @@ export function chunkBlockIndexToOffset(index: number): Vector3 {
  * @returns The chunk block index.
  */
 export function offsetToChunkBlockIndex(offset: Vector3): number {
-    return (offset.x & 0xf) | ((offset.y & 0xf) << 4) | ((offset.z & 0xf) << 8);
+    return ((offset.x & 0xf) << 8) | (offset.y & 0xf) | ((offset.z & 0xf) << 4);
 }
 
 /**

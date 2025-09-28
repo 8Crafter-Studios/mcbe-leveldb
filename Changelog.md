@@ -1,3 +1,9 @@
+# v1.2.3
+
+## Fixes
+
+-   Fixed the `chunkBlockIndexToOffset` and `offsetToChunkBlockIndex` mixing up the Y and Z axes.
+
 # v1.2.2
 
 ## Changes
