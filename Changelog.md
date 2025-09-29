@@ -1,3 +1,9 @@
+# v1.3.1
+
+## Fixes
+
+-   Fixed the `StructureTemplate` NBT schema.
+
 # v1.3.0
 
 ## Additions
@@ -22,7 +28,7 @@
 
 ## Changes
 
--   Updated the TickingArea schema.
+-   Updated the `TickingArea` NBT schema.
 
 # v1.2.1
 

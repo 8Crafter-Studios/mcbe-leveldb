@@ -2254,30 +2254,26 @@ The second layer is the waterlog layer, even though it is mainly used for waterl
 which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
 however when the corresponding block in the block layer is broken, this block gets moved to the block layer).`,
                                 type: "list",
-                                items: {
-                                    description: "The layers.",
-                                    type: "list",
-                                    items: [
-                                        {
-                                            title: "Block Layer",
-                                            description: "The block layer.",
-                                            type: "list",
-                                            items: {
-                                                description: "A block index in this layer.",
-                                                type: "int",
-                                            },
+                                items: [
+                                    {
+                                        title: "Block Layer",
+                                        description: "The block layer.",
+                                        type: "list",
+                                        items: {
+                                            description: "A block index in this layer.",
+                                            type: "int",
                                         },
-                                        {
-                                            title: "Waterlog Layer",
-                                            description: "The waterlog layer.",
-                                            type: "list",
-                                            items: {
-                                                description: "A block index in this layer.",
-                                                type: "int",
-                                            },
+                                    },
+                                    {
+                                        title: "Waterlog Layer",
+                                        description: "The waterlog layer.",
+                                        type: "list",
+                                        items: {
+                                            description: "A block index in this layer.",
+                                            type: "int",
                                         },
-                                    ],
-                                },
+                                    },
+                                ],
                             },
                             entities: {
                                 description: "The list of entities in the structure.",
@@ -12454,10 +12450,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
                          * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
                          */
-                        block_indices: {
-                            type: "list";
-                            value: { type: "list"; value: { type: "list"; value: [{ type: "int"; value: number[] }, { type: "int"; value: number[] }] }[] };
-                        };
+                        block_indices: { type: "list"; value: { type: "list"; value: [{ type: "int"; value: number[] }, { type: "int"; value: number[] }] } };
                         /**
                          * The list of entities in the structure.
                          */
