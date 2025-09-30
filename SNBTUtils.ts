@@ -1766,7 +1766,10 @@ function formatString(s: string): string {
         .replace(/\r/g, "\\r")
         .replace(/\t/g, "\\t")
         .replace(/\x08/g, "\\b")
-        .replace(/\f/g, "\\f");
+        .replace(/\f/g, "\\f")
+        .replaceAll(/([\0-\x1f\u2028\u2029\ud800-\udfff])/g, (string: string): string => {
+            return `\\u${string.codePointAt(0)!.toString(16).padStart(4, "0")}`;
+        });
 
     return `${quote}${escaped}${quote}`;
 }

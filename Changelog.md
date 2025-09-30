@@ -1,3 +1,9 @@
+# v1.3.4
+
+## Critical Fixes
+
+-   Fixed a bug where the SNBT stringifier did not escape control characters (`\x00-\x1F`), characters in the `\uD800-\uDFFF` range, or characters `\u2028`or `\u2029`.
+
 # v1.3.3
 
 ## Fixes
@@ -66,7 +72,7 @@
 -   Added two new schemas:
     -   `SubChunkPrefix`
     -   `SubChunkPrefixLayer`
--   Added some more schema aliases. 
+-   Added some more schema aliases.
 
 ## Fixes
 
