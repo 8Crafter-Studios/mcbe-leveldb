@@ -1015,6 +1015,12 @@ export type EntryContentTypeFormatData = (
      * @default "bin"
      */
     rawFileExtension?: string;
+    /**
+     * The default value to use when initializing a new entry.
+     *
+     * @default undefined
+     */
+    defaultValue?: Buffer;
 };
 
 //#endregion
@@ -1598,7 +1604,7 @@ export function getKeyDisplayName(key: Buffer): string {
         case "AABBVolumes": {
             const indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ = getChunkKeyIndices(key);
             return `${indices.dimension}_${indices.x}_${indices.z}${
-                "subChunkIndex" in indices && indices.subChunkIndex ? `_${indices.subChunkIndex}` : ""
+                "subChunkIndex" in indices && indices.subChunkIndex !== undefined ? `_${indices.subChunkIndex}` : ""
             }_${contentType}`;
         }
         case "Digest": {

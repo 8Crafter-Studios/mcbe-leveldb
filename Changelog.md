@@ -1,3 +1,9 @@
+# v1.3.3
+
+## Fixes
+
+-   Fixed a bug where the `getKeyDisplayName` function did not include the sub-chunk index in the display name if it was 0.
+
 # v1.3.2
 
 ## Critical Fixes
