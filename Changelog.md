@@ -1,3 +1,9 @@
+# v1.3.2
+
+## Critical Fixes
+
+-   Fixed the parser and serializer for the `Data3D` content type.
+
 # v1.3.1
 
 ## Fixes

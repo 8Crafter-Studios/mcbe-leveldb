@@ -331,7 +331,7 @@ function readSubchunkPaletteIds(
                 // const z = (u >> 4) & 0xf;
                 // const y = u & 0xf;
 
-                values[u] = (temp & mask) + 1; // +1 because R stored 1-based
+                values[u] = temp & mask;
                 temp >>= bitsPerBlock;
                 u++;
             }
@@ -348,7 +348,7 @@ function readSubchunkPaletteIds(
     } else {
         // bitsPerBlock == 0 -> everything is ID 1
         for (let u = 0; u < 4096; u++) {
-            values[u] = 1;
+            values[u] = 0;
         }
         return { values, isPersistent, paletteSize: 1, newOffset: p };
     }
@@ -384,9 +384,9 @@ function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer 
         }
         bitIndex += bitsPerBlock;
     }
-    words.forEach((val, i) => {
-        words[i] = (-val - 1) & 0xffffffff;
-    });
+    // words.forEach((val, i) => {
+    //     words[i] = (-val - 1) & 0xffffffff;
+    // });
 
     // --- Write header byte ---
     const header: Buffer<ArrayBuffer> = Buffer.alloc(1);
