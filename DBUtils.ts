@@ -13,20 +13,24 @@ import { JSONB } from "./utils/JSONB.ts";
  * @param type The {@link DBEntryContentType | content type} to look for.
  * @returns The keys from the LevelDB with the specified content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export async function getKeysOfType<T extends DBEntryContentType>(db: LevelDB, type: T): Promise<Buffer[]>;
+export async function getKeysOfType<T extends DBEntryContentType>(db: LevelDB, type: T): Promise<Buffer<ArrayBuffer>[]>;
 /**
  * Gets the keys from the list of LevelDB keys with a specific content type.
  *
  * @template T The content type to look for.
+ * @template TArrayBuffer The type of the buffers.
  * @param dbKeys The LevelDB keys. Should be an array of Buffers.
  * @param type The {@link DBEntryContentType | content type} to look for.
  * @returns The keys from the provided LevelDB keys array with the specified content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export function getKeysOfType<T extends DBEntryContentType>(dbKeys: Buffer[], type: T): Buffer[];
-export function getKeysOfType<T extends DBEntryContentType>(dbOrDBKeys: LevelDB | Buffer[], type: T): Promise<Buffer[]> | Buffer[] {
+export function getKeysOfType<T extends DBEntryContentType, TArrayBuffer extends ArrayBufferLike = ArrayBufferLike>(
+    dbKeys: Buffer<TArrayBuffer>[],
+    type: T
+): Buffer<TArrayBuffer>[];
+export function getKeysOfType<T extends DBEntryContentType>(dbOrDBKeys: LevelDB | Buffer[], type: T): Promise<Buffer<ArrayBuffer>[]> | Buffer[] {
     if (Array.isArray(dbOrDBKeys)) return dbOrDBKeys.filter((key: Buffer): boolean => getContentTypeFromDBKey(key) === type);
-    return new Promise(async (resolve: (value: Buffer[]) => void): Promise<void> => {
-        const foundKeys: Buffer[] = [];
+    return new Promise(async (resolve: (value: Buffer<ArrayBuffer>[]) => void): Promise<void> => {
+        const foundKeys: Buffer<ArrayBuffer>[] = [];
         for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
             if (getContentTypeFromDBKey(rawKey) === type) foundKeys.push(rawKey);
         }
@@ -45,31 +49,36 @@ export function getKeysOfType<T extends DBEntryContentType>(dbOrDBKeys: LevelDB 
 export async function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
     db: LevelDB,
     types: T
-): Promise<{ [key in T[number]]: Buffer[] }>;
+): Promise<{ [key in T[number]]: Buffer<ArrayBuffer>[] }>;
 /**
  * Gets the keys from the list of LevelDB keys with one of the specified content types.
  *
  * @template T The content types to look for.
+ * @template TArrayBuffer The type of the buffers.
  * @param dbKeys The LevelDB keys. Should be an array of Buffers.
  * @param types The {@link DBEntryContentType | content types} to look for.
  * @returns An object mapping each of the specified content types to the keys from the provided LevelDB keys array with that content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(dbKeys: Buffer[], types: T): { [key in T[number]]: Buffer[] };
+export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntryContentType[], TArrayBuffer extends ArrayBufferLike>(
+    dbKeys: Buffer<TArrayBuffer>[],
+    types: T
+): { [key in T[number]]: Buffer<TArrayBuffer>[] };
 export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
     dbOrDBKeys: LevelDB | Buffer[],
     types: T
-): Promise<{ [key in T[number]]: Buffer[] }> | { [key in T[number]]: Buffer[] } {
-    const results = {} as { [key in T[number]]: Buffer[] };
+): Promise<{ [key in T[number]]: Buffer<ArrayBuffer>[] }> | { [key in T[number]]: Buffer[] } {
+    const results = {} as { [key in T[number]]: Buffer<any>[] };
     types.forEach((contentType: T[number]): void => {
         results[contentType] = [];
     });
     if (Array.isArray(dbOrDBKeys)) {
         for (const key of dbOrDBKeys) {
-            if (types.includes(getContentTypeFromDBKey(key))) results[getContentTypeFromDBKey(key) as T[number]].push(key);
+            const contentType: DBEntryContentType = getContentTypeFromDBKey(key);
+            if (types.includes(contentType)) results[contentType as T[number]].push(key);
         }
         return results;
     }
-    return new Promise(async (resolve: (value: { [key in T[number]]: Buffer[] }) => void): Promise<void> => {
+    return new Promise(async (resolve: (value: { [key in T[number]]: Buffer<ArrayBuffer>[] }) => void): Promise<void> => {
         for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
             const contentType: DBEntryContentType = getContentTypeFromDBKey(rawKey);
             if (types.includes(contentType)) results[contentType as T[number]].push(rawKey);

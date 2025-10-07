@@ -526,6 +526,59 @@ export namespace NBTSchemas {
                     },
                 },
             },
+            DynamicProperties: {
+                id: "DynamicProperties",
+                title: "The DynamicProperties schema.",
+                description:
+                    "The dynamic properties data of the add-ons that have been on the world. The property keys should be the add-ons' script module UUIDs.",
+                type: "compound",
+                additionalProperties: {
+                    description: "The dynamic properties of an add-on. The property keys should be the dynamic property keys.",
+                    type: "compound",
+                    additionalProperties: {
+                        oneOf: [
+                            {
+                                description: "A string.",
+                                type: "string",
+                            },
+                            {
+                                description: "A boolean.",
+                                type: "byte",
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                                enumDescriptions: ["false", "true"],
+                            },
+                            {
+                                description: "A number.",
+                                type: "double",
+                            },
+                            {
+                                description: "A Vector3.",
+                                type: "list",
+                                items: [
+                                    {
+                                        title: "x",
+                                        description: "X component of this vector.",
+                                        type: "float",
+                                    },
+                                    {
+                                        title: "y",
+                                        description: "Y component of this vector.",
+                                        type: "float",
+                                    },
+                                    {
+                                        title: "z",
+                                        description: "Z component of this vector.",
+                                        type: "float",
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                },
+            },
             LevelDat: {
                 id: "LevelDat",
                 title: "The LevelDat schema.",
@@ -10808,6 +10861,25 @@ however when the corresponding block in the block layer is broken, this block ge
                              */
                             palette: { type: "list"; value: { type: "int"; value: number[] } };
                         }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The DynamicProperties schema.
+         *
+         * The dynamic properties data of the add-ons that have been on the world. The property keys should be the add-ons' script module UUIDs.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.DynamicProperties}
+         */
+        export type DynamicProperties = {
+            type: "compound";
+            value: {
+                [key: string]: {
+                    type: "compound";
+                    value: {
+                        [key: string]: { type: unknown; value: any };
                     };
                 };
             };

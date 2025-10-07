@@ -26,13 +26,13 @@ function readInt16LE(buf: Uint8Array, offset: number): number {
     return val >= 0x8000 ? val - 0x10000 : val;
 }
 
-function writeInt16LE(value: number): Buffer {
+function writeInt16LE(value: number): Buffer<ArrayBuffer> {
     const buf = Buffer.alloc(2);
     buf.writeInt16LE(value, 0);
     return buf;
 }
 
-function writeInt32LE(value: number): Buffer {
+function writeInt32LE(value: number): Buffer<ArrayBuffer> {
     const buf = Buffer.alloc(4);
     buf.writeInt32LE(value, 0);
     return buf;
@@ -195,18 +195,18 @@ export function readData3dValue(rawvalue: Uint8Array | null): {
  * @param biomes A biome map as an array of 24 or more BiomePalette objects.
  * @returns The raw value to write.
  */
-export function writeData3DValue(heightMap: TupleOfLength16<TupleOfLength16<number>>, biomes: BiomePalette[]): Buffer {
+export function writeData3DValue(heightMap: TupleOfLength16<TupleOfLength16<number>>, biomes: BiomePalette[]): Buffer<ArrayBuffer> {
     // heightMap is 16x16, flatten to 256 shorts
     const flatHeight: number[] = heightMap.flatMap((v: TupleOfLength16<number>, i: number): number[] =>
         v.map((_v2: number, i2: number): number => heightMap[i2]![i]!)
     );
 
     // Write height map (512 bytes)
-    const heightBufs: Buffer[] = flatHeight.map((v: number): Buffer => writeInt16LE(v));
+    const heightBufs: Buffer[] = flatHeight.map((v: number): Buffer<ArrayBuffer> => writeInt16LE(v));
     const heightBuf: Buffer<ArrayBuffer> = Buffer.concat(heightBufs);
 
     // Write biome data
-    const biomeBuf: Buffer = writeChunkBiomes(biomes);
+    const biomeBuf: Buffer<ArrayBuffer> = writeChunkBiomes(biomes);
 
     // Combine
     return Buffer.concat([heightBuf, biomeBuf]);
@@ -263,21 +263,21 @@ function readChunkBiomes(rawValue: Uint8Array): BiomePalette[] {
  *
  * @internal
  */
-function writeChunkBiomes(biomes: BiomePalette[]): Buffer {
-    const buffers: Buffer[] = [];
+function writeChunkBiomes(biomes: BiomePalette[]): Buffer<ArrayBuffer> {
+    const buffers: Buffer<ArrayBuffer>[] = [];
 
     for (const bb of biomes) {
         if (!bb || bb.values === null || bb.values.length === 0) continue; // NULL case in R
         const { values, palette } = bb;
 
         // --- Write subchunk palette ids (bitpacked) ---
-        const idsBuf: Buffer = writeSubchunkPaletteIds(values!, palette.length);
+        const idsBuf: Buffer<ArrayBuffer> = writeSubchunkPaletteIds(values!, palette.length);
 
         // --- Write palette size ---
-        const paletteSizeBuf: Buffer = writeInt32LE(palette.length);
+        const paletteSizeBuf: Buffer<ArrayBuffer> = writeInt32LE(palette.length);
 
         // --- Write palette values ---
-        const paletteBufs: Buffer[] = palette.map((v: number): Buffer => writeInt32LE(v));
+        const paletteBufs: Buffer<ArrayBuffer>[] = palette.map((v: number): Buffer<ArrayBuffer> => writeInt32LE(v));
 
         buffers.push(idsBuf, paletteSizeBuf, ...paletteBufs);
     }
@@ -354,7 +354,7 @@ function readSubchunkPaletteIds(
     }
 }
 
-function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer {
+function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer<ArrayBuffer> {
     const blockCount: number = values.length; // usually 16*16*16 = 4096
     const bitsPerBlock: number = Math.max(1, Math.ceil(Math.log2(paletteSize)));
     const wordsPerBlock: number = Math.ceil((blockCount * bitsPerBlock) / 32);
@@ -562,7 +562,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to serialize.
          * @returns The serialized data, as a buffer.
          */
-        serialize(data: NBTSchemas.NBTSchemaTypes.Data3D): Buffer {
+        serialize(data: NBTSchemas.NBTSchemaTypes.Data3D): Buffer<ArrayBuffer> {
             return writeData3DValue(
                 data.value.heightMap.value.value.map((row: { type: "short"; value: number[] }): number[] => row.value) as any,
                 data.value.biomes.value.value.map(
@@ -573,18 +573,54 @@ export const entryContentTypeToFormatMap = {
                 )
             );
         },
+        // TO-DO: Add a default value for this.
     },
-    Version: { type: "int", bytes: 1, format: "LE", signed: false },
+    /**
+     * The version of a chunk.
+     *
+     * The current chunk version as of `v1.21.111` is `41` (`0x29`).
+     *
+     * Deleting think key causes the game to completely regenerate the corresponding chunk.
+     */
+    Version: {
+        /**
+         * The format type of the data.
+         */
+        type: "int",
+        /**
+         * How many bytes this integer is.
+         */
+        bytes: 1,
+        /**
+         * The endianness of the data.
+         */
+        format: "LE",
+        /**
+         * The signedness of the data.
+         */
+        signed: false,
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Bytes:
+         * ```json
+         * [41]
+         * ```
+         */
+        defaultValue: Buffer.from([41]),
+    },
     /**
      * @deprecated Only used in versions < 1.18.0.
      *
      * @todo Make a parser for this so that versions < 1.18.0 can be supported.
+     * @todo Add a description for this.
      */
     Data2D: { type: "unknown" },
     /**
      * @deprecated Only used in versions < 1.0.0.
      *
      * @todo Make a parser for this so that versions < 1.0.0 can be supported.
+     * @todo Add a description for this.
      */
     Data2DLegacy: { type: "unknown" },
     /**
@@ -704,21 +740,21 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to serialize.
          * @returns The serialized data, as a buffer.
          */
-        serialize(data: NBTSchemas.NBTSchemaTypes.SubChunkPrefix): Buffer {
-            const buffer: Buffer = Buffer.from([
+        serialize(data: NBTSchemas.NBTSchemaTypes.SubChunkPrefix): Buffer<ArrayBuffer> {
+            const buffer: Buffer<ArrayBuffer> = Buffer.from([
                 data.value.version.value,
                 data.value.layerCount.value,
                 ...(data.value.version.value >= 0x09 ? [data.value.subChunkIndex!.value] : []),
             ]);
-            const layerBuffers: Buffer[] = data.value.layers.value.value.map((layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer => {
+            const layerBuffers: Buffer<ArrayBuffer>[] = data.value.layers.value.value.map((layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer<ArrayBuffer> => {
                 const bitsPerBlock: number = layer.storageVersion.value >> 1;
                 const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
                 const numints: number = Math.ceil(4096 / blocksPerWord);
                 const bytes: number[] = [layer.storageVersion.value];
-                const blockIndicesBuffer: Buffer = Buffer.alloc(Math.ceil(numints * 4));
+                const blockIndicesBuffer: Buffer<ArrayBuffer> = Buffer.alloc(Math.ceil(numints * 4));
                 writeBlockIndices(blockIndicesBuffer, 0, layer.block_indices.value.value, bitsPerBlock, blocksPerWord);
                 bytes.push(...blockIndicesBuffer);
-                const paletteLengthBuffer: Buffer = Buffer.alloc(4);
+                const paletteLengthBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
                 setInt32Val(paletteLengthBuffer, 0, Object.keys(layer.palette.value).length);
                 bytes.push(...paletteLengthBuffer);
                 const paletteKeys: `${bigint}`[] = (Object.keys(layer.palette.value) as `${bigint}`[]).sort(
@@ -732,114 +768,593 @@ export const entryContentTypeToFormatMap = {
             });
             return Buffer.concat([buffer, ...layerBuffers]);
         },
+        // TO-DO: Add a default value for this.
     },
     /**
      * @deprecated Only used in versions < 1.0.0.
      *
      * @todo Make a parser for this so that versions < 1.0.0 can be supported.
+     * @todo Add a description for this.
      */
     LegacyTerrain: { type: "unknown" },
     /**
+     * A block entity associated with a chunk.
+     *
      * @see {@link NBTSchemas.nbtSchemas.BlockEntity}
      */
-    BlockEntity: { type: "NBT" },
+    BlockEntity: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
     /**
-     *
-     * @see {@link NBTSchemas.nbtSchemas.ActorPrefix}
+     * @todo Figure out what the NBT structure of this is.
+     * @todo Add a description for this.
      */
-    Entity: { type: "NBT" },
-    PendingTicks: { type: "NBT" },
+    Entity: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @todo Add a schema for this.
+     * @todo Add a description for this.
+     */
+    PendingTicks: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+        // TO-DO: Add a default value for this.
+    },
     /**
      * @deprecated Only used in versions < 1.2.3.
+     *
+     * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
     LegacyBlockExtraData: { type: "unknown" },
     /**
      * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
     BiomeState: { type: "unknown" },
-    FinalizedState: { type: "int", bytes: 4, format: "LE", signed: false },
+    /**
+     * A value that indicates the finalization state of a chunk's data.
+     *
+     * Possible values:
+     * - `0`: Unknown
+     * - `1`: Unknown
+     * - `2`: Unknown
+     */
+    FinalizedState: {
+        /**
+         * The format type of the data.
+         */
+        type: "int",
+        /**
+         * How many bytes this integer is.
+         */
+        bytes: 4,
+        /**
+         * The endianness of the data.
+         */
+        format: "LE",
+        /**
+         * The signedness of the data.
+         */
+        signed: false,
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Bytes:
+         * ```json
+         * [0,0,0,0]
+         * ```
+         */
+        defaultValue: Buffer.from([0, 0, 0, 0]),
+    },
     /**
      * @deprecated No longer used.
+     *
+     * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
     ConversionData: { type: "unknown" },
     /**
      * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
     BorderBlocks: { type: "unknown" },
-    HardcodedSpawners: { type: "NBT" },
-    RandomTicks: { type: "NBT" },
+    /**
+     * @todo Add a schema for this.
+     * @todo Add a description for this.
+     */
+    HardcodedSpawners: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @todo Add a schema for this.
+     * @todo Add a description for this.
+     */
+    RandomTicks: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+        // TO-DO: Add a default value for this.
+    },
     /**
      * @deprecated Only used in versions < 1.18.0.
+     *
+     * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
-    Checksums: { type: "unknown" },
+    Checksums: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
-    MetaDataHash: { type: "unknown" },
+    MetaDataHash: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @deprecated Unused.
+     *
+     * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
-    GeneratedPreCavesAndCliffsBlending: { type: "unknown" },
+    GeneratedPreCavesAndCliffsBlending: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
-    BlendingBiomeHeight: { type: "unknown" },
+    BlendingBiomeHeight: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
-    BlendingData: { type: "unknown" },
+    BlendingData: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @todo Figure out how to parse this.
+     * @todo Add a description for this.
+     *
+     * Seems to always be one byte with a value of `0x00`.
      */
-    ActorDigestVersion: { type: "unknown" },
+    ActorDigestVersion: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @deprecated Only used in versions < 1.16.100. Later versions use {@link entryContentTypeToFormatMap.Version}
+     *
+     * @todo Add a description for this.
      */
-    LegacyVersion: { type: "int", bytes: 1, format: "LE", signed: false },
-    VillageDwellers: { type: "NBT" },
-    VillageInfo: { type: "NBT" },
-    VillagePOI: { type: "NBT" },
-    VillagePlayers: { type: "NBT" },
-    Player: { type: "NBT" },
-    PlayerClient: { type: "NBT" },
-    ActorPrefix: { type: "NBT", format: "LE" },
+    LegacyVersion: {
+        /**
+         * The format type of the data.
+         */
+        type: "int",
+        /**
+         * How many bytes this integer is.
+         */
+        bytes: 1,
+        /**
+         * The endianness of the data.
+         */
+        format: "LE",
+        /**
+         * The signedness of the data.
+         */
+        signed: false,
+    },
+    /**
+     * @see {@link NBTSchemas.nbtSchemas.VillageDwellers}
+     *
+     * @todo Add a description for this.
+     */
+    VillageDwellers: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @see {@link NBTSchemas.nbtSchemas.VillageInfo}
+     *
+     * @todo Add a description for this.
+     */
+    VillageInfo: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @see {@link NBTSchemas.nbtSchemas.VillagePOI}
+     *
+     * @todo Add a description for this.
+     */
+    VillagePOI: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @see {@link NBTSchemas.nbtSchemas.VillagePlayers}
+     *
+     * @todo Add a description for this.
+     */
+    VillagePlayers: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * A player's data.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.Player}
+     */
+    Player: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * A player's client data.
+     *
+     * This includes the key for the player's {@link entryContentTypeToFormatMap.Player | server data}, the player's Microsoft account ID, and the player's self-signed ID.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.PlayerClient}
+     */
+    PlayerClient: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The data for an entity in the world.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.ActorPrefix}
+     */
+    ActorPrefix: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
     /**
      * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
-    Digest: { type: "unknown" },
-    Map: { type: "NBT" },
-    Portals: { type: "NBT" },
-    SchedulerWT: { type: "NBT" },
-    StructureTemplate: { type: "NBT" },
-    TickingArea: { type: "NBT" },
-    FlatWorldLayers: { type: "ASCII" },
-    Scoreboard: { type: "NBT" },
-    Dimension: { type: "NBT" },
-    AutonomousEntities: { type: "NBT" },
-    BiomeData: { type: "NBT" },
-    MobEvents: { type: "NBT" },
-    LevelDat: { type: "NBT" },
+    Digest: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
+    /**
+     * The data for a map.
+     *
+     * This includes things such as location, image data, and decorations.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.Map}
+     */
+    Map: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The content type of the `portals` LevelDB key, which stores portal data.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.Portals}
+     */
+    Portals: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The content type of the `schedulerWT` LevelDB key, which stores wandering trader data.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.SchedulerWT}
+     */
+    SchedulerWT: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * Date for a structure (the kind saved by a structure block or the [`/structure`](https://minecraft.wiki/w/Commands/structure) command).
+     *
+     * @see {@link NBTSchemas.nbtSchemas.StructureTemplate}
+     */
+    StructureTemplate: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+        /**
+         * The raw file extension of the data.
+         */
+        rawFileExtension: "mcstructure",
+    },
+    /**
+     * A ticking area, either from an entity or the [`/tickingarea`](https://minecraft.wiki/w/Commands/tickingarea) command.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.TickingArea}
+     */
+    TickingArea: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @todo Check if this still exists.
+     * @todo Add a description for this.
+     */
+    FlatWorldLayers: {
+        /**
+         * The format type of the data.
+         */
+        type: "ASCII",
+    },
+    /**
+     * The scoreboard data (ex. from the [`/scoreboard`](https://minecraft.wiki/w/Commands/scoreboard) command).
+     *
+     * @see {@link NBTSchemas.nbtSchemas.Scoreboard}
+     */
+    Scoreboard: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @todo Add a schema for this.
+     * @todo Add a description for this.
+     */
+    Dimension: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The content type of the `AutonomousEntities` LevelDB key, which stores a list of autonomous entities.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.AutonomousEntities}
+     *
+     * @todo Add a better description for this, that includes what an autonomous entity is.
+     */
+    AutonomousEntities: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The content type of the `BiomeData` LevelDB key, which stores data for certain biome types.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.BiomeData}
+     */
+    BiomeData: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The content type of the `mobevents` LevelDB key, which stores what mob events are enabled or disabled.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.MobEvents}
+     */
+    MobEvents: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The content type of the `level.dat` and `level.dat_old` files.
+     *
+     * This stores all the world settings.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.LevelDat}
+     */
+    LevelDat: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.LevelDat.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.LevelDat> {
+            return (await NBT.parse(data, "little")).parsed;
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If {@link data} has a name property at the top level that is not of type string.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.LevelDat): Buffer<ArrayBuffer> {
+            const nbtData: Buffer = NBT.writeUncompressed({ name: "", ...data }, "little");
+            return Buffer.concat([Buffer.from("0A000000", "hex"), writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false), nbtData]);
+        },
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * @todo Add a link to the object with the default level.dat value once it is made.
+         */
+        get defaultValue(): Buffer<ArrayBuffer> {
+            // TO-DO: Add a full default level.dat value.
+            const nbtData: Buffer = NBT.writeUncompressed(
+                { name: "", type: "compound", value: {} } as /* @todo Remove this partial later. */ Partial<NBTSchemas.NBTSchemaTypes.LevelDat> & NBT.NBT,
+                "little"
+            );
+            const result: Buffer<ArrayBuffer> = Buffer.concat([
+                Buffer.from("0A000000", "hex"),
+                writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false),
+                nbtData,
+            ]);
+            Object.defineProperty(this, "defaultValue", { value: result, configurable: true, enumerable: true, writable: false });
+            return result;
+        },
+        /**
+         * The raw file extension of the data.
+         */
+        rawFileExtension: "dat",
+    },
     /**
      * @todo Figure out how to parse this.
+     * @todo Add a description for this.
      */
-    AABBVolumes: { type: "unknown" },
-    DynamicProperties: { type: "NBT" },
+    AABBVolumes: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
-     * @todo Figure out how to parse this. (It looks like NBT with a bit of extra data at the beginning.)
+     * The content type of the `DynamicProperties` LevelDB key, which stores dynamic properties data for add-ons.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.DynamicProperties}
      */
-    LevelChunkMetaDataDictionary: { type: "unknown" },
+    DynamicProperties: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Value:
+         * ```json
+         * { "name": "", "type": "compound", "value": {} }
+         * ```
+         */
+        defaultValue: NBT.writeUncompressed({ name: "", type: "compound", value: {} }, "little"),
+    },
     /**
-     * @todo Figure out how to parse this. (It seems that each one just has a value of 1 (`0x31`).)
+     * @todo Figure out what the little bits of data before each of the NBT data chunks are, and what the 4 bytes at the very beginning are.
+     * @todo Add a description for this.
+     *
+     * `Array.from(data).reduce((a, b, i, ar)=>[...a, ...(Array.from(Buffer.from("0a000008", "hex")).every((v, ib)=>v === ar[i + ib]) ? [i] : [])], [])`
+     *
+     * ```js
+     * const tab = tabManager.selectedTab
+     * let dataN = await tab.db.get(tab.cachedDBKeys.LevelChunkMetaDataDictionary[0]);
+     * let dataNB = [];
+     * Array.from(dataN).reduce((a, b, i, ar)=>[...a, ...(Array.from(Buffer.from("0a000008", "hex")).every((v, ib)=>v === ar[i + ib]) ? [i] : [])], []).forEach((v, i, a)=>dataNB.push({t: 1, v: dataN.slice(v - (i === 0 ? 12 : 8), v)}, {t: 2, v: dataN.slice(v, (a[i + 1] !== undefined ? a[i + 1] - 8 : undefined))}))
+     * const dataNc = await Promise.all(dataNB.map(async (v, i)=>{try{console.log(i, v); return (v.t === 1 ? v : await require("prismarine-nbt").parse(v.v, "little"))} catch (e) {console.error(e, i, v)}}))
+     * dataNc.forEach(v=>v.t === 1 ? void 0 : (v.parsed.value.LastSavedDimensionHeightRange ? (v.parsed.value.LastSavedDimensionHeightRange.value.min.value = -100, v.parsed.value.LastSavedDimensionHeightRange.value.max.value = 400) : void 0, v.parsed.value.OriginalDimensionHeightRange ? (v.parsed.value.OriginalDimensionHeightRange.value.min.value = -100, v.parsed.value.OriginalDimensionHeightRange.value.max.value = 400) : void 0))
+     * const dataNd = await Promise.all(datac.map(async v=>(v.t === 1 ? v.v : await require("prismarine-nbt").writeUncompressed(v.parsed, "little"))))
+     * tab.db.put(tab.cachedDBKeys.LevelChunkMetaDataDictionary[0], Buffer.concat(dataNd))
+     * ```
      */
-    RealmsStoriesData: { type: "unknown" },
+    LevelChunkMetaDataDictionary: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
+    /**
+     * @todo Figure out how to parse this. (It seems that each one just has a value of 1 (`0x31`). It also seems that the data is actually based on the key, which has an id that can be used with the realms API to get the corresponding data.)
+     * @todo Add a description for this.
+     */
+    RealmsStoriesData: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * The content type used for LevelDB keys that are used for the forced world corruption feature of the developer version of Bedrock Edition.
+     *
+     * These keys are normally only found when the [`/corruptworld`](https://minecraft.wiki/w/Commands/corruptworld) command is used.
+     *
+     * Removing these keys fixes the forced world corruption.
      */
-    ForcedWorldCorruption: { type: "unknown" },
+    ForcedWorldCorruption: {
+        /**
+         * The format type of the data.
+         */
+        type: "UTF-8",
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Value:
+         * ```typescript
+         * Buffer.from("true", "utf-8")
+         * ```
+         */
+        defaultValue: Buffer.from("true", "utf-8"),
+    },
     /**
      * All data that has a key that is not recognized.
      */
-    Unknown: { type: "unknown" },
+    Unknown: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
 } as const satisfies {
     [key in DBEntryContentType]: EntryContentTypeFormatData;
 };
@@ -856,13 +1371,13 @@ export type EntryContentTypeFormatData = (
           /**
            * The format type of the data.
            */
-          type: "JSON" | "SNBT" | "ASCII" | "binary" | "binaryPlainText" | "hex" | "UTF-8" | "unknown";
+          readonly type: "JSON" | "SNBT" | "ASCII" | "binary" | "binaryPlainText" | "hex" | "UTF-8" | "unknown";
       }
     | {
           /**
            * The format type of the data.
            */
-          type: "NBT";
+          readonly type: "NBT";
           /**
            * The endianness of the data.
            *
@@ -874,35 +1389,35 @@ export type EntryContentTypeFormatData = (
            *
            * @default "LE"
            */
-          format?: "BE" | "LE" | "LEV";
+          readonly format?: "BE" | "LE" | "LEV";
       }
     | {
           /**
            * The format type of the data.
            */
-          type: "int";
+          readonly type: "int";
           /**
            * How many bytes this integer is.
            */
-          bytes: number;
+          readonly bytes: number;
           /**
            * The endianness of the data.
            */
-          format: "BE" | "LE";
+          readonly format: "BE" | "LE";
           /**
            * The signedness of the data.
            */
-          signed: boolean;
+          readonly signed: boolean;
       }
     | {
           /**
            * The format type of the data.
            */
-          type: "custom";
+          readonly type: "custom";
           /**
            * The format type that results from the {@link parse} method.
            */
-          resultType: "JSONNBT";
+          readonly resultType: "JSONNBT";
           /**
            * The function to parse the data.
            *
@@ -926,11 +1441,11 @@ export type EntryContentTypeFormatData = (
           /**
            * The format type of the data.
            */
-          type: "custom";
+          readonly type: "custom";
           /**
            * The format type that results from the {@link parse} method.
            */
-          resultType: "SNBT";
+          readonly resultType: "SNBT";
           /**
            * The function to parse the data.
            *
@@ -954,11 +1469,11 @@ export type EntryContentTypeFormatData = (
           /**
            * The format type of the data.
            */
-          type: "custom";
+          readonly type: "custom";
           /**
            * The format type that results from the {@link parse} method.
            */
-          resultType: "buffer";
+          readonly resultType: "buffer";
           /**
            * The function to parse the data.
            *
@@ -982,11 +1497,11 @@ export type EntryContentTypeFormatData = (
           /**
            * The format type of the data.
            */
-          type: "custom";
+          readonly type: "custom";
           /**
            * The format type that results from the {@link parse} method.
            */
-          resultType: "unknown";
+          readonly resultType: "unknown";
           /**
            * The function to parse the data.
            *
@@ -1014,13 +1529,13 @@ export type EntryContentTypeFormatData = (
      *
      * @default "bin"
      */
-    rawFileExtension?: string;
+    readonly rawFileExtension?: string;
     /**
      * The default value to use when initializing a new entry.
      *
      * @default undefined
      */
-    defaultValue?: Buffer;
+    readonly defaultValue?: Buffer;
 };
 
 //#endregion
@@ -1289,6 +1804,7 @@ export interface WriteSpecificIntTypeOptions {
 /**
  * Writes an integer to a buffer.
  *
+ * @template TArrayBuffer The type of the buffer.
  * @param buffer The buffer to write to.
  * @param value The integer to write.
  * @param bytes The number of bytes to write.
@@ -1302,15 +1818,15 @@ export interface WriteSpecificIntTypeOptions {
  * @throws {RangeError} If the buffer does not have enough space at the specified offset.
  * @throws {RangeError} If the value is out of range and {@link WriteSpecificIntTypeOptions.wrap | options.wrap} is `false`.
  */
-export function writeSpecificIntType(
-    buffer: Buffer,
+export function writeSpecificIntType<TArrayBuffer extends ArrayBufferLike = ArrayBufferLike>(
+    buffer: Buffer<TArrayBuffer>,
     value: bigint,
     bytes: number,
     format: "BE" | "LE",
     signed: boolean = false,
     offset: number = 0,
     options?: WriteSpecificIntTypeOptions
-): Buffer {
+): Buffer<TArrayBuffer> {
     if (bytes < 1) {
         throw new RangeError("Byte length must be at least 1");
     }
@@ -1489,7 +2005,7 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
         x: getInt32Val(key, 0),
         z: getInt32Val(key, 4),
         dimension: [13, 14].includes(key.length) ? dimensions[getInt32Val(key, 8)] ?? "overworld" : "overworld",
-        subChunkIndex: [10, 14].includes(key.length) ? (key.at(-1)! << 24) >> 24 : undefined,
+        ...([10, 14].includes(key.length) ? { subChunkIndex: (key.at(-1)! << 24) >> 24 } : undefined),
     };
 }
 
@@ -1500,13 +2016,15 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
  * @param chunkKeyType The chunk key type.
  * @returns The raw chunk key.
  */
-export function generateChunkKeyFromIndices(indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ, chunkKeyType: DBChunkKeyEntryContentType): Buffer {
-    const buffer: Buffer<ArrayBuffer> = Buffer.alloc((indices.dimension === "overworld" ? 9 : 13) + +("subChunkIndex" in indices));
+export function generateChunkKeyFromIndices(indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ, chunkKeyType: DBChunkKeyEntryContentType): Buffer<ArrayBuffer> {
+    const buffer: Buffer<ArrayBuffer> = Buffer.alloc(
+        (indices.dimension === "overworld" ? 9 : 13) + +("subChunkIndex" in indices && indices.subChunkIndex !== undefined)
+    );
     setInt32Val(buffer, 0, indices.x);
     setInt32Val(buffer, 4, indices.z);
     if (indices.dimension !== "overworld") setInt32Val(buffer, 8, dimensions.indexOf(indices.dimension) ?? 0);
     buffer[8 + +(indices.dimension !== "overworld") * 4] = getIntFromChunkKeyType(chunkKeyType);
-    if ("subChunkIndex" in indices) buffer[9 + +(indices.dimension !== "overworld") * 4] = indices.subChunkIndex;
+    if ("subChunkIndex" in indices && indices.subChunkIndex !== undefined) buffer[9 + +(indices.dimension !== "overworld") * 4] = indices.subChunkIndex;
     return buffer;
 }
 
