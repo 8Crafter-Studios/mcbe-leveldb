@@ -1,3 +1,11 @@
+# v1.5.1
+
+## Fixes
+
+-   Reverted the following content types back to use the regular NBT format type instead of a custom parser and serializer due to them actually being a single NBT compound and not a list of them (contrary to what the Minecraft Wiki says):
+    -   `PendingTicks`
+    -   `RandomTicks`
+
 # v1.5.0
 
 ## Additions

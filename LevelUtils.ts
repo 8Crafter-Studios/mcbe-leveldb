@@ -942,73 +942,8 @@ export const entryContentTypeToFormatMap = {
         /**
          * The format type of the data.
          */
-        type: "custom",
-        /**
-         * The format type that results from the {@link entryContentTypeToFormatMap.PendingTicks.parse | parse} method.
-         */
-        resultType: "JSONNBT",
-        /**
-         * The function to parse the data.
-         *
-         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
-         *
-         * @param data The data to parse, as a buffer.
-         * @returns A promise that resolves with the parsed data.
-         *
-         * @throws {any} If an error occurs while parsing the data.
-         */
-        async parse(data: Buffer): Promise<{
-            type: "compound";
-            value: {
-                pendingTicks: {
-                    type: "list";
-                    value: { type: "compound"; value: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"][] */ };
-                };
-            };
-        }> {
-            const pendingTicks: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"][] */ = [];
-            let currentIndex: number = 0;
-            while (currentIndex < data.length) {
-                const result = await NBT.parse(data.subarray(currentIndex), "little");
-                currentIndex += result.metadata.size;
-                pendingTicks.push(result.parsed.value as NBT.Compound["value"] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"] */);
-            }
-            return {
-                type: "compound",
-                value: {
-                    pendingTicks: {
-                        type: "list",
-                        value: {
-                            type: "compound",
-                            value: pendingTicks,
-                        },
-                    },
-                },
-            };
-        },
-        /**
-         * The function to serialize the data.
-         *
-         * This result of this can be written directly to the file or LevelDB entry.
-         *
-         * @param data The data to serialize.
-         * @returns The serialized data, as a buffer.
-         */
-        serialize(data: {
-            type: "compound";
-            value: {
-                pendingTicks: {
-                    type: "list";
-                    value: { type: "compound"; value: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"][] */ };
-                };
-            };
-        }): Buffer<ArrayBuffer> {
-            const nbtData: Buffer[] = data.value.pendingTicks.value.value.map(
-                (pendingTick: NBT.Compound["value"] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"] */): Buffer =>
-                    NBT.writeUncompressed({ name: "", type: "compound", value: pendingTick }, "little")
-            );
-            return Buffer.concat(nbtData);
-        },
+        type: "NBT",
+        // TO-DO: Add a default value for this.
     },
     /**
      * @deprecated Only used in versions < 1.2.3.
@@ -1088,73 +1023,8 @@ export const entryContentTypeToFormatMap = {
         /**
          * The format type of the data.
          */
-        type: "custom",
-        /**
-         * The format type that results from the {@link entryContentTypeToFormatMap.RandomTicks.parse | parse} method.
-         */
-        resultType: "JSONNBT",
-        /**
-         * The function to parse the data.
-         *
-         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
-         *
-         * @param data The data to parse, as a buffer.
-         * @returns A promise that resolves with the parsed data.
-         *
-         * @throws {any} If an error occurs while parsing the data.
-         */
-        async parse(data: Buffer): Promise<{
-            type: "compound";
-            value: {
-                randomTicks: {
-                    type: "list";
-                    value: { type: "compound"; value: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"][] */ };
-                };
-            };
-        }> {
-            const randomTicks: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"][] */ = [];
-            let currentIndex: number = 0;
-            while (currentIndex < data.length) {
-                const result = await NBT.parse(data.subarray(currentIndex), "little");
-                currentIndex += result.metadata.size;
-                randomTicks.push(result.parsed.value as NBT.Compound["value"] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"] */);
-            }
-            return {
-                type: "compound",
-                value: {
-                    randomTicks: {
-                        type: "list",
-                        value: {
-                            type: "compound",
-                            value: randomTicks,
-                        },
-                    },
-                },
-            };
-        },
-        /**
-         * The function to serialize the data.
-         *
-         * This result of this can be written directly to the file or LevelDB entry.
-         *
-         * @param data The data to serialize.
-         * @returns The serialized data, as a buffer.
-         */
-        serialize(data: {
-            type: "compound";
-            value: {
-                randomTicks: {
-                    type: "list";
-                    value: { type: "compound"; value: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"][] */ };
-                };
-            };
-        }): Buffer<ArrayBuffer> {
-            const nbtData: Buffer[] = data.value.randomTicks.value.value.map(
-                (randomTick: NBT.Compound["value"] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"] */): Buffer =>
-                    NBT.writeUncompressed({ name: "", type: "compound", value: randomTick }, "little")
-            );
-            return Buffer.concat(nbtData);
-        },
+        type: "NBT",
+        // TO-DO: Add a default value for this.
     },
     /**
      * @deprecated Only used in versions < 1.18.0.
