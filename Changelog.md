@@ -1,3 +1,19 @@
+# v1.5.0
+
+## Additions
+
+-   Added custom serializers and parsers for the following content types:
+    -   `BlockEntity`
+    -   `Entity`
+    -   `PendingTicks`
+    -   `RandomTicks`
+
+## Changes
+
+-   Marked the following content types as deprecated:
+    -   `FlatWorldLayers`
+    -   `Entity`
+
 # v1.4.0
 
 ## Critical fixes

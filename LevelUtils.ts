@@ -746,26 +746,28 @@ export const entryContentTypeToFormatMap = {
                 data.value.layerCount.value,
                 ...(data.value.version.value >= 0x09 ? [data.value.subChunkIndex!.value] : []),
             ]);
-            const layerBuffers: Buffer<ArrayBuffer>[] = data.value.layers.value.value.map((layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer<ArrayBuffer> => {
-                const bitsPerBlock: number = layer.storageVersion.value >> 1;
-                const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
-                const numints: number = Math.ceil(4096 / blocksPerWord);
-                const bytes: number[] = [layer.storageVersion.value];
-                const blockIndicesBuffer: Buffer<ArrayBuffer> = Buffer.alloc(Math.ceil(numints * 4));
-                writeBlockIndices(blockIndicesBuffer, 0, layer.block_indices.value.value, bitsPerBlock, blocksPerWord);
-                bytes.push(...blockIndicesBuffer);
-                const paletteLengthBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
-                setInt32Val(paletteLengthBuffer, 0, Object.keys(layer.palette.value).length);
-                bytes.push(...paletteLengthBuffer);
-                const paletteKeys: `${bigint}`[] = (Object.keys(layer.palette.value) as `${bigint}`[]).sort(
-                    (a: `${bigint}`, b: `${bigint}`): number => Number(a) - Number(b)
-                );
-                for (let paletteIndex: number = 0; paletteIndex < paletteKeys.length; paletteIndex++) {
-                    const block: NBTSchemas.NBTSchemaTypes.Block = layer.palette.value[paletteKeys[paletteIndex]!]!;
-                    bytes.push(...NBT.writeUncompressed({ name: "", ...block }, "little"));
+            const layerBuffers: Buffer<ArrayBuffer>[] = data.value.layers.value.value.map(
+                (layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer<ArrayBuffer> => {
+                    const bitsPerBlock: number = layer.storageVersion.value >> 1;
+                    const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
+                    const numints: number = Math.ceil(4096 / blocksPerWord);
+                    const bytes: number[] = [layer.storageVersion.value];
+                    const blockIndicesBuffer: Buffer<ArrayBuffer> = Buffer.alloc(Math.ceil(numints * 4));
+                    writeBlockIndices(blockIndicesBuffer, 0, layer.block_indices.value.value, bitsPerBlock, blocksPerWord);
+                    bytes.push(...blockIndicesBuffer);
+                    const paletteLengthBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
+                    setInt32Val(paletteLengthBuffer, 0, Object.keys(layer.palette.value).length);
+                    bytes.push(...paletteLengthBuffer);
+                    const paletteKeys: `${bigint}`[] = (Object.keys(layer.palette.value) as `${bigint}`[]).sort(
+                        (a: `${bigint}`, b: `${bigint}`): number => Number(a) - Number(b)
+                    );
+                    for (let paletteIndex: number = 0; paletteIndex < paletteKeys.length; paletteIndex++) {
+                        const block: NBTSchemas.NBTSchemaTypes.Block = layer.palette.value[paletteKeys[paletteIndex]!]!;
+                        bytes.push(...NBT.writeUncompressed({ name: "", ...block }, "little"));
+                    }
+                    return Buffer.from(bytes);
                 }
-                return Buffer.from(bytes);
-            });
+            );
             return Buffer.concat([buffer, ...layerBuffers]);
         },
         // TO-DO: Add a default value for this.
@@ -778,7 +780,7 @@ export const entryContentTypeToFormatMap = {
      */
     LegacyTerrain: { type: "unknown" },
     /**
-     * A block entity associated with a chunk.
+     * A list of block entities associated with a chunk.
      *
      * @see {@link NBTSchemas.nbtSchemas.BlockEntity}
      */
@@ -786,17 +788,151 @@ export const entryContentTypeToFormatMap = {
         /**
          * The format type of the data.
          */
-        type: "NBT",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.BlockEntity.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        async parse(data: Buffer): Promise<{
+            type: "compound";
+            value: {
+                blockEntities: {
+                    type: "list";
+                    value: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.BlockEntity["value"][] };
+                };
+            };
+        }> {
+            const blockEntities: NBTSchemas.NBTSchemaTypes.BlockEntity["value"][] = [];
+            let currentIndex: number = 0;
+            while (currentIndex < data.length) {
+                const result = await NBT.parse(data.subarray(currentIndex), "little");
+                currentIndex += result.metadata.size;
+                blockEntities.push(result.parsed.value as NBTSchemas.NBTSchemaTypes.BlockEntity["value"]);
+            }
+            return {
+                type: "compound",
+                value: {
+                    blockEntities: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: blockEntities,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: {
+            type: "compound";
+            value: {
+                blockEntities: {
+                    type: "list";
+                    value: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.BlockEntity["value"][] };
+                };
+            };
+        }): Buffer<ArrayBuffer> {
+            const nbtData: Buffer[] = data.value.blockEntities.value.value.map(
+                (blockEntity: NBTSchemas.NBTSchemaTypes.BlockEntity["value"]): Buffer =>
+                    NBT.writeUncompressed({ name: "", type: "compound", value: blockEntity }, "little")
+            );
+            return Buffer.concat(nbtData);
+        },
     },
     /**
-     * @todo Figure out what the NBT structure of this is.
+     * @deprecated No longer used.
+     *
+     * @todo Figure out what version this was deprecated in (it exists in v1.16.40 but not in 1.21.51).
      * @todo Add a description for this.
      */
     Entity: {
         /**
          * The format type of the data.
          */
-        type: "NBT",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.Entity.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        async parse(data: Buffer): Promise<{
+            type: "compound";
+            value: {
+                entities: {
+                    type: "list";
+                    value: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.ActorPrefix["value"][] };
+                };
+            };
+        }> {
+            const entities: NBTSchemas.NBTSchemaTypes.ActorPrefix["value"][] = [];
+            let currentIndex: number = 0;
+            while (currentIndex < data.length) {
+                const result = await NBT.parse(data.subarray(currentIndex), "little");
+                currentIndex += result.metadata.size;
+                entities.push(result.parsed.value as NBTSchemas.NBTSchemaTypes.ActorPrefix["value"]);
+            }
+            return {
+                type: "compound",
+                value: {
+                    entities: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: entities,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: {
+            type: "compound";
+            value: {
+                entities: {
+                    type: "list";
+                    value: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.ActorPrefix["value"][] };
+                };
+            };
+        }): Buffer<ArrayBuffer> {
+            const nbtData: Buffer[] = data.value.entities.value.value.map(
+                (entity: NBTSchemas.NBTSchemaTypes.ActorPrefix["value"]): Buffer =>
+                    NBT.writeUncompressed({ name: "", type: "compound", value: entity }, "little")
+            );
+            return Buffer.concat(nbtData);
+        },
     },
     /**
      * @todo Add a schema for this.
@@ -806,8 +942,73 @@ export const entryContentTypeToFormatMap = {
         /**
          * The format type of the data.
          */
-        type: "NBT",
-        // TO-DO: Add a default value for this.
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.PendingTicks.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        async parse(data: Buffer): Promise<{
+            type: "compound";
+            value: {
+                pendingTicks: {
+                    type: "list";
+                    value: { type: "compound"; value: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"][] */ };
+                };
+            };
+        }> {
+            const pendingTicks: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"][] */ = [];
+            let currentIndex: number = 0;
+            while (currentIndex < data.length) {
+                const result = await NBT.parse(data.subarray(currentIndex), "little");
+                currentIndex += result.metadata.size;
+                pendingTicks.push(result.parsed.value as NBT.Compound["value"] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"] */);
+            }
+            return {
+                type: "compound",
+                value: {
+                    pendingTicks: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: pendingTicks,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: {
+            type: "compound";
+            value: {
+                pendingTicks: {
+                    type: "list";
+                    value: { type: "compound"; value: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"][] */ };
+                };
+            };
+        }): Buffer<ArrayBuffer> {
+            const nbtData: Buffer[] = data.value.pendingTicks.value.value.map(
+                (pendingTick: NBT.Compound["value"] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.PendingTicks["value"] */): Buffer =>
+                    NBT.writeUncompressed({ name: "", type: "compound", value: pendingTick }, "little")
+            );
+            return Buffer.concat(nbtData);
+        },
     },
     /**
      * @deprecated Only used in versions < 1.2.3.
@@ -869,6 +1070,7 @@ export const entryContentTypeToFormatMap = {
      */
     BorderBlocks: { type: "unknown" },
     /**
+     * @todo Check if this still exists.
      * @todo Add a schema for this.
      * @todo Add a description for this.
      */
@@ -886,8 +1088,73 @@ export const entryContentTypeToFormatMap = {
         /**
          * The format type of the data.
          */
-        type: "NBT",
-        // TO-DO: Add a default value for this.
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.RandomTicks.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        async parse(data: Buffer): Promise<{
+            type: "compound";
+            value: {
+                randomTicks: {
+                    type: "list";
+                    value: { type: "compound"; value: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"][] */ };
+                };
+            };
+        }> {
+            const randomTicks: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"][] */ = [];
+            let currentIndex: number = 0;
+            while (currentIndex < data.length) {
+                const result = await NBT.parse(data.subarray(currentIndex), "little");
+                currentIndex += result.metadata.size;
+                randomTicks.push(result.parsed.value as NBT.Compound["value"] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"] */);
+            }
+            return {
+                type: "compound",
+                value: {
+                    randomTicks: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: randomTicks,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: {
+            type: "compound";
+            value: {
+                randomTicks: {
+                    type: "list";
+                    value: { type: "compound"; value: NBT.Compound["value"][] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"][] */ };
+                };
+            };
+        }): Buffer<ArrayBuffer> {
+            const nbtData: Buffer[] = data.value.randomTicks.value.value.map(
+                (randomTick: NBT.Compound["value"] /* TO-DO */ /* NBTSchemas.NBTSchemaTypes.RandomTicks["value"] */): Buffer =>
+                    NBT.writeUncompressed({ name: "", type: "compound", value: randomTick }, "little")
+            );
+            return Buffer.concat(nbtData);
+        },
     },
     /**
      * @deprecated Only used in versions < 1.18.0.
@@ -902,6 +1169,7 @@ export const entryContentTypeToFormatMap = {
         type: "unknown",
     },
     /**
+     * @todo Check if this still exists.
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
      */
@@ -1129,7 +1397,8 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
-     * @todo Check if this still exists.
+     * @deprecated Only used in versions < 1.5.0.
+     *
      * @todo Add a description for this.
      */
     FlatWorldLayers: {
@@ -2016,7 +2285,10 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
  * @param chunkKeyType The chunk key type.
  * @returns The raw chunk key.
  */
-export function generateChunkKeyFromIndices(indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ, chunkKeyType: DBChunkKeyEntryContentType): Buffer<ArrayBuffer> {
+export function generateChunkKeyFromIndices(
+    indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ,
+    chunkKeyType: DBChunkKeyEntryContentType
+): Buffer<ArrayBuffer> {
     const buffer: Buffer<ArrayBuffer> = Buffer.alloc(
         (indices.dimension === "overworld" ? 9 : 13) + +("subChunkIndex" in indices && indices.subChunkIndex !== undefined)
     );
