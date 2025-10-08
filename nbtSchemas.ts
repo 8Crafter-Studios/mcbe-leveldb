@@ -2063,6 +2063,54 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            PendingTicks: {
+                id: "PendingTicks",
+                title: "The PendingTicks schema.",
+                description: "The list of pending ticks for a chunk.",
+                type: "compound",
+                required: ["currentTick", "tickList"],
+                properties: {
+                    currentTick: {
+                        title: "Current Tick",
+                        description: "The current tick.",
+                        type: "int",
+                    },
+                    tickList: {
+                        type: "list",
+                        items: {
+                            type: "compound",
+                            properties: {
+                                blockState: {
+                                    title: "Block State",
+                                    description: "The block type and block states of this block.",
+                                    $ref: "Block",
+                                },
+                                time: {
+                                    title: "Time",
+                                    description: "The tick that this block should be ticked.",
+                                    type: "long",
+                                },
+                                x: {
+                                    title: "X",
+                                    description: "The world x-position of the block.",
+                                    type: "int",
+                                },
+                                y: {
+                                    title: "Y",
+                                    description: "The world y-position of the block.",
+                                    type: "int",
+                                },
+                                z: {
+                                    title: "Z",
+                                    description: "The world z-position of the block.",
+                                    type: "int",
+                                },
+                            },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
             PlayerClient: {
                 id: "PlayerClient",
                 title: "The PlayerClient schema.",
@@ -2117,6 +2165,54 @@ export namespace NBTSchemas {
                                             type: "byte",
                                         },
                                     },
+                                },
+                            },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            RandomTicks: {
+                id: "RandomTicks",
+                title: "The RandomTicks schema.",
+                description: "The list of random ticks for a chunk.",
+                type: "compound",
+                required: ["currentTick", "tickList"],
+                properties: {
+                    currentTick: {
+                        title: "Current Tick",
+                        description: "The current tick.",
+                        type: "int",
+                    },
+                    tickList: {
+                        type: "list",
+                        items: {
+                            type: "compound",
+                            properties: {
+                                blockState: {
+                                    title: "Block State",
+                                    description: "The block type and block states of this block.",
+                                    $ref: "Block",
+                                },
+                                time: {
+                                    title: "Time",
+                                    description: "The tick that this block should be ticked.",
+                                    type: "long",
+                                },
+                                x: {
+                                    title: "X",
+                                    description: "The world x-position of the block.",
+                                    type: "int",
+                                },
+                                y: {
+                                    title: "Y",
+                                    description: "The world y-position of the block.",
+                                    type: "int",
+                                },
+                                z: {
+                                    title: "Z",
+                                    description: "The world z-position of the block.",
+                                    type: "int",
                                 },
                             },
                         },
@@ -12278,6 +12374,63 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The PendingTicks schema.
+         *
+         * The list of pending ticks for a chunk.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.PendingTicks}
+         */
+        export type PendingTicks = {
+            type: "compound";
+            value: {
+                /**
+                 * Current Tick
+                 *
+                 * The current tick.
+                 */
+                currentTick: { type: "int"; value: number };
+                tickList: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Block State
+                             *
+                             * The block type and block states of this block.
+                             */
+                            blockState?: Block;
+                            /**
+                             * Time
+                             *
+                             * The tick that this block should be ticked.
+                             */
+                            time?: { type: "long"; value: [high: number, low: number] };
+                            /**
+                             * X
+                             *
+                             * The world x-position of the block.
+                             */
+                            x?: { type: "int"; value: number };
+                            /**
+                             * Y
+                             *
+                             * The world y-position of the block.
+                             */
+                            y?: { type: "int"; value: number };
+                            /**
+                             * Z
+                             *
+                             * The world z-position of the block.
+                             */
+                            z?: { type: "int"; value: number };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
          * The PlayerClient schema.
          *
          * The player client data.
@@ -12321,6 +12474,63 @@ however when the corresponding block in the block layer is broken, this block ge
                                 }[];
                             };
                         };
+                    };
+                };
+            };
+        };
+
+        /**
+         * The RandomTicks schema.
+         *
+         * The list of random ticks for a chunk.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.RandomTicks}
+         */
+        export type RandomTicks = {
+            type: "compound";
+            value: {
+                /**
+                 * Current Tick
+                 *
+                 * The current tick.
+                 */
+                currentTick: { type: "int"; value: number };
+                tickList: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Block State
+                             *
+                             * The block type and block states of this block.
+                             */
+                            blockState?: Block;
+                            /**
+                             * Time
+                             *
+                             * The tick that this block should be ticked.
+                             */
+                            time?: { type: "long"; value: [high: number, low: number] };
+                            /**
+                             * X
+                             *
+                             * The world x-position of the block.
+                             */
+                            x?: { type: "int"; value: number };
+                            /**
+                             * Y
+                             *
+                             * The world y-position of the block.
+                             */
+                            y?: { type: "int"; value: number };
+                            /**
+                             * Z
+                             *
+                             * The world z-position of the block.
+                             */
+                            z?: { type: "int"; value: number };
+                        }[];
                     };
                 };
             };

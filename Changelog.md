@@ -1,3 +1,11 @@
+# v1.5.2
+
+## Additions
+
+-   Added two new NBT schemas:
+    -   `PendingTicks`
+    -   `RandomTicks`
+
 # v1.5.1
 
 ## Fixes

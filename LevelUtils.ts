@@ -935,7 +935,8 @@ export const entryContentTypeToFormatMap = {
         },
     },
     /**
-     * @todo Add a schema for this.
+     * @see {@link NBTSchemas.nbtSchemas.PendingTicks}
+     *
      * @todo Add a description for this.
      */
     PendingTicks: {
@@ -1016,7 +1017,8 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
-     * @todo Add a schema for this.
+     * @see {@link NBTSchemas.nbtSchemas.RandomTicks}
+     *
      * @todo Add a description for this.
      */
     RandomTicks: {
