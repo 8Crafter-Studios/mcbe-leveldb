@@ -615,14 +615,24 @@ export const entryContentTypeToFormatMap = {
      * @todo Make a parser for this so that versions < 1.18.0 can be supported.
      * @todo Add a description for this.
      */
-    Data2D: { type: "unknown" },
+    Data2D: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @deprecated Only used in versions < 1.0.0.
      *
      * @todo Make a parser for this so that versions < 1.0.0 can be supported.
      * @todo Add a description for this.
      */
-    Data2DLegacy: { type: "unknown" },
+    Data2DLegacy: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * The SubChunkPrefix content type contains block data for 16x16x16 chunks of the world.
      *
@@ -778,7 +788,12 @@ export const entryContentTypeToFormatMap = {
      * @todo Make a parser for this so that versions < 1.0.0 can be supported.
      * @todo Add a description for this.
      */
-    LegacyTerrain: { type: "unknown" },
+    LegacyTerrain: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * A list of block entities associated with a chunk.
      *
@@ -952,12 +967,22 @@ export const entryContentTypeToFormatMap = {
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
      */
-    LegacyBlockExtraData: { type: "unknown" },
+    LegacyBlockExtraData: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
      */
-    BiomeState: { type: "unknown" },
+    BiomeState: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * A value that indicates the finalization state of a chunk's data.
      *
@@ -999,22 +1024,32 @@ export const entryContentTypeToFormatMap = {
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
      */
-    ConversionData: { type: "unknown" },
+    ConversionData: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
      */
-    BorderBlocks: { type: "unknown" },
+    BorderBlocks: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
     /**
      * @todo Check if this still exists.
-     * @todo Add a schema for this.
+     * @todo Figure out how to parse this.
      * @todo Add a description for this.
      */
     HardcodedSpawners: {
         /**
          * The format type of the data.
          */
-        type: "NBT",
+        type: "unknown",
     },
     /**
      * @see {@link NBTSchemas.nbtSchemas.RandomTicks}

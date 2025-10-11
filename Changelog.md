@@ -1,3 +1,10 @@
+# v1.5.3
+
+## Fixes
+
+-   Fixed a bug where the format type of the `HardcodedSpawners` content types was `NBT` instead of `unknown`.
+-   Fixed a bug where the `type` property of a few of the content types was undocumented.
+
 # v1.5.2
 
 ## Additions
