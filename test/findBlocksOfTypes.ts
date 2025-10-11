@@ -55,4 +55,4 @@ for (const key of await getKeysOfType(db, "SubChunkPrefix")) {
     }
 }
 
-writeFileSync(outFile, JSON.stringify(blockLocations, null, 4));
+writeFileSync(outFile, JSON.stringify(blockLocations, null, 4).replaceAll(/(?<!\r)\n/g, "\r\n"));

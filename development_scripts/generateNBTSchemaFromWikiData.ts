@@ -30,7 +30,7 @@ const data = `*{{nbt|compound}}: The root tag.
 
 writeFileSync(
     path.join(import.meta.dirname, "./nbtSchema.json"),
-    JSON.stringify(NBTSchemas.Utils.Conversion.FromMinecraftWikiData.wikiNBTToNBTSchema(data), null, 4)
+    JSON.stringify(NBTSchemas.Utils.Conversion.FromMinecraftWikiData.wikiNBTToNBTSchema(data), null, 4).replaceAll(/(?<!\r)\n/g, "\r\n")
 );
 
 const fullPageData = `{{exclusive|bedrock}}
@@ -392,5 +392,5 @@ writeFileSync(
         ),
         null,
         4
-    )
+    ).replaceAll(/(?<!\r)\n/g, "\r\n")
 );

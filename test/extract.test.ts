@@ -162,13 +162,13 @@ for await (let [rawKey, value] of db.getIterator(
             try {
                 const data = await NBT.parse(value);
                 // console.log(data);
-                const output: string = JSON.stringify({ key: key, ...data }, null, 4);
+                const output: string = JSON.stringify({ key: key, ...data }, null, 4).replaceAll(/(?<!\r)\n/g, "\r\n");
                 if (existsSync(`${outDir}/${parsedDir}/${subFolder}/${filename}.json`)) {
                     writeFileSync(`${outDir}/${parsedDir}/${subFolder}/${filename} (${ia}).json`, output);
                 } else {
                     writeFileSync(`${outDir}/${parsedDir}/${subFolder}/${filename}.json`, output);
                 }
-                const prismarineNBTOutput: string = JSON.stringify(data.parsed, null, 4);
+                const prismarineNBTOutput: string = JSON.stringify(data.parsed, null, 4).replaceAll(/(?<!\r)\n/g, "\r\n");
                 if (existsSync(`${outDir}/${prismarineNBTDir}/${subFolder}/${filename}.json`)) {
                     writeFileSync(`${outDir}/${prismarineNBTDir}/${subFolder}/${filename} (${ia}).json`, prismarineNBTOutput);
                 } else {
@@ -250,11 +250,11 @@ for await (let [rawKey, value] of db.getIterator(
                         const output = await format.parse(value);
 
                         if (existsSync(`${outDir}/${parsedDir}/${subFolder}/${filename}.json`)) {
-                            writeFileSync(`${outDir}/${parsedDir}/${subFolder}/${filename} (${ia}).json`, JSON.stringify({ key, ...output }));
+                            writeFileSync(`${outDir}/${parsedDir}/${subFolder}/${filename} (${ia}).json`, JSON.stringify({ key, ...output }).replaceAll(/(?<!\r)\n/g, "\r\n"));
                         } else {
-                            writeFileSync(`${outDir}/${parsedDir}/${subFolder}/${filename}.json`, JSON.stringify({ key, ...output }));
+                            writeFileSync(`${outDir}/${parsedDir}/${subFolder}/${filename}.json`, JSON.stringify({ key, ...output }).replaceAll(/(?<!\r)\n/g, "\r\n"));
                         }
-                        const prismarineNBTOutput: string = JSON.stringify(output, null, 4);
+                        const prismarineNBTOutput: string = JSON.stringify(output, null, 4).replaceAll(/(?<!\r)\n/g, "\r\n");
                         if (existsSync(`${outDir}/${prismarineNBTDir}/${subFolder}/${filename}.json`)) {
                             writeFileSync(`${outDir}/${prismarineNBTDir}/${subFolder}/${filename} (${ia}).json`, prismarineNBTOutput);
                         } else {
@@ -311,8 +311,8 @@ for await (let [rawKey, value] of db.getIterator(
         writeFileSync(`${outDir}/${keysDir}/${subFolder}/${filename}.txt`, key);
     }
 }
-writeFileSync(`${outDir}/keys.json`, JSON.stringify(dbKeys, null, 4));
-writeFileSync(`${outDir}/foundOfContentTypes.json`, JSON.stringify(foundOfContentTypes, null, 4));
+writeFileSync(`${outDir}/keys.json`, JSON.stringify(dbKeys, null, 4).replaceAll(/(?<!\r)\n/g, "\r\n"));
+writeFileSync(`${outDir}/foundOfContentTypes.json`, JSON.stringify(foundOfContentTypes, null, 4).replaceAll(/(?<!\r)\n/g, "\r\n"));
 
 console.log(foundOfContentTypes);
 
