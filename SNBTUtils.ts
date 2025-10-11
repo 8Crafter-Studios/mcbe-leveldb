@@ -407,7 +407,7 @@ export interface SNBTParseErrorOptions extends ErrorOptions {
      *
      * Only set this to true if this was from a function that was not called by another SNBT parser function, if the SNBT parser has more to the stack, this should be false.
      *
-     * @defaul false
+     * @default false
      */
     resolved?: boolean | undefined;
     /**
