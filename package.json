@@ -31,7 +31,7 @@
         "prismarine-nbt": "^2.7.0"
     },
     "devDependencies": {
-        "@8crafter/leveldb-zlib": "^1.3.0",
+        "@8crafter/leveldb-zlib": "^1.6.0",
         "@types/node": "^24.3.0"
     },
     "optionalDependencies": {
