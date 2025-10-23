@@ -1,3 +1,9 @@
+# v1.5.4
+
+## Critical Fixes
+
+-   Fixed a bug where the custom parser for the `LevelDat` content type returned an empty compound instead of the expected NBT data.
+
 # v1.5.3
 
 ## Fixes

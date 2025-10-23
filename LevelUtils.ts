@@ -1397,7 +1397,7 @@ export const entryContentTypeToFormatMap = {
          * @throws {any} If an error occurs while parsing the data.
          */
         async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.LevelDat> {
-            return (await NBT.parse(data, "little")).parsed;
+            return (await NBT.parse(data)).parsed;
         },
         /**
          * The function to serialize the data.
