@@ -19,7 +19,7 @@
         "rewriteRelativeImportExtensions": true,
         "noCheck": true,
         "noFallthroughCasesInSwitch": true,
-        "skipLibCheck": true
+        "skipLibCheck": false
     },
     "include": ["index.ts"]
 }

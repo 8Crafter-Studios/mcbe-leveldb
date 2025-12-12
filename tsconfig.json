@@ -19,6 +19,6 @@
         "allowImportingTsExtensions": true,
         "noEmit": true,
         "noFallthroughCasesInSwitch": true,
-        "skipLibCheck": true
+        "skipLibCheck": false
     }
 }
