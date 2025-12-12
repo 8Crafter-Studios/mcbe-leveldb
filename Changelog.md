@@ -1,4 +1,10 @@
-# v1.5.5
+# v1.5.7
+
+## Critical Fixes
+
+-   Overloaded several misconfigured types in the [`prismarine-nbt`](https://www.npmjs.com/package/prismarine-nbt) package to fix several errors.
+
+# v1.5.6
 
 ## Changes
 
