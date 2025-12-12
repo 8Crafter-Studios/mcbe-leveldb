@@ -1,14 +1,35 @@
 import { execSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import path from "node:path";
 
-const packageJSON: typeof import("../package.json") = JSON.parse(readFileSync("../package.json").toString());
+const packageJSON: typeof import("../package.json") = JSON.parse(readFileSync(path.join(import.meta.dirname, "../package.json")).toString());
 
 if (packageJSON.version.includes("-jsonly")) {
     execSync(`npm version v${packageJSON.version.replace("-jsonly", "")} --no-git-tag-version`);
     writeFileSync(
-        "../package.json",
-        readFileSync("../package.json")
+        path.join(import.meta.dirname, "../package.json"),
+        readFileSync(path.join(import.meta.dirname, "../package.json"))
             .toString()
+            // CRLF
+            .replace(
+                `"exports": {\r
+        ".": {\r
+            "types": "./index.d.ts",\r
+            "default": "./index.js"\r
+        }\r
+    }`,
+                `"exports": {\r
+        ".": {\r
+            "types": "./index.d.ts",\r
+            "default": "./index.js"\r
+        },\r
+        "./ts": {\r
+            "types": "./index.ts",\r
+            "default": "./index.ts"\r
+        }\r
+    }`
+            )
+            // LF
             .replace(
                 `"exports": {
         ".": {
@@ -27,16 +48,13 @@ if (packageJSON.version.includes("-jsonly")) {
         }
     }`
             )
+            .replace(`"main": "index.js",`, `"main": "index.ts",`)
     );
     writeFileSync(
-        "../.npmignore",
-        readFileSync("../.npmignore")
+        path.join(import.meta.dirname, "../.npmignore"),
+        readFileSync(path.join(import.meta.dirname, "../.npmignore"))
             .toString()
-            .replace(
-                `*.ts
-!*.d.ts`,
-                `# *.ts
-# !*.d.ts`
-            )
+            .replace(`\n*.ts`, `\n# *.ts`)
+            .replace(`\n!*.d.ts`, `\n# !*.d.ts`)
     );
 }
