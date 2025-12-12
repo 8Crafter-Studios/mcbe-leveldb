@@ -6,7 +6,12 @@ development_scripts
 .git
 .github
 .vscode
+.mcattributes
 .*rc.json
 .*rc
 node_modules
 package-lock.json
+
+# JS only version ignores.
+# *.ts
+# !*.d.ts

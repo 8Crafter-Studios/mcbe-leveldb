@@ -621,6 +621,8 @@ export type IncludesNever<T extends any[]> = {
  * Gets the keys of an object type that have `never` as their value type.
  *
  * @template T The object type to get keys from.
+ *
+ * @author 8Crafter
  */
 export type NeverValueKeys<T extends object> = {
     [K in keyof T]: T[K] extends never ? K : never;
@@ -630,6 +632,8 @@ export type NeverValueKeys<T extends object> = {
  * Omits the keys of an object type that have `never` as their value type.
  *
  * @template T The object type to omit keys from.
+ *
+ * @author 8Crafter
  */
 export type OmitNeverValueKeys<T extends object> = Omit<T, NeverValueKeys<T>>;
 

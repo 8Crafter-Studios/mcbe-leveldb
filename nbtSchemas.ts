@@ -1006,6 +1006,15 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    editorWorldType: {
+                        type: "byte",
+                        description: "Marks a world as a [bedrock editor](Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).",
+                        enumDescriptions: ["true", "false"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
                     EducationOid: {
                         type: "string",
                         description: "A [UUID](UUID). *info needed*",
@@ -1308,6 +1317,15 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    HasUncompleteWorldFileOnDisk: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        enumDescriptions: ["true", "false"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
                     immutableWorld: {
                         type: "byte",
                         description: "Is read-only.",
@@ -1502,6 +1520,15 @@ export namespace NBTSchemas {
                             type: "int",
                             value: 16,
                         },
+                    },
+                    locatorbar: {
+                        type: "byte",
+                        description: "The `locatorbar` [game rule](game rule).",
+                        enumDescriptions: ["true", "false"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     maxcommandchainlength: {
                         type: "int",

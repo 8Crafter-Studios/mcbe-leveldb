@@ -1,3 +1,12 @@
+# v1.5.5
+
+## Changes
+
+-   Updated the `LevelDat` NBT schema to include the following properties:
+    -   `editorWorldType`
+    -   `HasUncompleteWorldFileOnDisk`
+    -   `locatorbar`
+
 # v1.5.4
 
 ## Critical Fixes

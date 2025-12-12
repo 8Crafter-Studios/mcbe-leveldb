@@ -5,7 +5,7 @@
         "moduleResolution": "NodeNext",
         // "outDir": "./",
         // "rootDir": "./",
-        "declaration": false,
+        "declaration": true,
         // "declarationDir": "./",
         "sourceMap": true,
         "declarationMap": false,
