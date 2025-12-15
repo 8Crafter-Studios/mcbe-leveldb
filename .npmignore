@@ -11,6 +11,7 @@ development_scripts
 .*rc
 node_modules
 package-lock.json
+trialSpawnerLocations.json
 
 # JS only version ignores.
 # *.ts

@@ -2,6 +2,7 @@ results*
 testWorld*
 test*.bin
 test*.txt
+test*.json
 node_modules
 package-lock.json
 development_scripts/nbtSchema.json
