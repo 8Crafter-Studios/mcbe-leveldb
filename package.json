@@ -1,6 +1,6 @@
 {
     "name": "mcbe-leveldb",
-    "version": "1.5.10",
+    "version": "1.6.0",
     "main": "index.ts",
     "scripts": {
         "prepublishOnly": "tsc -p ./tsconfig.production.json",
@@ -10,7 +10,8 @@
         "prePublishJSOnlyBuild": "node --experimental-transform-types development_scripts/prePublishJSOnlyBuild.ts",
         "postPublishJSOnlyBuild": "node --experimental-transform-types development_scripts/postPublishJSOnlyBuild.ts",
         "publishJSOnly": "npm run prePublishJSOnlyBuild && npm publish --tag jsonly --access public && npm run postPublishJSOnlyBuild",
-        "publishLatest": "npm publish --tag latest --access public"
+        "publishLatest": "npm publish --tag latest --access public",
+        "publishAll": "npm run publishLatest && npm run publishJSOnly"
     },
     "keywords": [
         "LevelDB",

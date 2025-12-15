@@ -476,6 +476,174 @@ export namespace NBTSchemas {
                     },
                 },
             },
+            ChunkLoadedRequest: {
+                id: "ChunkLoadedRequest",
+                title: "The ChunkLoadedRequest schema.",
+                description: "UNDOCUMENTED.",
+                type: "compound",
+                properties: {
+                    ActionType: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "byte", value: 2 }],
+                    },
+                    AllowNonTickingChunks: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                    AnimatePlacement: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                    AnimationMode: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "byte", value: 0 }],
+                    },
+                    AnimationSeconds: {
+                        type: "float",
+                        description: "UNDOCUMENTED.",
+                    },
+                    AreaType: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "byte", value: 0 }],
+                    },
+                    BlocksPlaced: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: 0 }],
+                    },
+                    ChunkRequestListType: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "byte", value: 1 }],
+                    },
+                    IncludeBlocks: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                    IncludeEntities: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                    Integrity: {
+                        type: "float",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "float", value: 100 }],
+                    },
+                    IntegritySeed: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: 0 }],
+                    },
+                    MaxX: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: -1 }],
+                    },
+                    MaxZ: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: -1 }],
+                    },
+                    MinX: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: -2 }],
+                    },
+                    MinZ: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: -2 }],
+                    },
+                    Mirror: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "byte", value: 0 }],
+                    },
+                    Name: {
+                        type: "string",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "string", value: "mystructure:Tree1" }],
+                    },
+                    OffsetX: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: 0 }],
+                    },
+                    OffsetY: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: 0 }],
+                    },
+                    OffsetZ: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: 0 }],
+                    },
+                    PosX: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: -20 }],
+                    },
+                    PosY: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: -1 }],
+                    },
+                    PosZ: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: -22 }],
+                    },
+                    Rotation: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "byte", value: 0 }],
+                    },
+                    SizeX: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: 8 }],
+                    },
+                    SizeY: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: 100 }],
+                    },
+                    SizeZ: {
+                        type: "int",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "int", value: 7 }],
+                    },
+                    TickQueued: {
+                        type: "long",
+                        description: "UNDOCUMENTED.",
+                        examples: [{ type: "long", value: [0, 0] }],
+                    },
+                },
+            },
             Data3D: {
                 id: "Data3D",
                 title: "The Data3D schema.",
@@ -591,7 +759,7 @@ export namespace NBTSchemas {
                             attackmobs: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player can attack mobs.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -600,7 +768,7 @@ export namespace NBTSchemas {
                             attackplayers: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player can attack other players.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -609,7 +777,7 @@ export namespace NBTSchemas {
                             build: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player can place blocks.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -618,7 +786,7 @@ export namespace NBTSchemas {
                             doorsandswitches: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player is able to interact with redstone components.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -627,7 +795,7 @@ export namespace NBTSchemas {
                             flying: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player is currently flying.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -644,7 +812,7 @@ export namespace NBTSchemas {
                             instabuild: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player can instantly destroy blocks.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -653,7 +821,7 @@ export namespace NBTSchemas {
                             invulnerable: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -662,7 +830,7 @@ export namespace NBTSchemas {
                             lightning: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player was struck by lightning.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -671,7 +839,7 @@ export namespace NBTSchemas {
                             mayfly: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player can fly.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -680,7 +848,7 @@ export namespace NBTSchemas {
                             mine: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player can destroy blocks.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -689,7 +857,7 @@ export namespace NBTSchemas {
                             mute: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player messages cannot be seen by other players.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -698,7 +866,7 @@ export namespace NBTSchemas {
                             noclip: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player can phase through blocks.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -707,7 +875,7 @@ export namespace NBTSchemas {
                             op: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player has operator commands.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -716,7 +884,7 @@ export namespace NBTSchemas {
                             opencontainers: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player is able to open containers.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -741,7 +909,7 @@ export namespace NBTSchemas {
                             teleport: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player is allowed to teleport.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -758,7 +926,7 @@ export namespace NBTSchemas {
                             worldbuilder: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player is a world builder.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -770,7 +938,7 @@ export namespace NBTSchemas {
                     allowdestructiveobjects: {
                         type: "byte",
                         description: "The `allowdestructiveobjects` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -779,7 +947,7 @@ export namespace NBTSchemas {
                     allowmobs: {
                         type: "byte",
                         description: "The `allowmobs` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -802,7 +970,7 @@ export namespace NBTSchemas {
                     bonusChestEnabled: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if the bonus chest is enabled.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -812,7 +980,7 @@ export namespace NBTSchemas {
                         type: "byte",
                         description:
                             "1 or 0 (true/false) - true if the bonus chest has been placed in the world. Turning this to false spawns another bonus chest near the spawn coordinates.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -821,7 +989,7 @@ export namespace NBTSchemas {
                     codebuilder: {
                         type: "byte",
                         description: "UNDOCUMENTED.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -830,7 +998,7 @@ export namespace NBTSchemas {
                     commandblockoutput: {
                         type: "byte",
                         description: "The `commandblockoutput` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -839,7 +1007,7 @@ export namespace NBTSchemas {
                     CenterMapsToOrigin: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if the maps should be on a grid or centered to exactly where they are created. Default to 0.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -848,7 +1016,7 @@ export namespace NBTSchemas {
                     commandblocksenabled: {
                         type: "byte",
                         description: "The `commandblocksenabled` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -857,7 +1025,7 @@ export namespace NBTSchemas {
                     commandsEnabled: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if cheats are on.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -867,7 +1035,7 @@ export namespace NBTSchemas {
                         type: "byte",
                         description:
                             "1 or 0 (true/false) - tells if the world has Platform-Specific texture packs or content. Used to prevent cross play in specific worlds, that use assets allowed only on specific consoles.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -901,7 +1069,7 @@ export namespace NBTSchemas {
                     dodaylightcycle: {
                         type: "byte",
                         description: "The `dodaylightcycle` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -910,7 +1078,7 @@ export namespace NBTSchemas {
                     doentitiydrops: {
                         type: "byte",
                         description: "The `doentitiydrops` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -919,7 +1087,7 @@ export namespace NBTSchemas {
                     dofiretick: {
                         type: "byte",
                         description: "The `dofiretick` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -928,7 +1096,7 @@ export namespace NBTSchemas {
                     doimmediaterespawn: {
                         type: "byte",
                         description: "The `doimmediaterespawn` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -937,7 +1105,7 @@ export namespace NBTSchemas {
                     doinsomnia: {
                         type: "byte",
                         description: "The `doinsomnia` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -946,7 +1114,7 @@ export namespace NBTSchemas {
                     dolimitedcrafting: {
                         type: "byte",
                         description: "The `dolimitedcrafting` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -955,7 +1123,7 @@ export namespace NBTSchemas {
                     domobloot: {
                         type: "byte",
                         description: "The `domobloot` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -964,7 +1132,7 @@ export namespace NBTSchemas {
                     domobspawning: {
                         type: "byte",
                         description: "The `domobspawning` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -973,7 +1141,7 @@ export namespace NBTSchemas {
                     dotiledrops: {
                         type: "byte",
                         description: "The `dotiledrops` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -982,7 +1150,7 @@ export namespace NBTSchemas {
                     doweathercycle: {
                         type: "byte",
                         description: "The `doweathercycle` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -991,7 +1159,7 @@ export namespace NBTSchemas {
                     drowningdamage: {
                         type: "byte",
                         description: "The `drowningdamage` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1000,7 +1168,7 @@ export namespace NBTSchemas {
                     educationFeaturesEnabled: {
                         type: "byte",
                         description: "UNDOCUMENTED.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1009,7 +1177,7 @@ export namespace NBTSchemas {
                     editorWorldType: {
                         type: "byte",
                         description: "Marks a world as a [bedrock editor](Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1030,7 +1198,7 @@ export namespace NBTSchemas {
                             type: "byte",
                             value: 0,
                         },
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1058,7 +1226,7 @@ export namespace NBTSchemas {
                             experiments_ever_used: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the world is locked on [experimental gameplay](experimental gameplay).",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1067,7 +1235,7 @@ export namespace NBTSchemas {
                             saved_with_toggled_experiments: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the world has been saved with experiments on before.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1076,7 +1244,7 @@ export namespace NBTSchemas {
                             gametest: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the beta APIs experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1085,7 +1253,7 @@ export namespace NBTSchemas {
                             camera_aim_assist: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the camera aim assist experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1094,7 +1262,7 @@ export namespace NBTSchemas {
                             data_driven_biomes: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the data driven biomes experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1103,7 +1271,7 @@ export namespace NBTSchemas {
                             experimental_creator_cameras: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the experimental creator cameras experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1112,7 +1280,7 @@ export namespace NBTSchemas {
                             jigsaw_structures: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the jigsaw structures experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1121,7 +1289,7 @@ export namespace NBTSchemas {
                             locator_bar: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the locator bar experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1130,7 +1298,7 @@ export namespace NBTSchemas {
                             upcoming_creator_features: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the upcoming creator features experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1139,7 +1307,7 @@ export namespace NBTSchemas {
                             y_2025_drop_1: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the y_2025_drop_1 experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1148,7 +1316,7 @@ export namespace NBTSchemas {
                             y_2025_drop_2: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the y_2025_drop_2 experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1157,7 +1325,7 @@ export namespace NBTSchemas {
                             y_2025_drop_3: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the y_2025_drop_3 experimental toggle is enabled.",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1166,7 +1334,7 @@ export namespace NBTSchemas {
                         },
                         additionalProperties: {
                             type: "byte",
-                            enumDescriptions: ["true", "false"],
+                            enumDescriptions: ["false", "true"],
                             enum: [
                                 { type: "byte", value: 0 },
                                 { type: "byte", value: 1 },
@@ -1176,7 +1344,7 @@ export namespace NBTSchemas {
                     falldamage: {
                         type: "byte",
                         description: "The `falldamage` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1185,7 +1353,7 @@ export namespace NBTSchemas {
                     firedamage: {
                         type: "byte",
                         description: "The `firedamage` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1203,7 +1371,7 @@ export namespace NBTSchemas {
                     freezedamage: {
                         type: "byte",
                         description: "The `freezedamage` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1212,7 +1380,7 @@ export namespace NBTSchemas {
                     functioncommandlimit: {
                         type: "int",
                         description: "The `functioncommandlimit` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1221,7 +1389,7 @@ export namespace NBTSchemas {
                     globalmute: {
                         type: "byte",
                         description: "The `globalmute` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1230,7 +1398,7 @@ export namespace NBTSchemas {
                     ForceGameType: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if force the player into the game mode defined in `GameType`.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1293,7 +1461,7 @@ export namespace NBTSchemas {
                         type: "byte",
                         description:
                             "Whether the world has achievements locked. Set to 1 if the default game mode is set to Creative, if [cheats](Commands#Cheats) have been enabled, or if a [behavior pack](add-on) has been equipped.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1302,7 +1470,7 @@ export namespace NBTSchemas {
                     hasLockedBehaviorPack: {
                         type: "byte",
                         description: "UNDOCUMENTED.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1311,7 +1479,7 @@ export namespace NBTSchemas {
                     hasLockedResourcePack: {
                         type: "byte",
                         description: "UNDOCUMENTED.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1320,7 +1488,7 @@ export namespace NBTSchemas {
                     HasUncompleteWorldFileOnDisk: {
                         type: "byte",
                         description: "UNDOCUMENTED.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1329,7 +1497,7 @@ export namespace NBTSchemas {
                     immutableWorld: {
                         type: "byte",
                         description: "Is read-only.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1342,7 +1510,7 @@ export namespace NBTSchemas {
                     isCreatedInEditor: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if it was created from the [bedrock editor](Bedrock Editor).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1351,7 +1519,7 @@ export namespace NBTSchemas {
                     isExportedFromEditor: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if exported from the [bedrock editor](Bedrock Editor).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1361,7 +1529,7 @@ export namespace NBTSchemas {
                         type: "byte",
                         description:
                             "1 or 0 (true/false) - true if the world is created from a world template where the world options were intended not to be modified.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1370,7 +1538,7 @@ export namespace NBTSchemas {
                     isFromWorldTemplate: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if the world is created from a world template.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1379,7 +1547,7 @@ export namespace NBTSchemas {
                     IsHardcore: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if the world is in [Hardcore](Hardcore) mode.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1389,7 +1557,7 @@ export namespace NBTSchemas {
                         type: "byte",
                         description:
                             "1 or 0 (true/false) - (unused) may cause world to not save, or delete after use. Seems to default back to false when a world is loaded.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1399,7 +1567,7 @@ export namespace NBTSchemas {
                         type: "byte",
                         description:
                             "1 or 0 (true/false) - true if the world options cannot be modified until the user accepts that they are changing the map.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1408,7 +1576,7 @@ export namespace NBTSchemas {
                     keepinventory: {
                         type: "byte",
                         description: "The `keepinventory` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1417,7 +1585,7 @@ export namespace NBTSchemas {
                     LANBroadcast: {
                         type: "byte",
                         description: 'Whether the world has been opened with the "Visible to LAN players" world setting enabled.',
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1426,7 +1594,7 @@ export namespace NBTSchemas {
                     LANBroadcastIntent: {
                         type: "byte",
                         description: 'Whether the "Visible to LAN players" world toggle is enabled.',
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1456,7 +1624,7 @@ export namespace NBTSchemas {
                             {
                                 title: "Preview",
                                 type: "int",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "int", value: 0 },
                                     { type: "int", value: 1 },
@@ -1524,7 +1692,7 @@ export namespace NBTSchemas {
                     locatorbar: {
                         type: "byte",
                         description: "The `locatorbar` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1558,7 +1726,7 @@ export namespace NBTSchemas {
                             {
                                 title: "Preview",
                                 type: "int",
-                                enumDescriptions: ["true", "false"],
+                                enumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "int", value: 0 },
                                     { type: "int", value: 1 },
@@ -1569,7 +1737,7 @@ export namespace NBTSchemas {
                     mobgriefing: {
                         type: "byte",
                         description: "UNDOCUMENTED.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1578,7 +1746,7 @@ export namespace NBTSchemas {
                     MultiplayerGame: {
                         type: "byte",
                         description: 'Whether the world has been opened with the "Multiplayer Game" world setting enabled.',
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1587,7 +1755,7 @@ export namespace NBTSchemas {
                     MultiplayerGameIntent: {
                         type: "byte",
                         description: 'Whether the "Multiplayer Game" world toggle is enabled.',
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1596,7 +1764,7 @@ export namespace NBTSchemas {
                     naturalregeneration: {
                         type: "byte",
                         description: "The `naturalregeneration` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1635,7 +1803,7 @@ export namespace NBTSchemas {
                     pvp: {
                         type: "byte",
                         description: "The `pvp` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1664,7 +1832,7 @@ export namespace NBTSchemas {
                     recipesunlock: {
                         type: "byte",
                         description: "The `recipesunlock` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1673,7 +1841,7 @@ export namespace NBTSchemas {
                     requiresCopiedPackRemovalCheck: {
                         type: "byte",
                         description: "UNDOCUMENTED.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1682,7 +1850,7 @@ export namespace NBTSchemas {
                     respawnblocksexplode: {
                         type: "byte",
                         description: "The `respawnblocksexplode` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1691,7 +1859,7 @@ export namespace NBTSchemas {
                     sendcommandfeedback: {
                         type: "byte",
                         description: "The `sendcommandfeedback` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1708,7 +1876,7 @@ export namespace NBTSchemas {
                     showbordereffect: {
                         type: "byte",
                         description: "The `showbordereffect` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1717,7 +1885,7 @@ export namespace NBTSchemas {
                     showcoordinates: {
                         type: "byte",
                         description: "The `showcoordinates` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1726,7 +1894,7 @@ export namespace NBTSchemas {
                     showdaysplayed: {
                         type: "byte",
                         description: "The `showdaysplayed` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1735,7 +1903,7 @@ export namespace NBTSchemas {
                     showdeathmessages: {
                         type: "byte",
                         description: "The `showdeathmessages` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1744,7 +1912,7 @@ export namespace NBTSchemas {
                     showtags: {
                         type: "byte",
                         description: "The `showtags` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1753,7 +1921,7 @@ export namespace NBTSchemas {
                     spawnMobs: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if mobs can spawn.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1762,7 +1930,7 @@ export namespace NBTSchemas {
                     spawnradius: {
                         type: "int",
                         description: "The `spawnradius` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1771,7 +1939,7 @@ export namespace NBTSchemas {
                     SpawnV1Villagers: {
                         type: "byte",
                         description: "Spawn pre-1.10.0 villagers.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1804,7 +1972,7 @@ export namespace NBTSchemas {
                     startWithMapEnabled: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if new players spawn with a locator map.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1821,7 +1989,7 @@ export namespace NBTSchemas {
                     texturePacksRequired: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if the user must download the texture packs applied to the world to join.",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1839,7 +2007,7 @@ export namespace NBTSchemas {
                     tntexplodes: {
                         type: "byte",
                         description: "The `tntexplodes` [game rule](game rule).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1848,7 +2016,7 @@ export namespace NBTSchemas {
                     useMsaGamertagsOnly: {
                         type: "byte",
                         description: "Whether the world is restricted to Microsoft Accounts only (players must be signed in).",
-                        enumDescriptions: ["true", "false"],
+                        enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -10945,6 +11113,216 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The ChunkLoadedRequest schema.
+         *
+         * UNDOCUMENTED.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.ChunkLoadedRequest}
+         */
+        export type ChunkLoadedRequest = {
+            type: "compound";
+            value: {
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 2
+                 */
+                ActionType?: { type: "byte"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                AllowNonTickingChunks?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                AnimatePlacement?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                AnimationMode?: { type: "byte"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                AnimationSeconds?: { type: "float"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                AreaType?: { type: "byte"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                BlocksPlaced?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 1
+                 */
+                ChunkRequestListType?: { type: "byte"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                IncludeBlocks?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                IncludeEntities?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 100
+                 */
+                Integrity?: { type: "float"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                IntegritySeed?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * -1
+                 */
+                MaxX?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * -1
+                 */
+                MaxZ?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * -2
+                 */
+                MinX?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * -2
+                 */
+                MinZ?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                Mirror?: { type: "byte"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * "mystructure:Tree1"
+                 */
+                Name?: { type: "string"; value: string };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                OffsetX?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                OffsetY?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                OffsetZ?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * -20
+                 */
+                PosX?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * -1
+                 */
+                PosY?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * -22
+                 */
+                PosZ?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 0
+                 */
+                Rotation?: { type: "byte"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 8
+                 */
+                SizeX?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 100
+                 */
+                SizeY?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example 7
+                 */
+                SizeZ?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @example
+                 * 0 | 0
+                 */
+                TickQueued?: { type: "long"; value: [high: number, low: number] };
+            };
+        };
+
+        /**
          * The Data3D schema.
          *
          * The NBT structure of the parsed data of the Data3D content type.
@@ -11030,8 +11408,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         attackmobs?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11040,8 +11418,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         attackplayers?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11050,8 +11428,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         build?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11060,8 +11438,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         doorsandswitches?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11070,8 +11448,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         flying?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11086,8 +11464,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         instabuild?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11096,8 +11474,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         invulnerable?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11106,8 +11484,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         lightning?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11116,8 +11494,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         mayfly?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11126,8 +11504,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         mine?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11136,8 +11514,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         mute?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11146,8 +11524,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         noclip?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11156,8 +11534,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         op?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11166,8 +11544,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         opencontainers?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11188,8 +11566,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         teleport?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11204,8 +11582,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         worldbuilder?: { type: "byte"; value: 0 | 1 };
                     };
@@ -11216,8 +11594,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 allowdestructiveobjects?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11226,8 +11604,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 allowmobs?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11247,8 +11625,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 bonusChestEnabled?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11257,8 +11635,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 bonusChestSpawned?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11267,8 +11645,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 codebuilder?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11277,8 +11655,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 commandblockoutput?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11287,8 +11665,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 CenterMapsToOrigin?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11297,8 +11675,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 commandblocksenabled?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11307,8 +11685,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 commandsEnabled?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11317,8 +11695,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 ConfirmedPlatformLockedContent?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11354,8 +11732,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 dodaylightcycle?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11364,8 +11742,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 doentitiydrops?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11374,8 +11752,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 dofiretick?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11384,8 +11762,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 doimmediaterespawn?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11394,8 +11772,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 doinsomnia?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11404,8 +11782,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 dolimitedcrafting?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11414,8 +11792,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 domobloot?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11424,8 +11802,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 domobspawning?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11434,8 +11812,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 dotiledrops?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11444,8 +11822,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 doweathercycle?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11454,8 +11832,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 drowningdamage?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11464,10 +11842,20 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 educationFeaturesEnabled?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * Marks a world as a [bedrock editor](Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                editorWorldType?: { type: "byte"; value: 0 | 1 };
                 /**
                  * A [UUID](UUID). *info needed*
                  */
@@ -11484,8 +11872,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 eduOffer?: { type: "int"; value: 0 | 1 };
                 eduSharedResource?: {
@@ -11513,8 +11901,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         experiments_ever_used?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11523,8 +11911,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         saved_with_toggled_experiments?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11533,8 +11921,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         gametest?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11543,8 +11931,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         camera_aim_assist?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11553,8 +11941,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         data_driven_biomes?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11563,8 +11951,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         experimental_creator_cameras?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11573,8 +11961,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         jigsaw_structures?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11583,8 +11971,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         locator_bar?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11593,8 +11981,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         upcoming_creator_features?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11603,8 +11991,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         y_2025_drop_1?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11613,8 +12001,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         y_2025_drop_2?: { type: "byte"; value: 0 | 1 };
                         /**
@@ -11623,8 +12011,8 @@ however when the corresponding block in the block layer is broken, this block ge
                          * @enum 0 | 1
                          *
                          * @enumDescriptions
-                         * - `0`: true
-                         * - `1`: false
+                         * - `0`: false
+                         * - `1`: true
                          */
                         y_2025_drop_3?: { type: "byte"; value: 0 | 1 };
                     } & {
@@ -11637,8 +12025,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 falldamage?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11647,8 +12035,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 firedamage?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11664,8 +12052,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 freezedamage?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11674,8 +12062,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 functioncommandlimit?: { type: "int"; value: 0 | 1 };
                 /**
@@ -11684,8 +12072,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 globalmute?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11694,8 +12082,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 ForceGameType?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11712,8 +12100,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 hasBeenLoadedInCreative?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11722,8 +12110,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 hasLockedBehaviorPack?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11732,18 +12120,28 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 hasLockedResourcePack?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                HasUncompleteWorldFileOnDisk?: { type: "byte"; value: 0 | 1 };
                 /**
                  * Is read-only.
                  *
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 immutableWorld?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11756,8 +12154,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 isCreatedInEditor?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11766,8 +12164,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 isExportedFromEditor?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11776,8 +12174,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 isFromLockedTemplate?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11786,8 +12184,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 isFromWorldTemplate?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11796,8 +12194,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 IsHardcore?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11806,8 +12204,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 IsSingleUseWorld?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11816,8 +12214,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 isWorldTemplateOptionLocked?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11826,8 +12224,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 keepinventory?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11836,8 +12234,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 LANBroadcast?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11846,8 +12244,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 LANBroadcastIntent?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11903,6 +12301,16 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LimitedWorldDepth?: { type: "int"; value: number };
                 /**
+                 * The `locatorbar` [game rule](game rule).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                locatorbar?: { type: "byte"; value: 0 | 1 };
+                /**
                  * The `maxcommandchainlength` [game rule](game rule).
                  */
                 maxcommandchainlength?: { type: "int"; value: number };
@@ -11916,8 +12324,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 mobgriefing?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11926,8 +12334,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 MultiplayerGame?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11936,8 +12344,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 MultiplayerGameIntent?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11946,8 +12354,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 naturalregeneration?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -11980,8 +12388,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 pvp?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12008,8 +12416,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 recipesunlock?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12018,8 +12426,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 requiresCopiedPackRemovalCheck?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12028,8 +12436,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 respawnblocksexplode?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12038,8 +12446,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 sendcommandfeedback?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12054,8 +12462,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 showbordereffect?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12064,8 +12472,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 showcoordinates?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12074,8 +12482,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 showdaysplayed?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12084,8 +12492,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 showdeathmessages?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12094,8 +12502,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 showtags?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12104,8 +12512,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 spawnMobs?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12114,8 +12522,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 spawnradius?: { type: "int"; value: 0 | 1 };
                 /**
@@ -12124,8 +12532,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 SpawnV1Villagers?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12152,8 +12560,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 startWithMapEnabled?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12168,8 +12576,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 texturePacksRequired?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12185,8 +12593,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 tntexplodes?: { type: "byte"; value: 0 | 1 };
                 /**
@@ -12195,8 +12603,8 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
-                 * - `0`: true
-                 * - `1`: false
+                 * - `0`: false
+                 * - `1`: true
                  */
                 useMsaGamertagsOnly?: { type: "byte"; value: 0 | 1 };
                 /**

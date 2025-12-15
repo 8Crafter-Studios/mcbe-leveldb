@@ -457,6 +457,7 @@ export const DBEntryContentTypes = [
     "Player",
     "PlayerClient",
     "ActorPrefix",
+    "ChunkLoadedRequest",
     "Digest",
     "Map",
     "Portals",
@@ -1369,6 +1370,7 @@ export const entryContentTypeToFormatMap = {
          * The format type of the data.
          */
         type: "NBT",
+        // TO-DO: Add a default value for this.
     },
     /**
      * The content type of the `level.dat` and `level.dat_old` files.
@@ -1521,6 +1523,17 @@ export const entryContentTypeToFormatMap = {
          * ```
          */
         defaultValue: Buffer.from("true", "utf-8"),
+    },
+    /**
+     * @todo Add a schema for this.
+     * @todo Add a description for this.
+     */
+    ChunkLoadedRequest: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+        // TO-DO: Add a default value for this.
     },
     /**
      * All data that has a key that is not recognized.
@@ -2313,6 +2326,7 @@ export function getKeyDisplayName(key: Buffer): string {
         }
         case "AutonomousEntities":
         case "BiomeData":
+        case "ChunkLoadedRequest":
         case "Dimension":
         case "DynamicProperties":
         case "FlatWorldLayers":
@@ -2447,6 +2461,8 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "PlayerClient";
         case stringKey.startsWith("digp"):
             return "Digest";
+        case /^chunk_loaded_request_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_\d+$/.test(stringKey):
+            return "ChunkLoadedRequest";
         case stringKey.startsWith("RealmsStoriesData_"):
             return "RealmsStoriesData";
         case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_POI$/.test(stringKey):

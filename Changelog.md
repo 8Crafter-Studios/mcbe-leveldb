@@ -1,3 +1,17 @@
+# v1.6.0
+
+## Additions
+
+-   Added the `ChunkLoadedRequest` content type.
+-   Added the `ChunkLoadedRequest` NBT schema.
+
+## Fixes
+
+-   Fixed a bug where the enum descriptions of the NBT schemas and NBT schema types for boolean byte values had `1` mapped to `false` and `0` mapped to `true`.
+-   Fixed a bug where the following properties were missing from the type version of the NBT schema for `LevelDat`:
+    -   `editorWorldType`
+    -   `HasUncompleteWorldFileOnDisk`
+
 # v1.5.7/v1.5.10
 
 ## Critical Fixes
