@@ -19,29 +19,26 @@ export namespace NBTSchemas {
     function defineNBTSchemasMapping<
         T extends Record<string, NBTSchema | NBTSchemaFragment>,
         M extends {
-            [key in string]: key extends keyof T
-                ? never
-                : { key: keyof T; title: LooseAutocomplete<"">; description: LooseAutocomplete<""> } | { key: keyof T };
-        }
+            [key in string]: key extends keyof T ? never
+            :   { key: keyof T; title: LooseAutocomplete<"">; description: LooseAutocomplete<""> } | { key: keyof T };
+        },
     >(
         schemas: T,
         mappings: M
     ): T & {
         readonly [K in keyof M]: Omit<T[M[K]["key"]], "description" | "title"> &
-            (Extract<M[K], { description: string }> extends never
-                ? unknown extends T[M[K]["key"]]["description"]
-                    ? NonNullable<unknown>
-                    : { description: T[M[K]["key"]]["description"] }
-                : Extract<M[K], { description: string }>["description"] extends string
-                ? { description: Extract<M[K], { description: string }>["description"] }
-                : { description: T[M[K]["key"]]["description"] }) &
-            (Extract<M[K], { title: string }> extends never
-                ? unknown extends T[M[K]["key"]]["title"]
-                    ? NonNullable<unknown>
-                    : { title: T[M[K]["key"]]["title"] }
-                : Extract<M[K], { title: string }>["title"] extends string
-                ? { title: Extract<M[K], { title: string }>["title"] }
-                : { title: T[M[K]["key"]]["title"] }) & {
+            (Extract<M[K], { description: string }> extends never ?
+                unknown extends T[M[K]["key"]]["description"] ?
+                    NonNullable<unknown>
+                :   { description: T[M[K]["key"]]["description"] }
+            : Extract<M[K], { description: string }>["description"] extends string ? { description: Extract<M[K], { description: string }>["description"] }
+            : { description: T[M[K]["key"]]["description"] }) &
+            (Extract<M[K], { title: string }> extends never ?
+                unknown extends T[M[K]["key"]]["title"] ?
+                    NonNullable<unknown>
+                :   { title: T[M[K]["key"]]["title"] }
+            : Extract<M[K], { title: string }>["title"] extends string ? { title: Extract<M[K], { title: string }>["title"] }
+            : { title: T[M[K]["key"]]["title"] }) & {
                 $aliasOf: M[K]["key"];
             };
     } {
@@ -59,20 +56,19 @@ export namespace NBTSchemas {
                 ])
             ) as unknown as {
                 readonly [K in keyof M]: Omit<T[M[K]["key"]], "description" | "title"> &
-                    (Extract<M[K], { description: string }> extends never
-                        ? unknown extends T[M[K]["key"]]["description"]
-                            ? NonNullable<unknown>
-                            : { description: T[M[K]["key"]]["description"] }
-                        : Extract<M[K], { description: string }>["description"] extends string
-                        ? { description: Extract<M[K], { description: string }>["description"] }
-                        : { description: T[M[K]["key"]]["description"] }) &
-                    (Extract<M[K], { title: string }> extends never
-                        ? unknown extends T[M[K]["key"]]["title"]
-                            ? NonNullable<unknown>
-                            : { title: T[M[K]["key"]]["title"] }
-                        : Extract<M[K], { title: string }>["title"] extends string
-                        ? { title: Extract<M[K], { title: string }>["title"] }
-                        : { title: T[M[K]["key"]]["title"] }) & {
+                    (Extract<M[K], { description: string }> extends never ?
+                        unknown extends T[M[K]["key"]]["description"] ?
+                            NonNullable<unknown>
+                        :   { description: T[M[K]["key"]]["description"] }
+                    : Extract<M[K], { description: string }>["description"] extends string ?
+                        { description: Extract<M[K], { description: string }>["description"] }
+                    :   { description: T[M[K]["key"]]["description"] }) &
+                    (Extract<M[K], { title: string }> extends never ?
+                        unknown extends T[M[K]["key"]]["title"] ?
+                            NonNullable<unknown>
+                        :   { title: T[M[K]["key"]]["title"] }
+                    : Extract<M[K], { title: string }>["title"] extends string ? { title: Extract<M[K], { title: string }>["title"] }
+                    : { title: T[M[K]["key"]]["title"] }) & {
                         $aliasOf: M[K]["key"];
                     };
             }),
@@ -2494,53 +2490,51 @@ export namespace NBTSchemas {
                             },
                         },
                     },
+                    LastUniqueID: {
+                        description: "The numerical ID given to the last entity added on the scoreboard system.",
+                        type: "long",
+                    },
                     Objectives: {
                         description: "A list of compound tags representing objectives.",
                         type: "list",
-                        items: [
-                            {
-                                description: "An objective.",
-                                type: "compound",
-                                required: ["Criteria", "DisplayName", "Name", "Scores"],
-                                properties: {
-                                    Criteria: {
-                                        description: "The **criterion** of this objective, currently, always `dummy`.",
-                                        type: "string",
-                                    },
-                                    DisplayName: {
-                                        description: "The **display name** of this objective.",
-                                        type: "string",
-                                    },
-                                    Name: {
-                                        description: "The internal **name** of this objective.",
-                                        type: "string",
-                                    },
-                                    Scores: {
-                                        description: "A list of compound tags representing scores tracked on this objective.",
-                                        type: "list",
-                                        items: {
-                                            description: "A tracked entity with a score.",
-                                            type: "compound",
-                                            required: ["Score", "ScoreboardId"],
-                                            properties: {
-                                                Score: {
-                                                    description: "The score this entity has on this objective.",
-                                                    type: "int",
-                                                },
-                                                ScoreboardId: {
-                                                    description: "The numerical ID given to this entity on the scoreboard system.",
-                                                    type: "long",
-                                                },
+                        items: {
+                            description: "An objective.",
+                            type: "compound",
+                            required: ["Criteria", "DisplayName", "Name", "Scores"],
+                            properties: {
+                                Criteria: {
+                                    description: "The **criterion** of this objective, currently, always `dummy`.",
+                                    type: "string",
+                                },
+                                DisplayName: {
+                                    description: "The **display name** of this objective.",
+                                    type: "string",
+                                },
+                                Name: {
+                                    description: "The internal **name** of this objective.",
+                                    type: "string",
+                                },
+                                Scores: {
+                                    description: "A list of compound tags representing scores tracked on this objective.",
+                                    type: "list",
+                                    items: {
+                                        description: "A tracked entity with a score.",
+                                        type: "compound",
+                                        required: ["Score", "ScoreboardId"],
+                                        properties: {
+                                            Score: {
+                                                description: "The score this entity has on this objective.",
+                                                type: "int",
+                                            },
+                                            ScoreboardId: {
+                                                description: "The numerical ID given to this entity on the scoreboard system.",
+                                                type: "long",
                                             },
                                         },
                                     },
                                 },
                             },
-                            {
-                                description: "The numerical ID given to the last entity added on the scoreboard system.",
-                                type: "long",
-                            },
-                        ],
+                        },
                     },
                 },
                 $fragment: false,
@@ -9055,14 +9049,15 @@ however when the corresponding block in the block layer is broken, this block ge
                                     type: { const: "compound" },
                                     value: {
                                         type: "object",
-                                        properties: schema.properties
-                                            ? Object.fromEntries(
-                                                  Object.entries(schema.properties).map(([k, v]): [string, JSONSchemaRef] => [
-                                                      k,
-                                                      nbtSchemaToJsonSchema(v, allSchemas, options),
-                                                  ])
-                                              )
-                                            : {},
+                                        properties:
+                                            schema.properties ?
+                                                Object.fromEntries(
+                                                    Object.entries(schema.properties).map(([k, v]): [string, JSONSchemaRef] => [
+                                                        k,
+                                                        nbtSchemaToJsonSchema(v, allSchemas, options),
+                                                    ])
+                                                )
+                                            :   {},
                                         required: schema.required,
                                         additionalProperties: schema.additionalProperties ?? true,
                                     },
@@ -9445,30 +9440,28 @@ however when the corresponding block in the block layer is broken, this block ge
                     | SpecificBuiltType<SpecificBuiltType<string | BuiltType | BuiltType[], string>, '"list"'> {
                     const refLookup = opts.refLookup ?? nbtSchemas;
                     const resolvedRef: T = (
-                        typeof ref === "boolean"
-                            ? ref
-                            : Array.isArray(ref)
-                            ? ref.map((r: NBTSubSchemaRef): NBTSubSchemaRef => {
-                                  if (typeof r === "boolean" || !r.$ref || !(r.$ref in refLookup)) return r;
-                                  const refName: string = resolveSchemaRefName(r.$ref, !(opts.inlineRefs ?? false), opts);
-                                  return typeof refLookup[refName as keyof typeof refLookup] === "string"
-                                      ? r
-                                      : {
+                        typeof ref === "boolean" ? ref
+                        : Array.isArray(ref) ?
+                            ref.map((r: NBTSubSchemaRef): NBTSubSchemaRef => {
+                                if (typeof r === "boolean" || !r.$ref || !(r.$ref in refLookup)) return r;
+                                const refName: string = resolveSchemaRefName(r.$ref, !(opts.inlineRefs ?? false), opts);
+                                return typeof refLookup[refName as keyof typeof refLookup] === "string" ?
+                                        r
+                                    :   {
                                             type: (refLookup[r.$ref as keyof typeof refLookup] as NBTSubSchema).type,
                                             ...r /* Object.fromEntries(Object.entries(r).filter(([key]): boolean => key !== "$ref")) */,
                                         };
-                              })
-                            : ((r: NBTSubSchemaRef): NBTSubSchemaRef => {
-                                  if (typeof r === "boolean" || !r.$ref || !(r.$ref in refLookup)) return r;
-                                  const refName: string = resolveSchemaRefName(r.$ref, !(opts.inlineRefs ?? false), opts);
-                                  return typeof refLookup[refName as keyof typeof refLookup] === "string"
-                                      ? r
-                                      : {
+                            })
+                        :   ((r: NBTSubSchemaRef): NBTSubSchemaRef => {
+                                if (typeof r === "boolean" || !r.$ref || !(r.$ref in refLookup)) return r;
+                                const refName: string = resolveSchemaRefName(r.$ref, !(opts.inlineRefs ?? false), opts);
+                                return typeof refLookup[refName as keyof typeof refLookup] === "string" ?
+                                        r
+                                    :   {
                                             type: (refLookup[r.$ref as keyof typeof refLookup] as NBTSubSchema).type,
                                             ...r /* Object.fromEntries(Object.entries(r).filter(([key]): boolean => key !== "$ref")) */,
                                         };
-                              })(ref)
-                    ) as T; /* ref.$ref !== undefined && ref.$ref in refLookup
+                            })(ref)) as T; /* ref.$ref !== undefined && ref.$ref in refLookup
                             ? typeof refLookup[ref.$ref as keyof typeof refLookup] === "string"
                                 ? ref
                                 : {
@@ -9527,22 +9520,20 @@ however when the corresponding block in the block layer is broken, this block ge
                 ): SpecificBuiltType<string, `"${string}"` | "any" | "unknown"> {
                     const refLookup = opts.refLookup ?? nbtSchemas;
                     const st = schema.type as Exclude<NBTSubSchema["type"], any[]>;
-                    const mainSchemaRefName: string | undefined = schema.$ref
-                        ? resolveSchemaRefName(schema.$ref, !(opts.inlineRefs ?? false), opts)
-                        : undefined;
+                    const mainSchemaRefName: string | undefined =
+                        schema.$ref ? resolveSchemaRefName(schema.$ref, !(opts.inlineRefs ?? false), opts) : undefined;
                     const resolvedSchema =
-                        opts.inlineRefs && schema.$ref && mainSchemaRefName && mainSchemaRefName in refLookup
-                            ? {
-                                  ...(refLookup[mainSchemaRefName as keyof typeof refLookup] as NBTSubSchema),
-                                  ...schema,
-                              }
-                            : schema;
+                        opts.inlineRefs && schema.$ref && mainSchemaRefName && mainSchemaRefName in refLookup ?
+                            {
+                                ...(refLookup[mainSchemaRefName as keyof typeof refLookup] as NBTSubSchema),
+                                ...schema,
+                            }
+                        :   schema;
                     let allOfRefTypes: [string, ...string[]] | undefined =
-                        opts.inlineRefs ?? false
-                            ? undefined
-                            : typeof schema === "object" && schema.$ref !== undefined && mainSchemaRefName !== undefined /*  && schema.$ref in refLookup */
-                            ? [mainSchemaRefName + (additionalInformation.isListChild ? '["value"]' : "")]
-                            : undefined;
+                        (opts.inlineRefs ?? false) ? undefined
+                        : typeof schema === "object" && schema.$ref !== undefined && mainSchemaRefName !== undefined /*  && schema.$ref in refLookup */ ?
+                            [mainSchemaRefName + (additionalInformation.isListChild ? '["value"]' : "")]
+                        :   undefined;
                     if (!(opts.inlineRefs ?? false) && schema.allOf !== undefined) {
                         const refAllOfs: (NBTSubSchema & { $ref: string })[] = schema.allOf.filter(
                             (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
@@ -9582,13 +9573,13 @@ however when the corresponding block in the block layer is broken, this block ge
                                 const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? resolvedSchema.type;
                                 if (!types) continue;
                                 inlineRefTypes.allOf.push(
-                                    Array.isArray(types)
-                                        ? types
-                                              .map((t: string): string =>
-                                                  buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
-                                              )
-                                              .join("|")
-                                        : buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                    Array.isArray(types) ?
+                                        types
+                                            .map((t: string): string =>
+                                                buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                            )
+                                            .join("|")
+                                    :   buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
                                 );
                             }
                         if (oneOfRefTypes)
@@ -9596,13 +9587,13 @@ however when the corresponding block in the block layer is broken, this block ge
                                 const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? resolvedSchema.type;
                                 if (!types) continue;
                                 inlineRefTypes.oneOf.push(
-                                    Array.isArray(types)
-                                        ? types
-                                              .map((t: string): string =>
-                                                  buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
-                                              )
-                                              .join("|")
-                                        : buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                    Array.isArray(types) ?
+                                        types
+                                            .map((t: string): string =>
+                                                buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                            )
+                                            .join("|")
+                                    :   buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
                                 );
                             }
                     }
@@ -9613,13 +9604,13 @@ however when the corresponding block in the block layer is broken, this block ge
                             return {
                                 type: '"compound"',
                                 value:
-                                    opts.inlineRefs ?? false
-                                        ? `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
-                                              inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                                          }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
-                                        : `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
-                                              allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
-                                          }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
+                                    (opts.inlineRefs ?? false) ?
+                                        `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
+                                            inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                                        }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
+                                    :   `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
+                                            allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
+                                        }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
                             };
                         }
                         if (!(opts.inlineRefs ?? false) && schema.$ref) {
@@ -9637,13 +9628,13 @@ however when the corresponding block in the block layer is broken, this block ge
                     return {
                         type: builtType.type,
                         value:
-                            opts.inlineRefs ?? false
-                                ? `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType.value) ? "" : `(${builtType.value})`}${
-                                      inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                                  }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
-                                : `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType.value) ? "" : `(${builtType.value})`}${
-                                      allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
-                                  }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
+                            (opts.inlineRefs ?? false) ?
+                                `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                    inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                                }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
+                            :   `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                    allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
+                                }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
                     };
                 }
 
@@ -9663,7 +9654,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 interface SpecificBuiltType<
                     T extends string | SpecificBuiltType<any> | SpecificBuiltType<any>[] = string | BuiltType | BuiltType[],
-                    K extends string = string
+                    K extends string = string,
                 > {
                     type: K;
                     value: T;
@@ -9732,13 +9723,10 @@ however when the corresponding block in the block layer is broken, this block ge
                             ] as const;
                             const primitiveUnion = primitiveListTypes.map((pt) => {
                                 const valType =
-                                    pt === "long"
-                                        ? "[high: number, low: number]"
-                                        : pt === "longArray"
-                                        ? "[high: number, low: number][]"
-                                        : pt.endsWith("Array")
-                                        ? "number[]"
-                                        : "number";
+                                    pt === "long" ? "[high: number, low: number]"
+                                    : pt === "longArray" ? "[high: number, low: number][]"
+                                    : pt.endsWith("Array") ? "number[]"
+                                    : "number";
                                 return { type: `"${pt}"`, value: `${valType}[]` };
                             });
                             const compound = { type: '"compound"', value: "Record<string, any>" };
@@ -9758,11 +9746,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         if (Array.isArray(items)) {
                             const child = refToType(items, indent + "    ", opts, ctx);
                             function builtTypeValueToTupleList(value: BuiltType["value"]): string {
-                                return typeof value === "string"
-                                    ? value
-                                    : Array.isArray(value)
-                                    ? value.map(builtTypeValueToTupleList).join(", ")
-                                    : builtTypeValueToTupleList(value.value);
+                                return (
+                                    typeof value === "string" ? value
+                                    : Array.isArray(value) ? value.map(builtTypeValueToTupleList).join(", ")
+                                    : builtTypeValueToTupleList(value.value)
+                                );
                             }
 
                             if (opts.allowExtraArrayItems) {
@@ -9779,11 +9767,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             // TO-DO: Test this, as it may not work correctly.
                             const child = refToType(items, indent + "    ", opts, ctx, { isListChild: true });
                             function builtTypeValueToUnionList(value: BuiltType["value"]): string {
-                                return typeof value === "string"
-                                    ? value
-                                    : Array.isArray(value)
-                                    ? "(" + value.map(builtTypeValueToUnionList).join(" | ") + ")"
-                                    : builtTypeValueToUnionList(value.value);
+                                return (
+                                    typeof value === "string" ? value
+                                    : Array.isArray(value) ? "(" + value.map(builtTypeValueToUnionList).join(" | ") + ")"
+                                    : builtTypeValueToUnionList(value.value)
+                                );
                             }
 
                             return { type: '"list"', value: `{ type: ${child.type}, value: ${builtTypeValueToUnionList(child.value)}[] }` };
@@ -9866,9 +9854,9 @@ however when the corresponding block in the block layer is broken, this block ge
                                     } else {
                                         lines.push(
                                             `${propLinesCount > 0 ? `${indent}} & {\n` : ""}${indent}[key: string]: ${
-                                                builtType.value.includes("\n")
-                                                    ? `{\n${indent}type: ${builtType.type},\n${indent}value: ${builtType.value}\n${indent}}`
-                                                    : `{ type: ${builtType.type}, value: ${builtType.value} }`
+                                                builtType.value.includes("\n") ?
+                                                    `{\n${indent}type: ${builtType.type},\n${indent}value: ${builtType.value}\n${indent}}`
+                                                :   `{ type: ${builtType.type}, value: ${builtType.value} }`
                                             };`
                                         );
                                     }
@@ -9916,7 +9904,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     ) {
                         return resolveSchemaRefName(refLookup[ref as keyof typeof refLookup] as string, resolveSymbolName, opts);
                     }
-                    return resolveSymbolName ? opts.schemaIDToSymbolNameResolver?.(ref) ?? ref : ref;
+                    return resolveSymbolName ? (opts.schemaIDToSymbolNameResolver?.(ref) ?? ref) : ref;
                 }
                 // function resolveSchemaRefIsRenderedAsFragment(
                 //     ref: string,
@@ -9971,22 +9959,20 @@ however when the corresponding block in the block layer is broken, this block ge
                 ): string {
                     const refLookup = opts.refLookup ?? nbtSchemas;
                     const st = schema.type as Exclude<NBTSubSchema["type"], any[]>;
-                    const mainSchemaRefName: string | undefined = schema.$ref
-                        ? resolveSchemaRefName(schema.$ref, !(opts.inlineRefs ?? false), opts)
-                        : undefined;
+                    const mainSchemaRefName: string | undefined =
+                        schema.$ref ? resolveSchemaRefName(schema.$ref, !(opts.inlineRefs ?? false), opts) : undefined;
                     const resolvedSchema =
-                        opts.inlineRefs && schema.$ref && mainSchemaRefName && mainSchemaRefName in refLookup
-                            ? {
-                                  ...(refLookup[mainSchemaRefName as keyof typeof refLookup] as NBTSubSchema),
-                                  ...schema,
-                              }
-                            : schema;
+                        opts.inlineRefs && schema.$ref && mainSchemaRefName && mainSchemaRefName in refLookup ?
+                            {
+                                ...(refLookup[mainSchemaRefName as keyof typeof refLookup] as NBTSubSchema),
+                                ...schema,
+                            }
+                        :   schema;
                     let allOfRefTypes: [string, ...string[]] | undefined =
-                        opts.inlineRefs ?? false
-                            ? undefined
-                            : typeof schema === "object" && schema.$ref !== undefined && mainSchemaRefName !== undefined /*  && schema.$ref in refLookup */
-                            ? [mainSchemaRefName]
-                            : undefined;
+                        (opts.inlineRefs ?? false) ? undefined
+                        : typeof schema === "object" && schema.$ref !== undefined && mainSchemaRefName !== undefined /*  && schema.$ref in refLookup */ ?
+                            [mainSchemaRefName]
+                        :   undefined;
                     if (!(opts.inlineRefs ?? false) && schema.allOf !== undefined) {
                         const refAllOfs: (NBTSubSchema & { $ref: string })[] = schema.allOf.filter(
                             (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
@@ -10020,13 +10006,13 @@ however when the corresponding block in the block layer is broken, this block ge
                                 const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? resolvedSchema.type;
                                 if (!types) continue;
                                 inlineRefTypes.allOf.push(
-                                    Array.isArray(types)
-                                        ? types
-                                              .map((t: string): string =>
-                                                  buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
-                                              )
-                                              .join("|")
-                                        : buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                    Array.isArray(types) ?
+                                        types
+                                            .map((t: string): string =>
+                                                buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                            )
+                                            .join("|")
+                                    :   buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
                                 );
                             }
                         if (oneOfRefTypes)
@@ -10034,13 +10020,13 @@ however when the corresponding block in the block layer is broken, this block ge
                                 const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? resolvedSchema.type;
                                 if (!types) continue;
                                 inlineRefTypes.oneOf.push(
-                                    Array.isArray(types)
-                                        ? types
-                                              .map((t: string): string =>
-                                                  buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
-                                              )
-                                              .join("|")
-                                        : buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                    Array.isArray(types) ?
+                                        types
+                                            .map((t: string): string =>
+                                                buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                            )
+                                            .join("|")
+                                    :   buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
                                 );
                             }
                     }
@@ -10048,13 +10034,13 @@ however when the corresponding block in the block layer is broken, this block ge
                     if (!st) {
                         if (resolvedSchema.properties) {
                             const compoundType = buildTypeForTag("compound", resolvedSchema, indent, opts, ctx!);
-                            return opts.inlineRefs ?? false
-                                ? `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType) ? "" : `(${compoundType})`}${
-                                      inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                                  }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
-                                : `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType) ? "" : `(${compoundType})`}${
-                                      allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
-                                  }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
+                            return (opts.inlineRefs ?? false) ?
+                                    `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType) ? "" : `(${compoundType})`}${
+                                        inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                                    }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
+                                :   `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType) ? "" : `(${compoundType})`}${
+                                        allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
+                                    }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
                         }
                         if (!(opts.inlineRefs ?? false) && schema.$ref) {
                             const refType = (refLookup[resolveSchemaRefName(schema.$ref, false, opts) as keyof typeof refLookup] as NBTSubSchema | undefined)
@@ -10065,13 +10051,13 @@ however when the corresponding block in the block layer is broken, this block ge
                     }
 
                     const builtType = buildTypeForTag(st, resolvedSchema, indent, opts, ctx!);
-                    return opts.inlineRefs ?? false
-                        ? `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType) ? "" : `(${builtType})`}${
-                              inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                          }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
-                        : `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType) ? "" : `(${builtType})`}${
-                              allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
-                          }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
+                    return (opts.inlineRefs ?? false) ?
+                            `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType) ? "" : `(${builtType})`}${
+                                inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                            }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
+                        :   `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType) ? "" : `(${builtType})`}${
+                                allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
+                            }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
                 }
 
                 /**
@@ -10099,11 +10085,11 @@ however when the corresponding block in the block layer is broken, this block ge
 
                     const header: string = renderComment(
                         schema as NBTSubSchema,
-                        opts.originalSymbolReference !== undefined
-                            ? Array.isArray(opts.originalSymbolReference)
-                                ? opts.originalSymbolReference
-                                : [opts.originalSymbolReference]
-                            : undefined
+                        opts.originalSymbolReference !== undefined ?
+                            Array.isArray(opts.originalSymbolReference) ?
+                                opts.originalSymbolReference
+                            :   [opts.originalSymbolReference]
+                        :   undefined
                     );
 
                     const indent: string = "    ";
@@ -10408,11 +10394,12 @@ however when the corresponding block in the block layer is broken, this block ge
                         "end",
                     ] as const);
 
-                    const t: string = tagTypeList.includes(node.type as any)
-                        ? node.type
-                        : tagTypeList.find((t: `${NBT.TagType | "end" | "schemaRef"}`): boolean => t.toLowerCase() === node.type.toLowerCase()) ??
-                          alternativeTagNameMapping[node.type.toLowerCase()] ??
-                          node.type;
+                    const t: string =
+                        tagTypeList.includes(node.type as any) ?
+                            node.type
+                        :   (tagTypeList.find((t: `${NBT.TagType | "end" | "schemaRef"}`): boolean => t.toLowerCase() === node.type.toLowerCase()) ??
+                            alternativeTagNameMapping[node.type.toLowerCase()] ??
+                            node.type);
 
                     if (primitiveTags.has(t as `${NBT.TagType | "end"}`)) {
                         const base: NBTSubSchema = { type: t as `${NBT.TagType}` };
@@ -10428,15 +10415,15 @@ however when the corresponding block in the block layer is broken, this block ge
                             // unknown element type
                         } else if (node.children.length === 1) {
                             out.items =
-                                node.children[0]!.type === "schemaRef"
-                                    ? { ...(node.children[0]!.description ? { description: node.children[0]!.description } : {}), $ref: node.children[0]!.$ref }
-                                    : nodeToNBTSchema(node.children[0]!, options);
+                                node.children[0]!.type === "schemaRef" ?
+                                    { ...(node.children[0]!.description ? { description: node.children[0]!.description } : {}), $ref: node.children[0]!.$ref }
+                                :   nodeToNBTSchema(node.children[0]!, options);
                         } else {
                             out.items = node.children.map(
                                 (c: ParsedNode): NBTSubSchema =>
-                                    c.type === "schemaRef"
-                                        ? { ...(c.description ? { description: c.description } : {}), $ref: c.$ref }
-                                        : nodeToNBTSchema(c, options)
+                                    c.type === "schemaRef" ?
+                                        { ...(c.description ? { description: c.description } : {}), $ref: c.$ref }
+                                    :   nodeToNBTSchema(c, options)
                             );
                         }
 
@@ -10448,11 +10435,12 @@ however when the corresponding block in the block layer is broken, this block ge
                         if (!node.description) delete out.description; // Remove description if empty instead of adding if present to make it positioned before properties when JSON.stringified.
 
                         for (const child of node.children) {
-                            const type = tagTypeList.includes(child.type as any)
-                                ? child.type
-                                : tagTypeList.find((t: `${NBT.TagType | "end" | "schemaRef"}`): boolean => t.toLowerCase() === child.type.toLowerCase()) ??
-                                  alternativeTagNameMapping[child.type.toLowerCase()] ??
-                                  child.type;
+                            const type =
+                                tagTypeList.includes(child.type as any) ?
+                                    child.type
+                                :   (tagTypeList.find((t: `${NBT.TagType | "end" | "schemaRef"}`): boolean => t.toLowerCase() === child.type.toLowerCase()) ??
+                                    alternativeTagNameMapping[child.type.toLowerCase()] ??
+                                    child.type);
                             if (child.$ref) {
                                 out.allOf ??= [];
                                 out.allOf.push({ $ref: child.$ref });
@@ -10616,7 +10604,9 @@ however when the corresponding block in the block layer is broken, this block ge
                     input: string,
                     fragment: F = "auto" as F,
                     options: WikiNBTToNBTSchemaOptions = {}
-                ): F extends true ? NBTSchemaFragment : F extends false ? NBTSchema : NBTSchemaFragment | NBTSchema {
+                ): F extends true ? NBTSchemaFragment
+                : F extends false ? NBTSchema
+                : NBTSchemaFragment | NBTSchema {
                     const parsed: ParsedNode[] = parseWikiLines(input, options);
                     // console.log(JSON.stringify(parsed, null, 4));
                     let isFragment: boolean = fragment !== "auto" ? fragment : false;
@@ -10634,9 +10624,8 @@ however when the corresponding block in the block layer is broken, this block ge
                             root = nodeToNBTSchema(parsed[0], options) as F extends true ? NBTSchemaFragment : NBTSchema;
                         }
                         // console.log(JSON.stringify(root, null, 4));
-                        return Utils.Misc.fixNBTSchemaPropertyOrder({ ...root, $fragment: isFragment } as const satisfies F extends true
-                            ? NBTSchemaFragment
-                            : NBTSchema);
+                        return Utils.Misc.fixNBTSchemaPropertyOrder({ ...root, $fragment: isFragment } as const satisfies F extends true ? NBTSchemaFragment
+                        :   NBTSchema);
                     }
 
                     const root: NBTSchema | NBTSchemaFragment = { id: "", type: "compound", properties: {} };
@@ -13066,48 +13055,49 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
+                 * The numerical ID given to the last entity added on the scoreboard system.
+                 */
+                LastUniqueID: [high: number, low: number];
+                /**
                  * A list of compound tags representing objectives.
                  */
                 Objectives: {
                     type: "list";
                     value: {
-                        type: unknown;
-                        value: [
-                            {
-                                /**
-                                 * The **criterion** of this objective, currently, always `dummy`.
-                                 */
-                                Criteria: { type: "string"; value: string };
-                                /**
-                                 * The **display name** of this objective.
-                                 */
-                                DisplayName: { type: "string"; value: string };
-                                /**
-                                 * The internal **name** of this objective.
-                                 */
-                                Name: { type: "string"; value: string };
-                                /**
-                                 * A list of compound tags representing scores tracked on this objective.
-                                 */
-                                Scores: {
-                                    type: "list";
+                        type: "compound";
+                        value: {
+                            /**
+                             * The **criterion** of this objective, currently, always `dummy`.
+                             */
+                            Criteria: { type: "string"; value: string };
+                            /**
+                             * The **display name** of this objective.
+                             */
+                            DisplayName: { type: "string"; value: string };
+                            /**
+                             * The internal **name** of this objective.
+                             */
+                            Name: { type: "string"; value: string };
+                            /**
+                             * A list of compound tags representing scores tracked on this objective.
+                             */
+                            Scores: {
+                                type: "list";
+                                value: {
+                                    type: "compound";
                                     value: {
-                                        type: "compound";
-                                        value: {
-                                            /**
-                                             * The score this entity has on this objective.
-                                             */
-                                            Score: { type: "int"; value: number };
-                                            /**
-                                             * The numerical ID given to this entity on the scoreboard system.
-                                             */
-                                            ScoreboardId: { type: "long"; value: [high: number, low: number] };
-                                        }[];
-                                    };
+                                        /**
+                                         * The score this entity has on this objective.
+                                         */
+                                        Score: { type: "int"; value: number };
+                                        /**
+                                         * The numerical ID given to this entity on the scoreboard system.
+                                         */
+                                        ScoreboardId: { type: "long"; value: [high: number, low: number] };
+                                    }[];
                                 };
-                            },
-                            [high: number, low: number]
-                        ];
+                            };
+                        }[];
                     };
                 };
             };

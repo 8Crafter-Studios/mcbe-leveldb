@@ -1,3 +1,9 @@
+# v1.7.1
+
+## Fixes
+
+-   Fixed an incorrect NBT schema for the `Scoreboard` content type.
+
 # v1.7.0
 
 ## Additions
