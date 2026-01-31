@@ -1,3 +1,9 @@
+# v1.7.0
+
+## Additions
+
+-   Added a custom serializer and parser for the `Digest` content type.
+
 # v1.6.0
 
 ## Additions
@@ -95,7 +101,7 @@
 -   Added the `rawFileExtension` property to the following content types:
     -   `StructureTemplate`
     -   `LevelDat`
--   Added a custom serializer and parser for the `LevelDat` content types as it was actually not just pure NBT, as there was 8 bytes of important extra data before the NBT data.
+-   Added a custom serializer and parser for the `LevelDat` content type as it was actually not just pure NBT, as there was 8 bytes of important extra data before the NBT data.
 -   Added/Updated documentation for several content types.
 -   Added the `DynamicProperties` NBT schema.
 

@@ -36,6 +36,7 @@
         "no-unused-vars": "off",
         "no-debugger": "off",
         "no-compare-neg-zero": "warn",
+        "no-sparse-arrays": "off",
         // Unnecessary as it is built in to TypeScript.
         "no-fallthrough": "off"
     }

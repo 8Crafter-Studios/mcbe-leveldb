@@ -9,6 +9,6 @@ declare module "prismarine-nbt" {
         value?: K
     ): { type: `${TagType.List}`; value: { type: T | "end"; value: K["value"] extends undefined ? [] : K["value"] } };
     export function byte<T extends number>(val: T): { type: `${TagType.Byte}`; value: T };
-    export function long<T extends number | [number, number] | BigInt>(value: T): { type: `${TagType.Long}`; value: T };
-    export function longArray<T extends number[] | [high: number, low: number][] | BigInt[]>(value: T): { type: `${TagType.LongArray}`; value: T };
+    export function long<T extends number | [number, number] | bigint>(value: T): { type: `${TagType.Long}`; value: T };
+    export function longArray<T extends number[] | [high: number, low: number][] | bigint[]>(value: T): { type: `${TagType.LongArray}`; value: T };
 }

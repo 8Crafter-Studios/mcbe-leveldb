@@ -29,13 +29,16 @@ export function getKeysOfType<T extends DBEntryContentType, TArrayBuffer extends
 ): Buffer<TArrayBuffer>[];
 export function getKeysOfType<T extends DBEntryContentType>(dbOrDBKeys: LevelDB | Buffer[], type: T): Promise<Buffer<ArrayBuffer>[]> | Buffer[] {
     if (Array.isArray(dbOrDBKeys)) return dbOrDBKeys.filter((key: Buffer): boolean => getContentTypeFromDBKey(key) === type);
-    return new Promise(async (resolve: (value: Buffer<ArrayBuffer>[]) => void): Promise<void> => {
-        const foundKeys: Buffer<ArrayBuffer>[] = [];
-        for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
-            if (getContentTypeFromDBKey(rawKey) === type) foundKeys.push(rawKey);
-        }
-        resolve(foundKeys);
-    });
+    return new Promise(
+        (resolve: (value: Buffer<ArrayBuffer>[]) => void): void =>
+            void (async (): Promise<void> => {
+                const foundKeys: Buffer<ArrayBuffer>[] = [];
+                for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
+                    if (getContentTypeFromDBKey(rawKey) === type) foundKeys.push(rawKey);
+                }
+                resolve(foundKeys);
+            })()
+    );
 }
 
 /**
@@ -78,13 +81,16 @@ export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntry
         }
         return results;
     }
-    return new Promise(async (resolve: (value: { [key in T[number]]: Buffer<ArrayBuffer>[] }) => void): Promise<void> => {
-        for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
-            const contentType: DBEntryContentType = getContentTypeFromDBKey(rawKey);
-            if (types.includes(contentType)) results[contentType as T[number]].push(rawKey);
-        }
-        resolve(results);
-    });
+    return new Promise(
+        (resolve: (value: { [key in T[number]]: Buffer<ArrayBuffer>[] }) => void): void =>
+            void (async (): Promise<void> => {
+                for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
+                    const contentType: DBEntryContentType = getContentTypeFromDBKey(rawKey);
+                    if (types.includes(contentType)) results[contentType as T[number]].push(rawKey);
+                }
+                resolve(results);
+            })()
+    );
 }
 
 /**

@@ -531,15 +531,16 @@ export const entryContentTypeToFormatMap = {
                                 (subchunk: BiomePalette): NBTSchemas.NBTSchemaTypes.Data3D["value"]["biomes"]["value"]["value"][number] => ({
                                     values: {
                                         type: "list",
-                                        value: subchunk.values
-                                            ? {
-                                                  type: "int",
-                                                  value: subchunk.values,
-                                              }
-                                            : ({
-                                                  type: "end",
-                                                  value: [],
-                                              } as any),
+                                        value:
+                                            subchunk.values ?
+                                                {
+                                                    type: "int",
+                                                    value: subchunk.values,
+                                                }
+                                            :   ({
+                                                    type: "end",
+                                                    value: [],
+                                                } as any),
                                     },
                                     palette: {
                                         type: "list",
@@ -736,11 +737,11 @@ export const entryContentTypeToFormatMap = {
                 version: NBT.byte<0x08 | 0x09>(version),
                 layerCount: NBT.byte(numStorageBlocks),
                 layers: { type: "list", value: NBT.comp(layers) },
-                ...(version >= 0x09
-                    ? {
-                          subChunkIndex: NBT.byte(subChunkIndex!),
-                      }
-                    : {}),
+                ...(version >= 0x09 ?
+                    {
+                        subChunkIndex: NBT.byte(subChunkIndex!),
+                    }
+                :   {}),
             } as const satisfies NBTSchemas.NBTSchemaTypes.SubChunkPrefix["value"]);
         },
         /**
@@ -1234,14 +1235,82 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
-     * @todo Figure out how to parse this.
-     * @todo Add a description for this.
+     * A list of entity IDs in a chunk.
+     *
+     * These IDs are the ones used in the entities' LevelDB keys.
+     *
+     * The IDs are 32-bit signed integers.
      */
     Digest: {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.Entity.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        async parse(data: Buffer): Promise<{
+            type: "compound";
+            value: {
+                entityIds: {
+                    type: "list";
+                    value: { type: "list"; value: { type: "int"; value: [id1: number, id2: number] }[] };
+                };
+            };
+        }> {
+            const entityIds: { type: "int"; value: [id1: number, id2: number] }[] = [];
+            for (let i = 0; i < data.length; i += 8) {
+                entityIds.push({ type: "int", value: [data.readInt32LE(i), data.readInt32LE(i + 4)] });
+            }
+            return {
+                type: "compound",
+                value: {
+                    entityIds: {
+                        type: "list",
+                        value: {
+                            type: "list",
+                            value: entityIds,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: {
+            type: "compound";
+            value: {
+                entityIds: {
+                    type: "list";
+                    value: { type: "list"; value: { type: "int"; value: [id1: number, id2: number] }[] };
+                };
+            };
+        }): Buffer<ArrayBuffer> {
+            const rawData: Buffer<ArrayBuffer>[] = data.value.entityIds.value.value.map((entityIds): Buffer<ArrayBuffer> => {
+                const buffer: Buffer<ArrayBuffer> = Buffer.alloc(8);
+                buffer.writeInt32LE(entityIds.value[0], 0);
+                buffer.writeInt32LE(entityIds.value[1], 4);
+                return buffer;
+            });
+            return Buffer.concat(rawData);
+        },
     },
     /**
      * The data for a map.
@@ -1859,7 +1928,7 @@ export interface StructureSectionData extends NBT.Compound {
                 waterlogLayer: {
                     type: `${NBT.TagType.Int}`;
                     value: number[];
-                }
+                },
             ];
         };
     };
@@ -2193,7 +2262,7 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
     return {
         x: getInt32Val(key, 0),
         z: getInt32Val(key, 4),
-        dimension: [13, 14].includes(key.length) ? dimensions[getInt32Val(key, 8)] ?? "overworld" : "overworld",
+        dimension: [13, 14].includes(key.length) ? (dimensions[getInt32Val(key, 8)] ?? "overworld") : "overworld",
         ...([10, 14].includes(key.length) ? { subChunkIndex: (key.at(-1)! << 24) >> 24 } : undefined),
     };
 }
