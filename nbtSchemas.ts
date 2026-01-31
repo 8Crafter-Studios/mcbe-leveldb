@@ -2469,11 +2469,21 @@ export namespace NBTSchemas {
                         items: {
                             description: "An entity.",
                             type: "compound",
-                            required: ["IdentityType", "EntityId", "PlayerId", "ScoreboardId"],
+                            required: ["IdentityType", "ScoreboardId"],
                             properties: {
                                 IdentityType: {
-                                    description: "The identity type of this entity. 1 = Players, 2 = Others.",
+                                    description: "The identity type of this entity. 1 = Player, 2 = Entity, 3 = Fake player.",
                                     type: "byte",
+                                    enum: [
+                                        { type: "byte", value: 1 },
+                                        { type: "byte", value: 2 },
+                                        { type: "byte", value: 3 },
+                                    ],
+                                    enumDescriptions: ["Player", "Entity", "Fake player"],
+                                },
+                                FakePlayerName: {
+                                    description: "Optional. The fake player's name.",
+                                    type: "string",
                                 },
                                 EntityId: {
                                     description: "Optional. The entity's Unique ID.",
@@ -13036,17 +13046,28 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound";
                         value: {
                             /**
-                             * The identity type of this entity. 1 = Players, 2 = Others.
+                             * The identity type of this entity. 1 = Player, 2 = Entity, 3 = Fake player.
+                             *
+                             * @enum 1 | 2 | 3
+                             *
+                             * @enumDescriptions
+                             * - `1`: Player
+                             * - `2`: Entity
+                             * - `3`: Fake player
                              */
-                            IdentityType: { type: "byte"; value: number };
+                            IdentityType: { type: "byte"; value: 1 | 2 | 3 };
+                            /**
+                             * Optional. The fake player's name.
+                             */
+                            FakePlayerName?: { type: "string"; value: string };
                             /**
                              * Optional. The entity's Unique ID.
                              */
-                            EntityId: { type: "long"; value: [high: number, low: number] };
+                            EntityId?: { type: "long"; value: [high: number, low: number] };
                             /**
                              * Optional. The player's Unique ID.
                              */
-                            PlayerId: { type: "long"; value: [high: number, low: number] };
+                            PlayerId?: { type: "long"; value: [high: number, low: number] };
                             /**
                              * The numerical ID given to this entity on the scoreboard system, starting from 1.
                              */

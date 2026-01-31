@@ -1,3 +1,9 @@
+# v1.7.2
+
+## Fixes
+
+-   Fixed an incorrect `Entries` field in the NBT schema for the `Scoreboard` content type.
+
 # v1.7.1
 
 ## Fixes
