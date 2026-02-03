@@ -1,3 +1,9 @@
+# v1.7.3
+
+## Fixes
+
+-   Fixed a bug where the `LevelDat` NBT schema had the `isSingleUseWorld` property incorrectly capitalized as `IsSingleUseWorld`.
+
 # v1.7.2
 
 ## Fixes

@@ -1543,16 +1543,134 @@ export const entryContentTypeToFormatMap = {
      * @todo Add a description for this.
      *
      * `Array.from(data).reduce((a, b, i, ar)=>[...a, ...(Array.from(Buffer.from("0a000008", "hex")).every((v, ib)=>v === ar[i + ib]) ? [i] : [])], [])`
+     * 
+     * This seems to be 4 bytes, followed by multiple chunks of data formatted as 8 bytes plus an NBT compound.
+     * ```
+     * {BYTEx4}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}
+     * ```
      *
      * ```js
-     * const tab = tabManager.selectedTab
-     * let dataN = await tab.db.get(tab.cachedDBKeys.LevelChunkMetaDataDictionary[0]);
-     * let dataNB = [];
-     * Array.from(dataN).reduce((a, b, i, ar)=>[...a, ...(Array.from(Buffer.from("0a000008", "hex")).every((v, ib)=>v === ar[i + ib]) ? [i] : [])], []).forEach((v, i, a)=>dataNB.push({t: 1, v: dataN.slice(v - (i === 0 ? 12 : 8), v)}, {t: 2, v: dataN.slice(v, (a[i + 1] !== undefined ? a[i + 1] - 8 : undefined))}))
-     * const dataNc = await Promise.all(dataNB.map(async (v, i)=>{try{console.log(i, v); return (v.t === 1 ? v : await require("prismarine-nbt").parse(v.v, "little"))} catch (e) {console.error(e, i, v)}}))
-     * dataNc.forEach(v=>v.t === 1 ? void 0 : (v.parsed.value.LastSavedDimensionHeightRange ? (v.parsed.value.LastSavedDimensionHeightRange.value.min.value = -100, v.parsed.value.LastSavedDimensionHeightRange.value.max.value = 400) : void 0, v.parsed.value.OriginalDimensionHeightRange ? (v.parsed.value.OriginalDimensionHeightRange.value.min.value = -100, v.parsed.value.OriginalDimensionHeightRange.value.max.value = 400) : void 0))
-     * const dataNd = await Promise.all(datac.map(async v=>(v.t === 1 ? v.v : await require("prismarine-nbt").writeUncompressed(v.parsed, "little"))))
-     * tab.db.put(tab.cachedDBKeys.LevelChunkMetaDataDictionary[0], Buffer.concat(dataNd))
+     * const data = (await tabManager.selectedTab.db.get("LevelChunkMetaDataDictionary"));
+     * const extractedData = [];
+     * for (let i = 12; i < data.length; i += 8) {
+     *     const parsedData = await require("prismarine-nbt").parse(data.slice(i), "little");
+     *     extractedData.push([data.slice(i - 8, i), parsedData]);
+     *     i += parsedData.metadata.size;
+     * }
+     * ```
+     * 
+     * Example first 4 bytes:
+     * ```json
+     * {
+     *     "type": "Buffer",
+     *     "data": [
+     *         109,
+     *         0,
+     *         0,
+     *         0
+     *     ]
+     * }
+     * ```
+     *
+     * Example parsed NBT data chunk:
+     * ```json
+     * [
+     *     {
+     *         "type": "Buffer",
+     *         "data": [
+     *             190,
+     *             156,
+     *             149,
+     *             210,
+     *             211,
+     *             150,
+     *             247,
+     *             2
+     *         ]
+     *     },
+     *     {
+     *         "metadata": {
+     *             "size": 392,
+     *             "buffer": {} // ...
+     *         },
+     *         "parsed": {
+     *             "type": "compound",
+     *             "name": "",
+     *             "value": {
+     *                 "BiomeBaseGameVersion": {
+     *                     "type": "string",
+     *                     "value": "1.18.0"
+     *                 },
+     *                 "DimensionName": {
+     *                     "type": "string",
+     *                     "value": "Overworld"
+     *                 },
+     *                 "GenerationSeed": {
+     *                     "type": "long",
+     *                     "value": [
+     *                         -555685613,
+     *                         920043062
+     *                     ]
+     *                 },
+     *                 "GeneratorType": {
+     *                     "type": "int",
+     *                     "value": 1
+     *                 },
+     *                 "LastSavedBaseGameVersion": {
+     *                     "type": "string",
+     *                     "value": "1.21.122"
+     *                 },
+     *                 "LastSavedDimensionHeightRange": {
+     *                     "type": "compound",
+     *                     "value": {
+     *                         "max": {
+     *                             "type": "short",
+     *                             "value": 320
+     *                         },
+     *                         "min": {
+     *                             "type": "short",
+     *                             "value": -64
+     *                         }
+     *                     }
+     *                 },
+     *                 "OriginalBaseGameVersion": {
+     *                     "type": "string",
+     *                     "value": "1.21.71"
+     *                 },
+     *                 "OriginalDimensionHeightRange": {
+     *                     "type": "compound",
+     *                     "value": {
+     *                         "max": {
+     *                             "type": "short",
+     *                             "value": 320
+     *                         },
+     *                         "min": {
+     *                             "type": "short",
+     *                             "value": -64
+     *                         }
+     *                     }
+     *                 },
+     *                 "Overworld1_18HeightExtended": {
+     *                     "type": "short",
+     *                     "value": 1
+     *                 },
+     *                 "SkullFlatteningPerformed": {
+     *                     "type": "short",
+     *                     "value": 1
+     *                 },
+     *                 "UnderwaterLavaLakeFixed": {
+     *                     "type": "short",
+     *                     "value": 1
+     *                 },
+     *                 "WorldGenBelowZeroFixed": {
+     *                     "type": "short",
+     *                     "value": 1
+     *                 }
+     *             }
+     *         },
+     *         "type": "little"
+     *     }
+     * ]
      * ```
      */
     LevelChunkMetaDataDictionary: {

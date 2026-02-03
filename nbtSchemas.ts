@@ -1549,7 +1549,7 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
-                    IsSingleUseWorld: {
+                    isSingleUseWorld: {
                         type: "byte",
                         description:
                             "1 or 0 (true/false) - (unused) may cause world to not save, or delete after use. Seems to default back to false when a world is loaded.",
@@ -12206,7 +12206,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * - `0`: false
                  * - `1`: true
                  */
-                IsSingleUseWorld?: { type: "byte"; value: 0 | 1 };
+                isSingleUseWorld?: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if the world options cannot be modified until the user accepts that they are changing the map.
                  *
