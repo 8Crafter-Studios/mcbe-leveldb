@@ -1,3 +1,95 @@
+# v1.8.0
+
+## Critical Fixes
+
+-   Fixed a bug that has been around since the first version of this module where `MetaDataHash` keys were detected as `BlendingBiomeHeight` keys, `GeneratedPreCavesAndCliffsBlending` keys were detected as `MetaDataHash` keys, and `BlendingBiomeHeight` keys were detected as `GeneratedPreCavesAndCliffsBlending` keys.
+
+## Additions
+
+-   Added a custom serializer and parser for the `LevelChunkMetaDataDictionary` content type.
+-   Added the `BiomeIdsTable` content type.
+-   Added the `BiomeIdsTable` NBT schema.
+-   Added the `VillageRaid` content type.
+-   Added the `VillageRaid` NBT schema.
+-   Added the `PositionTrackingDB` content type.
+-   Added the `PositionTrackingLastId` content type.
+-   Added the `GenerationSeed` content type.
+-   Added the `LegacyDimension` content type.
+-   Added the `MVillages` content type.
+-   Added the `Villages` content type.
+-   Added the `LevelSpawnWasFixed` content type.
+-   Added a default value to the following properties of the following NBT schemas:
+    -   `Map`
+        -   `unlimitedTracking`
+        -   `scale`
+    -   `Scoreboard`
+        -   `DisplayObjectives[number].SortOrder`
+    -   `LevelDat`
+        -   `functioncommandlimit`
+        -   `maxcommandchainlength`
+        -   `prid`
+    -   `ActorPrefix`
+        -   `Color`
+        -   `Color2`
+        -   `MarkVariant`
+        -   `OwnerNew`
+        -   `SkinID`
+        -   `Strength`
+        -   `StrengthMax`
+        -   `Variant`
+    -   `Entity_ItemEntity`
+        -   `OwnerID`
+    -   `Block_Piston`
+        -   `NewState`
+-   Added enums to the following non-boolean properties of the following NBT schemas (added enums on boolean properties are not being listed in the changelog):
+    -   `Scoreboard`
+        -   `DisplayObjectives[number].SortOrder`
+        -   `Objectives[number].Criteria`
+-   Added enums to many boolean NBT schema properties.
+-   Added descriptions and titles to many NBT schema properties.
+-   Added the `verticalFlySpeed` property to the `abilities` property of the `LevelDat` NBT schema.
+-   Added the `isRandomSeedAllowed` property to the `LevelDat` NBT schema.
+-   Added the `projectilescanbreakblocks` property to the `LevelDat` NBT schema.
+-   Added the `showrecipemessages` property to the `LevelDat` NBT schema.
+-   Added the `tntexplosiondropdecay` property to the `LevelDat` NBT schema.
+-   Documented the `InventoryVersion` property of the `LevelDat` NBT schema.
+-   Added more information to the documentation of the `texturePacksRequired` property of the `LevelDat` NBT schema.
+
+## Changes
+
+-   Documentation refactor to replace `Unknown.` in documentation entries of NBT schemas with one of:
+    -   `UNKNOWN.`: If the schema for that tag is incomplete or completely empty as it is unknown what properties it has.
+    -   `UNDOCUMENTED.`: If the tag with that description has not been documented yet or it is unknown what it does.
+-   Updated the `BiomeData` from `v1.21.80` to `v1.21.110` (the update has zero actual changes).
+-   Many properties of the `VillageDwellers`, `VillageInfo`, `VillagePOI`, and `VillagePlayers` NBT schemas are now marked as required.
+
+## Fixes
+
+-   Fixed a bug where the `list[number].id` property of the `BiomeData` NBT schema was of type `byte` instead of `short`.
+-   Fixed an incorrect TypeScript type version of the `Scoreboard` NBT schema.
+-   Fixed a bug where empty object types in the TypeScript type versions of NBT schemas were generated as `{}` instead of `object`.
+-   Fixed a bug where a few optional properties of the `VibrationListener` property of the `Entity_Allay` NBT schema were incorrectly marked as required.
+-   Fixed an incorrect NBT schema for the `decorations[number].key` property of the `Map` NBT schema.
+-   Removed a `minimum` value from the list items of the `structure_world_origin` property of the `StructureTemplate` NBT schema that should not have been there.
+-   Fixed the descriptions of the list items of the `structure_world_origin` property of the `StructureTemplate` NBT schema.
+-   Fixed an incorrect NBT schema for the `structure.palette.default.block_position_data` property of the `StructureTemplate` NBT schema.
+-   Fixed incorrect NBT schemas for following properties of the `LevelDat` NBT schema:
+    -   `editorWorldType`
+    -   `eduOffer`
+    -   `functioncommandlimit`
+    -   `spawnradius`
+-   Fixed a bug where the `LevelDat` NBT schema had the `limitedWorldDepth` property incorrectly capitalized as `LimitedWorldDepth`.
+-   Fixed a bug where the `LevelDat` NBT schema had the `limitedWorldWidth` property incorrectly capitalized as `LimitedWorldWidth`.
+-   Fixed an incorrectly structured default value for the `LevelName` property of the `LevelDat` NBT schema.
+-   Fixed incorrect documentation for the `NetworkVersion` property of the `LevelDat` NBT schema.
+-   Fixed a bug where a the following optional properties of the `ActorPrefix` NBT schema were incorrectly marked as required:
+    -   `CustomNameVisible`
+    -   `Fire`
+    -   `Persistent`
+-   Minor whitespace fixes with some instances of the following in the documentation:
+    -   `*needs testing*`
+    -   `*info needed*`
+
 # v1.7.3
 
 ## Fixes

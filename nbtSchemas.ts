@@ -76,10 +76,17 @@ export namespace NBTSchemas {
     }
     /**
      * The NBT schemas.
+     *
+     * Note:
+     * - A description of `UNDOCUMENTED.` means the tag with that description has not been documented yet or it is unknown what it does.
+     * - A description of `UNKNOWN.` means that the schema for that tag is incomplete or completely empty as it is unknown what properties it has.
+     *
+     * @caution Many of these NBT schemas were auto-generated from the Minecraft wiki and have not been verified to be correct, many issues have been found with these schemas, so please verify the accuracy of these schemas. Fully verified NBT schemas will have a "NOTE: Verified." line comment above their definition in the code.
      */
     export const nbtSchemas = defineNBTSchemasMapping(
         {
             //#region Top-Level Schemas
+            // NOTE: Verified.
             ActorPrefix: {
                 id: "ActorPrefix",
                 title: "The ActorPrefix schema.",
@@ -89,9 +96,7 @@ export namespace NBTSchemas {
                     "Chested",
                     "Color",
                     "Color2",
-                    "CustomNameVisible",
                     "FallDistance",
-                    "Fire",
                     "identifier",
                     "internalComponents",
                     "Invulnerable",
@@ -114,7 +119,6 @@ export namespace NBTSchemas {
                     "MarkVariant",
                     "OnGround",
                     "OwnerNew",
-                    "Persistent",
                     "PortalCooldown",
                     "Pos",
                     "Rotation",
@@ -132,29 +136,59 @@ export namespace NBTSchemas {
                     Chested: {
                         description: "1 or 0 (true/false) - true if this entity is chested. Used by donkey, llama, and mule.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Color: {
                         description: "The main color value of the entity. Used by sheep, llama, shulker, tropical fish, etc. Defaults to 0.",
                         type: "byte",
+                        default: {
+                            type: "byte",
+                            value: 0,
+                        },
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Color2: {
                         description: "The entity's second color value. Used by tropical fish. Defaults to 0.",
                         type: "byte",
+                        default: {
+                            type: "byte",
+                            value: 0,
+                        },
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     CustomName: {
                         description: "(May not exist) The custom name of this entity.",
                         type: "string",
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     CustomNameVisible: {
                         description:
                             "1 or 0 (true/false) - (may not exist) if true, and this entity has a custom name, the name always appears above the entity, regardless of where the cursor points. If the entity does not have a custom name, a default name is shown.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     definitions: {
                         description: "(May not exist) The namespaced ID of this entity and its current and previous component groups.",
                         type: "list",
                         items: {
-                            description: "Unknown",
+                            description: "UNDOCUMENTED.",
                             type: "string",
                         },
                     },
@@ -162,6 +196,7 @@ export namespace NBTSchemas {
                         description: "Distance the entity has fallen. Larger values cause more damage when the entity lands.",
                         type: "float",
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     Fire: {
                         description: "Number of ticks until the fire is put out. Default 0 when not on fire.",
                         type: "short",
@@ -171,17 +206,17 @@ export namespace NBTSchemas {
                         type: "string",
                     },
                     internalComponents: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "compound",
                         required: ["EntityStorageKeyComponent"],
                         properties: {
                             EntityStorageKeyComponent: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "compound",
                                 required: ["StorageKey"],
                                 properties: {
                                     StorageKey: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "string",
                                     },
                                 },
@@ -190,75 +225,155 @@ export namespace NBTSchemas {
                     },
                     Invulnerable: {
                         description:
-                            "1 or 0 (true/false) - true if the entity should not take damage. This applies to living and nonliving entities alike: mobs should not take damage from any source (including potion effects), and cannot be moved by fishing rods, attacks, explosions, or projectiles, and objects such as vehicles cannot be destroyed. Invulnerable player entities are also ignored by any hostile mobs. Note that these entities can be damaged by players in Creative mode.*needs testing*",
+                            "1 or 0 (true/false) - true if the entity should not take damage. This applies to living and nonliving entities alike: mobs should not take damage from any source (including potion effects), and cannot be moved by fishing rods, attacks, explosions, or projectiles, and objects such as vehicles cannot be destroyed. Invulnerable player entities are also ignored by any hostile mobs. Note that these entities can be damaged by players in Creative mode. *needs testing*",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsAngry: {
                         description: "1 or 0 (true/false) - true if this entity is angry. Used by wolf and bee.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsAutonomous: {
                         description: "1 or 0 (true/false) - true if this entity is an autonomous entity.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsBaby: {
                         description: "1 or 0 (true/false) - true if this entity is a baby.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsEating: {
                         description: "1 or 0 (true/false) - true if this entity is eating.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsGliding: {
                         description: "1 or 0 (true/false) - true if this entity is gliding.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsGlobal: {
                         description: "1 or 0 (true/false) - true if this entity is a global entity (e.g. lightning bolt, ender dragon, arrow).",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsIllagerCaptain: {
                         description: "1 or 0 (true/false) - true if the entity is an illager captain. Used by pillager and vindicator.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsOrphaned: {
                         description: "1 or 0 (true/false) - true if this entity is not spawn from its parents. Used by all the mobs that can breed.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsOutOfControl: {
                         description: "1 or 0 (true/false) - true if the entity is out of control. Used by boat.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsRoaring: {
                         description: "1 or 0 (true/false) - true if this entity is roaring. Used by ravager.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsScared: {
                         description: "1 or 0 (true/false) - true if this entity is scared.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsStunned: {
                         description: "1 or 0 (true/false) - true if this entity is stunned. Used by ravager.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsSwimming: {
                         description: "1 or 0 (true/false) - true if this entity is swimming.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsTamed: {
                         description: "1 or 0 (true/false) - true if this entity is tamed.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsTrusting: {
                         description: "1 or 0 (true/false) - true if this entity is trusting a player. Used by fox and ocelot.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     LastDimensionId: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "int",
                     },
                     LinksTag: {
-                        description: "(May not exist) Unknown",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "compound",
                         required: ["entityID", "LinkID"],
                         properties: {
@@ -267,7 +382,7 @@ export namespace NBTSchemas {
                                 type: "long",
                             },
                             LinkID: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
@@ -275,10 +390,19 @@ export namespace NBTSchemas {
                     LootDropped: {
                         description: "1 or 0 (true/false) - true if this entity can drop [loot](https://minecraft.wiki/w/Drops#Mob_drops) when died.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     MarkVariant: {
                         description: "The ID of the mark variant. Used by villager, horse, bee etc. Defaults to 0.",
                         type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
                     },
                     Motion: {
                         description: "(May not exist) Three TAG_Floats describing the current dX, dY and dZ velocity of the entity in meters per tick.",
@@ -301,15 +425,29 @@ export namespace NBTSchemas {
                     OnGround: {
                         description: "1 or 0 (true/false) - true if the entity is touching the ground.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     OwnerNew: {
-                        description: "Unknown. Defaults to -1.",
+                        description: "UNDOCUMENTED. Defaults to -1.",
                         type: "long",
+                        default: {
+                            type: "long",
+                            value: -1n,
+                        },
                     },
                     Persistent: {
                         description:
                             "1 or 0 (true/false) - true if an entity should be [persistent](https://minecraft.wiki/w/Mob spawning#Despawning) in the world.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     PortalCooldown: {
                         description:
@@ -352,30 +490,62 @@ export namespace NBTSchemas {
                     Saddled: {
                         description: "1 or 0 (true/false) - true if this entity is saddled.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Sheared: {
                         description: "1 or 0 (true/false) - true if this entity is sheared. Used by sheep and snow golem.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     ShowBottom: {
-                        description: "1 or 0 (true/false) - true if the End Crystal shows the bedrock slate underneath.*needs testing*",
+                        description: "1 or 0 (true/false) - true if the End Crystal shows the bedrock slate underneath. *needs testing*",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Sitting: {
                         description: "1 or 0 (true/false) - true if this entity is sitting.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     SkinID: {
                         description: "The entity's Skin ID value. Used by villager and zombified villager. Defaults to 0.",
                         type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
                     },
                     Strength: {
                         description: "Determines the number of items the entity can carry (items = 3 × strength). Used by llama. Defaults to 0.",
                         type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
                     },
                     StrengthMax: {
                         description: "Determines the maximum number of items the entity can carry (items = 3 × strength). Defaults to 0.",
                         type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
                     },
                     Tags: {
                         description: "(May not exist) List of [scoreboard tags](https://minecraft.wiki/w/Scoreboard) of this entity.",
@@ -392,10 +562,15 @@ export namespace NBTSchemas {
                     Variant: {
                         description: "The ID of the variant. Used by cat, villager, horse, etc. Defaults to 0.",
                         type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
                     },
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             AutonomousEntities: {
                 id: "AutonomousEntities",
                 title: "The AutonomousEntities schema.",
@@ -404,12 +579,13 @@ export namespace NBTSchemas {
                 required: ["AutonomousEntityList"],
                 properties: {
                     AutonomousEntityList: {
-                        description: "Unknown.",
+                        description: "UNKNOWN.",
                         type: "list",
                     },
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             BiomeData: {
                 id: "BiomeData",
                 title: "The BiomeData schema.",
@@ -427,7 +603,7 @@ export namespace NBTSchemas {
                             properties: {
                                 id: {
                                     description: "The numerical [biome ID](https://minecraft.wiki/w/Biome).",
-                                    type: "byte",
+                                    type: "short",
                                 },
                                 snowAccumulation: {
                                     description: "The biome's snow accumulation. Eg. `0.125`.",
@@ -439,6 +615,38 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
+            BiomeIdsTable: {
+                id: "BiomeIdsTable",
+                title: "The BiomeIdsTable schema.",
+                description: "Biome numeric ID mappings for custom biomes.",
+                type: "compound",
+                required: ["list"],
+                properties: {
+                    list: {
+                        description: "A list of compound tags representing custom biome types.",
+                        type: "list",
+                        items: {
+                            description: "A custom biome type.",
+                            type: "compound",
+                            required: ["id", "name"],
+                            properties: {
+                                id: {
+                                    description: "The numerical [biome ID](https://minecraft.wiki/w/Biome) for this custom biome. Starts at 30,000.",
+                                    type: "short",
+                                    minimum: 30_000,
+                                },
+                                name: {
+                                    description: "The custom biome's namespaced ID.",
+                                    type: "string",
+                                },
+                            },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
             BlockEntity: {
                 id: "BlockEntity",
                 title: "The BlockEntity schema.",
@@ -457,6 +665,11 @@ export namespace NBTSchemas {
                     isMovable: {
                         description: "1 or 0 (true/false) - true if the block entity is movable with a piston.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     x: {
                         description: "X coordinate of the block entity.",
@@ -472,6 +685,7 @@ export namespace NBTSchemas {
                     },
                 },
             },
+            // NOTE: Verified.
             ChunkLoadedRequest: {
                 id: "ChunkLoadedRequest",
                 title: "The ChunkLoadedRequest schema.",
@@ -640,6 +854,7 @@ export namespace NBTSchemas {
                     },
                 },
             },
+            // NOTE: Verified.
             Data3D: {
                 id: "Data3D",
                 title: "The Data3D schema.",
@@ -690,6 +905,7 @@ export namespace NBTSchemas {
                     },
                 },
             },
+            // NOTE: Verified.
             DynamicProperties: {
                 id: "DynamicProperties",
                 title: "The DynamicProperties schema.",
@@ -743,6 +959,7 @@ export namespace NBTSchemas {
                     },
                 },
             },
+            // NOTE: Verified.
             LevelDat: {
                 id: "LevelDat",
                 title: "The LevelDat schema.",
@@ -799,7 +1016,7 @@ export namespace NBTSchemas {
                             },
                             flySpeed: {
                                 type: "float",
-                                description: "The flying speed, always 0.05.",
+                                description: "The flying speed, always 0.05 (or 0.05000000074505806).",
                                 default: {
                                     type: "float",
                                     value: 0.05,
@@ -850,6 +1067,7 @@ export namespace NBTSchemas {
                                     { type: "byte", value: 1 },
                                 ],
                             },
+                            // REVIEW: Check if this property actually ever exists.
                             mute: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player messages cannot be seen by other players.",
@@ -859,6 +1077,7 @@ export namespace NBTSchemas {
                                     { type: "byte", value: 1 },
                                 ],
                             },
+                            // REVIEW: Check if this property actually ever exists.
                             noclip: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player can phase through blocks.",
@@ -886,6 +1105,7 @@ export namespace NBTSchemas {
                                     { type: "byte", value: 1 },
                                 ],
                             },
+                            // REVIEW: Check if this property actually ever exists.
                             permissionsLevel: {
                                 type: "int",
                                 description: "What permissions a player defaults to, when joining a world.",
@@ -894,6 +1114,7 @@ export namespace NBTSchemas {
                                     value: 0,
                                 },
                             },
+                            // REVIEW: Check if this property actually ever exists.
                             playerPermissionsLevel: {
                                 type: "int",
                                 description: "What permissions a player has.",
@@ -919,6 +1140,7 @@ export namespace NBTSchemas {
                                     value: 0.1,
                                 },
                             },
+                            // REVIEW: Check if this property actually ever exists.
                             worldbuilder: {
                                 type: "byte",
                                 description: "1 or 0 (true/false) - true if the player is a world builder.",
@@ -928,9 +1150,18 @@ export namespace NBTSchemas {
                                     { type: "byte", value: 1 },
                                 ],
                             },
+                            verticalFlySpeed: {
+                                type: "float",
+                                description: "The vertical fly speed, always 1.",
+                                default: {
+                                    type: "float",
+                                    value: 1,
+                                },
+                            },
                         },
                         description: "The default permissions for players in the world.",
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     allowdestructiveobjects: {
                         type: "byte",
                         description: "The `allowdestructiveobjects` [game rule](game rule).",
@@ -940,6 +1171,7 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     allowmobs: {
                         type: "byte",
                         description: "The `allowmobs` [game rule](game rule).",
@@ -982,6 +1214,7 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     codebuilder: {
                         type: "byte",
                         description: "UNDOCUMENTED.",
@@ -1052,6 +1285,7 @@ export namespace NBTSchemas {
                             { type: "int", value: 3 },
                         ],
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     Dimension: {
                         type: "int",
                         description: "The dimension the player is in. 0 is the Overworld, 1 is the Nether, and 2 is the End.",
@@ -1170,19 +1404,22 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    // For some reason this is actually an int.
                     editorWorldType: {
-                        type: "byte",
+                        type: "int",
                         description: "Marks a world as a [bedrock editor](Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).",
                         enumDescriptions: ["false", "true"],
                         enum: [
-                            { type: "byte", value: 0 },
-                            { type: "byte", value: 1 },
+                            { type: "int", value: 0 },
+                            { type: "int", value: 1 },
                         ],
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     EducationOid: {
                         type: "string",
                         description: "A [UUID](UUID). *info needed*",
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     EducationProductId: {
                         type: "string",
                         description: "UNDOCUMENTED.",
@@ -1191,15 +1428,16 @@ export namespace NBTSchemas {
                         type: "int",
                         description: "Marks a world as an Education Edition world (worlds with this set to 1 do not open on Bedrock!).",
                         default: {
-                            type: "byte",
+                            type: "int",
                             value: 0,
                         },
                         enumDescriptions: ["false", "true"],
                         enum: [
-                            { type: "byte", value: 0 },
-                            { type: "byte", value: 1 },
+                            { type: "int", value: 0 },
+                            { type: "int", value: 1 },
                         ],
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     eduSharedResource: {
                         type: "compound",
                         properties: {
@@ -1376,12 +1614,12 @@ export namespace NBTSchemas {
                     functioncommandlimit: {
                         type: "int",
                         description: "The `functioncommandlimit` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
-                        enum: [
-                            { type: "byte", value: 0 },
-                            { type: "byte", value: 1 },
-                        ],
+                        default: {
+                            type: "int",
+                            value: 10_000,
+                        },
                     },
+                    // REVIEW: Check if this property actually ever exists.
                     globalmute: {
                         type: "byte",
                         description: "The `globalmute` [game rule](game rule).",
@@ -1501,7 +1739,7 @@ export namespace NBTSchemas {
                     },
                     InventoryVersion: {
                         type: "string",
-                        description: "UNDOCUMENTED.",
+                        description: "Seems to correspond to the version the world was created or first opened in",
                     },
                     isCreatedInEditor: {
                         type: "byte",
@@ -1543,6 +1781,15 @@ export namespace NBTSchemas {
                     IsHardcore: {
                         type: "byte",
                         description: "1 or 0 (true/false) - true if the world is in [Hardcore](Hardcore) mode.",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                    isRandomSeedAllowed: {
+                        type: "byte",
+                        description: "UNDOCUMENTED.",
                         enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1635,7 +1882,10 @@ export namespace NBTSchemas {
                     LevelName: {
                         type: "string",
                         description: "Specifies the name of the world.",
-                        default: "My World",
+                        default: {
+                            type: "string",
+                            value: "My World",
+                        },
                     },
                     lightningLevel: {
                         type: "float",
@@ -1669,17 +1919,17 @@ export namespace NBTSchemas {
                             value: 0,
                         },
                     },
-                    LimitedWorldWidth: {
+                    limitedWorldDepth: {
                         type: "int",
-                        description: "The width (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.",
+                        description: "The depth (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.",
                         default: {
                             type: "int",
                             value: 16,
                         },
                     },
-                    LimitedWorldDepth: {
+                    limitedWorldWidth: {
                         type: "int",
-                        description: "The depth (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.",
+                        description: "The width (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.",
                         default: {
                             type: "int",
                             value: 16,
@@ -1697,6 +1947,10 @@ export namespace NBTSchemas {
                     maxcommandchainlength: {
                         type: "int",
                         description: "The `maxcommandchainlength` [game rule](game rule).",
+                        default: {
+                            type: "int",
+                            value: 65_535,
+                        },
                     },
                     MinimumCompatibleClientVersion: {
                         type: "list",
@@ -1777,7 +2031,7 @@ export namespace NBTSchemas {
                     },
                     NetworkVersion: {
                         type: "int",
-                        description: "The protocol version of the version the world was last played on.",
+                        description: "Seems to store the protocol version of the version the world was created or first opened in.",
                     },
                     Platform: {
                         type: "int",
@@ -1794,7 +2048,20 @@ export namespace NBTSchemas {
                     prid: {
                         type: "string",
                         description:
-                            "The UUID of the premium world template this world was created with. Used for [Marketplace worlds](Marketplace#Worlds).*info needed*",
+                            "The UUID of the premium world template this world was created with. Used for [Marketplace worlds](Marketplace#Worlds). *info needed*",
+                        default: {
+                            type: "string",
+                            value: "",
+                        },
+                    },
+                    projectilescanbreakblocks: {
+                        type: "byte",
+                        description: "The `projectilescanbreakblocks` [game rule](game rule).",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     pvp: {
                         type: "byte",
@@ -1863,7 +2130,7 @@ export namespace NBTSchemas {
                     },
                     serverChunkTickRange: {
                         type: "int",
-                        description: "Simulation distance.*info needed*",
+                        description: "Simulation distance. *info needed*",
                         default: {
                             type: "int",
                             value: 4,
@@ -1905,6 +2172,15 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    showrecipemessages: {
+                        type: "byte",
+                        description: "The `showrecipemessages` [game rule](game rule).",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
                     showtags: {
                         type: "byte",
                         description: "The `showtags` [game rule](game rule).",
@@ -1926,11 +2202,6 @@ export namespace NBTSchemas {
                     spawnradius: {
                         type: "int",
                         description: "The `spawnradius` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
-                        enum: [
-                            { type: "byte", value: 0 },
-                            { type: "byte", value: 1 },
-                        ],
                     },
                     SpawnV1Villagers: {
                         type: "byte",
@@ -1984,7 +2255,8 @@ export namespace NBTSchemas {
                     },
                     texturePacksRequired: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if the user must download the texture packs applied to the world to join.",
+                        description:
+                            "1 or 0 (true/false) - true if the user must download the texture packs applied to the world to join, this option also disables global resource packs.",
                         enumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2009,6 +2281,15 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    tntexplosiondropdecay: {
+                        type: "byte",
+                        description: "The `tntexplosiondropdecay` [game rule](game rule).",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
                     useMsaGamertagsOnly: {
                         type: "byte",
                         description: "Whether the world is restricted to Microsoft Accounts only (players must be signed in).",
@@ -2018,20 +2299,20 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    worldStartCount: {
+                        type: "long",
+                        description: "Counts how many times the game has been closed since the world was created, with its value decreasing by 1 each time.",
+                    },
                     world_policies: {
                         type: "compound",
                         properties: {},
                         additionalProperties: true,
                         description: "UNDOCUMENTED.",
                     },
-                    worldStartCount: {
-                        type: "long",
-                        description: "Counts how many times the game has been closed since the world was created, with its value decreasing by 1 each time.",
-                    },
                     XBLBroadcastIntent: {
                         type: "int",
                         description:
-                            'The [multiplayer](multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled,*info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."',
+                            'The [multiplayer](multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."',
                         oneOf: [
                             {
                                 not: {
@@ -2081,6 +2362,7 @@ export namespace NBTSchemas {
                     },
                 },
             },
+            // NOTE: Verified.
             LimboEntities: {
                 id: "LimboEntities",
                 description: "The limbo entities data.",
@@ -2093,7 +2375,7 @@ export namespace NBTSchemas {
                         required: ["LimboEntities"],
                         properties: {
                             LimboEntities: {
-                                description: "Unknown.",
+                                description: "UNKNOWN.",
                                 type: "list",
                             },
                         },
@@ -2101,6 +2383,7 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             Map: {
                 id: "Map",
                 title: "The Map schema.",
@@ -2147,10 +2430,18 @@ export namespace NBTSchemas {
                         description:
                             "How zoomed in the map is, and must be a number between 0 and 4 (inclusive) that represent the level. Default 0. If this is changed in an [anvil](https://minecraft.wiki/w/anvil) or a [cartography table](https://minecraft.wiki/w/cartography table), the Unique ID of the map changes.",
                         type: "byte",
+                        default: {
+                            type: "byte",
+                            value: 0,
+                        },
                     },
                     unlimitedTracking: {
-                        description: "Unknown. Default 0.",
+                        description: "UNDOCUMENTED. Default 0.",
                         type: "byte",
+                        default: {
+                            type: "byte",
+                            value: 0,
+                        },
                     },
                     height: {
                         description: "The height of the map. Is associated with the scale level.",
@@ -2176,6 +2467,7 @@ export namespace NBTSchemas {
                             type: "compound",
                             properties: {
                                 data: {
+                                    description: "The data of the decoration.",
                                     type: "compound",
                                     required: ["rot", "type", "x", "y"],
                                     properties: {
@@ -2197,28 +2489,55 @@ export namespace NBTSchemas {
                                         },
                                     },
                                 },
+                                // TODO: Figure out the correct schemas for the `key` property.
+                                // NOTE: The below schema has been verified but it is unknown if it is different in certain situations.
                                 key: {
+                                    description:
+                                        "UNKNOWN. // CAUTION: This schema has only been verified in certain situations, it is possible that this might follow a different structure in other situations.",
                                     type: "compound",
-                                    required: ["blockX", "blockY", "blockZ", "type"],
+                                    required: ["entityId", "type"],
                                     properties: {
-                                        blockX: {
-                                            description: "The world x-position of the decoration.",
-                                            type: "int",
-                                        },
-                                        blockY: {
-                                            description: "The world y-position of the decoration.",
-                                            type: "int",
-                                        },
-                                        blockZ: {
-                                            description: "The world z-position of the decoration.",
-                                            type: "int",
+                                        entityId: {
+                                            description: "UNDOCUMENTED.",
+                                            type: "long",
+                                            default: {
+                                                type: "long",
+                                                value: 0n,
+                                            },
                                         },
                                         type: {
-                                            description: "Unknown.",
+                                            description: "UNDOCUMENTED.",
                                             type: "int",
+                                            default: {
+                                                type: "int",
+                                                value: 0,
+                                            },
                                         },
                                     },
                                 },
+                                // TODO: Check if the below schema is actually used in some situations.
+                                // key: {
+                                //     type: "compound",
+                                //     required: ["blockX", "blockY", "blockZ", "type"],
+                                //     properties: {
+                                //         blockX: {
+                                //             description: "The world x-position of the decoration.",
+                                //             type: "int",
+                                //         },
+                                //         blockY: {
+                                //             description: "The world y-position of the decoration.",
+                                //             type: "int",
+                                //         },
+                                //         blockZ: {
+                                //             description: "The world z-position of the decoration.",
+                                //             type: "int",
+                                //         },
+                                //         type: {
+                                //             description: "UNDOCUMENTED.",
+                                //             type: "int",
+                                //         },
+                                //     },
+                                // },
                             },
                         },
                     },
@@ -2229,6 +2548,7 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             MobEvents: {
                 id: "MobEvents",
                 description: "NBT structure of [mob event](https://minecraft.wiki/w/Commands/mobevent)s.",
@@ -2238,22 +2558,43 @@ export namespace NBTSchemas {
                     events_enabled: {
                         description: "1 or 0 (true/false) - true if the mob events can occur.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     "minecraft:ender_dragon_event": {
                         description: "1 or 0 (true/false) - true if the [ender dragon](https://minecraft.wiki/w/ender dragon) can spawn.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     "minecraft:pillager_patrols_event": {
                         description: "1 or 0 (true/false) - true if the [illager patrol](https://minecraft.wiki/w/illager patrol) can spawn.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     "minecraft:wandering_trader_event": {
                         description: "1 or 0 (true/false) - true if the [wandering trader](https://minecraft.wiki/w/wandering trader) can spawn.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             PendingTicks: {
                 id: "PendingTicks",
                 title: "The PendingTicks schema.",
@@ -2302,6 +2643,7 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             PlayerClient: {
                 id: "PlayerClient",
                 title: "The PlayerClient schema.",
@@ -2320,6 +2662,7 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             Portals: {
                 id: "Portals",
                 title: "The Portals schema.",
@@ -2363,6 +2706,7 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             RandomTicks: {
                 id: "RandomTicks",
                 title: "The RandomTicks schema.",
@@ -2411,6 +2755,7 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             SchedulerWT: {
                 id: "SchedulerWT",
                 title: "The SchedulerWT schema.",
@@ -2422,6 +2767,11 @@ export namespace NBTSchemas {
                     },
                     isSpawningWT: {
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     nextWTSpawnCheckTick: {
                         type: "long",
@@ -2429,6 +2779,7 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             Scoreboard: {
                 id: "Scoreboard",
                 title: "The Scoreboard schema.",
@@ -2437,6 +2788,7 @@ export namespace NBTSchemas {
                 required: ["DisplayObjectives", "Entries", "Objectives"],
                 properties: {
                     Criteria: {
+                        description: "UNKNOWN.",
                         type: "list",
                     },
                     DisplayObjectives: {
@@ -2459,6 +2811,15 @@ export namespace NBTSchemas {
                                     description:
                                         "The **sort order** of the objective displayed. 0 = `ascending`, 1 = `descending`. If not specified, or the **display slot** is `belowname`, 1 by default.",
                                     type: "byte",
+                                    default: {
+                                        type: "byte",
+                                        value: 1,
+                                    },
+                                    enumDescriptions: ["ascending", "descending"],
+                                    enum: [
+                                        { type: "byte", value: 0 },
+                                        { type: "byte", value: 1 },
+                                    ],
                                 },
                             },
                         },
@@ -2515,6 +2876,10 @@ export namespace NBTSchemas {
                                 Criteria: {
                                     description: "The **criterion** of this objective, currently, always `dummy`.",
                                     type: "string",
+                                    default: {
+                                        type: "string",
+                                        value: "dummy",
+                                    },
                                 },
                                 DisplayName: {
                                     description: "The **display name** of this objective.",
@@ -2549,6 +2914,7 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             StructureTemplate: {
                 id: "StructureTemplate",
                 title: "The StructureTemplate schema.",
@@ -2575,7 +2941,13 @@ export namespace NBTSchemas {
                                                 type: "compound",
                                                 patternProperties: {
                                                     "[0-9]+": {
-                                                        $ref: "BlockEntity",
+                                                        type: "compound",
+                                                        required: ["block_entity_data"],
+                                                        properties: {
+                                                            block_entity_data: {
+                                                                $ref: "BlockEntity",
+                                                            },
+                                                        },
                                                     },
                                                 },
                                             },
@@ -2663,21 +3035,18 @@ however when the corresponding block in the block layer is broken, this block ge
                         items: [
                             {
                                 title: "x",
-                                description: "The size of the x axis.",
+                                description: "The x coordinate.",
                                 type: "int",
-                                minimum: 0,
                             },
                             {
                                 title: "y",
-                                description: "The size of the y axis.",
+                                description: "The y coordinate.",
                                 type: "int",
-                                minimum: 0,
                             },
                             {
                                 title: "z",
-                                description: "The size of the z axis.",
+                                description: "The z coordinate.",
                                 type: "int",
-                                minimum: 0,
                             },
                         ],
                     },
@@ -2696,6 +3065,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                 },
             },
+            // NOTE: Verified.
             TickingArea: {
                 id: "TickingArea",
                 title: "The TickingArea schema.",
@@ -2711,9 +3081,19 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     IsAlwaysActive: {
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsCircle: {
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     MaxDistToPlayers: {
                         type: "float",
@@ -2739,44 +3119,69 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     Preload: {
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             VillageDwellers: {
                 id: "VillageDwellers",
                 title: "The VillageDwellers schema.",
                 description: "The village dwellers data.",
                 type: "compound",
+                required: ["Dwellers"],
                 properties: {
                     Dwellers: {
+                        description: "UNDOCUMENTED.",
                         type: "list",
                         items: {
+                            description: "UNDOCUMENTED.",
                             type: "compound",
                             properties: {
                                 actors: {
+                                    description: "UNDOCUMENTED.",
                                     type: "list",
                                     items: {
+                                        description: "UNDOCUMENTED.",
                                         type: "compound",
+                                        required: ["ID", "last_saved_pos", "TS"],
                                         properties: {
                                             ID: {
+                                                description: "UNDOCUMENTED.",
                                                 type: "long",
                                             },
                                             last_saved_pos: {
+                                                description: "UNDOCUMENTED.",
                                                 type: "list",
                                                 items: [
                                                     {
+                                                        title: "x",
+                                                        description: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     {
+                                                        title: "y",
+                                                        description: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     {
+                                                        title: "z",
+                                                        description: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                 ],
                                             },
                                             TS: {
+                                                description: "UNDOCUMENTED.",
+                                                type: "long",
+                                            },
+                                            last_worked: {
+                                                description: "UNDOCUMENTED.",
                                                 type: "long",
                                             },
                                         },
@@ -2788,99 +3193,169 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             VillageInfo: {
                 id: "VillageInfo",
                 title: "The VillageInfo schema.",
                 description: "The village info data.",
                 type: "compound",
+                required: [
+                    "BDTime",
+                    "GDTime",
+                    "Initialized",
+                    "MTick",
+                    "PDTick",
+                    "RX0",
+                    "RX1",
+                    "RY0",
+                    "RY1",
+                    "RZ0",
+                    "RZ1",
+                    "Tick",
+                    "Version",
+                    "X0",
+                    "X1",
+                    "Y0",
+                    "Y1",
+                    "Z0",
+                    "Z1",
+                ],
                 properties: {
                     BDTime: {
+                        description: "UNDOCUMENTED.",
                         type: "long",
                     },
                     GDTime: {
+                        description: "UNDOCUMENTED.",
                         type: "long",
                     },
                     Initialized: {
+                        description: "UNDOCUMENTED.",
                         type: "byte",
+                        enumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     MTick: {
+                        description: "UNDOCUMENTED.",
                         type: "long",
                     },
                     PDTick: {
+                        description: "UNDOCUMENTED.",
                         type: "long",
                     },
                     RX0: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RX1: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RY0: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RY1: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RZ0: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RZ1: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Tick: {
+                        description: "UNDOCUMENTED.",
                         type: "long",
                     },
                     Version: {
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     X0: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     X1: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Y0: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Y1: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Z0: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Z1: {
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             VillagePlayers: {
                 id: "VillagePlayers",
                 title: "The VillagePlayers schema.",
                 description: "The village players data.",
                 type: "compound",
+                required: ["Players"],
                 properties: {
                     Players: {
+                        description: "UNKNOWN.",
                         type: "list",
                     },
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
             VillagePOI: {
                 id: "VillagePOI",
                 title: "The VillagePOI schema.",
                 description: "The village POIs data.",
                 type: "compound",
+                required: ["POI"],
                 properties: {
                     POI: {
                         type: "list",
                         items: {
                             type: "compound",
+                            required: ["VillagerID", "instances"],
                             properties: {
+                                VillagerID: {
+                                    type: "long",
+                                },
                                 instances: {
                                     type: "list",
                                     items: {
                                         type: "compound",
+                                        required: [
+                                            "Capacity",
+                                            "InitEvent",
+                                            "Name",
+                                            "OwnerCount",
+                                            "Radius",
+                                            "Skip",
+                                            "SoundEvent",
+                                            "Type",
+                                            "UseAABB",
+                                            "Weight",
+                                            "X",
+                                            "Y",
+                                            "Z",
+                                        ],
                                         properties: {
                                             Capacity: {
                                                 type: "long",
@@ -2924,9 +3399,95 @@ however when the corresponding block in the block layer is broken, this block ge
                                         },
                                     },
                                 },
-                                VillagerID: {
+                            },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
+            VillageRaid: {
+                id: "VillageRaid",
+                title: "The VillageRaid schema.",
+                description: "The village raid data.",
+                type: "compound",
+                required: ["Raid"],
+                properties: {
+                    Raid: {
+                        description: "UNDOCUMENTED.",
+                        type: "compound",
+                        required: [
+                            "GameTick",
+                            "GroupNum",
+                            "NumGroups",
+                            "NumRaiders",
+                            "Raiders",
+                            "SpawnFails",
+                            "SpawnX",
+                            "SpawnY",
+                            "SpawnZ",
+                            "State",
+                            "Status",
+                            "Ticks",
+                            "TotalMaxHealth",
+                        ],
+                        properties: {
+                            GameTick: {
+                                description: "Seems to be the tick the raid data was last updated.",
+                                type: "long",
+                            },
+                            GroupNum: {
+                                description: "UNDOCUMENTED.",
+                                type: "byte",
+                            },
+                            NumGroups: {
+                                description: "UNDOCUMENTED.",
+                                type: "byte",
+                            },
+                            NumRaiders: {
+                                description: "UNDOCUMENTED.",
+                                type: "byte",
+                            },
+                            Raiders: {
+                                description: "The list of UUIDs of the raiders.",
+                                type: "list",
+                                items: {
+                                    description: "The UUID of a raider.",
                                     type: "long",
                                 },
+                            },
+                            SpawnFails: {
+                                description: "UNDOCUMENTED.",
+                                type: "byte",
+                            },
+                            SpawnX: {
+                                description: "UNDOCUMENTED.",
+                                type: "float",
+                            },
+                            SpawnY: {
+                                description: "UNDOCUMENTED.",
+                                type: "float",
+                            },
+                            SpawnZ: {
+                                description: "UNDOCUMENTED.",
+                                type: "float",
+                            },
+                            State: {
+                                description: "UNDOCUMENTED.",
+                                type: "int",
+                            },
+                            Status: {
+                                description: "UNDOCUMENTED.",
+                                type: "int",
+                            },
+                            Ticks: {
+                                description:
+                                    "Seems to be the number of ticks since the raid started (not sure if it is only counting while the raid is in loaded chunks or not).",
+                                type: "long",
+                            },
+                            TotalMaxHealth: {
+                                description: "UNDOCUMENTED.",
+                                type: "float",
                             },
                         },
                     },
@@ -3063,23 +3624,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "float",
                     },
                     Current: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "float",
                     },
                     DefaultMax: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "float",
                     },
                     DefaultMin: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "float",
                     },
                     Max: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "float",
                     },
                     Min: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "float",
                     },
                     Modifiers: {
@@ -3096,23 +3657,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "string",
                     },
                     TemporalBuffs: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "list",
                         items: [
                             {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "float",
                             },
                             {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         ],
@@ -3146,12 +3707,12 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "string",
                     },
                     Operand: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Operation: {
                         description:
-                            "Defines the operation this Modifier executes on the Attribute's Base value. 0: Increment X by Amount, 1: Increment Y by X * Amount, 2: Y = Y * (1 + Amount) (equivalent to Increment Y by Y * Amount).*needs testing*",
+                            "Defines the operation this Modifier executes on the Attribute's Base value. 0: Increment X by Amount, 1: Increment Y by X * Amount, 2: Y = Y * (1 + Amount) (equivalent to Increment Y by Y * Amount). *needs testing*",
                         type: "int",
                     },
                     UUIDLeast: {
@@ -3283,7 +3844,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     FireworkType: {
                         description:
-                            "The shape of this firework's explosion. 0 = Small Ball, 1 = Large Ball, 2 = Star-shaped, 3 = Creeper-shaped, and 4 = Burst.*needs testing*",
+                            "The shape of this firework's explosion. 0 = Small Ball, 1 = Large Ball, 2 = Star-shaped, 3 = Creeper-shaped, and 4 = Burst. *needs testing*",
                         type: "byte",
                     },
                 },
@@ -3314,7 +3875,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                     DisplayOnScreenTextureAnimation: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     Duration: {
@@ -3408,7 +3969,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "float",
                     },
                     EntityIdentifier: {
-                        description: "The id of the entity to be summoned.more info",
+                        description: "The id of the entity to be summoned.",
                         type: "string",
                     },
                     MaxNearbyEntities: {
@@ -3438,7 +3999,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["Properties", "TypeId", "Weight"],
                         properties: {
                             Properties: {
-                                description: "Unknown.",
+                                description: "UNKNOWN.",
                                 type: "compound",
                             },
                             TypeId: {
@@ -3446,7 +4007,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "string",
                             },
                             Weight: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
@@ -3460,7 +4021,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             required: ["Properties", "TypeId", "Weight"],
                             properties: {
                                 Properties: {
-                                    description: "Unknown.",
+                                    description: "UNKNOWN.",
                                     type: "compound",
                                 },
                                 TypeId: {
@@ -3477,7 +4038,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     SpawnRange: {
                         description:
-                            "The radius around which the spawner attempts to place mobs randomly. The spawn area is square, includes the block the spawner is in, and is centered around the spawner's x,z coordinates - not the spawner itself.*needs testing* Default value is 4.",
+                            "The radius around which the spawner attempts to place mobs randomly. The spawn area is square, includes the block the spawner is in, and is centered around the spawner's x,z coordinates - not the spawner itself. *needs testing* Default value is 4.",
                         type: "short",
                     },
                 },
@@ -3502,7 +4063,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     DisplayOffset: {
                         description:
-                            "(May not exist) The offset of the block displayed in the Minecart in pixels. Positive values move the block upwards, while negative values move it downwards. A value of 16 moves the block up by exactly one multiple of its height.*needs testing*",
+                            "(May not exist) The offset of the block displayed in the Minecart in pixels. Positive values move the block upwards, while negative values move it downwards. A value of 16 moves the block up by exactly one multiple of its height. *needs testing*",
                         type: "int",
                     },
                 },
@@ -3531,7 +4092,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["SpawnedByNight"],
                 properties: {
                     SpawnedByNight: {
-                        description: "1 or 0 (true/false) - true if is spawned by night.more info",
+                        description: "1 or 0 (true/false) - true if is spawned by night.",
                         type: "byte",
                     },
                 },
@@ -3633,7 +4194,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     BodyRot: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "float",
                     },
                     boundX: {
@@ -3705,11 +4266,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     persistingOffers: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNKNOWN.",
                         type: "compound",
                     },
                     persistingRiches: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "int",
                     },
                     Surface: {
@@ -3769,7 +4330,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["inGround", "OwnerID", "shake"],
                 properties: {
                     inGround: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     OwnerID: {
@@ -3777,7 +4338,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "long",
                     },
                     shake: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -3797,49 +4358,49 @@ however when the corresponding block in the block layer is broken, this block ge
                     VibrationListener: {
                         description: "The vibration event listener of this allay.",
                         type: "compound",
-                        required: ["event", "pending", "selector", "ticks"],
+                        required: ["selector"],
                         properties: {
                             event: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             pending: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "compound",
                                 required: ["distance", "source", "vibration", "x", "y", "z"],
                                 properties: {
                                     distance: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "float",
                                     },
                                     source: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "long",
                                     },
                                     vibration: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     x: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     y: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     z: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                 },
                             },
                             selector: {
-                                description: "Unknown.",
+                                description: "UNKNOWN.",
                                 type: "compound",
                             },
                             ticks: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
@@ -3963,7 +4524,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "byte",
                             },
                             "minecraft:is_trying_to_relax": {
-                                description: "1 or 0 (true/false) -  *info needed*.",
+                                description: "1 or 0 (true/false) - UNDOCUMENTED.",
                                 type: "byte",
                             },
                         },
@@ -4172,11 +4733,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             required: ["SpawnTimer", "StopSpawning"],
                             properties: {
                                 SpawnTimer: {
-                                    description: "Unknown.",
+                                    description: "UNDOCUMENTED.",
                                     type: "int",
                                 },
                                 StopSpawning: {
-                                    description: "Unknown.",
+                                    description: "UNDOCUMENTED.",
                                     type: "byte",
                                 },
                             },
@@ -4214,7 +4775,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["BribeTime", "TicksRemainingUntilDryOut"],
                 properties: {
                     BribeTime: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     DamageTime: {
@@ -4333,7 +4894,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["Age", "experience value"],
                 properties: {
                     Age: {
-                        description: 'The number of ticks the XP orb has been "untouched". After 6000 ticks (5 minutes) the orb is destroyed.*needs testing*',
+                        description: 'The number of ticks the XP orb has been "untouched". After 6000 ticks (5 minutes) the orb is destroyed. *needs testing*',
                         type: "short",
                     },
                     "experience value": {
@@ -4378,7 +4939,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["Direction", "inGround", "power"],
                 properties: {
                     Direction: {
-                        description: "List of 3 doubles. Should be identical to Motion.*needs testing*",
+                        description: "List of 3 doubles. Should be identical to Motion. *needs testing*",
                         type: "list",
                         items: [
                             {
@@ -4396,7 +4957,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         ],
                     },
                     inGround: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     power: {
@@ -4438,7 +4999,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     LifeTime: {
                         description:
-                            "The number of ticks before this fireworks rocket explodes. This value is randomized when the firework is launched.*needs testing*",
+                            "The number of ticks before this fireworks rocket explodes. This value is randomized when the firework is launched. *needs testing*",
                         type: "int",
                     },
                 },
@@ -4493,7 +5054,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["GoatHornCount"],
                 properties: {
                     GoatHornCount: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -4581,7 +5142,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     Health: {
                         description:
-                            "The health of the item, which starts at 5. Items take damage from fire, lava, and explosions. The item is destroyed when its health reaches 0.*needs testing*",
+                            "The health of the item, which starts at 5. Items take damage from fire, lava, and explosions. The item is destroyed when its health reaches 0. *needs testing*",
                         type: "short",
                     },
                     Item: {
@@ -4592,6 +5153,10 @@ however when the corresponding block in the block layer is broken, this block ge
                     OwnerID: {
                         description: "If present, only the player *needs testing* with this Unique ID can pick up the item.",
                         type: "long",
+                        default: {
+                            type: "long",
+                            value: -1n,
+                        },
                     },
                 },
                 $ref: "ActorPrefix",
@@ -4644,7 +5209,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                     Ticking: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -4701,15 +5266,15 @@ however when the corresponding block in the block layer is broken, this block ge
                 type: "compound",
                 properties: {
                     Actions: {
-                        description: "(May not exist) The actions.more info",
+                        description: "(May not exist) The actions.",
                         type: "string",
                     },
                     InterativeText: {
-                        description: "(May not exist) The interactive text.more info",
+                        description: "(May not exist) The interactive text.",
                         type: "string",
                     },
                     PlayerSceneMapping: {
-                        description: "(May not exist) Unknown",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "list",
                         items: {
                             description: "A key-value pair.",
@@ -4721,14 +5286,14 @@ however when the corresponding block in the block layer is broken, this block ge
                                     type: "long",
                                 },
                                 SceneName: {
-                                    description: "Unknown",
+                                    description: "UNDOCUMENTED.",
                                     type: "string",
                                 },
                             },
                         },
                     },
                     RawtextName: {
-                        description: "(May not exist) The name.more info",
+                        description: "(May not exist) The name.",
                         type: "string",
                     },
                 },
@@ -4750,11 +5315,11 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["Dir", "Direction"],
                 properties: {
                     Dir: {
-                        description: "The direction the painting faces: 0 is south, 1 is west, 2 is north, 3 is east.*needs testing*",
+                        description: "The direction the painting faces: 0 is south, 1 is west, 2 is north, 3 is east. *needs testing*",
                         type: "byte",
                     },
                     Direction: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     Motif: {
@@ -4873,10 +5438,10 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     fogCommandStack: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "list",
                         items: {
-                            description: "Unknown.",
+                            description: "UNDOCUMENTED.",
                             type: "string",
                         },
                     },
@@ -4909,7 +5474,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "long",
                     },
                     MapIndex: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     PlayerGameMode: {
@@ -4925,7 +5490,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "float",
                     },
                     PlayerUIItems: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "list",
                         items: {
                             description: "An item in the UI, including the slot tag.",
@@ -4953,7 +5518,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 },
                             },
                             used_contexts: {
-                                description: "Unknown. Defaults to 2.",
+                                description: "UNDOCUMENTED. Defaults to 2.",
                                 type: "int",
                             },
                         },
@@ -4967,7 +5532,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "long",
                     },
                     SelectedContainerId: {
-                        description: "The ID of the selected container.*needs testing*",
+                        description: "The ID of the selected container. *needs testing*",
                         type: "int",
                     },
                     SelectedInventorySlot: {
@@ -4980,7 +5545,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     SleepTimer: {
                         description:
-                            "The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0.*needs testing*",
+                            "The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0. *needs testing*",
                         type: "short",
                     },
                     Sneaking: {
@@ -5065,11 +5630,11 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["CarrotsEaten", "MoreCarrotTicks"],
                 properties: {
                     CarrotsEaten: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     MoreCarrotTicks: {
-                        description: "Set to 40 when a carrot crop is eaten, decreases by 0–2 every tick until it reaches 0.*needs testing*",
+                        description: "Set to 40 when a carrot crop is eaten, decreases by 0–2 every tick until it reaches 0. *needs testing*",
                         type: "int",
                     },
                 },
@@ -5284,11 +5849,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                     IsInRaid: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     ReactToBell: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -5321,11 +5886,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             required: ["SpawnTimer", "StopSpawning"],
                             properties: {
                                 SpawnTimer: {
-                                    description: "Unknown.",
+                                    description: "UNDOCUMENTED.",
                                     type: "int",
                                 },
                                 StopSpawning: {
-                                    description: "Unknown.",
+                                    description: "UNDOCUMENTED.",
                                     type: "byte",
                                 },
                             },
@@ -5375,46 +5940,46 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["event", "pending", "selector", "ticks"],
                         properties: {
                             event: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             pending: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "compound",
                                 required: ["distance", "source", "vibration", "x", "y", "z"],
                                 properties: {
                                     distance: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "float",
                                     },
                                     source: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "long",
                                     },
                                     vibration: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     x: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     y: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     z: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                 },
                             },
                             selector: {
-                                description: "Unknown.",
+                                description: "UNKNOWN.",
                                 type: "compound",
                             },
                             ticks: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
@@ -5481,7 +6046,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                     maxHealth: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     oldSwellAmount: {
@@ -5499,7 +6064,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                     ShieldHealth: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     SpawningFrames: {
@@ -5593,7 +6158,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["Anger"],
                 properties: {
                     Anger: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "short",
                     },
                 },
@@ -5651,7 +6216,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     secondary: {
                         description:
-                            "The secondary effect selected, see [Potion effects](https://minecraft.wiki/w/Status_effect) for IDs. Set to 0 when no effect is selected. When set without a primary effect, does nothing. When set to the same as the primary, the effect is given at level 2 (the normally available behavior for 5 effects). When set to a different value than the primary (normally only Regeneration), gives the effect at level 1.*needs testing*",
+                            "The secondary effect selected, see [Potion effects](https://minecraft.wiki/w/Status_effect) for IDs. Set to 0 when no effect is selected. When set without a primary effect, does nothing. When set to the same as the primary, the effect is given at level 2 (the normally available behavior for 5 effects). When set to a different value than the primary (normally only Regeneration), gives the effect at level 1. *needs testing*",
                         type: "int",
                     },
                 },
@@ -5715,7 +6280,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["Direction", "Ringing", "Ticks"],
                 properties: {
                     Direction: {
-                        description: "The direction data of this bell.more info",
+                        description: "The direction data of this bell.",
                         type: "int",
                     },
                     Ringing: {
@@ -5723,7 +6288,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                     Ticks: {
-                        description: "Unknown.more info",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -5870,15 +6435,15 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["itemAux", "itemId", "itemStack"],
                 properties: {
                     itemAux: {
-                        description: "(Only for Lab Table) Unknown.",
+                        description: "(Only for Lab Table) UNDOCUMENTED.",
                         type: "short",
                     },
                     itemId: {
-                        description: "(Only for Lab Table) Unknown.",
+                        description: "(Only for Lab Table) UNDOCUMENTED.",
                         type: "int",
                     },
                     itemStack: {
-                        description: "(Only for Lab Table) Unknown.",
+                        description: "(Only for Lab Table) UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -5892,7 +6457,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["Findable", "forceunpair", "Items"],
                 properties: {
                     Findable: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     forceunpair: {
@@ -5924,7 +6489,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                     pairlead: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "byte",
                     },
                     pairx: {
@@ -5971,7 +6536,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                     conditionalMode: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "byte",
                     },
                     conditionMet: {
@@ -5980,15 +6545,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                     LPCondionalMode: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     LPRedstoneMode: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     LPCommandMode: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     powered: {
@@ -6194,7 +6759,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     CookTime: {
                         description:
-                            "Number of ticks the item has been smelting for. The item finishes smelting when this value reaches 200 (10 seconds). Is reset to 0 if BurnTime reaches 0.*needs testing*",
+                            "Number of ticks the item has been smelting for. The item finishes smelting when this value reaches 200 (10 seconds). Is reset to 0 if BurnTime reaches 0. *needs testing*",
                         type: "short",
                     },
                     Items: {
@@ -6509,6 +7074,13 @@ however when the corresponding block in the block layer is broken, this block ge
                     NewState: {
                         description: "Next state. Can be 0 (unextended), 1 (pushing), 2 (extended), or 3 (pulling).",
                         type: "byte",
+                        enumDescriptions: ["unextended", "pushing", "extended", "pulling"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                            { type: "byte", value: 2 },
+                            { type: "byte", value: 3 },
+                        ],
                     },
                     Progress: {
                         description: "How far the block has been moved. Can be 0.0, 0.5, and 1.0.",
@@ -6545,7 +7117,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 },
                                 decay: {
                                     description:
-                                        "Be 1 if the charge was spread from a sculk or sculk vein, 0 otherwise. The charge can spread to any block if this tag is 1. If it is 0, all the powers in the charge disappear when it spreads to a block not in sculk family.*needs testing*",
+                                        "Be 1 if the charge was spread from a sculk or sculk vein, 0 otherwise. The charge can spread to any block if this tag is 1. If it is 0, all the powers in the charge disappear when it spreads to a block not in sculk family. *needs testing*",
                                     type: "short",
                                 },
                                 facing: {
@@ -6553,7 +7125,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                     type: "short",
                                 },
                                 update: {
-                                    description: "Delay in ticks until the charge begins to travel after being created.*needs testing*",
+                                    description: "Delay in ticks until the charge begins to travel after being created. *needs testing*",
                                     type: "short",
                                 },
                                 x: {
@@ -6587,46 +7159,46 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["event", "pending", "selector", "ticks"],
                         properties: {
                             event: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             pending: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "compound",
                                 required: ["distance", "source", "vibration", "x", "y", "z"],
                                 properties: {
                                     distance: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "float",
                                     },
                                     source: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "long",
                                     },
                                     vibration: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     x: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     y: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     z: {
-                                        description: "Unknown.",
+                                        description: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                 },
                             },
                             selector: {
-                                description: "Unknown.",
+                                description: "UNKNOWN.",
                                 type: "compound",
                             },
                             ticks: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
@@ -6641,7 +7213,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["facing"],
                 properties: {
                     facing: {
-                        description: "The facing of this shulker box.more info",
+                        description: "The facing of this shulker box.",
                         type: "float",
                     },
                 },
@@ -6661,6 +7233,35 @@ however when the corresponding block in the block layer is broken, this block ge
                     BackText: {
                         description: "A compound which discribes back text. The same structure as FrontText.",
                         type: "compound",
+                        required: ["HideGlowOutline", "IgnoreLighting", "PersistFormatting", "SignTextColor", "Text", "TextOwner"],
+                        properties: {
+                            HideGlowOutline: {
+                                description: "1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.",
+                                type: "byte",
+                            },
+                            IgnoreLighting: {
+                                description:
+                                    "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow ink sac).",
+                                type: "byte",
+                            },
+                            PersistFormatting: {
+                                description: "UNDOCUMENTED. Defaults to 1.",
+                                type: "byte",
+                            },
+                            SignTextColor: {
+                                description:
+                                    'The color that has been used to dye the sign. Is a 32-bit encoded color, defaults to `-16777216` (black). One of `-986896` for "White", `-425955` for "Orange", `-3715395` for "Magenta", `-12930086` for "Light Blue", `-75715` for "Yellow", `-8337633` for "Lime", `-816214` for "Pink", `-12103854` for "Gray", `-6447721` for "Light Gray", `-15295332` for "Cyan", `-7785800` for "Purple", `-12827478` for "Blue", `-8170446` for "Brown", `-10585066` for "Green", `-5231066` for "Red", and `-16777216` for "Black".',
+                                type: "int",
+                            },
+                            Text: {
+                                description: "The text on it.",
+                                type: "string",
+                            },
+                            TextOwner: {
+                                description: "UNDOCUMENTED.",
+                                type: "string",
+                            },
+                        },
                     },
                     FrontText: {
                         description: "A compound which discribes front text.",
@@ -6677,7 +7278,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "byte",
                             },
                             PersistFormatting: {
-                                description: "Unknown. Defaults to 1.",
+                                description: "UNDOCUMENTED. Defaults to 1.",
                                 type: "byte",
                             },
                             SignTextColor: {
@@ -6690,7 +7291,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "string",
                             },
                             TextOwner: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "string",
                             },
                         },
@@ -6713,11 +7314,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                     MouthTickCount: {
-                        description: "The animation frame of the dragon head's mouth movement.*needs testing*",
+                        description: "The animation frame of the dragon head's mouth movement. *needs testing*",
                         type: "int",
                     },
                     Rotation: {
-                        description: "The rotation of this skull.more info",
+                        description: "The rotation of this skull.",
                         type: "float",
                     },
                 },
@@ -6751,11 +7352,11 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     animationMode: {
-                        description: "The mode of animation.more info",
+                        description: "The mode of animation.",
                         type: "byte",
                     },
                     animationSeconds: {
-                        description: "The duration of the animation.more info",
+                        description: "The duration of the animation.",
                         type: "float",
                     },
                     data: {
@@ -6764,7 +7365,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                     dataField: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "string",
                     },
                     ignoreEntities: {
@@ -6780,11 +7381,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                     mirror: {
-                        description: "How the structure is mirrored.more info",
+                        description: "How the structure is mirrored.",
                         type: "byte",
                     },
                     redstoneSaveMode: {
-                        description: "The current redstone mode of this structure block.more info",
+                        description: "The current redstone mode of this structure block.",
                         type: "int",
                     },
                     removeBlocks: {
@@ -6792,11 +7393,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                     rotation: {
-                        description: "Rotation of the structure.more info",
+                        description: "Rotation of the structure.",
                         type: "byte",
                     },
                     seed: {
-                        description: "The seed to use for the structure integrity, 0 means random.*needs testing*",
+                        description: "The seed to use for the structure integrity, 0 means random. *needs testing*",
                         type: "long",
                     },
                     showBoundingBox: {
@@ -7040,7 +7641,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["Weight", "TypeID", "equipment_loot_table"],
                         properties: {
                             Weight: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             TypeID: {
@@ -7186,7 +7787,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound",
                     },
                     WasPickedUp: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -7285,7 +7886,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "string",
                             },
                             GroupName: {
-                                description: "(May not exist) Unknown. Used to generate the bucket item's name.",
+                                description: "(May not exist) UNDOCUMENTED. Used to generate the bucket item's name.",
                                 type: "string",
                             },
                         },
@@ -7333,11 +7934,11 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "byte",
                             },
                             map_is_init: {
-                                description: "(May not exist) Unknown.",
+                                description: "(May not exist) UNDOCUMENTED.",
                                 type: "byte",
                             },
                             map_is_scaling: {
-                                description: "(May not exist) Unknown.",
+                                description: "(May not exist) UNDOCUMENTED.",
                                 type: "byte",
                             },
                             map_name_index: {
@@ -7345,7 +7946,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "int",
                             },
                             map_scale: {
-                                description: "(May not exist) Unknown.",
+                                description: "(May not exist) UNDOCUMENTED.",
                                 type: "int",
                             },
                             map_uuid: {
@@ -7422,7 +8023,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 type: "compound",
                 properties: {
                     active_time: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "long",
                     },
                 },
@@ -7564,7 +8165,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "string",
                             },
                             xuid: {
-                                description: "Unknown.",
+                                description: "UNDOCUMENTED.",
                                 type: "long",
                             },
                         },
@@ -7582,7 +8183,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["Riches"],
                 properties: {
                     Riches: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Offers: {
@@ -7637,7 +8238,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                         },
                                         maxUses: {
                                             description:
-                                                "The maximum number of times this trade can be used before it is disabled. Increases by a random amount from 2 to 12 when offers are refreshed.*needs testing*",
+                                                "The maximum number of times this trade can be used before it is disabled. Increases by a random amount from 2 to 12 when offers are refreshed. *needs testing*",
                                             type: "int",
                                         },
                                         traderExp: {
@@ -7691,7 +8292,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     ConvertedFromVillagerV1: {
-                        description: "(May not exist) Unknown.",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "byte",
                     },
                     TradeTablePath: {
@@ -7747,7 +8348,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "float",
                     },
                     ballon_should_drop: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -7784,7 +8385,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "long",
                     },
                     BreedCooldown: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -7797,7 +8398,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["BribeTime"],
                 properties: {
                     BribeTime: {
-                        description: "Unknown<!--Time in ticks before the Entity can be bribed again.*needs testing*-->",
+                        description: "Time in ticks before the Entity can be bribed again. *needs testing*",
                         type: "int",
                     },
                 },
@@ -7846,7 +8447,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["DamageTime"],
                 properties: {
                     DamageTime: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "short",
                     },
                 },
@@ -7877,15 +8478,15 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["DwellingUniqueID", "RewardPlayersOnFirstFounding"],
                 properties: {
                     DwellingUniqueID: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "string",
                     },
                     RewardPlayersOnFirstFounding: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     PreferredProfession: {
-                        description: "(May not exist) Unknown",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "string",
                     },
                 },
@@ -7924,11 +8525,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             required: ["HiddenAllele", "MainAllele"],
                             properties: {
                                 HiddenAllele: {
-                                    description: "the hidden allele.more info",
+                                    description: "the hidden allele.",
                                     type: "int",
                                 },
                                 MainAllele: {
-                                    description: "the main allele.more info",
+                                    description: "the main allele.",
                                     type: "int",
                                 },
                             },
@@ -7988,27 +8589,27 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["sizeOfTradeFirstTimeVector", "TradeTier", "Riches", "Willing"],
                 properties: {
                     sizeOfTradeFirstTimeVector: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     FirstTimeTrade: {
-                        description: "(May not exist) Unknown",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "int",
                     },
                     TradeTier: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Riches: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Willing: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     Offers: {
-                        description: "(May not exist) Unknown",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "list",
                     },
                 },
@@ -8034,19 +8635,19 @@ however when the corresponding block in the block layer is broken, this block ge
                 type: "compound",
                 properties: {
                     RawtextName: {
-                        description: "(May not exist) The name.more info",
+                        description: "(May not exist) The name.",
                         type: "string",
                     },
                     InteractiveText: {
-                        description: "(May not exist) The interactive text.more info",
+                        description: "(May not exist) The interactive text.",
                         type: "string",
                     },
                     Actions: {
-                        description: "(May not exist) The actions.more info",
+                        description: "(May not exist) The actions.",
                         type: "string",
                     },
                     PlayerSceneMapping: {
-                        description: "(May not exist) Unknown",
+                        description: "(May not exist) UNDOCUMENTED.",
                         type: "list",
                         items: {
                             description: "A key-value pair.",
@@ -8058,7 +8659,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                     type: "long",
                                 },
                                 SceneName: {
-                                    description: "Unknown",
+                                    description: "UNDOCUMENTED.",
                                     type: "string",
                                 },
                             },
@@ -8078,7 +8679,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "long",
                     },
                     StuckToBlockPos: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "list",
                         items: [
                             {
@@ -8096,7 +8697,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         ],
                     },
                     CollisionPos: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "list",
                         items: [
                             {
@@ -8129,11 +8730,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             required: ["SpawnTimer", "StopSpawning"],
                             properties: {
                                 SpawnTimer: {
-                                    description: "Unknown",
+                                    description: "UNDOCUMENTED.",
                                     type: "int",
                                 },
                                 StopSpawning: {
-                                    description: "Unknown",
+                                    description: "UNDOCUMENTED.",
                                     type: "byte",
                                 },
                             },
@@ -8150,15 +8751,15 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["TimeStamp", "HasExecuted", "CountTime"],
                 properties: {
                     TimeStamp: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "long",
                     },
                     HasExecuted: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     CountTime: {
-                        description: "Deprecated. Unknown",
+                        description: "Deprecated. UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -8171,7 +8772,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["HasResupplied"],
                 properties: {
                     HasResupplied: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -8204,7 +8805,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["Ticking", "CurrentTickCount"],
                 properties: {
                     Ticking: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     CurrentTickCount: {
@@ -8221,10 +8822,10 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["fogCommandStack"],
                 properties: {
                     fogCommandStack: {
-                        description: "Unknown.",
+                        description: "UNDOCUMENTED.",
                         type: "list",
                         items: {
-                            description: "Unknown.",
+                            description: "UNDOCUMENTED.",
                             type: "string",
                         },
                     },
@@ -8238,11 +8839,11 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["IsInRaid", "ReactToBell"],
                 properties: {
                     IsInRaid: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     ReactToBell: {
-                        description: "Unknown",
+                        description: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -8604,7 +9205,8 @@ however when the corresponding block in the block layer is broken, this block ge
         /**
          * The default value for this schema.
          */
-        default?: any;
+        // REVIEW: This may actually need to be just `any` instead of always explicitly this object format.
+        default?: { type: `${NBT.TagType}`; value: any };
         /**
          * @todo
          */
@@ -9615,10 +10217,10 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: '"compound"',
                                 value:
                                     (opts.inlineRefs ?? false) ?
-                                        `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
+                                        `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
                                             inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
                                         }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
-                                    :   `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
+                                    :   `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
                                             allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
                                         }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
                             };
@@ -9639,10 +10241,10 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: builtType.type,
                         value:
                             (opts.inlineRefs ?? false) ?
-                                `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
                                     inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
                                 }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
-                            :   `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                            :   `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
                                     allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
                                 }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
                     };
@@ -9655,6 +10257,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  *
                  * @internal
                  */
+                // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Intentional.
                 interface BuiltType extends SpecificBuiltType<string | BuiltType | BuiltType[], string> {}
 
                 /**
@@ -9876,7 +10479,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             lines.push(`${propLinesCount > 0 ? `${indent}} & {\n` : ""}${indent}[key: string]: { type: string; value: any };`);
                         }
 
-                        return { type: '"compound"', value: `{\n${lines.join("\n")}\n${indent}}` };
+                        return { type: '"compound"', value: lines.length === 0 ? "object" : `{\n${lines.join("\n")}\n${indent}}` };
                     }
 
                     // fallback
@@ -10045,10 +10648,10 @@ however when the corresponding block in the block layer is broken, this block ge
                         if (resolvedSchema.properties) {
                             const compoundType = buildTypeForTag("compound", resolvedSchema, indent, opts, ctx!);
                             return (opts.inlineRefs ?? false) ?
-                                    `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType) ? "" : `(${compoundType})`}${
+                                    `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType) ? "" : `(${compoundType})`}${
                                         inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
                                     }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
-                                :   `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(compoundType) ? "" : `(${compoundType})`}${
+                                :   `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType) ? "" : `(${compoundType})`}${
                                         allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
                                     }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
                         }
@@ -10062,10 +10665,10 @@ however when the corresponding block in the block layer is broken, this block ge
 
                     const builtType = buildTypeForTag(st, resolvedSchema, indent, opts, ctx!);
                     return (opts.inlineRefs ?? false) ?
-                            `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType) ? "" : `(${builtType})`}${
+                            `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
                                 inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
                             }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
-                        :   `${(allOfRefTypes || oneOfRefTypes) && /^\{\s*\}$/.test(builtType) ? "" : `(${builtType})`}${
+                        :   `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
                                 allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
                             }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
                 }
@@ -10297,7 +10900,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             .replace(/''([^']+)''/g, "_$1_")
                             // Replace inline HTML-like <code>...</code> with `...`
                             .replace(/<code>(.*?)<\/code>/gi, "`$1`")
-                            .replace(/\{\{(?:[^\|\}]*\|)*([^\|\}]+)\}\}/g, "$1")
+                            .replace(/\{\{(?:[^|}]*\|)*([^|}]+)\}\}/g, "$1")
                             // Remove remaining curly braces for safety
                             .replace(/\{\{|\}\}/g, "")
                             .trim()
@@ -10520,10 +11123,10 @@ however when the corresponding block in the block layer is broken, this block ge
                                 schemaName
                                     .replaceAll(/[,]/g, "_")
                                     .replaceAll("_[0-9a-f\\-]+", "")
-                                    .replaceAll(/(?<!^)\(([^\)]*?)\)(?!$)/g, "_$1_")
-                                    .replaceAll(/(?<!^)\(([^\)]*?)\)$/g, "_$1")
-                                    .replaceAll(/^\(([^\)]*?)\)(?!$)/g, "$1_")
-                                    .replaceAll(/^\(([^\)]*?)\)$/g, "$1")
+                                    .replaceAll(/(?<!^)\(([^)]*?)\)(?!$)/g, "_$1_")
+                                    .replaceAll(/(?<!^)\(([^)]*?)\)$/g, "_$1")
+                                    .replaceAll(/^\(([^)]*?)\)(?!$)/g, "$1_")
+                                    .replaceAll(/^\(([^)]*?)\)$/g, "$1")
                             )
                                 .split(" ")
                                 .map((s: string): string => (s.length > 0 ? s[0]!.toUpperCase() + s.slice(1) : s))
@@ -10791,24 +11394,52 @@ however when the corresponding block in the block layer is broken, this block ge
             value: {
                 /**
                  * 1 or 0 (true/false) - true if this entity is chested. Used by donkey, llama, and mule.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Chested: { type: "byte"; value: number };
+                Chested: { type: "byte"; value: 0 | 1 };
                 /**
                  * The main color value of the entity. Used by sheep, llama, shulker, tropical fish, etc. Defaults to 0.
+                 *
+                 * @default 0
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Color: { type: "byte"; value: number };
+                Color: { type: "byte"; value: 0 | 1 };
                 /**
                  * The entity's second color value. Used by tropical fish. Defaults to 0.
+                 *
+                 * @default 0
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Color2: { type: "byte"; value: number };
+                Color2: { type: "byte"; value: 0 | 1 };
                 /**
                  * (May not exist) The custom name of this entity.
                  */
                 CustomName?: { type: "string"; value: string };
                 /**
                  * 1 or 0 (true/false) - (may not exist) if true, and this entity has a custom name, the name always appears above the entity, regardless of where the cursor points. If the entity does not have a custom name, a default name is shown.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                CustomNameVisible: { type: "byte"; value: number };
+                CustomNameVisible?: { type: "byte"; value: 0 | 1 };
                 /**
                  * (May not exist) The namespaced ID of this entity and its current and previous component groups.
                  */
@@ -10820,25 +11451,25 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * Number of ticks until the fire is put out. Default 0 when not on fire.
                  */
-                Fire: { type: "short"; value: number };
+                Fire?: { type: "short"; value: number };
                 /**
                  * The namespaced ID of this entity.
                  */
                 identifier: { type: "string"; value: string };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 internalComponents: {
                     type: "compound";
                     value: {
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         EntityStorageKeyComponent: {
                             type: "compound";
                             value: {
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 StorageKey: { type: "string"; value: string };
                             };
@@ -10846,75 +11477,171 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * 1 or 0 (true/false) - true if the entity should not take damage. This applies to living and nonliving entities alike: mobs should not take damage from any source (including potion effects), and cannot be moved by fishing rods, attacks, explosions, or projectiles, and objects such as vehicles cannot be destroyed. Invulnerable player entities are also ignored by any hostile mobs. Note that these entities can be damaged by players in Creative mode.*needs testing*
+                 * 1 or 0 (true/false) - true if the entity should not take damage. This applies to living and nonliving entities alike: mobs should not take damage from any source (including potion effects), and cannot be moved by fishing rods, attacks, explosions, or projectiles, and objects such as vehicles cannot be destroyed. Invulnerable player entities are also ignored by any hostile mobs. Note that these entities can be damaged by players in Creative mode. *needs testing*
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Invulnerable: { type: "byte"; value: number };
+                Invulnerable: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is angry. Used by wolf and bee.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsAngry: { type: "byte"; value: number };
+                IsAngry: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is an autonomous entity.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsAutonomous: { type: "byte"; value: number };
+                IsAutonomous: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is a baby.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsBaby: { type: "byte"; value: number };
+                IsBaby: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is eating.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsEating: { type: "byte"; value: number };
+                IsEating: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is gliding.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsGliding: { type: "byte"; value: number };
+                IsGliding: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is a global entity (e.g. lightning bolt, ender dragon, arrow).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsGlobal: { type: "byte"; value: number };
+                IsGlobal: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if the entity is an illager captain. Used by pillager and vindicator.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsIllagerCaptain: { type: "byte"; value: number };
+                IsIllagerCaptain: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is not spawn from its parents. Used by all the mobs that can breed.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsOrphaned: { type: "byte"; value: number };
+                IsOrphaned: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if the entity is out of control. Used by boat.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsOutOfControl: { type: "byte"; value: number };
+                IsOutOfControl: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is roaring. Used by ravager.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsRoaring: { type: "byte"; value: number };
+                IsRoaring: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is scared.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsScared: { type: "byte"; value: number };
+                IsScared: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is stunned. Used by ravager.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsStunned: { type: "byte"; value: number };
+                IsStunned: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is swimming.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsSwimming: { type: "byte"; value: number };
+                IsSwimming: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is tamed.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsTamed: { type: "byte"; value: number };
+                IsTamed: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is trusting a player. Used by fox and ocelot.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsTrusting: { type: "byte"; value: number };
+                IsTrusting: { type: "byte"; value: 0 | 1 };
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNDOCUMENTED.
                  */
                 LastDimensionId?: { type: "int"; value: number };
                 /**
-                 * (May not exist) Unknown
+                 * (May not exist) UNDOCUMENTED.
                  */
                 LinksTag?: {
                     type: "compound";
@@ -10924,17 +11651,25 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         entityID: { type: "long"; value: [high: number, low: number] };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         LinkID: { type: "int"; value: number };
                     };
                 };
                 /**
                  * 1 or 0 (true/false) - true if this entity can drop [loot](https://minecraft.wiki/w/Drops#Mob_drops) when died.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                LootDropped: { type: "byte"; value: number };
+                LootDropped: { type: "byte"; value: 0 | 1 };
                 /**
                  * The ID of the mark variant. Used by villager, horse, bee etc. Defaults to 0.
+                 *
+                 * @default 0
                  */
                 MarkVariant: { type: "int"; value: number };
                 /**
@@ -10943,16 +11678,31 @@ however when the corresponding block in the block layer is broken, this block ge
                 Motion?: { type: "list"; value: { type: "float"; value: [number, number, number] } };
                 /**
                  * 1 or 0 (true/false) - true if the entity is touching the ground.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                OnGround: { type: "byte"; value: number };
+                OnGround: { type: "byte"; value: 0 | 1 };
                 /**
-                 * Unknown. Defaults to -1.
+                 * UNDOCUMENTED. Defaults to -1.
+                 *
+                 * @default
+                 * [high: -1, low: -1]
                  */
                 OwnerNew: { type: "long"; value: [high: number, low: number] };
                 /**
                  * 1 or 0 (true/false) - true if an entity should be [persistent](https://minecraft.wiki/w/Mob spawning#Despawning) in the world.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Persistent: { type: "byte"; value: number };
+                Persistent?: { type: "byte"; value: 0 | 1 };
                 /**
                  * The number of ticks before which the entity may be teleported back through a nether portal. Initially starts at 300 ticks (15 seconds) after teleportation and counts down to 0.
                  */
@@ -10967,30 +11717,60 @@ however when the corresponding block in the block layer is broken, this block ge
                 Rotation: { type: "list"; value: { type: "float"; value: [number, number] } };
                 /**
                  * 1 or 0 (true/false) - true if this entity is saddled.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Saddled: { type: "byte"; value: number };
+                Saddled: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is sheared. Used by sheep and snow golem.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Sheared: { type: "byte"; value: number };
+                Sheared: { type: "byte"; value: 0 | 1 };
                 /**
-                 * 1 or 0 (true/false) - true if the End Crystal shows the bedrock slate underneath.*needs testing*
+                 * 1 or 0 (true/false) - true if the End Crystal shows the bedrock slate underneath. *needs testing*
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                ShowBottom: { type: "byte"; value: number };
+                ShowBottom: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this entity is sitting.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Sitting: { type: "byte"; value: number };
+                Sitting: { type: "byte"; value: 0 | 1 };
                 /**
                  * The entity's Skin ID value. Used by villager and zombified villager. Defaults to 0.
+                 *
+                 * @default 0
                  */
                 SkinID: { type: "int"; value: number };
                 /**
                  * Determines the number of items the entity can carry (items = 3 × strength). Used by llama. Defaults to 0.
+                 *
+                 * @default 0
                  */
                 Strength: { type: "int"; value: number };
                 /**
                  * Determines the maximum number of items the entity can carry (items = 3 × strength). Defaults to 0.
+                 *
+                 * @default 0
                  */
                 StrengthMax: { type: "int"; value: number };
                 /**
@@ -11003,6 +11783,8 @@ however when the corresponding block in the block layer is broken, this block ge
                 UniqueID: { type: "long"; value: [high: number, low: number] };
                 /**
                  * The ID of the variant. Used by cat, villager, horse, etc. Defaults to 0.
+                 *
+                 * @default 0
                  */
                 Variant: { type: "int"; value: number };
             };
@@ -11019,7 +11801,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNKNOWN.
                  */
                 AutonomousEntityList: {
                     type: "list";
@@ -11063,11 +11845,43 @@ however when the corresponding block in the block layer is broken, this block ge
                             /**
                              * The numerical [biome ID](https://minecraft.wiki/w/Biome).
                              */
-                            id: { type: "byte"; value: number };
+                            id: { type: "short"; value: number };
                             /**
                              * The biome's snow accumulation. Eg. `0.125`.
                              */
                             snowAccumulation: { type: "float"; value: number };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The BiomeIdsTable schema.
+         *
+         * Biome numeric ID mappings for custom biomes.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.BiomeIdsTable}
+         */
+        export type BiomeIdsTable = {
+            type: "compound";
+            value: {
+                /**
+                 * A list of compound tags representing custom biome types.
+                 */
+                list: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * The numerical [biome ID](https://minecraft.wiki/w/Biome) for this custom biome. Starts at 30,000.
+                             */
+                            id: { type: "short"; value: number };
+                            /**
+                             * The custom biome's namespaced ID.
+                             */
+                            name: { type: "string"; value: string };
                         }[];
                     };
                 };
@@ -11094,8 +11908,14 @@ however when the corresponding block in the block layer is broken, this block ge
                 id: { type: "string"; value: string };
                 /**
                  * 1 or 0 (true/false) - true if the block entity is movable with a piston.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                isMovable: { type: "byte"; value: number };
+                isMovable: { type: "byte"; value: 0 | 1 };
                 /**
                  * X coordinate of the block entity.
                  */
@@ -11452,7 +12272,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         flying?: { type: "byte"; value: 0 | 1 };
                         /**
-                         * The flying speed, always 0.05.
+                         * The flying speed, always 0.05 (or 0.05000000074505806).
                          *
                          * @default 0.05
                          */
@@ -11585,6 +12405,12 @@ however when the corresponding block in the block layer is broken, this block ge
                          * - `1`: true
                          */
                         worldbuilder?: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * The vertical fly speed, always 1.
+                         *
+                         * @default 1
+                         */
+                        verticalFlySpeed?: { type: "float"; value: number };
                     };
                 };
                 /**
@@ -11854,7 +12680,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * - `0`: false
                  * - `1`: true
                  */
-                editorWorldType?: { type: "byte"; value: 0 | 1 };
+                editorWorldType?: { type: "int"; value: 0 | 1 };
                 /**
                  * A [UUID](UUID). *info needed*
                  */
@@ -12058,13 +12884,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The `functioncommandlimit` [game rule](game rule).
                  *
-                 * @enum 0 | 1
-                 *
-                 * @enumDescriptions
-                 * - `0`: false
-                 * - `1`: true
+                 * @default 10000
                  */
-                functioncommandlimit?: { type: "int"; value: 0 | 1 };
+                functioncommandlimit?: { type: "int"; value: number };
                 /**
                  * The `globalmute` [game rule](game rule).
                  *
@@ -12144,7 +12966,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 immutableWorld?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * UNDOCUMENTED.
+                 * Seems to correspond to the version the world was created or first opened in
                  */
                 InventoryVersion?: { type: "string"; value: string };
                 /**
@@ -12197,6 +13019,16 @@ however when the corresponding block in the block layer is broken, this block ge
                  * - `1`: true
                  */
                 IsHardcore?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                isRandomSeedAllowed?: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - (unused) may cause world to not save, or delete after use. Seems to default back to false when a world is loaded.
                  *
@@ -12288,17 +13120,17 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LimitedWorldOriginZ?: { type: "int"; value: number };
                 /**
-                 * The width (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.
-                 *
-                 * @default 16
-                 */
-                LimitedWorldWidth?: { type: "int"; value: number };
-                /**
                  * The depth (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.
                  *
                  * @default 16
                  */
-                LimitedWorldDepth?: { type: "int"; value: number };
+                limitedWorldDepth?: { type: "int"; value: number };
+                /**
+                 * The width (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.
+                 *
+                 * @default 16
+                 */
+                limitedWorldWidth?: { type: "int"; value: number };
                 /**
                  * The `locatorbar` [game rule](game rule).
                  *
@@ -12311,6 +13143,8 @@ however when the corresponding block in the block layer is broken, this block ge
                 locatorbar?: { type: "byte"; value: 0 | 1 };
                 /**
                  * The `maxcommandchainlength` [game rule](game rule).
+                 *
+                 * @default 65535
                  */
                 maxcommandchainlength?: { type: "int"; value: number };
                 /**
@@ -12364,7 +13198,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 NetherScale?: { type: "int"; value: number };
                 /**
-                 * The protocol version of the version the world was last played on.
+                 * Seems to store the protocol version of the version the world was created or first opened in.
                  */
                 NetworkVersion?: { type: "int"; value: number };
                 /**
@@ -12378,9 +13212,22 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 PlatformBroadcastIntent?: { type: "int"; value: number };
                 /**
-                 * The UUID of the premium world template this world was created with. Used for [Marketplace worlds](Marketplace#Worlds).*info needed*
+                 * The UUID of the premium world template this world was created with. Used for [Marketplace worlds](Marketplace#Worlds). *info needed*
+                 *
+                 * @default
+                 * ""
                  */
                 prid?: { type: "string"; value: string };
+                /**
+                 * The `projectilescanbreakblocks` [game rule](game rule).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                projectilescanbreakblocks?: { type: "byte"; value: 0 | 1 };
                 /**
                  * The `pvp` [game rule](game rule).
                  *
@@ -12450,7 +13297,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 sendcommandfeedback?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * Simulation distance.*info needed*
+                 * Simulation distance. *info needed*
                  *
                  * @default 4
                  */
@@ -12496,6 +13343,16 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showdeathmessages?: { type: "byte"; value: 0 | 1 };
                 /**
+                 * The `showrecipemessages` [game rule](game rule).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                showrecipemessages?: { type: "byte"; value: 0 | 1 };
+                /**
                  * The `showtags` [game rule](game rule).
                  *
                  * @enum 0 | 1
@@ -12517,14 +13374,8 @@ however when the corresponding block in the block layer is broken, this block ge
                 spawnMobs?: { type: "byte"; value: 0 | 1 };
                 /**
                  * The `spawnradius` [game rule](game rule).
-                 *
-                 * @enum 0 | 1
-                 *
-                 * @enumDescriptions
-                 * - `0`: false
-                 * - `1`: true
                  */
-                spawnradius?: { type: "int"; value: 0 | 1 };
+                spawnradius?: { type: "int"; value: number };
                 /**
                  * Spawn pre-1.10.0 villagers.
                  *
@@ -12570,7 +13421,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 StorageVersion?: { type: "int"; value: number };
                 /**
-                 * 1 or 0 (true/false) - true if the user must download the texture packs applied to the world to join.
+                 * 1 or 0 (true/false) - true if the user must download the texture packs applied to the world to join, this option also disables global resource packs.
                  *
                  * @enum 0 | 1
                  *
@@ -12597,6 +13448,16 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 tntexplodes?: { type: "byte"; value: 0 | 1 };
                 /**
+                 * The `tntexplosiondropdecay` [game rule](game rule).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                tntexplosiondropdecay?: { type: "byte"; value: 0 | 1 };
+                /**
                  * Whether the world is restricted to Microsoft Accounts only (players must be signed in).
                  *
                  * @enum 0 | 1
@@ -12607,6 +13468,10 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 useMsaGamertagsOnly?: { type: "byte"; value: 0 | 1 };
                 /**
+                 * Counts how many times the game has been closed since the world was created, with its value decreasing by 1 each time.
+                 */
+                worldStartCount?: { type: "long"; value: [high: number, low: number] };
+                /**
                  * UNDOCUMENTED.
                  */
                 world_policies?: {
@@ -12616,11 +13481,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * Counts how many times the game has been closed since the world was created, with its value decreasing by 1 each time.
-                 */
-                worldStartCount?: { type: "long"; value: [high: number, low: number] };
-                /**
-                 * The [multiplayer](multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled,*info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."
+                 * The [multiplayer](multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."
                  */
                 XBLBroadcastIntent?: { type: "int"; value: number };
             };
@@ -12641,7 +13502,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * Unknown.
+                         * UNKNOWN.
                          */
                         LimboEntities: {
                             type: "list";
@@ -12698,10 +13559,14 @@ however when the corresponding block in the block layer is broken, this block ge
                 mapLocked: { type: "byte"; value: number };
                 /**
                  * How zoomed in the map is, and must be a number between 0 and 4 (inclusive) that represent the level. Default 0. If this is changed in an [anvil](https://minecraft.wiki/w/anvil) or a [cartography table](https://minecraft.wiki/w/cartography table), the Unique ID of the map changes.
+                 *
+                 * @default 0
                  */
                 scale: { type: "byte"; value: number };
                 /**
-                 * Unknown. Default 0.
+                 * UNDOCUMENTED. Default 0.
+                 *
+                 * @default 0
                  */
                 unlimitedTracking: { type: "byte"; value: number };
                 /**
@@ -12728,6 +13593,9 @@ however when the corresponding block in the block layer is broken, this block ge
                     value: {
                         type: "compound";
                         value: {
+                            /**
+                             * The data of the decoration.
+                             */
                             data?: {
                                 type: "compound";
                                 value: {
@@ -12749,23 +13617,23 @@ however when the corresponding block in the block layer is broken, this block ge
                                     y: { type: "int"; value: number };
                                 };
                             };
+                            /**
+                             * UNKNOWN. // CAUTION: This schema has only been verified in certain situations, it is possible that this might follow a different structure in other situations.
+                             */
                             key?: {
                                 type: "compound";
                                 value: {
                                     /**
-                                     * The world x-position of the decoration.
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @default
+                                     * [high: 0, low: 0]
                                      */
-                                    blockX: { type: "int"; value: number };
+                                    entityId: { type: "long"; value: [high: number, low: number] };
                                     /**
-                                     * The world y-position of the decoration.
-                                     */
-                                    blockY: { type: "int"; value: number };
-                                    /**
-                                     * The world z-position of the decoration.
-                                     */
-                                    blockZ: { type: "int"; value: number };
-                                    /**
-                                     * Unknown.
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @default 0
                                      */
                                     type: { type: "int"; value: number };
                                 };
@@ -12790,20 +13658,44 @@ however when the corresponding block in the block layer is broken, this block ge
             value: {
                 /**
                  * 1 or 0 (true/false) - true if the mob events can occur.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                events_enabled: { type: "byte"; value: number };
+                events_enabled: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if the [ender dragon](https://minecraft.wiki/w/ender dragon) can spawn.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                "minecraft:ender_dragon_event": { type: "byte"; value: number };
+                "minecraft:ender_dragon_event": { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if the [illager patrol](https://minecraft.wiki/w/illager patrol) can spawn.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                "minecraft:pillager_patrols_event": { type: "byte"; value: number };
+                "minecraft:pillager_patrols_event": { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if the [wandering trader](https://minecraft.wiki/w/wandering trader) can spawn.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                "minecraft:wandering_trader_event": { type: "byte"; value: number };
+                "minecraft:wandering_trader_event": { type: "byte"; value: 0 | 1 };
             };
         };
 
@@ -12981,7 +13873,14 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 daysSinceLastWTSpawn?: { type: "int"; value: number };
-                isSpawningWT?: { type: "byte"; value: number };
+                /**
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                isSpawningWT?: { type: "byte"; value: 0 | 1 };
                 nextWTSpawnCheckTick?: { type: "long"; value: [high: number, low: number] };
             };
         };
@@ -12996,6 +13895,9 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Scoreboard = {
             type: "compound";
             value: {
+                /**
+                 * UNKNOWN.
+                 */
                 Criteria?: {
                     type: "list";
                     value: (
@@ -13032,8 +13934,16 @@ however when the corresponding block in the block layer is broken, this block ge
                             ObjectiveName: { type: "string"; value: string };
                             /**
                              * The **sort order** of the objective displayed. 0 = `ascending`, 1 = `descending`. If not specified, or the **display slot** is `belowname`, 1 by default.
+                             *
+                             * @default 1
+                             *
+                             * @enum 0 | 1
+                             *
+                             * @enumDescriptions
+                             * - `0`: ascending
+                             * - `1`: descending
                              */
-                            SortOrder: { type: "byte"; value: number };
+                            SortOrder: { type: "byte"; value: 0 | 1 };
                         }[];
                     };
                 };
@@ -13078,7 +13988,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The numerical ID given to the last entity added on the scoreboard system.
                  */
-                LastUniqueID: [high: number, low: number];
+                LastUniqueID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * A list of compound tags representing objectives.
                  */
@@ -13089,6 +13999,8 @@ however when the corresponding block in the block layer is broken, this block ge
                         value: {
                             /**
                              * The **criterion** of this objective, currently, always `dummy`.
+                             *
+                             * @default "dummy"
                              */
                             Criteria: { type: "string"; value: string };
                             /**
@@ -13156,7 +14068,12 @@ however when the corresponding block in the block layer is broken, this block ge
                                         block_position_data: {
                                             type: "compound";
                                             value: {
-                                                [key: `${bigint}`]: BlockEntity;
+                                                [key: `${bigint}`]: {
+                                                    type: "compound";
+                                                    value: {
+                                                        block_entity_data: BlockEntity;
+                                                    };
+                                                };
                                             };
                                         };
                                         /**
@@ -13216,8 +14133,22 @@ however when the corresponding block in the block layer is broken, this block ge
             value: {
                 Dimension: { type: "int"; value: number };
                 EntityId?: { type: "long"; value: [high: number, low: number] };
-                IsAlwaysActive?: { type: "byte"; value: number };
-                IsCircle: { type: "byte"; value: number };
+                /**
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                IsAlwaysActive?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                IsCircle: { type: "byte"; value: 0 | 1 };
                 MaxDistToPlayers?: { type: "float"; value: number };
                 MaxX: { type: "int"; value: number };
                 MaxZ: { type: "int"; value: number };
@@ -13228,7 +14159,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  * ""
                  */
                 Name: { type: "string"; value: string };
-                Preload?: { type: "byte"; value: number };
+                /**
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                Preload?: { type: "byte"; value: 0 | 1 };
             };
         };
 
@@ -13242,19 +14180,38 @@ however when the corresponding block in the block layer is broken, this block ge
         export type VillageDwellers = {
             type: "compound";
             value: {
-                Dwellers?: {
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Dwellers: {
                     type: "list";
                     value: {
                         type: "compound";
                         value: {
+                            /**
+                             * UNDOCUMENTED.
+                             */
                             actors?: {
                                 type: "list";
                                 value: {
                                     type: "compound";
                                     value: {
-                                        ID?: { type: "long"; value: [high: number, low: number] };
-                                        last_saved_pos?: { type: "list"; value: { type: "int"; value: [number, number, number] } };
-                                        TS?: { type: "long"; value: [high: number, low: number] };
+                                        /**
+                                         * UNDOCUMENTED.
+                                         */
+                                        ID: { type: "long"; value: [high: number, low: number] };
+                                        /**
+                                         * UNDOCUMENTED.
+                                         */
+                                        last_saved_pos: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                        /**
+                                         * UNDOCUMENTED.
+                                         */
+                                        TS: { type: "long"; value: [high: number, low: number] };
+                                        /**
+                                         * UNDOCUMENTED.
+                                         */
+                                        last_worked?: { type: "long"; value: [high: number, low: number] };
                                     }[];
                                 };
                             };
@@ -13274,25 +14231,88 @@ however when the corresponding block in the block layer is broken, this block ge
         export type VillageInfo = {
             type: "compound";
             value: {
-                BDTime?: { type: "long"; value: [high: number, low: number] };
-                GDTime?: { type: "long"; value: [high: number, low: number] };
-                Initialized?: { type: "byte"; value: number };
-                MTick?: { type: "long"; value: [high: number, low: number] };
-                PDTick?: { type: "long"; value: [high: number, low: number] };
-                RX0?: { type: "int"; value: number };
-                RX1?: { type: "int"; value: number };
-                RY0?: { type: "int"; value: number };
-                RY1?: { type: "int"; value: number };
-                RZ0?: { type: "int"; value: number };
-                RZ1?: { type: "int"; value: number };
-                Tick?: { type: "long"; value: [high: number, low: number] };
-                Version?: { type: "byte"; value: number };
-                X0?: { type: "int"; value: number };
-                X1?: { type: "int"; value: number };
-                Y0?: { type: "int"; value: number };
-                Y1?: { type: "int"; value: number };
-                Z0?: { type: "int"; value: number };
-                Z1?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                BDTime: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                GDTime: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                Initialized: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                MTick: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                PDTick: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RX0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RX1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RY0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RY1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RZ0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RZ1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Tick: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Version: { type: "byte"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                X0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                X1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Y0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Y1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Z0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Z1: { type: "int"; value: number };
             };
         };
 
@@ -13306,7 +14326,10 @@ however when the corresponding block in the block layer is broken, this block ge
         export type VillagePlayers = {
             type: "compound";
             value: {
-                Players?: {
+                /**
+                 * UNKNOWN.
+                 */
+                Players: {
                     type: "list";
                     value: (
                         | { type: "byte"; value: number[] }
@@ -13337,34 +14360,107 @@ however when the corresponding block in the block layer is broken, this block ge
         export type VillagePOI = {
             type: "compound";
             value: {
-                POI?: {
+                POI: {
                     type: "list";
                     value: {
                         type: "compound";
                         value: {
-                            instances?: {
+                            VillagerID: { type: "long"; value: [high: number, low: number] };
+                            instances: {
                                 type: "list";
                                 value: {
                                     type: "compound";
                                     value: {
-                                        Capacity?: { type: "long"; value: [high: number, low: number] };
-                                        InitEvent?: { type: "string"; value: string };
-                                        Name?: { type: "string"; value: string };
-                                        OwnerCount?: { type: "long"; value: [high: number, low: number] };
-                                        Radius?: { type: "float"; value: number };
-                                        Skip?: { type: "byte"; value: number };
-                                        SoundEvent?: { type: "string"; value: string };
-                                        Type?: { type: "int"; value: number };
-                                        UseAABB?: { type: "byte"; value: number };
-                                        Weight?: { type: "long"; value: [high: number, low: number] };
-                                        X?: { type: "int"; value: number };
-                                        Y?: { type: "int"; value: number };
-                                        Z?: { type: "int"; value: number };
+                                        Capacity: { type: "long"; value: [high: number, low: number] };
+                                        InitEvent: { type: "string"; value: string };
+                                        Name: { type: "string"; value: string };
+                                        OwnerCount: { type: "long"; value: [high: number, low: number] };
+                                        Radius: { type: "float"; value: number };
+                                        Skip: { type: "byte"; value: number };
+                                        SoundEvent: { type: "string"; value: string };
+                                        Type: { type: "int"; value: number };
+                                        UseAABB: { type: "byte"; value: number };
+                                        Weight: { type: "long"; value: [high: number, low: number] };
+                                        X: { type: "int"; value: number };
+                                        Y: { type: "int"; value: number };
+                                        Z: { type: "int"; value: number };
                                     }[];
                                 };
                             };
-                            VillagerID?: { type: "long"; value: [high: number, low: number] };
                         }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The VillageRaid schema.
+         *
+         * The village raid data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.VillageRaid}
+         */
+        export type VillageRaid = {
+            type: "compound";
+            value: {
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Raid: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * Seems to be the tick the raid data was last updated.
+                         */
+                        GameTick: { type: "long"; value: [high: number, low: number] };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        GroupNum: { type: "byte"; value: number };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        NumGroups: { type: "byte"; value: number };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        NumRaiders: { type: "byte"; value: number };
+                        /**
+                         * The list of UUIDs of the raiders.
+                         */
+                        Raiders: { type: "list"; value: { type: "long"; value: [high: number, low: number][] } };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        SpawnFails: { type: "byte"; value: number };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        SpawnX: { type: "float"; value: number };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        SpawnY: { type: "float"; value: number };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        SpawnZ: { type: "float"; value: number };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        State: { type: "int"; value: number };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        Status: { type: "int"; value: number };
+                        /**
+                         * Seems to be the number of ticks since the raid started (not sure if it is only counting while the raid is in loaded chunks or not).
+                         */
+                        Ticks: { type: "long"; value: [high: number, low: number] };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        TotalMaxHealth: { type: "float"; value: number };
                     };
                 };
             };
@@ -13482,23 +14578,23 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Base: { type: "float"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Current: { type: "float"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 DefaultMax: { type: "float"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 DefaultMin: { type: "float"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Max: { type: "float"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Min: { type: "float"; value: number };
                 /**
@@ -13510,7 +14606,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Name: { type: "string"; value: string };
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNDOCUMENTED.
                  */
                 TemporalBuffs?: { type: "list"; value: { type: unknown; value: [number, number, number, number] } };
             };
@@ -13540,11 +14636,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Name: { type: "string"; value: string };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Operand: { type: "int"; value: number };
                 /**
-                 * Defines the operation this Modifier executes on the Attribute's Base value. 0: Increment X by Amount, 1: Increment Y by X * Amount, 2: Y = Y * (1 + Amount) (equivalent to Increment Y by Y * Amount).*needs testing*
+                 * Defines the operation this Modifier executes on the Attribute's Base value. 0: Increment X by Amount, 1: Increment Y by X * Amount, 2: Y = Y * (1 + Amount) (equivalent to Increment Y by Y * Amount). *needs testing*
                  */
                 Operation: { type: "int"; value: number };
                 /**
@@ -13668,7 +14764,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 FireworkTrail: { type: "byte"; value: number };
                 /**
-                 * The shape of this firework's explosion. 0 = Small Ball, 1 = Large Ball, 2 = Star-shaped, 3 = Creeper-shaped, and 4 = Burst.*needs testing*
+                 * The shape of this firework's explosion. 0 = Small Ball, 1 = Large Ball, 2 = Star-shaped, 3 = Creeper-shaped, and 4 = Burst. *needs testing*
                  */
                 FireworkType: { type: "byte"; value: number };
             };
@@ -13691,7 +14787,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Amplifier: { type: "byte"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 DisplayOnScreenTextureAnimation: { type: "byte"; value: number };
                 /**
@@ -13759,7 +14855,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 DisplayEntityWidth: { type: "float"; value: number };
                 /**
-                 * The id of the entity to be summoned.more info
+                 * The id of the entity to be summoned.
                  */
                 EntityIdentifier: { type: "string"; value: string };
                 /**
@@ -13789,15 +14885,15 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * Unknown.
+                         * UNKNOWN.
                          */
-                        Properties: { type: "compound"; value: {} };
+                        Properties: { type: "compound"; value: object };
                         /**
                          * The entity's namespaced ID.
                          */
                         TypeId: { type: "string"; value: string };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         Weight: { type: "int"; value: number };
                     };
@@ -13811,9 +14907,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound";
                         value: {
                             /**
-                             * Unknown.
+                             * UNKNOWN.
                              */
-                            Properties: { type: "compound"; value: {} };
+                            Properties: { type: "compound"; value: object };
                             /**
                              * The entity's namespaced ID.
                              */
@@ -13826,7 +14922,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * The radius around which the spawner attempts to place mobs randomly. The spawn area is square, includes the block the spawner is in, and is centered around the spawner's x,z coordinates - not the spawner itself.*needs testing* Default value is 4.
+                 * The radius around which the spawner attempts to place mobs randomly. The spawn area is square, includes the block the spawner is in, and is centered around the spawner's x,z coordinates - not the spawner itself. *needs testing* Default value is 4.
                  */
                 SpawnRange: { type: "short"; value: number };
             };
@@ -13847,9 +14943,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) The custom block in the minecart.
                  */
-                DisplayBlock?: { type: "compound"; value: {} } & Block;
+                DisplayBlock?: { type: "compound"; value: object } & Block;
                 /**
-                 * (May not exist) The offset of the block displayed in the Minecart in pixels. Positive values move the block upwards, while negative values move it downwards. A value of 16 moves the block up by exactly one multiple of its height.*needs testing*
+                 * (May not exist) The offset of the block displayed in the Minecart in pixels. Positive values move the block upwards, while negative values move it downwards. A value of 16 moves the block up by exactly one multiple of its height. *needs testing*
                  */
                 DisplayOffset?: { type: "int"; value: number };
             };
@@ -13879,7 +14975,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * 1 or 0 (true/false) - true if is spawned by night.more info
+                 * 1 or 0 (true/false) - true if is spawned by night.
                  */
                 SpawnedByNight: { type: "byte"; value: number };
             };
@@ -13896,7 +14992,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) The items in the entity's hand.
                  */
-                ItemInHand?: { type: "compound"; value: {} } & Item_ItemStack;
+                ItemInHand?: { type: "compound"; value: object } & Item_ItemStack;
             };
         } & ActorPrefix;
 
@@ -13932,7 +15028,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Attributes: { type: "list"; value: { type: "compound"; value: Attribute["value"][] } };
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNDOCUMENTED.
                  */
                 BodyRot?: { type: "float"; value: number };
                 /**
@@ -13992,11 +15088,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Offhand: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNKNOWN.
                  */
-                persistingOffers?: { type: "compound"; value: {} };
+                persistingOffers?: { type: "compound"; value: object };
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNDOCUMENTED.
                  */
                 persistingRiches?: { type: "int"; value: number };
                 /**
@@ -14058,7 +15154,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 inGround: { type: "byte"; value: number };
                 /**
@@ -14066,7 +15162,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 OwnerID: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 shake: { type: "byte"; value: number };
             };
@@ -14091,49 +15187,49 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
-                        event: { type: "int"; value: number };
+                        event?: { type: "int"; value: number };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
-                        pending: {
+                        pending?: {
                             type: "compound";
                             value: {
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 distance: { type: "float"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 source: { type: "long"; value: [high: number, low: number] };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 vibration: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 x: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 y: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 z: { type: "int"; value: number };
                             };
                         };
                         /**
-                         * Unknown.
+                         * UNKNOWN.
                          */
-                        selector: { type: "compound"; value: {} };
+                        selector: { type: "compound"; value: object };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
-                        ticks: { type: "int"; value: number };
+                        ticks?: { type: "int"; value: number };
                     };
                 };
             };
@@ -14234,7 +15330,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         "minecraft:is_threatened": { type: "byte"; value: number };
                         /**
-                         * 1 or 0 (true/false) -  *info needed*.
+                         * 1 or 0 (true/false) - UNDOCUMENTED.
                          */
                         "minecraft:is_trying_to_relax": { type: "byte"; value: number };
                     };
@@ -14370,7 +15466,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_BoatWithChest}
          */
-        export type Entity_BoatWithChest = { type: "compound"; value: {} } & ActorPrefix & Component_Inventory;
+        export type Entity_BoatWithChest = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
 
         /**
          * Additional fields for [breeze](https://minecraft.wiki/w/breeze).
@@ -14400,14 +15496,14 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Camel}
          */
-        export type Entity_Camel = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Camel = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [cat](https://minecraft.wiki/w/cat).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Cat}
          */
-        export type Entity_Cat = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Cat = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [chicken](https://minecraft.wiki/w/chicken).
@@ -14423,11 +15519,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound";
                         value: {
                             /**
-                             * Unknown.
+                             * UNDOCUMENTED.
                              */
                             SpawnTimer: { type: "int"; value: number };
                             /**
-                             * Unknown.
+                             * UNDOCUMENTED.
                              */
                             StopSpawning: { type: "byte"; value: number };
                         }[];
@@ -14442,14 +15538,14 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Cow}
          */
-        export type Entity_Cow = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Cow = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [creeper](https://minecraft.wiki/w/creeper).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Creeper}
          */
-        export type Entity_Creeper = { type: "compound"; value: {} } & ActorPrefix & Component_Explode;
+        export type Entity_Creeper = { type: "compound"; value: object } & ActorPrefix & Component_Explode;
 
         /**
          * Additional fields for [dolphin](https://minecraft.wiki/w/dolphin).
@@ -14460,7 +15556,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 BribeTime: { type: "int"; value: number };
                 /**
@@ -14496,7 +15592,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Egg}
          */
-        export type Entity_Egg = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
+        export type Entity_Egg = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [ender crystal](https://minecraft.wiki/w/ender crystal).
@@ -14533,7 +15629,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The block carried by the enderman.
                  */
-                carriedBlock: { type: "compound"; value: {} } & Block;
+                carriedBlock: { type: "compound"; value: object } & Block;
             };
         } & ActorPrefix;
 
@@ -14557,7 +15653,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Evoker}
          */
-        export type Entity_Evoker = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
+        export type Entity_Evoker = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [experience orb](https://minecraft.wiki/w/experience orb).
@@ -14568,7 +15664,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * The number of ticks the XP orb has been "untouched". After 6000 ticks (5 minutes) the orb is destroyed.*needs testing*
+                 * The number of ticks the XP orb has been "untouched". After 6000 ticks (5 minutes) the orb is destroyed. *needs testing*
                  */
                 Age: { type: "short"; value: number };
                 /**
@@ -14583,7 +15679,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ExperiencePotion}
          */
-        export type Entity_ExperiencePotion = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
+        export type Entity_ExperiencePotion = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [falling block](https://minecraft.wiki/w/falling block).
@@ -14593,7 +15689,7 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_FallingBlock = {
             type: "compound";
             value: {
-                FallingBlock?: { type: "compound"; value: {} } & Block;
+                FallingBlock?: { type: "compound"; value: object } & Block;
                 /**
                  * The number of ticks the entity has existed. If set to 0, the moment it ticks to 1, it vanishes if the block at its location has a different ID than the entity's `FallingBlock.Name`. If the block at its location has the same ID as its `FallingBlock.Name` when `Time` ticks from 0 to 1, the block is deleted, and the entity continues to fall, having overwritten it. When Time goes above 600, or above 100 while the block is below Y=1 or is outside building height, the entity is deleted. *needs testing*
                  */
@@ -14610,11 +15706,11 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * List of 3 doubles. Should be identical to Motion.*needs testing*
+                 * List of 3 doubles. Should be identical to Motion. *needs testing*
                  */
                 Direction: { type: "list"; value: { type: "float"; value: [number, number, number] } };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 inGround: { type: "byte"; value: number };
                 /**
@@ -14638,7 +15734,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Life: { type: "int"; value: number };
                 /**
-                 * The number of ticks before this fireworks rocket explodes. This value is randomized when the firework is launched.*needs testing*
+                 * The number of ticks before this fireworks rocket explodes. This value is randomized when the firework is launched. *needs testing*
                  */
                 LifeTime: { type: "int"; value: number };
             };
@@ -14649,7 +15745,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_FishingBobber}
          */
-        export type Entity_FishingBobber = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
+        export type Entity_FishingBobber = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [fox](https://minecraft.wiki/w/fox).
@@ -14674,7 +15770,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Frog}
          */
-        export type Entity_Frog = { type: "compound"; value: {} } & ActorPrefix & Component_Breedable;
+        export type Entity_Frog = { type: "compound"; value: object } & ActorPrefix & Component_Breedable;
 
         /**
          * Additional fields for [goat](https://minecraft.wiki/w/goat).
@@ -14685,7 +15781,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 GoatHornCount: { type: "int"; value: number };
             };
@@ -14713,7 +15809,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Hoglin}
          */
-        export type Entity_Hoglin = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Hoglin = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [horse](https://minecraft.wiki/w/horse).
@@ -14736,14 +15832,14 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Husk}
          */
-        export type Entity_Husk = { type: "compound"; value: {} } & ActorPrefix & Component_Timer;
+        export type Entity_Husk = { type: "compound"; value: object } & ActorPrefix & Component_Timer;
 
         /**
          * Additional fields for [iron golem](https://minecraft.wiki/w/iron golem).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_IronGolem}
          */
-        export type Entity_IronGolem = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
+        export type Entity_IronGolem = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [item entity](https://minecraft.wiki/w/Item (entity)).
@@ -14758,15 +15854,18 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Age: { type: "short"; value: number };
                 /**
-                 * The health of the item, which starts at 5. Items take damage from fire, lava, and explosions. The item is destroyed when its health reaches 0.*needs testing*
+                 * The health of the item, which starts at 5. Items take damage from fire, lava, and explosions. The item is destroyed when its health reaches 0. *needs testing*
                  */
                 Health: { type: "short"; value: number };
                 /**
                  * The item of this stack.
                  */
-                Item: { type: "compound"; value: {} } & Item_ItemStack;
+                Item: { type: "compound"; value: object } & Item_ItemStack;
                 /**
                  * If present, only the player *needs testing* with this Unique ID can pick up the item.
+                 *
+                 * @default
+                 * [high: -1, low: -1]
                  */
                 OwnerID: { type: "long"; value: [high: number, low: number] };
             };
@@ -14793,14 +15892,14 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_LlamaSpit}
          */
-        export type Entity_LlamaSpit = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
+        export type Entity_LlamaSpit = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart with chest).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithChest}
          */
-        export type Entity_MinecartWithChest = { type: "compound"; value: {} } & ActorPrefix & Component_Inventory;
+        export type Entity_MinecartWithChest = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
 
         /**
          * Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart with command block).
@@ -14815,7 +15914,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 CurrentTickCount: { type: "int"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Ticking: { type: "byte"; value: number };
             };
@@ -14826,21 +15925,21 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithHopper}
          */
-        export type Entity_MinecartWithHopper = { type: "compound"; value: {} } & ActorPrefix & Component_Inventory;
+        export type Entity_MinecartWithHopper = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
 
         /**
          * Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart with tnt).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithTNT}
          */
-        export type Entity_MinecartWithTNT = { type: "compound"; value: {} } & ActorPrefix & Component_Explode;
+        export type Entity_MinecartWithTNT = { type: "compound"; value: object } & ActorPrefix & Component_Explode;
 
         /**
          * Additional fields for [mooshroom](https://minecraft.wiki/w/mooshroom).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Mooshroom}
          */
-        export type Entity_Mooshroom = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Mooshroom = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [mule](https://minecraft.wiki/w/mule).
@@ -14867,15 +15966,15 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * (May not exist) The actions.more info
+                 * (May not exist) The actions.
                  */
                 Actions?: { type: "string"; value: string };
                 /**
-                 * (May not exist) The interactive text.more info
+                 * (May not exist) The interactive text.
                  */
                 InterativeText?: { type: "string"; value: string };
                 /**
-                 * (May not exist) Unknown
+                 * (May not exist) UNDOCUMENTED.
                  */
                 PlayerSceneMapping?: {
                     type: "list";
@@ -14887,14 +15986,14 @@ however when the corresponding block in the block layer is broken, this block ge
                              */
                             PlayerID: { type: "long"; value: [high: number, low: number] };
                             /**
-                             * Unknown
+                             * UNDOCUMENTED.
                              */
                             SceneName: { type: "string"; value: string };
                         }[];
                     };
                 };
                 /**
-                 * (May not exist) The name.more info
+                 * (May not exist) The name.
                  */
                 RawtextName?: { type: "string"; value: string };
             };
@@ -14905,7 +16004,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Ocelot}
          */
-        export type Entity_Ocelot = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Ocelot = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [painting](https://minecraft.wiki/w/painting).
@@ -14916,11 +16015,11 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * The direction the painting faces: 0 is south, 1 is west, 2 is north, 3 is east.*needs testing*
+                 * The direction the painting faces: 0 is south, 1 is west, 2 is north, 3 is east. *needs testing*
                  */
                 Dir: { type: "byte"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Direction: { type: "byte"; value: number };
                 /**
@@ -14935,35 +16034,35 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Panda}
          */
-        export type Entity_Panda = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Panda = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [pig](https://minecraft.wiki/w/pig).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pig}
          */
-        export type Entity_Pig = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Pig = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [piglin](https://minecraft.wiki/w/piglin).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Piglin}
          */
-        export type Entity_Piglin = { type: "compound"; value: {} } & ActorPrefix & Component_Inventory;
+        export type Entity_Piglin = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
 
         /**
          * Additional fields for [piglin brute](https://minecraft.wiki/w/piglin brute).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_PiglinBrute}
          */
-        export type Entity_PiglinBrute = { type: "compound"; value: {} } & ActorPrefix & Component_Home;
+        export type Entity_PiglinBrute = { type: "compound"; value: object } & ActorPrefix & Component_Home;
 
         /**
          * Additional fields for [pillager](https://minecraft.wiki/w/pillager).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pillager}
          */
-        export type Entity_Pillager = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
+        export type Entity_Pillager = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [player](https://minecraft.wiki/w/player).
@@ -15001,7 +16100,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 fogCommandStack: { type: "list"; value: { type: "string"; value: string[] } };
                 /**
@@ -15032,7 +16131,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LeftShoulderRiderID: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 MapIndex: { type: "int"; value: number };
                 /**
@@ -15048,7 +16147,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 PlayerLevelProgress: { type: "float"; value: number };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 PlayerUIItems: {
                     type: "list";
@@ -15073,7 +16172,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         unlocked_recipes: { type: "list"; value: { type: "string"; value: string[] } };
                         /**
-                         * Unknown. Defaults to 2.
+                         * UNDOCUMENTED. Defaults to 2.
                          */
                         used_contexts: { type: "int"; value: number };
                     };
@@ -15087,7 +16186,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 RightShoulderRiderID: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * The ID of the selected container.*needs testing*
+                 * The ID of the selected container. *needs testing*
                  */
                 SelectedContainerId: { type: "int"; value: number };
                 /**
@@ -15099,7 +16198,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Sleeping: { type: "byte"; value: number };
                 /**
-                 * The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0.*needs testing*
+                 * The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0. *needs testing*
                  */
                 SleepTimer: { type: "short"; value: number };
                 /**
@@ -15159,14 +16258,14 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_PolarBear}
          */
-        export type Entity_PolarBear = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_PolarBear = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [pufferfish](https://minecraft.wiki/w/pufferfish).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pufferfish}
          */
-        export type Entity_Pufferfish = { type: "compound"; value: {} } & ActorPrefix & Component_Timer;
+        export type Entity_Pufferfish = { type: "compound"; value: object } & ActorPrefix & Component_Timer;
 
         /**
          * Additional fields for [rabbit](https://minecraft.wiki/w/rabbit).
@@ -15177,11 +16276,11 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 CarrotsEaten: { type: "int"; value: number };
                 /**
-                 * Set to 40 when a carrot crop is eaten, decreases by 0–2 every tick until it reaches 0.*needs testing*
+                 * Set to 40 when a carrot crop is eaten, decreases by 0–2 every tick until it reaches 0. *needs testing*
                  */
                 MoreCarrotTicks: { type: "int"; value: number };
             };
@@ -15193,21 +16292,21 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Ravager}
          */
-        export type Entity_Ravager = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
+        export type Entity_Ravager = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [sheep](https://minecraft.wiki/w/sheep).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Sheep}
          */
-        export type Entity_Sheep = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Sheep = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker bullet).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ShulkerBullet}
          */
-        export type Entity_ShulkerBullet = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
+        export type Entity_ShulkerBullet = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [skeleton](https://minecraft.wiki/w/skeleton).
@@ -15220,7 +16319,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The item in its hand. Defaults to a bow.
                  */
-                ItemInHand: { type: "compound"; value: {} } & Item_ItemStack;
+                ItemInHand: { type: "compound"; value: object } & Item_ItemStack;
             };
         } & ActorPrefix &
             Component_Timer;
@@ -15230,7 +16329,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_SkeletonHorse}
          */
-        export type Entity_SkeletonHorse = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_SkeletonHorse = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [slime](https://minecraft.wiki/w/slime).
@@ -15252,35 +16351,35 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Sniffer}
          */
-        export type Entity_Sniffer = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Sniffer = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [snowball](https://minecraft.wiki/w/snowball).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Snowball}
          */
-        export type Entity_Snowball = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
+        export type Entity_Snowball = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [strider](https://minecraft.wiki/w/strider).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Strider}
          */
-        export type Entity_Strider = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Strider = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [tadpole](https://minecraft.wiki/w/tadpole).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Tadpole}
          */
-        export type Entity_Tadpole = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_Tadpole = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender pearl).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ThrownEnderPearl}
          */
-        export type Entity_ThrownEnderPearl = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
+        export type Entity_ThrownEnderPearl = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for thrown [potion](https://minecraft.wiki/w/potion).
@@ -15313,7 +16412,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The item that is given when the entity is picked up.
                  */
-                Trident: { type: "compound"; value: {} } & Item_ItemStack;
+                Trident: { type: "compound"; value: object } & Item_ItemStack;
             };
         } & ActorPrefix &
             Component_Projectile;
@@ -15323,7 +16422,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_TNT}
          */
-        export type Entity_TNT = { type: "compound"; value: {} } & ActorPrefix & Component_Explode;
+        export type Entity_TNT = { type: "compound"; value: object } & ActorPrefix & Component_Explode;
 
         /**
          * Additional fields for [turtle](https://minecraft.wiki/w/turtle).
@@ -15352,7 +16451,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The item in its hand. Defaults to an iron sword.
                  */
-                ItemInHand: { type: "compound"; value: {} } & Item_ItemStack;
+                ItemInHand: { type: "compound"; value: object } & Item_ItemStack;
             };
         } & ActorPrefix;
 
@@ -15369,11 +16468,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 HasResupplied: { type: "byte"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 IsInRaid: { type: "byte"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 ReactToBell: { type: "byte"; value: number };
             };
@@ -15385,7 +16484,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Vindicator}
          */
-        export type Entity_Vindicator = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
+        export type Entity_Vindicator = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [wandering trader](https://minecraft.wiki/w/wandering trader).
@@ -15401,11 +16500,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound";
                         value: {
                             /**
-                             * Unknown.
+                             * UNDOCUMENTED.
                              */
                             SpawnTimer: { type: "int"; value: number };
                             /**
-                             * Unknown.
+                             * UNDOCUMENTED.
                              */
                             StopSpawning: { type: "byte"; value: number };
                         }[];
@@ -15453,47 +16552,47 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         event: { type: "int"; value: number };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         pending: {
                             type: "compound";
                             value: {
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 distance: { type: "float"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 source: { type: "long"; value: [high: number, low: number] };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 vibration: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 x: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 y: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 z: { type: "int"; value: number };
                             };
                         };
                         /**
-                         * Unknown.
+                         * UNKNOWN.
                          */
-                        selector: { type: "compound"; value: {} };
+                        selector: { type: "compound"; value: object };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         ticks: { type: "int"; value: number };
                     };
@@ -15506,14 +16605,14 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_WindChargeProjectile}
          */
-        export type Entity_WindChargeProjectile = { type: "compound"; value: {} } & ActorPrefix & Component_Projectile;
+        export type Entity_WindChargeProjectile = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
          * Additional fields for [witch](https://minecraft.wiki/w/witch).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Witch}
          */
-        export type Entity_Witch = { type: "compound"; value: {} } & ActorPrefix & Component_Dweller;
+        export type Entity_Witch = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
          * Additional fields for [wither](https://minecraft.wiki/w/wither).
@@ -15544,7 +16643,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 lastHealthInterval: { type: "int"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 maxHealth: { type: "int"; value: number };
                 /**
@@ -15560,7 +16659,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Phase: { type: "int"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 ShieldHealth: { type: "int"; value: number };
                 /**
@@ -15579,7 +16678,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_WitherSkull}
          */
-        export type Entity_WitherSkull = { type: "compound"; value: {} } & ActorPrefix & Component_Explode;
+        export type Entity_WitherSkull = { type: "compound"; value: object } & ActorPrefix & Component_Explode;
 
         /**
          * Additional fields for [wolf](https://minecraft.wiki/w/wolf).
@@ -15618,14 +16717,14 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Zombie}
          */
-        export type Entity_Zombie = { type: "compound"; value: {} } & ActorPrefix & Component_Timer;
+        export type Entity_Zombie = { type: "compound"; value: object } & ActorPrefix & Component_Timer;
 
         /**
          * Additional fields for [zombie horse](https://minecraft.wiki/w/zombie horse).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ZombieHorse}
          */
-        export type Entity_ZombieHorse = { type: "compound"; value: {} } & ActorPrefix & Component_Ageable;
+        export type Entity_ZombieHorse = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
          * Additional fields for [zombie villager](https://minecraft.wiki/w/zombie villager).
@@ -15651,7 +16750,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Anger: { type: "short"; value: number };
             };
@@ -15708,7 +16807,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 primary: { type: "int"; value: number };
                 /**
-                 * The secondary effect selected, see [Potion effects](https://minecraft.wiki/w/Status_effect) for IDs. Set to 0 when no effect is selected. When set without a primary effect, does nothing. When set to the same as the primary, the effect is given at level 2 (the normally available behavior for 5 effects). When set to a different value than the primary (normally only Regeneration), gives the effect at level 1.*needs testing*
+                 * The secondary effect selected, see [Potion effects](https://minecraft.wiki/w/Status_effect) for IDs. Set to 0 when no effect is selected. When set without a primary effect, does nothing. When set to the same as the primary, the effect is given at level 2 (the normally available behavior for 5 effects). When set to a different value than the primary (normally only Regeneration), gives the effect at level 1. *needs testing*
                  */
                 secondary: { type: "int"; value: number };
             };
@@ -15752,7 +16851,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             /**
                              * The NBT data of the entity in the hive.
                              */
-                            SaveData: { type: "compound"; value: {} } & ActorPrefix;
+                            SaveData: { type: "compound"; value: object } & ActorPrefix;
                             /**
                              * The time in ticks until the entity leave the beehive.
                              */
@@ -15776,7 +16875,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * The direction data of this bell.more info
+                 * The direction data of this bell.
                  */
                 Direction: { type: "int"; value: number };
                 /**
@@ -15784,7 +16883,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Ringing: { type: "byte"; value: number };
                 /**
-                 * Unknown.more info
+                 * UNDOCUMENTED.
                  */
                 Ticks: { type: "int"; value: number };
             };
@@ -15836,7 +16935,7 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Block_CampfireAndSoulCampfire = {
             type: "compound";
             value: {
-                [key: `Item${bigint}`]: { type: "compound"; value: {} } & Item_ItemStack;
+                [key: `Item${bigint}`]: { type: "compound"; value: object } & Item_ItemStack;
                 [key: `ItemTime${bigint}`]: { type: "int"; value: number };
             };
         };
@@ -15931,15 +17030,15 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * (Only for Lab Table) Unknown.
+                 * (Only for Lab Table) UNDOCUMENTED.
                  */
                 itemAux: { type: "short"; value: number };
                 /**
-                 * (Only for Lab Table) Unknown.
+                 * (Only for Lab Table) UNDOCUMENTED.
                  */
                 itemId: { type: "int"; value: number };
                 /**
-                 * (Only for Lab Table) Unknown.
+                 * (Only for Lab Table) UNDOCUMENTED.
                  */
                 itemStack: { type: "byte"; value: number };
             };
@@ -15954,7 +17053,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Findable: { type: "byte"; value: number };
                 /**
@@ -15985,7 +17084,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LootTableSeed?: { type: "int"; value: number };
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNDOCUMENTED.
                  */
                 pairlead?: { type: "byte"; value: number };
                 /**
@@ -16031,7 +17130,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 auto: { type: "byte"; value: number };
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNDOCUMENTED.
                  */
                 conditionalMode?: { type: "byte"; value: number };
                 /**
@@ -16039,15 +17138,15 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 conditionMet: { type: "byte"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 LPCondionalMode: { type: "byte"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 LPRedstoneMode: { type: "byte"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 LPCommandMode: { type: "byte"; value: number };
                 /**
@@ -16132,7 +17231,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The item in the decorated pot.
                  */
-                item: { type: "compound"; value: {} } & Item_ItemStack;
+                item: { type: "compound"; value: object } & Item_ItemStack;
                 /**
                  * List of sherds on this decorated pot.
                  */
@@ -16223,7 +17322,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) The block in the pot.
                  */
-                PlantBlock?: { type: "compound"; value: {} } & Block;
+                PlantBlock?: { type: "compound"; value: object } & Block;
             };
         };
 
@@ -16244,7 +17343,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 BurnTime: { type: "short"; value: number };
                 /**
-                 * Number of ticks the item has been smelting for. The item finishes smelting when this value reaches 200 (10 seconds). Is reset to 0 if BurnTime reaches 0.*needs testing*
+                 * Number of ticks the item has been smelting for. The item finishes smelting when this value reaches 200 (10 seconds). Is reset to 0 if BurnTime reaches 0. *needs testing*
                  */
                 CookTime: { type: "short"; value: number };
                 /**
@@ -16310,7 +17409,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The items in this item frame.
                  */
-                Item: { type: "compound"; value: {} } & Item_ItemStack;
+                Item: { type: "compound"; value: object } & Item_ItemStack;
                 /**
                  * (May not exist) The chance of item dropping when the item frame is broken.
                  */
@@ -16364,7 +17463,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) The record item in it.
                  */
-                RecordItem?: { type: "compound"; value: {} } & Item_ItemStack;
+                RecordItem?: { type: "compound"; value: object } & Item_ItemStack;
             };
         };
 
@@ -16379,7 +17478,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) The book item currently on the lectern.
                  */
-                book?: { type: "compound"; value: {} } & Item_ItemStack;
+                book?: { type: "compound"; value: object } & Item_ItemStack;
                 /**
                  * 1 or 0 (true/false) - (may not exist) true if it has a book.
                  */
@@ -16415,7 +17514,7 @@ however when the corresponding block in the block layer is broken, this block ge
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_MonsterSpawner}
          */
-        export type Block_MonsterSpawner = { type: "compound"; value: {} } & MonsterSpawner;
+        export type Block_MonsterSpawner = { type: "compound"; value: object } & MonsterSpawner;
 
         /**
          * Additional fields for [moving block](https://minecraft.wiki/w/moving block).
@@ -16428,15 +17527,15 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * The main layer of moving block represented by this block entity.
                  */
-                movingBlock: { type: "compound"; value: {} } & Block;
+                movingBlock: { type: "compound"; value: object } & Block;
                 /**
                  * The [extra moving block layer](https://minecraft.wiki/w/Waterlogging) represented by this block entity.
                  */
-                movingBlockExtra: { type: "compound"; value: {} } & Block;
+                movingBlockExtra: { type: "compound"; value: object } & Block;
                 /**
                  * (May not exist) The block entity stored in this moving block.
                  */
-                movingEntity?: { type: "compound"; value: {} } & BlockEntity;
+                movingEntity?: { type: "compound"; value: object } & BlockEntity;
                 /**
                  * X coordinate of the piston base.
                  */
@@ -16512,8 +17611,16 @@ however when the corresponding block in the block layer is broken, this block ge
                 LastProgress: { type: "float"; value: number };
                 /**
                  * Next state. Can be 0 (unextended), 1 (pushing), 2 (extended), or 3 (pulling).
+                 *
+                 * @enum 0 | 1 | 2 | 3
+                 *
+                 * @enumDescriptions
+                 * - `0`: unextended
+                 * - `1`: pushing
+                 * - `2`: extended
+                 * - `3`: pulling
                  */
-                NewState: { type: "byte"; value: number };
+                NewState: { type: "byte"; value: 0 | 1 | 2 | 3 };
                 /**
                  * How far the block has been moved. Can be 0.0, 0.5, and 1.0.
                  */
@@ -16550,7 +17657,7 @@ however when the corresponding block in the block layer is broken, this block ge
                              */
                             charge: { type: "short"; value: number };
                             /**
-                             * Be 1 if the charge was spread from a sculk or sculk vein, 0 otherwise. The charge can spread to any block if this tag is 1. If it is 0, all the powers in the charge disappear when it spreads to a block not in sculk family.*needs testing*
+                             * Be 1 if the charge was spread from a sculk or sculk vein, 0 otherwise. The charge can spread to any block if this tag is 1. If it is 0, all the powers in the charge disappear when it spreads to a block not in sculk family. *needs testing*
                              */
                             decay: { type: "short"; value: number };
                             /**
@@ -16558,7 +17665,7 @@ however when the corresponding block in the block layer is broken, this block ge
                              */
                             facing: { type: "short"; value: number };
                             /**
-                             * Delay in ticks until the charge begins to travel after being created.*needs testing*
+                             * Delay in ticks until the charge begins to travel after being created. *needs testing*
                              */
                             update: { type: "short"; value: number };
                             /**
@@ -16594,47 +17701,47 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         event: { type: "int"; value: number };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         pending: {
                             type: "compound";
                             value: {
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 distance: { type: "float"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 source: { type: "long"; value: [high: number, low: number] };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 vibration: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 x: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 y: { type: "int"; value: number };
                                 /**
-                                 * Unknown.
+                                 * UNDOCUMENTED.
                                  */
                                 z: { type: "int"; value: number };
                             };
                         };
                         /**
-                         * Unknown.
+                         * UNKNOWN.
                          */
-                        selector: { type: "compound"; value: {} };
+                        selector: { type: "compound"; value: object };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         ticks: { type: "int"; value: number };
                     };
@@ -16651,7 +17758,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * The facing of this shulker box.more info
+                 * The facing of this shulker box.
                  */
                 facing: { type: "float"; value: number };
             };
@@ -16668,7 +17775,35 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * A compound which discribes back text. The same structure as FrontText.
                  */
-                BackText: { type: "compound"; value: {} };
+                BackText: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * 1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.
+                         */
+                        HideGlowOutline: { type: "byte"; value: number };
+                        /**
+                         * 1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow ink sac).
+                         */
+                        IgnoreLighting: { type: "byte"; value: number };
+                        /**
+                         * UNDOCUMENTED. Defaults to 1.
+                         */
+                        PersistFormatting: { type: "byte"; value: number };
+                        /**
+                         * The color that has been used to dye the sign. Is a 32-bit encoded color, defaults to `-16777216` (black). One of `-986896` for "White", `-425955` for "Orange", `-3715395` for "Magenta", `-12930086` for "Light Blue", `-75715` for "Yellow", `-8337633` for "Lime", `-816214` for "Pink", `-12103854` for "Gray", `-6447721` for "Light Gray", `-15295332` for "Cyan", `-7785800` for "Purple", `-12827478` for "Blue", `-8170446` for "Brown", `-10585066` for "Green", `-5231066` for "Red", and `-16777216` for "Black".
+                         */
+                        SignTextColor: { type: "int"; value: number };
+                        /**
+                         * The text on it.
+                         */
+                        Text: { type: "string"; value: string };
+                        /**
+                         * UNDOCUMENTED.
+                         */
+                        TextOwner: { type: "string"; value: string };
+                    };
+                };
                 /**
                  * A compound which discribes front text.
                  */
@@ -16684,7 +17819,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         IgnoreLighting: { type: "byte"; value: number };
                         /**
-                         * Unknown. Defaults to 1.
+                         * UNDOCUMENTED. Defaults to 1.
                          */
                         PersistFormatting: { type: "byte"; value: number };
                         /**
@@ -16696,7 +17831,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         Text: { type: "string"; value: string };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         TextOwner: { type: "string"; value: string };
                     };
@@ -16721,11 +17856,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 MouthMoving: { type: "byte"; value: number };
                 /**
-                 * The animation frame of the dragon head's mouth movement.*needs testing*
+                 * The animation frame of the dragon head's mouth movement. *needs testing*
                  */
                 MouthTickCount: { type: "int"; value: number };
                 /**
-                 * The rotation of this skull.more info
+                 * The rotation of this skull.
                  */
                 Rotation: { type: "float"; value: number };
             };
@@ -16740,11 +17875,11 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * The mode of animation.more info
+                 * The mode of animation.
                  */
                 animationMode: { type: "byte"; value: number };
                 /**
-                 * The duration of the animation.more info
+                 * The duration of the animation.
                  */
                 animationSeconds: { type: "float"; value: number };
                 /**
@@ -16752,7 +17887,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 data: { type: "int"; value: number };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 dataField: { type: "string"; value: string };
                 /**
@@ -16768,11 +17903,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 isPowered: { type: "byte"; value: number };
                 /**
-                 * How the structure is mirrored.more info
+                 * How the structure is mirrored.
                  */
                 mirror: { type: "byte"; value: number };
                 /**
-                 * The current redstone mode of this structure block.more info
+                 * The current redstone mode of this structure block.
                  */
                 redstoneSaveMode: { type: "int"; value: number };
                 /**
@@ -16780,11 +17915,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 removeBlocks: { type: "byte"; value: number };
                 /**
-                 * Rotation of the structure.more info
+                 * Rotation of the structure.
                  */
                 rotation: { type: "byte"; value: number };
                 /**
-                 * The seed to use for the structure integrity, 0 means random.*needs testing*
+                 * The seed to use for the structure integrity, 0 means random. *needs testing*
                  */
                 seed: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -16841,7 +17976,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) The item in the suspicious block.
                  */
-                item?: { type: "compound"; value: {} } & Item_ItemStack;
+                item?: { type: "compound"; value: object } & Item_ItemStack;
                 /**
                  * (May not exist) Loot table to be used to generate the hidden item when brushed.
                  */
@@ -16954,7 +18089,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * Optional, defaults to normal_config. When individual entries are omitted, they also default to their setting in normal_config. &mdash; The configuration to use when ominous.
                  */
-                ominous_config: { type: "compound"; value: {} };
+                ominous_config: { type: "compound"; value: object };
                 /**
                  * A set of player UUIDs. &mdash; All the players that have joined the battle. The length of this array determines the amount of mobs and amount of reward.
                  */
@@ -17000,7 +18135,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         Weight: { type: "int"; value: number };
                         /**
@@ -17053,7 +18188,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         /**
                          * The key item that is used to check for valid keys. Defaults to `minecraft:trial_key` for _normal_ vaults and `minecraft:ominous_trial_key` for _ominous_ vaults.
                          */
-                        key_item: { type: "compound"; value: {} } & Item_ItemStack;
+                        key_item: { type: "compound"; value: object } & Item_ItemStack;
                     };
                 };
                 /**
@@ -17065,7 +18200,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         /**
                          * The item that is currently being displayed.
                          */
-                        display_item: { type: "compound"; value: {} } & Item_ItemStack;
+                        display_item: { type: "compound"; value: object } & Item_ItemStack;
                         /**
                          * List of item stacks that have been rolled by the loot table and are waiting to be ejected.
                          */
@@ -17098,7 +18233,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) What block is placed when placing a block item.
                  */
-                Block?: { type: "compound"; value: {} } & Block;
+                Block?: { type: "compound"; value: object } & Block;
                 /**
                  * (May not exist) Controls what block types this item can destroy.
                  */
@@ -17122,9 +18257,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 /**
                  * (May not exist) Additional information about the item.
                  */
-                tag?: { type: "compound"; value: {} };
+                tag?: { type: "compound"; value: object };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 WasPickedUp: { type: "byte"; value: number };
             };
@@ -17229,7 +18364,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         CustomName?: { type: "string"; value: string };
                         /**
-                         * (May not exist) Unknown. Used to generate the bucket item's name.
+                         * (May not exist) UNDOCUMENTED. Used to generate the bucket item's name.
                          */
                         GroupName?: { type: "string"; value: string };
                     };
@@ -17251,7 +18386,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         /**
                          * The items this crossbow has charged.
                          */
-                        chargedItem: { type: "compound"; value: {} } & Item_ItemStack;
+                        chargedItem: { type: "compound"; value: object } & Item_ItemStack;
                     };
                 };
             };
@@ -17273,11 +18408,11 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         map_display_players: { type: "byte"; value: number };
                         /**
-                         * (May not exist) Unknown.
+                         * (May not exist) UNDOCUMENTED.
                          */
                         map_is_init?: { type: "byte"; value: number };
                         /**
-                         * (May not exist) Unknown.
+                         * (May not exist) UNDOCUMENTED.
                          */
                         map_is_scaling?: { type: "byte"; value: number };
                         /**
@@ -17285,7 +18420,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         map_name_index: { type: "int"; value: number };
                         /**
-                         * (May not exist) Unknown.
+                         * (May not exist) UNDOCUMENTED.
                          */
                         map_scale?: { type: "int"; value: number };
                         /**
@@ -17344,7 +18479,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         /**
                          * The explosion effect contributed by this firework star.
                          */
-                        FireworksItem: { type: "compound"; value: {} } & FireworkExplosion;
+                        FireworksItem: { type: "compound"; value: object } & FireworkExplosion;
                     };
                 };
             };
@@ -17359,7 +18494,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNDOCUMENTED.
                  */
                 active_time?: { type: "long"; value: [high: number, low: number] };
             };
@@ -17507,7 +18642,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         title: { type: "string"; value: string };
                         /**
-                         * Unknown.
+                         * UNDOCUMENTED.
                          */
                         xuid: { type: "long"; value: [high: number, low: number] };
                     };
@@ -17524,7 +18659,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 Riches: { type: "int"; value: number };
                 /**
@@ -17544,15 +18679,15 @@ however when the corresponding block in the block layer is broken, this block ge
                                     /**
                                      * The first 'cost' item.
                                      */
-                                    buyA: { type: "compound"; value: {} } & Item_ItemStack;
+                                    buyA: { type: "compound"; value: object } & Item_ItemStack;
                                     /**
                                      * (May not exist) The second 'cost' item
                                      */
-                                    buyB?: { type: "compound"; value: {} } & Item_ItemStack;
+                                    buyB?: { type: "compound"; value: object } & Item_ItemStack;
                                     /**
                                      * The item being sold for each set of cost items.
                                      */
-                                    sell: { type: "compound"; value: {} } & Item_ItemStack;
+                                    sell: { type: "compound"; value: object } & Item_ItemStack;
                                     /**
                                      * The tier that the trader needs to reach to access this recipe.
                                      */
@@ -17562,7 +18697,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                      */
                                     uses: { type: "int"; value: number };
                                     /**
-                                     * The maximum number of times this trade can be used before it is disabled. Increases by a random amount from 2 to 12 when offers are refreshed.*needs testing*
+                                     * The maximum number of times this trade can be used before it is disabled. Increases by a random amount from 2 to 12 when offers are refreshed. *needs testing*
                                      */
                                     maxUses: { type: "int"; value: number };
                                     /**
@@ -17614,7 +18749,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * (May not exist) Unknown.
+                 * (May not exist) UNDOCUMENTED.
                  */
                 ConvertedFromVillagerV1?: { type: "byte"; value: number };
                 /**
@@ -17672,7 +18807,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ballon_max_height: { type: "float"; value: number };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 ballon_should_drop: { type: "byte"; value: number };
             };
@@ -17710,7 +18845,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LoveCause: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 BreedCooldown: { type: "int"; value: number };
             };
@@ -17725,7 +18860,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown<!--Time in ticks before the Entity can be bribed again.*needs testing*-->
+                 * Time in ticks before the Entity can be bribed again. *needs testing*
                  */
                 BribeTime: { type: "int"; value: number };
             };
@@ -17775,7 +18910,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 DamageTime: { type: "short"; value: number };
             };
@@ -17809,15 +18944,15 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 DwellingUniqueID: { type: "string"; value: string };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 RewardPlayersOnFirstFounding: { type: "byte"; value: number };
                 /**
-                 * (May not exist) Unknown
+                 * (May not exist) UNDOCUMENTED.
                  */
                 PreferredProfession?: { type: "string"; value: string };
             };
@@ -17860,11 +18995,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound";
                         value: {
                             /**
-                             * the hidden allele.more info
+                             * the hidden allele.
                              */
                             HiddenAllele: { type: "int"; value: number };
                             /**
-                             * the main allele.more info
+                             * the main allele.
                              */
                             MainAllele: { type: "int"; value: number };
                         }[];
@@ -17916,27 +19051,27 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 sizeOfTradeFirstTimeVector: { type: "int"; value: number };
                 /**
-                 * (May not exist) Unknown
+                 * (May not exist) UNDOCUMENTED.
                  */
                 FirstTimeTrade?: { type: "int"; value: number };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 TradeTier: { type: "int"; value: number };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 Riches: { type: "int"; value: number };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 Willing: { type: "byte"; value: number };
                 /**
-                 * (May not exist) Unknown
+                 * (May not exist) UNDOCUMENTED.
                  */
                 Offers?: {
                     type: "list";
@@ -17983,19 +19118,19 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * (May not exist) The name.more info
+                 * (May not exist) The name.
                  */
                 RawtextName?: { type: "string"; value: string };
                 /**
-                 * (May not exist) The interactive text.more info
+                 * (May not exist) The interactive text.
                  */
                 InteractiveText?: { type: "string"; value: string };
                 /**
-                 * (May not exist) The actions.more info
+                 * (May not exist) The actions.
                  */
                 Actions?: { type: "string"; value: string };
                 /**
-                 * (May not exist) Unknown
+                 * (May not exist) UNDOCUMENTED.
                  */
                 PlayerSceneMapping?: {
                     type: "list";
@@ -18007,7 +19142,7 @@ however when the corresponding block in the block layer is broken, this block ge
                              */
                             PlayerID: { type: "long"; value: [high: number, low: number] };
                             /**
-                             * Unknown
+                             * UNDOCUMENTED.
                              */
                             SceneName: { type: "string"; value: string };
                         }[];
@@ -18029,11 +19164,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 TargetID: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 StuckToBlockPos: { type: "list"; value: { type: "int"; value: [number, number, number] } };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 CollisionPos: { type: "list"; value: { type: "float"; value: [number, number, number] } };
             };
@@ -18053,11 +19188,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound";
                         value: {
                             /**
-                             * Unknown
+                             * UNDOCUMENTED.
                              */
                             SpawnTimer: { type: "int"; value: number };
                             /**
-                             * Unknown
+                             * UNDOCUMENTED.
                              */
                             StopSpawning: { type: "byte"; value: number };
                         }[];
@@ -18075,15 +19210,15 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 TimeStamp: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 HasExecuted: { type: "byte"; value: number };
                 /**
-                 * Deprecated. Unknown
+                 * Deprecated. UNDOCUMENTED.
                  */
                 CountTime: { type: "int"; value: number };
             };
@@ -18098,7 +19233,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 HasResupplied: { type: "byte"; value: number };
             };
@@ -18130,7 +19265,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 Ticking: { type: "byte"; value: number };
                 /**
@@ -18149,7 +19284,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 fogCommandStack: { type: "list"; value: { type: "string"; value: string[] } };
             };
@@ -18164,11 +19299,11 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 IsInRaid: { type: "byte"; value: number };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 ReactToBell: { type: "byte"; value: number };
             };
@@ -18267,7 +19402,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 fogCommandStack: { type: "list"; value: { type: "string"; value: string[] } };
                 /**
@@ -18298,7 +19433,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LeftShoulderRiderID: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * Unknown.
+                 * UNDOCUMENTED.
                  */
                 MapIndex: { type: "int"; value: number };
                 /**
@@ -18314,7 +19449,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 PlayerLevelProgress: { type: "float"; value: number };
                 /**
-                 * Unknown
+                 * UNDOCUMENTED.
                  */
                 PlayerUIItems: {
                     type: "list";
@@ -18339,7 +19474,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         unlocked_recipes: { type: "list"; value: { type: "string"; value: string[] } };
                         /**
-                         * Unknown. Defaults to 2.
+                         * UNDOCUMENTED. Defaults to 2.
                          */
                         used_contexts: { type: "int"; value: number };
                     };
@@ -18353,7 +19488,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 RightShoulderRiderID: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * The ID of the selected container.*needs testing*
+                 * The ID of the selected container. *needs testing*
                  */
                 SelectedContainerId: { type: "int"; value: number };
                 /**
@@ -18365,7 +19500,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Sleeping: { type: "byte"; value: number };
                 /**
-                 * The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0.*needs testing*
+                 * The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0. *needs testing*
                  */
                 SleepTimer: { type: "short"; value: number };
                 /**
@@ -18432,8 +19567,22 @@ however when the corresponding block in the block layer is broken, this block ge
             value: {
                 Dimension: { type: "int"; value: number };
                 EntityId?: { type: "long"; value: [high: number, low: number] };
-                IsAlwaysActive?: { type: "byte"; value: number };
-                IsCircle: { type: "byte"; value: number };
+                /**
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                IsAlwaysActive?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                IsCircle: { type: "byte"; value: 0 | 1 };
                 MaxDistToPlayers?: { type: "float"; value: number };
                 MaxX: { type: "int"; value: number };
                 MaxZ: { type: "int"; value: number };
@@ -18444,7 +19593,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  * ""
                  */
                 Name: { type: "string"; value: string };
-                Preload?: { type: "byte"; value: number };
+                /**
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                Preload?: { type: "byte"; value: 0 | 1 };
             };
         };
 
@@ -18458,19 +19614,38 @@ however when the corresponding block in the block layer is broken, this block ge
         export type VILLAGE_DWELLERS = {
             type: "compound";
             value: {
-                Dwellers?: {
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Dwellers: {
                     type: "list";
                     value: {
                         type: "compound";
                         value: {
+                            /**
+                             * UNDOCUMENTED.
+                             */
                             actors?: {
                                 type: "list";
                                 value: {
                                     type: "compound";
                                     value: {
-                                        ID?: { type: "long"; value: [high: number, low: number] };
-                                        last_saved_pos?: { type: "list"; value: { type: "int"; value: [number, number, number] } };
-                                        TS?: { type: "long"; value: [high: number, low: number] };
+                                        /**
+                                         * UNDOCUMENTED.
+                                         */
+                                        ID: { type: "long"; value: [high: number, low: number] };
+                                        /**
+                                         * UNDOCUMENTED.
+                                         */
+                                        last_saved_pos: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                        /**
+                                         * UNDOCUMENTED.
+                                         */
+                                        TS: { type: "long"; value: [high: number, low: number] };
+                                        /**
+                                         * UNDOCUMENTED.
+                                         */
+                                        last_worked?: { type: "long"; value: [high: number, low: number] };
                                     }[];
                                 };
                             };
@@ -18490,25 +19665,88 @@ however when the corresponding block in the block layer is broken, this block ge
         export type VILLAGE_INFO = {
             type: "compound";
             value: {
-                BDTime?: { type: "long"; value: [high: number, low: number] };
-                GDTime?: { type: "long"; value: [high: number, low: number] };
-                Initialized?: { type: "byte"; value: number };
-                MTick?: { type: "long"; value: [high: number, low: number] };
-                PDTick?: { type: "long"; value: [high: number, low: number] };
-                RX0?: { type: "int"; value: number };
-                RX1?: { type: "int"; value: number };
-                RY0?: { type: "int"; value: number };
-                RY1?: { type: "int"; value: number };
-                RZ0?: { type: "int"; value: number };
-                RZ1?: { type: "int"; value: number };
-                Tick?: { type: "long"; value: [high: number, low: number] };
-                Version?: { type: "byte"; value: number };
-                X0?: { type: "int"; value: number };
-                X1?: { type: "int"; value: number };
-                Y0?: { type: "int"; value: number };
-                Y1?: { type: "int"; value: number };
-                Z0?: { type: "int"; value: number };
-                Z1?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                BDTime: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                GDTime: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                Initialized: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                MTick: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                PDTick: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RX0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RX1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RY0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RY1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RZ0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                RZ1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Tick: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Version: { type: "byte"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                X0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                X1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Y0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Y1: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Z0: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                Z1: { type: "int"; value: number };
             };
         };
 
@@ -18522,7 +19760,10 @@ however when the corresponding block in the block layer is broken, this block ge
         export type VILLAGE_PLAYERS = {
             type: "compound";
             value: {
-                Players?: {
+                /**
+                 * UNKNOWN.
+                 */
+                Players: {
                     type: "list";
                     value: (
                         | { type: "byte"; value: number[] }
@@ -18553,33 +19794,33 @@ however when the corresponding block in the block layer is broken, this block ge
         export type VILLAGE_POI = {
             type: "compound";
             value: {
-                POI?: {
+                POI: {
                     type: "list";
                     value: {
                         type: "compound";
                         value: {
-                            instances?: {
+                            VillagerID: { type: "long"; value: [high: number, low: number] };
+                            instances: {
                                 type: "list";
                                 value: {
                                     type: "compound";
                                     value: {
-                                        Capacity?: { type: "long"; value: [high: number, low: number] };
-                                        InitEvent?: { type: "string"; value: string };
-                                        Name?: { type: "string"; value: string };
-                                        OwnerCount?: { type: "long"; value: [high: number, low: number] };
-                                        Radius?: { type: "float"; value: number };
-                                        Skip?: { type: "byte"; value: number };
-                                        SoundEvent?: { type: "string"; value: string };
-                                        Type?: { type: "int"; value: number };
-                                        UseAABB?: { type: "byte"; value: number };
-                                        Weight?: { type: "long"; value: [high: number, low: number] };
-                                        X?: { type: "int"; value: number };
-                                        Y?: { type: "int"; value: number };
-                                        Z?: { type: "int"; value: number };
+                                        Capacity: { type: "long"; value: [high: number, low: number] };
+                                        InitEvent: { type: "string"; value: string };
+                                        Name: { type: "string"; value: string };
+                                        OwnerCount: { type: "long"; value: [high: number, low: number] };
+                                        Radius: { type: "float"; value: number };
+                                        Skip: { type: "byte"; value: number };
+                                        SoundEvent: { type: "string"; value: string };
+                                        Type: { type: "int"; value: number };
+                                        UseAABB: { type: "byte"; value: number };
+                                        Weight: { type: "long"; value: [high: number, low: number] };
+                                        X: { type: "int"; value: number };
+                                        Y: { type: "int"; value: number };
+                                        Z: { type: "int"; value: number };
                                     }[];
                                 };
                             };
-                            VillagerID?: { type: "long"; value: [high: number, low: number] };
                         }[];
                     };
                 };

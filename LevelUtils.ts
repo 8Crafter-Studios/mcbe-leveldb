@@ -441,9 +441,10 @@ export const DBEntryContentTypes = [
     "HardcodedSpawners",
     "RandomTicks",
     "Checksums",
-    "MetaDataHash",
+    "GenerationSeed",
     "GeneratedPreCavesAndCliffsBlending",
     "BlendingBiomeHeight",
+    "MetaDataHash",
     "BlendingData",
     "ActorDigestVersion",
     "LegacyVersion",
@@ -453,6 +454,7 @@ export const DBEntryContentTypes = [
     "VillageInfo",
     "VillagePOI",
     "VillagePlayers",
+    "VillageRaid",
     // Standalone
     "Player",
     "PlayerClient",
@@ -465,10 +467,17 @@ export const DBEntryContentTypes = [
     "StructureTemplate",
     "TickingArea",
     "FlatWorldLayers",
+    "LegacyDimension",
+    "MVillages",
+    "Villages",
+    "LevelSpawnWasFixed",
+    "PositionTrackingDB",
+    "PositionTrackingLastId",
     "Scoreboard",
     "Dimension",
     "AutonomousEntities",
     "BiomeData",
+    "BiomeIdsTable",
     "MobEvents",
     "DynamicProperties",
     "LevelChunkMetaDataDictionary",
@@ -479,6 +488,10 @@ export const DBEntryContentTypes = [
     // Misc.
     "Unknown",
 ] as const;
+
+// TODO: Look into the supposed `idcounts` LevelDB key that was supposedly in MCPE v0.13.0.
+// TODO: Add support for the LegacyPlayer content type which is based on a number stored in `cilentid.txt`.
+// TODO: Look into if LegacyVillageManager (may just be another name for MVillages, key is allegedly `VillageManager`) is a real content type.
 
 /**
  * The content type to format mapping for LevelDB entries.
@@ -666,6 +679,8 @@ export const entryContentTypeToFormatMap = {
              * The version of the SubChunkPrefix.
              *
              * Should be `0x08` (1.2.13 <= x < 1.18.0) or `0x09` (1.18.0 <= x).
+             *
+             * @todo Add handling for `0x00` (found in a Windows 10 Edition Beta v0.15.0 world).
              */
             const version: 0x08 | 0x09 = data[currentOffset++]! as any;
             if (![0x08, 0x09].includes(version)) throw new Error(`Unknown SubChunkPrefix version: ${version}`);
@@ -1043,9 +1058,11 @@ export const entryContentTypeToFormatMap = {
         type: "unknown",
     },
     /**
-     * @todo Check if this still exists.
+     * Bounding boxes for structure spawns, such as a Nether Fortress or Pillager Outpost.
+     *
+     * @deprecated Replaced with {@link AABBVolumes} in either 1.21.120 or one of the 1.21.120 previews.
+     *
      * @todo Figure out how to parse this.
-     * @todo Add a description for this.
      */
     HardcodedSpawners: {
         /**
@@ -1066,23 +1083,38 @@ export const entryContentTypeToFormatMap = {
         // TO-DO: Add a default value for this.
     },
     /**
-     * @deprecated Only used in versions < 1.18.0.
+     * The low segment of the 4 byte halves of the seed value used to generate the chunk.
      *
-     * @todo Figure out how to parse this.
-     * @todo Add a description for this.
+     * The low segment can also be found by reading the first 4 bytes of the seed as a little-endian signed integer when it is encoded as a little-endian 64-bit signed integer.
+     *
+     * @todo Check if this still exists (I have only seen it in a world from a 1.19.60.22 dev build).
      */
-    Checksums: {
+    GenerationSeed: {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "int",
+        /**
+         * How many bytes this integer is.
+         */
+        bytes: 4,
+        /**
+         * The endianness of the data.
+         */
+        format: "LE",
+        /**
+         * The signedness of the data.
+         */
+        signed: true,
     },
     /**
-     * @todo Check if this still exists.
+     * xxHash64 checksums of `SubchunkBlocks`, `BlockEntities`, `Entities`, and `Data2D` values.
+     *
+     * @deprecated Only used in versions < 1.18.0.
+     *
      * @todo Figure out how to parse this.
-     * @todo Add a description for this.
      */
-    MetaDataHash: {
+    Checksums: {
         /**
          * The format type of the data.
          */
@@ -1105,6 +1137,19 @@ export const entryContentTypeToFormatMap = {
      * @todo Add a description for this.
      */
     BlendingBiomeHeight: {
+        /**
+         * The format type of the data.
+         */
+        type: "unknown",
+    },
+    /**
+     * A hash which is the key in the `LevelChunkMetaDataDictionary` record
+     * for the NBT metadata of this chunk. Seems like it might default to something dependent
+     * on the current game or chunk version.
+     *
+     * @todo Figure out how to parse this.
+     */
+    MetaDataHash: {
         /**
          * The format type of the data.
          */
@@ -1156,6 +1201,30 @@ export const entryContentTypeToFormatMap = {
         signed: false,
     },
     /**
+     * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
+     *
+     * @todo Add a schema for this.
+     * @todo Add a description for this.
+     */
+    MVillages: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @deprecated It is unknown when this was removed.
+     *
+     * @todo Add a schema for this.
+     * @todo Add a description for this.
+     */
+    Villages: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
      * @see {@link NBTSchemas.nbtSchemas.VillageDwellers}
      *
      * @todo Add a description for this.
@@ -1194,6 +1263,17 @@ export const entryContentTypeToFormatMap = {
      * @todo Add a description for this.
      */
     VillagePlayers: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @see {@link NBTSchemas.nbtSchemas.VillageRaid}
+     *
+     * @todo Add a description for this.
+     */
+    VillageRaid: {
         /**
          * The format type of the data.
          */
@@ -1385,11 +1465,65 @@ export const entryContentTypeToFormatMap = {
         type: "ASCII",
     },
     /**
+     * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
+     *
+     * @todo Add a description for this.
+     */
+    LevelSpawnWasFixed: {
+        /**
+         * The format type of the data.
+         */
+        type: "UTF-8",
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Value:
+         * ```typescript
+         * Buffer.from("True", "utf-8")
+         * ```
+         */
+        defaultValue: Buffer.from("True", "utf-8"),
+    },
+    /**
+     * Stores the location of a lodestone compass.
+     *
+     * @todo Add a schema for this.
+     */
+    PositionTrackingDB: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The last ID used for a lodestone compass.
+     *
+     * @todo Add a schema for this.
+     */
+    PositionTrackingLastId: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
      * The scoreboard data (ex. from the [`/scoreboard`](https://minecraft.wiki/w/Commands/scoreboard) command).
      *
      * @see {@link NBTSchemas.nbtSchemas.Scoreboard}
      */
     Scoreboard: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
+     *
+     * @todo Add a schema for this.
+     * @todo Add a description for this.
+     */
+    LegacyDimension: {
         /**
          * The format type of the data.
          */
@@ -1424,6 +1558,17 @@ export const entryContentTypeToFormatMap = {
      * @see {@link NBTSchemas.nbtSchemas.BiomeData}
      */
     BiomeData: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The content type of the `BiomeIdsTable` LevelDB key, which stores the numeric ID mappings for custom biomes.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.BiomeIdsTable}
+     */
+    BiomeIdsTable: {
         /**
          * The format type of the data.
          */
@@ -1509,8 +1654,11 @@ export const entryContentTypeToFormatMap = {
         rawFileExtension: "dat",
     },
     /**
+     * Bounding boxes for structures, including structure spawns (such as a Pillager Outpost)
+     * and volumes where mobs cannot spawn through the normal biome-based means (such as
+     * Trial Chambers).
+     *
      * @todo Figure out how to parse this.
-     * @todo Add a description for this.
      */
     AABBVolumes: {
         /**
@@ -1539,11 +1687,14 @@ export const entryContentTypeToFormatMap = {
         defaultValue: NBT.writeUncompressed({ name: "", type: "compound", value: {} }, "little"),
     },
     /**
-     * @todo Figure out what the little bits of data before each of the NBT data chunks are, and what the 4 bytes at the very beginning are.
-     * @todo Add a description for this.
+     * Stores the NBT metadata of all chunks. Maps the xxHash64 hash of NBT data
+     * to that NBT data, so that each chunk need only store 8 bytes instead of the entire
+     * NBT; most chunks have the same metadata.
+     *
+     * The first 4 bytes represent the number of entries as a 32-bit little-endian integer (it is unknown if it is signed or not).
      *
      * `Array.from(data).reduce((a, b, i, ar)=>[...a, ...(Array.from(Buffer.from("0a000008", "hex")).every((v, ib)=>v === ar[i + ib]) ? [i] : [])], [])`
-     * 
+     *
      * This seems to be 4 bytes, followed by multiple chunks of data formatted as 8 bytes plus an NBT compound.
      * ```
      * {BYTEx4}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}
@@ -1558,7 +1709,7 @@ export const entryContentTypeToFormatMap = {
      *     i += parsedData.metadata.size;
      * }
      * ```
-     * 
+     *
      * Example first 4 bytes:
      * ```json
      * {
@@ -1677,7 +1828,47 @@ export const entryContentTypeToFormatMap = {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        resultType: "JSONNBT",
+        // TODO: Make an NBT schema for the `LevelChunkMetaDataDictionary` format and use it as the return type here.
+        async parse(data: Buffer): Promise<{
+            type: "compound";
+            value: {
+                // TEMP: This `NBT.NBT` value type is just a placeholder until the NBT schema is made.
+                [hashHex: string]: NBT.NBT;
+            };
+        }> {
+            const parsedData: Record<string, NBT.NBT> = {};
+            for (let i = 12; i < data.length; i += 8) {
+                const hash = data.subarray(i - 8, i);
+                // TODO: Figure out how to use parseUncompressed in this situation to make it sync while still being able to get the size offset.
+                const parsed = await NBT.parse(data.subarray(i), "little");
+                // parsedData.push([data.slice(i - 8, i), parsed]);
+                parsedData[hash.toString("hex")] = parsed.parsed;
+                i += parsed.metadata.size;
+            }
+            return { type: "compound", value: parsedData };
+        },
+        serialize(data: {
+            type: "compound";
+            value: {
+                // TEMP: This `NBT.NBT | NBT.Compound` value type is just a placeholder until the NBT schema is made.
+                [hashHex: string]: NBT.NBT | NBT.Compound;
+            };
+        }): Buffer<ArrayBuffer> {
+            // TODO: Find a way to properly hash the NBT data, since the `xxhashjs` and `xxhash-wasm` modules don't match up with the hashes generated by the game.
+            const entryCountBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
+            entryCountBuffer.writeUInt32LE(Object.keys(data.value).length, 0);
+            const dataBuffers: Buffer[] = [entryCountBuffer];
+            for (const [hashHex, value] of Object.entries(data.value)) {
+                if (!/^[0-9a-f]{16}$/i.test(hashHex)) throw new TypeError(`Invalid hash: ${hashHex}`);
+                const hash: Buffer<ArrayBuffer> = Buffer.from(hashHex, "hex");
+                const nbtBuffer: Buffer = NBT.writeUncompressed({ name: "", ...value }, "little");
+                dataBuffers.push(hash);
+                dataBuffers.push(nbtBuffer);
+            }
+            return Buffer.concat(dataBuffers);
+        },
     },
     /**
      * @todo Figure out how to parse this. (It seems that each one just has a value of 1 (`0x31`). It also seems that the data is actually based on the key, which has an id that can be used with the realms API to get the corresponding data.)
@@ -2104,9 +2295,10 @@ export type DBChunkKeyEntryContentType =
     | "HardcodedSpawners"
     | "RandomTicks"
     | "Checksums"
-    | "MetaDataHash"
+    | "GenerationSeed"
     | "GeneratedPreCavesAndCliffsBlending"
     | "BlendingBiomeHeight"
+    | "MetaDataHash"
     | "BlendingData"
     | "ActorDigestVersion"
     | "LegacyVersion"
@@ -2449,11 +2641,13 @@ function getIntFromChunkKeyType(chunkKeyType: DBChunkKeyEntryContentType): numbe
             return 0x3a;
         case "Checksums":
             return 0x3b;
-        case "MetaDataHash":
-            return 0x3d;
+        case "GenerationSeed":
+            return 0x3c;
         case "GeneratedPreCavesAndCliffsBlending":
-            return 0x3e;
+            return 0x3d;
         case "BlendingBiomeHeight":
+            return 0x3e;
+        case "MetaDataHash":
             return 0x3f;
         case "BlendingData":
             return 0x40;
@@ -2492,9 +2686,10 @@ export function getKeyDisplayName(key: Buffer): string {
         case "HardcodedSpawners":
         case "RandomTicks":
         case "Checksums":
-        case "MetaDataHash":
+        case "GenerationSeed":
         case "GeneratedPreCavesAndCliffsBlending":
         case "BlendingBiomeHeight":
+        case "MetaDataHash":
         case "BlendingData":
         case "ActorDigestVersion":
         case "LegacyVersion":
@@ -2513,15 +2708,21 @@ export function getKeyDisplayName(key: Buffer): string {
         }
         case "AutonomousEntities":
         case "BiomeData":
+        case "BiomeIdsTable":
         case "ChunkLoadedRequest":
         case "Dimension":
         case "DynamicProperties":
         case "FlatWorldLayers":
         case "ForcedWorldCorruption":
+        case "LegacyDimension":
         case "LevelChunkMetaDataDictionary":
         case "LevelDat":
+        case "LevelSpawnWasFixed":
+        case "PositionTrackingDB":
+        case "PositionTrackingLastId":
         case "Map":
         case "MobEvents":
+        case "MVillages":
         case "Player":
         case "PlayerClient":
         case "Portals":
@@ -2534,6 +2735,8 @@ export function getKeyDisplayName(key: Buffer): string {
         case "VillageInfo":
         case "VillagePOI":
         case "VillagePlayers":
+        case "VillageRaid":
+        case "Villages":
         case "Unknown":
         default:
             return key.toString("binary");
@@ -2583,12 +2786,14 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
                 return "RandomTicks";
             case 0x3b:
                 return "Checksums";
+            case 0x3c:
+                return "GenerationSeed";
             case 0x3d:
-                return "MetaDataHash";
-            case 0x3e:
                 return "GeneratedPreCavesAndCliffsBlending";
-            case 0x3f:
+            case 0x3e:
                 return "BlendingBiomeHeight";
+            case 0x3f:
+                return "MetaDataHash";
             case 0x40:
                 return "BlendingData";
             case 0x41:
@@ -2613,8 +2818,12 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "MobEvents";
         case "BiomeData":
             return "BiomeData";
+        case "BiomeIdsTable":
+            return "BiomeIdsTable";
         case "AutonomousEntities":
             return "AutonomousEntities";
+        case "PositionTrackDB-LastId":
+            return "PositionTrackingLastId";
         case "scoreboard":
             return "Scoreboard";
         case "schedulerWT":
@@ -2630,8 +2839,20 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
         case "SST_WORD_":
         case "DedicatedServerForcedCorruption":
             return "ForcedWorldCorruption";
+        case "dimension0":
+        case "dimension1":
+        case "dimension2":
+            return "LegacyDimension";
+        case "mVillages":
+            return "MVillages";
+        case "villages":
+            return "Villages";
+        case "LevelSpawnWasFixed":
+            return "LevelSpawnWasFixed";
     }
     switch (true) {
+        case stringKey.startsWith("PosTrackDB-0x"):
+            return "PositionTrackingDB";
         case stringKey.startsWith("actorprefix"):
             return "ActorPrefix";
         case stringKey.startsWith("structuretemplate"):
@@ -2660,12 +2881,16 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "VillageDwellers";
         case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_PLAYERS$/.test(stringKey):
             return "VillagePlayers";
+        case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_RAID$/.test(stringKey):
+            return "VillageRaid";
     }
     return "Unknown";
 }
 
 /**
  * Gets the biome type from its ID.
+ *
+ * Only works with vanilla biomes.
  *
  * @param id The ID of the biome.
  * @returns The biome type.
@@ -2678,6 +2903,8 @@ export function getBiomeTypeFromID(id: number): keyof (typeof BiomeData)["int_ma
 
 /**
  * Gets the biome ID from its type.
+ *
+ * Only works with vanilla biomes.
  *
  * @param type The type of the biome.
  * @returns The biome ID.
