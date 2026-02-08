@@ -450,7 +450,7 @@ export var SNBTParseError: SNBTParseErrorConstructor = new Proxy(
      * An SNBT parse error.
      */
     class SNBTParseError extends Error implements SNBTParseError {
-        public declare cause: SNBTParseErrorCause;
+        declare public cause: SNBTParseErrorCause;
         public isResolved: boolean = false;
         public originalInput: string | null = null;
         public constructor(message: string, options: SNBTParseErrorOptions) {
@@ -667,7 +667,7 @@ function parseSNBTPrimitive(
                     }
                     default:
                         throw (
-                            (new ReferenceError(`Unsupported SNBT function: ${fn}`),
+                            new ReferenceError(`Unsupported SNBT function: ${fn}`),
                             {
                                 cause: {
                                     position: originalInput.indexOf(raw) + fn.length + 1,
@@ -680,7 +680,7 @@ function parseSNBTPrimitive(
                                         },
                                     ],
                                 } as const satisfies SNBTParseErrorCause,
-                            })
+                            }
                         );
                 }
             }
@@ -1520,7 +1520,13 @@ export function extractSNBT(input: string, options: ParseSNBTBaseOptions = {}): 
                 readingKey = false;
                 continue;
             } else if (c === "," && depth === 0) {
-                resultType !== "list" || currentValue.trim() !== "" ? commitPair() : ((currentKey = ""), (currentValue = ""), (currentValuePos = -1));
+                if (resultType !== "list" || currentValue.trim() !== "") {
+                    commitPair();
+                } else {
+                    currentKey = "";
+                    currentValue = "";
+                    currentValuePos = -1;
+                }
                 if (resultType === "compound") readingKey = true;
                 continue;
             } else if (c === "{" || c === "[") {
@@ -1543,7 +1549,13 @@ export function extractSNBT(input: string, options: ParseSNBTBaseOptions = {}): 
         }
     }
 
-    resultType !== "list" || currentValue.trim() !== "" ? commitPair() : ((currentKey = ""), (currentValue = ""), (currentValuePos = -1));
+    if (resultType !== "list" || currentValue.trim() !== "") {
+        commitPair();
+    } else {
+        currentKey = "";
+        currentValue = "";
+        currentValuePos = -1;
+    }
 
     if (resultType === "list") {
         const baseVal = parseList(
@@ -1751,7 +1763,7 @@ export function snbtToPrismarine(snbt: any): Compound {
 }
 
 function formatString(s: string): string {
-    const unquotedPattern = /^[A-Za-z_][A-Za-z0-9_\-\+\.]*$/;
+    const unquotedPattern = /^[A-Za-z_][A-Za-z0-9_\-+.]*$/;
     if (unquotedPattern.test(s)) return s;
 
     let quote: '"' | "'" = '"';
@@ -1775,35 +1787,32 @@ function formatString(s: string): string {
 }
 
 function formatKey(key: string): string {
-    const unquotedPattern = /^[A-Za-z0-9_\-\+\.]+$/;
+    const unquotedPattern = /^[A-Za-z0-9_\-+.]+$/;
     if (unquotedPattern.test(key)) return key;
     return formatString(key);
 }
 
 function parseFormattedString(string: string): string {
-    return string.startsWith('"') && string.endsWith('"')
-        ? JSON.parse(string)
-        : string.startsWith("'") && string.endsWith("'")
-        ? JSON.parse('"' + string.replaceAll('"', '\\"').slice(1, -1) + '"')
-        : /^[A-Za-z_][A-Za-z0-9_\-\+\.]*$/.test(string)
-        ? string
+    return (
+        string.startsWith('"') && string.endsWith('"') ? JSON.parse(string)
+        : string.startsWith("'") && string.endsWith("'") ? JSON.parse('"' + string.replaceAll('"', '\\"').slice(1, -1) + '"')
+        : /^[A-Za-z_][A-Za-z0-9_\-+.]*$/.test(string) ? string
         : ((): never => {
-              throw new SyntaxError("Invalid SNBT string: " + string);
-          })();
+                throw new SyntaxError("Invalid SNBT string: " + string);
+            })()
+    );
 }
 
 function parseFormattedKey(key: string): string {
-    return /^[A-Za-z0-9_\-\+\.]+$/.test(key)
-        ? key
-        : key.startsWith('"') && key.endsWith('"')
-        ? JSON.parse(key)
-        : key.startsWith("'") && key.endsWith("'")
-        ? JSON.parse('"' + key.replaceAll('"', '\\"').slice(1, -1) + '"')
-        : /^[A-Za-z_][A-Za-z0-9_\-\+\.]*$/.test(key)
-        ? key
+    return (
+        /^[A-Za-z0-9_\-+.]+$/.test(key) ? key
+        : key.startsWith('"') && key.endsWith('"') ? JSON.parse(key)
+        : key.startsWith("'") && key.endsWith("'") ? JSON.parse('"' + key.replaceAll('"', '\\"').slice(1, -1) + '"')
+        : /^[A-Za-z_][A-Za-z0-9_\-+.]*$/.test(key) ? key
         : ((): never => {
-              throw new SyntaxError("Invalid SNBT key: " + key);
-          })();
+                throw new SyntaxError("Invalid SNBT key: " + key);
+            })()
+    );
 }
 
 /**
@@ -2093,6 +2102,7 @@ export interface PrettyPrintOptions {
  */
 export function prettyPrintSNBT(obj: any, options: PrettyPrintOptions = {}): string {
     const { indent = 2, inlineArrays = true, maxInlineLength = 40 } = options;
+    const nl: "" | "\n" = options.indent === 0 ? "" : "\n";
 
     function format(value: any, level: number): string {
         const pad: string = " ".repeat(level * indent);
@@ -2109,7 +2119,7 @@ export function prettyPrintSNBT(obj: any, options: PrettyPrintOptions = {}): str
             if (inlineArrays && inline.length <= maxInlineLength && !value.some((v: any): boolean => typeof v === "object")) {
                 return inline;
             }
-            return "[\n" + value.map((v: any): string => pad + " ".repeat(indent) + format(v, level + 1)).join(",\n") + "\n" + pad + "]";
+            return "[" + nl + value.map((v: any): string => pad + " ".repeat(indent) + format(v, level + 1)).join("," + nl) + nl + pad + "]";
         }
 
         if (typeof value === "object" && value !== null) {
@@ -2117,9 +2127,10 @@ export function prettyPrintSNBT(obj: any, options: PrettyPrintOptions = {}): str
             if (entries.length === 0) return "{}";
 
             return (
-                "{\n" +
-                entries.map(([k, v]: [string, unknown]): string => pad + " ".repeat(indent) + `${formatKey(k)}: ${format(v, level + 1)}`).join(",\n") +
-                "\n" +
+                "{" +
+                nl +
+                entries.map(([k, v]: [string, unknown]): string => pad + " ".repeat(indent) + `${formatKey(k)}: ${format(v, level + 1)}`).join("," + nl) +
+                nl +
                 pad +
                 "}"
             );

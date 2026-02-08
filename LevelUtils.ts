@@ -1327,7 +1327,7 @@ export const entryContentTypeToFormatMap = {
          */
         type: "custom",
         /**
-         * The format type that results from the {@link entryContentTypeToFormatMap.Entity.parse | parse} method.
+         * The format type that results from the {@link entryContentTypeToFormatMap.Digest.parse | parse} method.
          */
         resultType: "JSONNBT",
         /**
@@ -1340,18 +1340,10 @@ export const entryContentTypeToFormatMap = {
          *
          * @throws {any} If an error occurs while parsing the data.
          */
-        async parse(data: Buffer): Promise<{
-            type: "compound";
-            value: {
-                entityIds: {
-                    type: "list";
-                    value: { type: "list"; value: { type: "int"; value: [id1: number, id2: number] }[] };
-                };
-            };
-        }> {
-            const entityIds: { type: "int"; value: [id1: number, id2: number] }[] = [];
+        async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.Digest> {
+            const entityIds: [high: number, low: number][] = [];
             for (let i = 0; i < data.length; i += 8) {
-                entityIds.push({ type: "int", value: [data.readInt32LE(i), data.readInt32LE(i + 4)] });
+                entityIds.push([data.readInt32LE(i), data.readInt32LE(i + 4)]);
             }
             return {
                 type: "compound",
@@ -1359,7 +1351,7 @@ export const entryContentTypeToFormatMap = {
                     entityIds: {
                         type: "list",
                         value: {
-                            type: "list",
+                            type: "long",
                             value: entityIds,
                         },
                     },
@@ -1373,20 +1365,14 @@ export const entryContentTypeToFormatMap = {
          *
          * @param data The data to serialize.
          * @returns The serialized data, as a buffer.
+         *
+         * @throws {any} If an error occurs while parsing the data.
          */
-        serialize(data: {
-            type: "compound";
-            value: {
-                entityIds: {
-                    type: "list";
-                    value: { type: "list"; value: { type: "int"; value: [id1: number, id2: number] }[] };
-                };
-            };
-        }): Buffer<ArrayBuffer> {
-            const rawData: Buffer<ArrayBuffer>[] = data.value.entityIds.value.value.map((entityIds): Buffer<ArrayBuffer> => {
+        serialize(data: NBTSchemas.NBTSchemaTypes.Digest): Buffer<ArrayBuffer> {
+            const rawData: Buffer<ArrayBuffer>[] = data.value.entityIds.value.value.map((entityIds: [high: number, low: number]): Buffer<ArrayBuffer> => {
                 const buffer: Buffer<ArrayBuffer> = Buffer.alloc(8);
-                buffer.writeInt32LE(entityIds.value[0], 0);
-                buffer.writeInt32LE(entityIds.value[1], 4);
+                buffer.writeInt32LE(entityIds[0], 0);
+                buffer.writeInt32LE(entityIds[1], 4);
                 return buffer;
             });
             return Buffer.concat(rawData);
@@ -1693,135 +1679,10 @@ export const entryContentTypeToFormatMap = {
      *
      * The first 4 bytes represent the number of entries as a 32-bit little-endian integer (it is unknown if it is signed or not).
      *
-     * `Array.from(data).reduce((a, b, i, ar)=>[...a, ...(Array.from(Buffer.from("0a000008", "hex")).every((v, ib)=>v === ar[i + ib]) ? [i] : [])], [])`
+     * The first 4 bytes are followed by multiple chunks of data formatted as the 8 byte hash of the NBT data plus the NBT compound.
      *
-     * This seems to be 4 bytes, followed by multiple chunks of data formatted as 8 bytes plus an NBT compound.
      * ```
      * {BYTEx4}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}
-     * ```
-     *
-     * ```js
-     * const data = (await tabManager.selectedTab.db.get("LevelChunkMetaDataDictionary"));
-     * const extractedData = [];
-     * for (let i = 12; i < data.length; i += 8) {
-     *     const parsedData = await require("prismarine-nbt").parse(data.slice(i), "little");
-     *     extractedData.push([data.slice(i - 8, i), parsedData]);
-     *     i += parsedData.metadata.size;
-     * }
-     * ```
-     *
-     * Example first 4 bytes:
-     * ```json
-     * {
-     *     "type": "Buffer",
-     *     "data": [
-     *         109,
-     *         0,
-     *         0,
-     *         0
-     *     ]
-     * }
-     * ```
-     *
-     * Example parsed NBT data chunk:
-     * ```json
-     * [
-     *     {
-     *         "type": "Buffer",
-     *         "data": [
-     *             190,
-     *             156,
-     *             149,
-     *             210,
-     *             211,
-     *             150,
-     *             247,
-     *             2
-     *         ]
-     *     },
-     *     {
-     *         "metadata": {
-     *             "size": 392,
-     *             "buffer": {} // ...
-     *         },
-     *         "parsed": {
-     *             "type": "compound",
-     *             "name": "",
-     *             "value": {
-     *                 "BiomeBaseGameVersion": {
-     *                     "type": "string",
-     *                     "value": "1.18.0"
-     *                 },
-     *                 "DimensionName": {
-     *                     "type": "string",
-     *                     "value": "Overworld"
-     *                 },
-     *                 "GenerationSeed": {
-     *                     "type": "long",
-     *                     "value": [
-     *                         -555685613,
-     *                         920043062
-     *                     ]
-     *                 },
-     *                 "GeneratorType": {
-     *                     "type": "int",
-     *                     "value": 1
-     *                 },
-     *                 "LastSavedBaseGameVersion": {
-     *                     "type": "string",
-     *                     "value": "1.21.122"
-     *                 },
-     *                 "LastSavedDimensionHeightRange": {
-     *                     "type": "compound",
-     *                     "value": {
-     *                         "max": {
-     *                             "type": "short",
-     *                             "value": 320
-     *                         },
-     *                         "min": {
-     *                             "type": "short",
-     *                             "value": -64
-     *                         }
-     *                     }
-     *                 },
-     *                 "OriginalBaseGameVersion": {
-     *                     "type": "string",
-     *                     "value": "1.21.71"
-     *                 },
-     *                 "OriginalDimensionHeightRange": {
-     *                     "type": "compound",
-     *                     "value": {
-     *                         "max": {
-     *                             "type": "short",
-     *                             "value": 320
-     *                         },
-     *                         "min": {
-     *                             "type": "short",
-     *                             "value": -64
-     *                         }
-     *                     }
-     *                 },
-     *                 "Overworld1_18HeightExtended": {
-     *                     "type": "short",
-     *                     "value": 1
-     *                 },
-     *                 "SkullFlatteningPerformed": {
-     *                     "type": "short",
-     *                     "value": 1
-     *                 },
-     *                 "UnderwaterLavaLakeFixed": {
-     *                     "type": "short",
-     *                     "value": 1
-     *                 },
-     *                 "WorldGenBelowZeroFixed": {
-     *                     "type": "short",
-     *                     "value": 1
-     *                 }
-     *             }
-     *         },
-     *         "type": "little"
-     *     }
-     * ]
      * ```
      */
     LevelChunkMetaDataDictionary: {
@@ -1831,31 +1692,19 @@ export const entryContentTypeToFormatMap = {
         type: "custom",
         resultType: "JSONNBT",
         // TODO: Make an NBT schema for the `LevelChunkMetaDataDictionary` format and use it as the return type here.
-        async parse(data: Buffer): Promise<{
-            type: "compound";
-            value: {
-                // TEMP: This `NBT.NBT` value type is just a placeholder until the NBT schema is made.
-                [hashHex: string]: NBT.NBT;
-            };
-        }> {
-            const parsedData: Record<string, NBT.NBT> = {};
+        async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.LevelChunkMetaDataDictionary> {
+            const parsedData: NBTSchemas.NBTSchemaTypes.LevelChunkMetaDataDictionary["value"] = {};
             for (let i = 12; i < data.length; i += 8) {
                 const hash = data.subarray(i - 8, i);
                 // TODO: Figure out how to use parseUncompressed in this situation to make it sync while still being able to get the size offset.
                 const parsed = await NBT.parse(data.subarray(i), "little");
                 // parsedData.push([data.slice(i - 8, i), parsed]);
-                parsedData[hash.toString("hex")] = parsed.parsed;
+                parsedData[hash.toString("hex")] = parsed.parsed as unknown as NBTSchemas.NBTSchemaTypes.LevelChunkMetaDataDictionary["value"][string];
                 i += parsed.metadata.size;
             }
             return { type: "compound", value: parsedData };
         },
-        serialize(data: {
-            type: "compound";
-            value: {
-                // TEMP: This `NBT.NBT | NBT.Compound` value type is just a placeholder until the NBT schema is made.
-                [hashHex: string]: NBT.NBT | NBT.Compound;
-            };
-        }): Buffer<ArrayBuffer> {
+        serialize(data: NBTSchemas.NBTSchemaTypes.LevelChunkMetaDataDictionary): Buffer<ArrayBuffer> {
             // TODO: Find a way to properly hash the NBT data, since the `xxhashjs` and `xxhash-wasm` modules don't match up with the hashes generated by the game.
             const entryCountBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
             entryCountBuffer.writeUInt32LE(Object.keys(data.value).length, 0);

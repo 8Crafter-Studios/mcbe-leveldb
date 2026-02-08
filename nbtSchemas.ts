@@ -906,6 +906,27 @@ export namespace NBTSchemas {
                 },
             },
             // NOTE: Verified.
+            Digest: {
+                id: "Digest",
+                title: "The Digest schema.",
+                description:
+                    "The NBT structure of the parsed data of the Digest content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["entityIds"],
+                properties: {
+                    entityIds: {
+                        title: "Entity IDs",
+                        description: "The UUIDs of all of the entities in the associated chunk.",
+                        type: "list",
+                        items: {
+                            title: "Entity ID",
+                            description: "A UUID.",
+                            type: "long",
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
             DynamicProperties: {
                 id: "DynamicProperties",
                 title: "The DynamicProperties schema.",
@@ -957,6 +978,136 @@ export namespace NBTSchemas {
                             },
                         ],
                     },
+                },
+            },
+            // NOTE: Verified.
+            LevelChunkMetaDataDictionary: {
+                id: "LevelChunkMetaDataDictionary",
+                title: "The LevelChunkMetaDataDictionary schema.",
+                description:
+                    "Stores the NBT metadata of all chunks. Maps the xxHash64 hash of NBT data to that NBT data, so that each chunk need only store 8 bytes instead of the entire NBT; most chunks have the same metadata.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                additionalProperties: {
+                    title: "Chunk Metadata Entry",
+                    description: "The NBT metadata of a chunk.",
+                    type: "compound",
+                    required: [
+                        "BiomeBaseGameVersion",
+                        "DimensionName",
+                        "GenerationSeed",
+                        "GeneratorType",
+                        "OriginalBaseGameVersion",
+                        "OriginalDimensionHeightRange",
+                        "SkullFlatteningPerformed",
+                    ],
+                    properties: {
+                        BiomeBaseGameVersion: {
+                            title: "Biome Base Game Version",
+                            description: 'UNDOCUMENTED. Currently observed value is "1.18.0".',
+                            type: "string",
+                            examples: [{ type: "string", value: "1.18.0" }],
+                        },
+                        DimensionName: {
+                            title: "Dimension Name",
+                            description: "The name of the dimension the chunk is in.",
+                            type: "string",
+                            enum: [
+                                { type: "string", value: "Overworld" },
+                                { type: "string", value: "Nether" },
+                                { type: "string", value: "TheEnd" },
+                            ],
+                            enumDescriptions: ["The Overworld dimension", "The Nether dimension", "The End dimension"],
+                        },
+                        GenerationSeed: {
+                            title: "Generation Seed",
+                            description: "The seed used to generate the chunk. This is whatever the seed of the world was when the chunk was generated.",
+                            type: "long",
+                        },
+                        GeneratorType: {
+                            title: "Generator Type",
+                            description: "UNDOCUMENTED.",
+                            type: "int",
+                        },
+                        LastSavedBaseGameVersion: {
+                            title: "Last Saved Base Game Version",
+                            description:
+                                "The base game version of the world when the chunk was last saved. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.",
+                            type: "string",
+                        },
+                        LastSavedDimensionHeightRange: {
+                            title: "Last Saved Dimension Height Range",
+                            description: "The height range of the chunk's dimension when the chunk was last saved.",
+                            type: "compound",
+                            required: ["max", "min"],
+                            properties: {
+                                max: {
+                                    title: "Max",
+                                    description: "The maximum height limit of the chunk's dimension when the chunk was last saved.",
+                                    type: "short",
+                                },
+                                min: {
+                                    title: "Min",
+                                    description: "The minimum height limit of the chunk's dimension when the chunk was last saved.",
+                                    type: "short",
+                                },
+                            },
+                        },
+                        NeighborAwareBlockUpgradeVersion: {
+                            title: "Neighbor Aware Block Upgrade Version",
+                            description: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "int",
+                            examples: [{ type: "int", value: 1 }],
+                        },
+                        OriginalBaseGameVersion: {
+                            title: "Original Base Game Version",
+                            description:
+                                "The base game version of the world when the chunk was originally generated. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.",
+                            type: "string",
+                        },
+                        OriginalDimensionHeightRange: {
+                            title: "Original Dimension Height Range",
+                            description: "The height range of the chunk's dimension when the chunk was originally generated.",
+                            type: "compound",
+                            required: ["max", "min"],
+                            properties: {
+                                max: {
+                                    title: "Max",
+                                    description: "The maximum height limit of the chunk's dimension when the chunk was originally generated.",
+                                    type: "short",
+                                },
+                                min: {
+                                    title: "Min",
+                                    description: "The minimum height limit of the chunk's dimension when the chunk was originally generated.",
+                                    type: "short",
+                                },
+                            },
+                        },
+                        Overworld1_18HeightExtended: {
+                            title: "Overworld 1.18 Height Extended",
+                            description: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "short",
+                            examples: [{ type: "short", value: 1 }],
+                        },
+                        SkullFlatteningPerformed: {
+                            title: "Skull Flattening Performed",
+                            description: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "short",
+                            examples: [{ type: "short", value: 1 }],
+                        },
+                        UnderwaterLavaLakeFixed: {
+                            title: "Underwater Lava Lake Fixed",
+                            description: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "short",
+                            examples: [{ type: "short", value: 1 }],
+                        },
+                        WorldGenBelowZeroFixed: {
+                            title: "World Gen Below Zero Fixed",
+                            description: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "short",
+                            examples: [{ type: "short", value: 1 }],
+                        },
+                    },
+                    additionalProperties: true,
                 },
             },
             // NOTE: Verified.
@@ -8970,6 +9121,13 @@ however when the corresponding block in the block layer is broken, this block ge
         }
     );
 
+    // Script to figure out all keys in the LevelChunkMetaDataDictionary:
+    // const allKeys = [...new Set(Object.values(data).flatMap(v=>Object.keys(v.value)))];
+    // const requiredKeys = allKeys.filter(k=>Object.values(data).every(v=>k in v.value));
+    // const optionalKeys = allKeys.filter(v=>!requiredKeys.includes(v));
+    // Script to find an object containing every found key if it is available:
+    // Object.entries(data).map((v, i)=>[...v, i]).find(v=>allKeys.every(k=>k in v[1].value))
+
     /**
      * The JSON schema for Prismarine-NBT JSON.
      */
@@ -12187,6 +12345,28 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The Digest schema.
+         *
+         * The NBT structure of the parsed data of the Digest content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Digest}
+         */
+        export type Digest = {
+            type: "compound";
+            value: {
+                /**
+                 * Entity IDs
+                 *
+                 * The UUIDs of all of the entities in the associated chunk.
+                 */
+                entityIds: { type: "list"; value: { type: "long"; value: [high: number, low: number][] } };
+            };
+        };
+
+        /**
          * The DynamicProperties schema.
          *
          * The dynamic properties data of the add-ons that have been on the world. The property keys should be the add-ons' script module UUIDs.
@@ -12200,6 +12380,159 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         [key: string]: { type: unknown; value: any };
+                    };
+                };
+            };
+        };
+
+        /**
+         * The LevelChunkMetaDataDictionary schema.
+         *
+         * Stores the NBT metadata of all chunks. Maps the xxHash64 hash of NBT data to that NBT data, so that each chunk need only store 8 bytes instead of the entire NBT; most chunks have the same metadata.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LevelChunkMetaDataDictionary}
+         */
+        export type LevelChunkMetaDataDictionary = {
+            type: "compound";
+            value: {
+                [key: string]: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * Biome Base Game Version
+                         *
+                         * UNDOCUMENTED. Currently observed value is "1.18.0".
+                         *
+                         * @example
+                         * "1.18.0"
+                         */
+                        BiomeBaseGameVersion: { type: "string"; value: string };
+                        /**
+                         * Dimension Name
+                         *
+                         * The name of the dimension the chunk is in.
+                         *
+                         * @enum "Overworld" | "Nether" | "TheEnd"
+                         *
+                         * @enumDescriptions
+                         * - `Overworld`: The Overworld dimension
+                         * - `Nether`: The Nether dimension
+                         * - `TheEnd`: The End dimension
+                         */
+                        DimensionName: { type: "string"; value: "Overworld" | "Nether" | "TheEnd" };
+                        /**
+                         * Generation Seed
+                         *
+                         * The seed used to generate the chunk. This is whatever the seed of the world was when the chunk was generated.
+                         */
+                        GenerationSeed: { type: "long"; value: [high: number, low: number] };
+                        /**
+                         * Generator Type
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        GeneratorType: { type: "int"; value: number };
+                        /**
+                         * Last Saved Base Game Version
+                         *
+                         * The base game version of the world when the chunk was last saved. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.
+                         */
+                        LastSavedBaseGameVersion?: { type: "string"; value: string };
+                        /**
+                         * Last Saved Dimension Height Range
+                         *
+                         * The height range of the chunk's dimension when the chunk was last saved.
+                         */
+                        LastSavedDimensionHeightRange?: {
+                            type: "compound";
+                            value: {
+                                /**
+                                 * Max
+                                 *
+                                 * The maximum height limit of the chunk's dimension when the chunk was last saved.
+                                 */
+                                max: { type: "short"; value: number };
+                                /**
+                                 * Min
+                                 *
+                                 * The minimum height limit of the chunk's dimension when the chunk was last saved.
+                                 */
+                                min: { type: "short"; value: number };
+                            };
+                        };
+                        /**
+                         * Neighbor Aware Block Upgrade Version
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        NeighborAwareBlockUpgradeVersion?: { type: "int"; value: number };
+                        /**
+                         * Original Base Game Version
+                         *
+                         * The base game version of the world when the chunk was originally generated. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.
+                         */
+                        OriginalBaseGameVersion: { type: "string"; value: string };
+                        /**
+                         * Original Dimension Height Range
+                         *
+                         * The height range of the chunk's dimension when the chunk was originally generated.
+                         */
+                        OriginalDimensionHeightRange: {
+                            type: "compound";
+                            value: {
+                                /**
+                                 * Max
+                                 *
+                                 * The maximum height limit of the chunk's dimension when the chunk was originally generated.
+                                 */
+                                max: { type: "short"; value: number };
+                                /**
+                                 * Min
+                                 *
+                                 * The minimum height limit of the chunk's dimension when the chunk was originally generated.
+                                 */
+                                min: { type: "short"; value: number };
+                            };
+                        };
+                        /**
+                         * Overworld 1.18 Height Extended
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        Overworld1_18HeightExtended?: { type: "short"; value: number };
+                        /**
+                         * Skull Flattening Performed
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        SkullFlatteningPerformed: { type: "short"; value: number };
+                        /**
+                         * Underwater Lava Lake Fixed
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        UnderwaterLavaLakeFixed?: { type: "short"; value: number };
+                        /**
+                         * World Gen Below Zero Fixed
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        WorldGenBelowZeroFixed?: { type: "short"; value: number };
+                    } & {
+                        [key: string]: { type: any; value: any };
                     };
                 };
             };

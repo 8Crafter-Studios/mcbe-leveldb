@@ -1,3 +1,18 @@
+# v1.9.0
+
+## Additions
+
+-   Added the `LevelChunkMetaDataDictionary` NBT schema.
+-   Added the `Digest` NBT schema.
+
+## Changes
+
+-   Changed the custom data structure of the `Digest` content type.
+
+## Fixes
+
+-   `prettyPrintSNBT` no longer inserts newlines when the `indent` option is set to `0`. 
+
 # v1.8.0
 
 ## Critical Fixes
