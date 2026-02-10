@@ -313,13 +313,39 @@ function readSubchunkPaletteIds(
     const values = new Array(4096);
 
     if (bitsPerBlock > 0) {
-        const blocksPerWord = Math.floor(32 / bitsPerBlock);
+        const blocksPerWord = 32 / bitsPerBlock;
         const wordCount = Math.floor(4095 / blocksPerWord) + 1;
         const mask = (1 << bitsPerBlock) - 1;
+
+        // console.warn(
+        //     "blocksPerWord:",
+        //     blocksPerWord,
+        //     "wordCount:",
+        //     wordCount,
+        //     "bitsPerBlock:",
+        //     bitsPerBlock,
+        //     "mask:",
+        //     mask,
+        //     "p:",
+        //     p,
+        //     "end:",
+        //     end,
+        //     "end-p:",
+        //     end - p,
+        //     "4*wordCount:",
+        //     4 * wordCount,
+        //     "flags:",
+        //     flags,
+        //     "isPersistent:",
+        //     isPersistent,
+        //     "offset:",
+        //     offset
+        // );
 
         if (end - p < 4 * wordCount) {
             throw new Error("Subchunk biome error: not enough data for block words.");
         }
+        // const originalP = p;
 
         let u = 0;
         for (let j = 0; j < wordCount; j++) {
@@ -344,6 +370,16 @@ function readSubchunkPaletteIds(
         const paletteSize = buffer[p]! | (buffer[p + 1]! << 8) | (buffer[p + 2]! << 16) | (buffer[p + 3]! << 24);
         p += 4;
 
+        // UNDONE: This does not actually restore the original data.
+        // Attempt to repair corrupted value data from versions <=v1.9.0 of the module.
+        // if (blocksPerWord !== Math.floor(blocksPerWord) && end - originalP < 4 * (Math.floor(4095 / Math.floor(blocksPerWord)) + 1)) {
+        //     for (let u = 0; u < 4096; u++) {
+        //         const v = values[u]!;
+        //         const repairedValue: number = Math.floor(v / 2);
+        //         values[u] = repairedValue;
+        //     }
+        // }
+
         return { values, isPersistent, paletteSize, newOffset: p };
     } else {
         // bitsPerBlock == 0 -> everything is ID 1
@@ -356,7 +392,13 @@ function readSubchunkPaletteIds(
 
 function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer<ArrayBuffer> {
     const blockCount: number = values.length; // usually 16*16*16 = 4096
-    const bitsPerBlock: number = Math.max(1, Math.ceil(Math.log2(paletteSize)));
+    const bitsPerBlockOriginal: number = Math.max(1, Math.ceil(Math.log2(paletteSize)));
+    const bitsPerBlockDivisors: number[] = [1, 2, 4, 8, 16, 32];
+
+    const bitsPerBlock: number = bitsPerBlockDivisors.find((d: number): boolean => d >= bitsPerBlockOriginal) ?? 32;
+
+    // console.log(bitsPerBlock);
+
     const wordsPerBlock: number = Math.ceil((blockCount * bitsPerBlock) / 32);
     const words = new Uint32Array(wordsPerBlock);
 

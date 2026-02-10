@@ -577,23 +577,26 @@ interface ParseSNBTPrimitiveOptions extends ParseSNBTBaseOptions {}
 function parseSNBTPrimitive(
     raw: any,
     options: ParseSNBTPrimitiveOptions & { keepGoingAfterError: true }
-): { value?: NBT.Tags[NBT.TagType]; errors: SNBTParseError[] };
+): { value?: NBT.Tags[NBT.TagType] | undefined; errors: SNBTParseError[] };
 /**
  * Parses an SNBT-like primitive.
  *
  * @internal
  */
-function parseSNBTPrimitive(raw: any, options?: ParseSNBTPrimitiveOptions & { keepGoingAfterError?: false }): NBT.Tags[NBT.TagType];
+function parseSNBTPrimitive(raw: any, options?: ParseSNBTPrimitiveOptions & { keepGoingAfterError?: false | undefined }): NBT.Tags[NBT.TagType];
 /**
  * Parses an SNBT-like primitive.
  *
  * @internal
  */
-function parseSNBTPrimitive(raw: any, options?: ParseSNBTPrimitiveOptions): NBT.Tags[NBT.TagType] | { value?: NBT.Tags[NBT.TagType]; errors: SNBTParseError[] };
+function parseSNBTPrimitive(
+    raw: any,
+    options?: ParseSNBTPrimitiveOptions
+): NBT.Tags[NBT.TagType] | { value?: NBT.Tags[NBT.TagType] | undefined; errors: SNBTParseError[] };
 function parseSNBTPrimitive(
     raw: any,
     options: ParseSNBTPrimitiveOptions = {}
-): NBT.Tags[NBT.TagType] | { value?: NBT.Tags[NBT.TagType]; errors: SNBTParseError[] } {
+): NBT.Tags[NBT.TagType] | { value?: NBT.Tags[NBT.TagType] | undefined; errors: SNBTParseError[] } {
     const errors: SNBTParseError[] = [];
     function structureResult(val?: NBT.Tags[NBT.TagType]): ReturnType<typeof parseSNBTPrimitive> {
         if (options.keepGoingAfterError) return { value: val, errors };
@@ -850,7 +853,7 @@ function parseTypedArray(
     items: string[],
     options: ParseSNBTBaseOptions & { keepGoingAfterError: true }
 ): { value: TypedArray; errors: SNBTParseError[] };
-function parseTypedArray(type: "B" | "S" | "I" | "L", items: string[], options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false }): TypedArray;
+function parseTypedArray(type: "B" | "S" | "I" | "L", items: string[], options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false | undefined }): TypedArray;
 function parseTypedArray(
     type: "B" | "S" | "I" | "L",
     items: string[],
@@ -1024,7 +1027,7 @@ function parseTypedArray(
 interface ParseListOptions extends ParseSNBTBaseOptions {}
 
 function parseList(items: string[], options: ParseListOptions & { keepGoingAfterError: true }): { value: NBT.List<NBT.TagType>; errors: SNBTParseError[] };
-function parseList(items: string[], options?: ParseListOptions & { keepGoingAfterError?: false }): NBT.List<NBT.TagType>;
+function parseList(items: string[], options?: ParseListOptions & { keepGoingAfterError?: false | undefined }): NBT.List<NBT.TagType>;
 function parseList(items: string[], options?: ParseListOptions): NBT.List<NBT.TagType> | { value: NBT.List<NBT.TagType>; errors: SNBTParseError[] };
 function parseList(items: string[], options: ParseListOptions = {}): NBT.List<NBT.TagType> | { value: NBT.List<NBT.TagType>; errors: SNBTParseError[] } {
     console.log(items, items.length);
@@ -1152,13 +1155,13 @@ export interface ParseSNBTBaseOptions {
      *
      * @default true
      */
-    mixedListsAllowed?: boolean;
+    mixedListsAllowed?: boolean | undefined;
     /**
      * Whether to convert lists of mixed types to compound lists.
      *
      * @default true
      */
-    convertMixedListsToCompoundLists?: boolean;
+    convertMixedListsToCompoundLists?: boolean | undefined;
     /**
      * Whether the function is being called from within an inner stack of a parent SNBT parser function.
      *
@@ -1169,7 +1172,7 @@ export interface ParseSNBTBaseOptions {
      *
      * @default false
      */
-    isInnerStack?: boolean;
+    isInnerStack?: boolean | undefined;
     /**
      * Whether to keep parsing the SNBT string even if there are errors.
      *
@@ -1177,13 +1180,13 @@ export interface ParseSNBTBaseOptions {
      *
      * @default false
      */
-    keepGoingAfterError?: boolean;
+    keepGoingAfterError?: boolean | undefined;
     /**
      * Whether to stop parsing the SNBT string at a negative depth.
      *
      * @default true
      */
-    stopAtNegativeDepth?: boolean;
+    stopAtNegativeDepth?: boolean | undefined;
 }
 
 /**
@@ -1208,7 +1211,7 @@ export type ParseSNBTCompoundStringResultWithErrors = {
  * @returns The parsed SNBT compound.
  */
 export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOptions & { keepGoingAfterError: true }): ParseSNBTCompoundStringResultWithErrors;
-export function parseSNBTCompoundString(input: string, options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false }): Compound;
+export function parseSNBTCompoundString(input: string, options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false | undefined }): Compound;
 export function parseSNBTCompoundString(input: string, options?: ParseSNBTBaseOptions): Compound | ParseSNBTCompoundStringResultWithErrors;
 export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOptions = {}): Compound | ParseSNBTCompoundStringResultWithErrors {
     const errors: SNBTParseError[] = [];
@@ -1411,7 +1414,7 @@ export interface ExtractSNBTResultWithErrors extends ExtractSNBTResult {
  * @returns An object containing the parsed value, start position, end position, remaining text, and errors.
  */
 export function extractSNBT(input: string, options: ParseSNBTBaseOptions & { keepGoingAfterError: true }): ExtractSNBTResultWithErrors;
-export function extractSNBT(input: string, options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false }): ExtractSNBTResult;
+export function extractSNBT(input: string, options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false | undefined }): ExtractSNBTResult;
 export function extractSNBT(input: string, options?: ParseSNBTBaseOptions): ExtractSNBTResult | ExtractSNBTResultWithErrors;
 export function extractSNBT(input: string, options: ParseSNBTBaseOptions = {}): ExtractSNBTResult | ExtractSNBTResultWithErrors {
     const errors: SNBTParseError[] = [];
@@ -2065,19 +2068,19 @@ export interface PrettyPrintOptions {
      *
      * @default 2
      */
-    indent?: number;
+    indent?: number | undefined;
     /**
      * Whether to inline arrays if possible.
      *
      * @default true
      */
-    inlineArrays?: boolean;
+    inlineArrays?: boolean | undefined;
     /**
      * Maximum length of an inline array.
      *
      * @default 40
      */
-    maxInlineLength?: number;
+    maxInlineLength?: number | undefined;
 }
 
 /**

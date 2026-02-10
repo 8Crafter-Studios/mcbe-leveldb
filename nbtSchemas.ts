@@ -9133,11 +9133,15 @@ however when the corresponding block in the block layer is broken, this block ge
      */
     export const GenericPrismarineJSONNBTSchema: JSONSchema = {
         $schema: "https://json-schema.org/draft/2020-12/schema",
-        $id: "https://example.com/compound.schema.json",
+        $id: "GenericPrismarineJSONNBTSchema",
         title: "Prismarine NBT JSON Schema",
         type: "object",
         required: ["type", "value"],
         properties: {
+            name: {
+                type: "string",
+                default: "",
+            },
             type: {
                 const: "compound",
             },
@@ -9335,15 +9339,15 @@ however when the corresponding block in the block layer is broken, this block ge
         /**
          * The ID of this schema.
          */
-        id?: string;
+        id?: string | undefined;
         /**
          * The ID of this schema.
          */
-        $id?: string;
+        $id?: string | undefined;
         /**
          * The schema that this schema is based on.
          */
-        $schema?: string;
+        $schema?: string | undefined;
         /**
          * If this is a schema fragment.
          *
@@ -9355,50 +9359,50 @@ however when the corresponding block in the block layer is broken, this block ge
         /**
          * The type of NBT tag this schema describes.
          */
-        type?: `${NBT.TagType}` | `${NBT.TagType}`[];
+        type?: `${NBT.TagType}` | `${NBT.TagType}`[] | undefined;
         /**
          * The title of this schema.
          */
-        title?: string;
+        title?: string | undefined;
         /**
          * The default value for this schema.
          */
         // REVIEW: This may actually need to be just `any` instead of always explicitly this object format.
-        default?: { type: `${NBT.TagType}`; value: any };
+        default?: { type: `${NBT.TagType}`; value: any } | undefined;
         /**
          * @todo
          */
         definitions?: {
             [name: string]: NBTSchema;
-        };
+        } | undefined;
         /**
          * The description of this schema.
          */
-        description?: string;
+        description?: string | undefined;
         /**
          * The properties of this compound schema.
          */
-        properties?: NBTSchemaMap;
+        properties?: NBTSchemaMap | undefined;
         /**
          * A map of RegExp patterns to the NBT schemas for the properties that match.
          */
-        patternProperties?: NBTSchemaMap;
+        patternProperties?: NBTSchemaMap | undefined;
         /**
          * @todo
          */
-        patternPropertiesTS?: NBTSchemaMap;
+        patternPropertiesTS?: NBTSchemaMap | undefined;
         /**
          * Whether additional properties are allowed, or a schema to use for them.
          */
-        additionalProperties?: boolean | NBTSubSchemaRef;
+        additionalProperties?: boolean | NBTSubSchemaRef | undefined;
         /**
          * @todo
          */
-        minProperties?: number;
+        minProperties?: number | undefined;
         /**
          * @todo
          */
-        maxProperties?: number;
+        maxProperties?: number | undefined;
         /**
          * @todo
          */
@@ -9406,91 +9410,91 @@ however when the corresponding block in the block layer is broken, this block ge
             | NBTSchemaMap
             | {
                   [prop: string]: string[];
-              };
+              } | undefined;
         /**
          * @todo
          */
-        items?: NBTSubSchemaRef | NBTSubSchemaRef[];
+        items?: NBTSubSchemaRef | NBTSubSchemaRef[] | undefined;
         /**
          * @todo
          */
-        minItems?: number;
+        minItems?: number | undefined;
         /**
          * @todo
          */
-        maxItems?: number;
+        maxItems?: number | undefined;
         /**
          * @todo
          */
-        uniqueItems?: boolean;
+        uniqueItems?: boolean | undefined;
         /**
          * @todo
          */
-        additionalItems?: boolean | NBTSubSchemaRef;
+        additionalItems?: boolean | NBTSubSchemaRef | undefined;
         /**
          * @todo
          */
-        pattern?: string;
+        pattern?: string | undefined;
         /**
          * @todo
          */
-        minLength?: number;
+        minLength?: number | undefined;
         /**
          * @todo
          */
-        maxLength?: number;
+        maxLength?: number | undefined;
         /**
          * @todo
          */
-        minimum?: number;
+        minimum?: number | undefined;
         /**
          * @todo
          */
-        maximum?: number;
+        maximum?: number | undefined;
         /**
          * @todo
          */
-        exclusiveMinimum?: boolean | number;
+        exclusiveMinimum?: boolean | number | undefined;
         /**
          * @todo
          */
-        exclusiveMaximum?: boolean | number;
+        exclusiveMaximum?: boolean | number | undefined;
         /**
          * @todo
          */
-        multipleOf?: number;
+        multipleOf?: number | undefined;
         /**
          * @todo
          */
-        required?: string[];
+        required?: string[] | undefined;
         /**
          * The ID of another schema to reference.
          */
-        $ref?: string;
+        $ref?: string | undefined;
         /**
          * @todo
          */
-        anyOf?: NBTSubSchemaRef[];
+        anyOf?: NBTSubSchemaRef[] | undefined;
         /**
          * @todo
          */
-        allOf?: NBTSubSchemaRef[];
+        allOf?: NBTSubSchemaRef[] | undefined;
         /**
          * @todo
          */
-        oneOf?: NBTSubSchemaRef[];
+        oneOf?: NBTSubSchemaRef[] | undefined;
         /**
          * @todo
          */
-        not?: NBTSubSchemaRef;
+        not?: NBTSubSchemaRef | undefined;
         /**
          * The values of this enum.
          */
-        enum?: NBT.Tags[NBT.TagType][];
+        enum?: NBT.Tags[NBT.TagType][] | undefined;
         /**
          * @todo
          */
-        format?: string;
+        format?: string | undefined;
         /**
          * @todo
          */
@@ -9498,31 +9502,31 @@ however when the corresponding block in the block layer is broken, this block ge
         /**
          * @todo
          */
-        contains?: NBTSubSchemaRef;
+        contains?: NBTSubSchemaRef | undefined;
         /**
          * @todo
          */
-        propertyNames?: NBTSubSchemaRef;
+        propertyNames?: NBTSubSchemaRef | undefined;
         /**
          * @todo
          */
-        examples?: NBT.Tags[NBT.TagType][];
+        examples?: NBT.Tags[NBT.TagType][] | undefined;
         /**
          * @todo
          */
-        $comment?: string;
+        $comment?: string | undefined;
         /**
          * @todo
          */
-        if?: NBTSubSchemaRef;
+        if?: NBTSubSchemaRef | undefined;
         /**
          * @todo
          */
-        then?: NBTSubSchemaRef;
+        then?: NBTSubSchemaRef | undefined;
         /**
          * @todo
          */
-        else?: NBTSubSchemaRef;
+        else?: NBTSubSchemaRef | undefined;
         /**
          * @todo
          */
@@ -9530,15 +9534,15 @@ however when the corresponding block in the block layer is broken, this block ge
             /**
              * The label of this snippet.
              */
-            label?: string;
+            label?: string | undefined;
             /**
              * The description of this snippet.
              */
-            description?: string;
+            description?: string | undefined;
             /**
              * The markdown description of this snippet.
              */
-            markdownDescription?: string;
+            markdownDescription?: string | undefined;
             /**
              * The body of this snippet.
              */
@@ -9546,48 +9550,48 @@ however when the corresponding block in the block layer is broken, this block ge
             /**
              * The body text of this snippet.
              */
-            bodyText?: string;
-        }[];
+            bodyText?: string | undefined;
+        }[] | undefined;
         /**
          * @todo
          */
-        errorMessage?: string;
+        errorMessage?: string | undefined;
         /**
          * @todo
          */
-        patternErrorMessage?: string;
+        patternErrorMessage?: string | undefined;
         /**
          * @todo
          */
-        deprecationMessage?: string;
+        deprecationMessage?: string | undefined;
         /**
          * Descriptions for each enum value, in the same order as {@link NBTSubSchema.enum}.
          */
-        enumDescriptions?: string[];
+        enumDescriptions?: string[] | undefined;
         /**
          * @todo
          */
-        markdownEnumDescriptions?: string[];
+        markdownEnumDescriptions?: string[] | undefined;
         /**
          * @todo
          */
-        markdownDescription?: string;
+        markdownDescription?: string | undefined;
         /**
          * @todo
          */
-        doNotSuggest?: boolean;
+        doNotSuggest?: boolean | undefined;
         /**
          * @todo
          */
-        suggestSortText?: string;
+        suggestSortText?: string | undefined;
         /**
          * @todo
          */
-        allowComments?: boolean;
+        allowComments?: boolean | undefined;
         /**
          * @todo
          */
-        allowTrailingCommas?: boolean;
+        allowTrailingCommas?: boolean | undefined;
     }
 
     /**
@@ -11017,7 +11021,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     /**
                      * The description of the node.
                      */
-                    description?: string;
+                    description?: string | undefined;
                     /**
                      * The children of the node.
                      */
@@ -11430,19 +11434,19 @@ however when the corresponding block in the block layer is broken, this block ge
                      *
                      * @default true
                      */
-                    generateIDs?: boolean;
+                    generateIDs?: boolean | undefined;
                     /**
                      * The category of the NBT schemas.
                      *
                      * @default "others"
                      */
-                    category?: WikiNBTSchemaCategory;
+                    category?: WikiNBTSchemaCategory | undefined;
                     /**
                      * Whether to replace the root tag description with the description text.
                      *
                      * @default false
                      */
-                    replaceSchemaRootTagDescriptionsWithDescriptionText?: boolean;
+                    replaceSchemaRootTagDescriptionsWithDescriptionText?: boolean | undefined;
                 }
 
                 /**
@@ -20178,70 +20182,75 @@ interface JSONSchemaMap {
  * A JSON schema.
  */
 interface JSONSchema {
-    id?: string;
-    $id?: string;
-    $schema?: string;
-    type?: string | string[];
-    title?: string;
+    id?: string | undefined;
+    $id?: string | undefined;
+    $schema?: string | undefined;
+    type?: string | string[] | undefined;
+    title?: string | undefined;
     default?: any;
-    definitions?: {
-        [name: string]: JSONSchema;
-    };
-    description?: string;
-    properties?: JSONSchemaMap;
-    patternProperties?: JSONSchemaMap;
-    additionalProperties?: boolean | JSONSchemaRef;
-    minProperties?: number;
-    maxProperties?: number;
+    definitions?:
+        | {
+              [name: string]: JSONSchema;
+          }
+        | undefined;
+    description?: string | undefined;
+    properties?: JSONSchemaMap | undefined;
+    patternProperties?: JSONSchemaMap | undefined;
+    additionalProperties?: boolean | JSONSchemaRef | undefined;
+    minProperties?: number | undefined;
+    maxProperties?: number | undefined;
     dependencies?:
         | JSONSchemaMap
         | {
               [prop: string]: string[];
-          };
-    items?: JSONSchemaRef | JSONSchemaRef[];
-    minItems?: number;
-    maxItems?: number;
-    uniqueItems?: boolean;
-    additionalItems?: boolean | JSONSchemaRef;
-    pattern?: string;
-    minLength?: number;
-    maxLength?: number;
-    minimum?: number;
-    maximum?: number;
-    exclusiveMinimum?: boolean | number;
-    exclusiveMaximum?: boolean | number;
-    multipleOf?: number;
-    required?: string[];
-    $ref?: string;
-    anyOf?: JSONSchemaRef[];
-    allOf?: JSONSchemaRef[];
-    oneOf?: JSONSchemaRef[];
-    not?: JSONSchemaRef;
-    enum?: any[];
-    format?: string;
-    const?: any;
-    contains?: JSONSchemaRef;
-    propertyNames?: JSONSchemaRef;
-    examples?: any[];
-    $comment?: string;
-    if?: JSONSchemaRef;
-    then?: JSONSchemaRef;
-    else?: JSONSchemaRef;
-    defaultSnippets?: {
-        label?: string;
-        description?: string;
-        markdownDescription?: string;
-        body?: any;
-        bodyText?: string;
-    }[];
-    errorMessage?: string;
-    patternErrorMessage?: string;
-    deprecationMessage?: string;
-    enumDescriptions?: string[];
-    markdownEnumDescriptions?: string[];
-    markdownDescription?: string;
-    doNotSuggest?: boolean;
-    suggestSortText?: string;
-    allowComments?: boolean;
-    allowTrailingCommas?: boolean;
+          }
+        | undefined;
+    items?: JSONSchemaRef | JSONSchemaRef[] | undefined;
+    minItems?: number | undefined;
+    maxItems?: number | undefined;
+    uniqueItems?: boolean | undefined;
+    additionalItems?: boolean | JSONSchemaRef | undefined;
+    pattern?: string | undefined;
+    minLength?: number | undefined;
+    maxLength?: number | undefined;
+    minimum?: number | undefined;
+    maximum?: number | undefined;
+    exclusiveMinimum?: boolean | number | undefined;
+    exclusiveMaximum?: boolean | number | undefined;
+    multipleOf?: number | undefined;
+    required?: string[] | undefined;
+    $ref?: string | undefined;
+    anyOf?: JSONSchemaRef[] | undefined;
+    allOf?: JSONSchemaRef[] | undefined;
+    oneOf?: JSONSchemaRef[] | undefined;
+    not?: JSONSchemaRef | undefined;
+    enum?: any[] | undefined;
+    format?: string | undefined;
+    const?: any | undefined;
+    contains?: JSONSchemaRef | undefined;
+    propertyNames?: JSONSchemaRef | undefined;
+    examples?: any[] | undefined;
+    $comment?: string | undefined;
+    if?: JSONSchemaRef | undefined;
+    then?: JSONSchemaRef | undefined;
+    else?: JSONSchemaRef | undefined;
+    defaultSnippets?:
+        | {
+              label?: string | undefined;
+              description?: string | undefined;
+              markdownDescription?: string | undefined;
+              body?: any;
+              bodyText?: string | undefined;
+          }[]
+        | undefined;
+    errorMessage?: string | undefined;
+    patternErrorMessage?: string | undefined;
+    deprecationMessage?: string | undefined;
+    enumDescriptions?: string[] | undefined;
+    markdownEnumDescriptions?: string[] | undefined;
+    markdownDescription?: string | undefined;
+    doNotSuggest?: boolean | undefined;
+    suggestSortText?: string | undefined;
+    allowComments?: boolean | undefined;
+    allowTrailingCommas?: boolean | undefined;
 }

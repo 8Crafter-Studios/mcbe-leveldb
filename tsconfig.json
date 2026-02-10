@@ -16,6 +16,7 @@
         "noUncheckedIndexedAccess": true,
         "resolveJsonModule": true,
         "verbatimModuleSyntax": true,
+        // "exactOptionalPropertyTypes": true, // TODO: Adjust the NBTSchemaTypes generator to include ` | undefined` so that this can be enabled.
         "allowImportingTsExtensions": true,
         "noEmit": true,
         "noFallthroughCasesInSwitch": true,

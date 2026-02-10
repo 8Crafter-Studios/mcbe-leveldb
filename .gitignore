@@ -3,6 +3,7 @@ testWorld*
 test*.bin
 test*.txt
 test*.json
+testP*
 node_modules
 package-lock.json
 development_scripts/nbtSchema.json
