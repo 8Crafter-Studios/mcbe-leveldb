@@ -1,7 +1,7 @@
 import type { DBEntryContentType } from "./LevelUtils.ts";
 import * as NBT from "prismarine-nbt";
 import { toLongParts } from "./SNBTUtils.ts";
-import type { LooseAutocomplete } from "./types.js";
+import type { Full, LooseAutocomplete } from "./types.js";
 
 /**
  * Types, constants, and functions related to NBT schemas.
@@ -20,19 +20,20 @@ export namespace NBTSchemas {
         T extends Record<string, NBTSchema | NBTSchemaFragment>,
         M extends {
             [key in string]: key extends keyof T ? never
-            :   { key: keyof T; title: LooseAutocomplete<"">; description: LooseAutocomplete<""> } | { key: keyof T };
+            :   { key: keyof T; title: LooseAutocomplete<"">; markdownDescription: LooseAutocomplete<""> } | { key: keyof T };
         },
     >(
         schemas: T,
         mappings: M
     ): T & {
-        readonly [K in keyof M]: Omit<T[M[K]["key"]], "description" | "title"> &
-            (Extract<M[K], { description: string }> extends never ?
-                unknown extends T[M[K]["key"]]["description"] ?
+        readonly [K in keyof M]: Omit<T[M[K]["key"]], "markdownDescription" | "title"> &
+            (Extract<M[K], { markdownDescription: string }> extends never ?
+                unknown extends T[M[K]["key"]]["markdownDescription"] ?
                     NonNullable<unknown>
-                :   { description: T[M[K]["key"]]["description"] }
-            : Extract<M[K], { description: string }>["description"] extends string ? { description: Extract<M[K], { description: string }>["description"] }
-            : { description: T[M[K]["key"]]["description"] }) &
+                :   { markdownDescription: T[M[K]["key"]]["markdownDescription"] }
+            : Extract<M[K], { markdownDescription: string }>["markdownDescription"] extends string ?
+                { markdownDescription: Extract<M[K], { markdownDescription: string }>["markdownDescription"] }
+            :   { markdownDescription: T[M[K]["key"]]["markdownDescription"] }) &
             (Extract<M[K], { title: string }> extends never ?
                 unknown extends T[M[K]["key"]]["title"] ?
                     NonNullable<unknown>
@@ -50,19 +51,19 @@ export namespace NBTSchemas {
                     {
                         ...schemas[v.key],
                         id: k,
-                        description: "description" in v && v.description ? v.description : schemas[v.key]!.description,
+                        markdownDescription: "markdownDescription" in v && v.markdownDescription ? v.markdownDescription : schemas[v.key]!.markdownDescription,
                         $aliasOf: v.key,
                     },
                 ])
             ) as unknown as {
-                readonly [K in keyof M]: Omit<T[M[K]["key"]], "description" | "title"> &
-                    (Extract<M[K], { description: string }> extends never ?
-                        unknown extends T[M[K]["key"]]["description"] ?
+                readonly [K in keyof M]: Omit<T[M[K]["key"]], "markdownDescription" | "title"> &
+                    (Extract<M[K], { markdownDescription: string }> extends never ?
+                        unknown extends T[M[K]["key"]]["markdownDescription"] ?
                             NonNullable<unknown>
-                        :   { description: T[M[K]["key"]]["description"] }
-                    : Extract<M[K], { description: string }>["description"] extends string ?
-                        { description: Extract<M[K], { description: string }>["description"] }
-                    :   { description: T[M[K]["key"]]["description"] }) &
+                        :   { markdownDescription: T[M[K]["key"]]["markdownDescription"] }
+                    : Extract<M[K], { markdownDescription: string }>["markdownDescription"] extends string ?
+                        { markdownDescription: Extract<M[K], { markdownDescription: string }>["markdownDescription"] }
+                    :   { markdownDescription: T[M[K]["key"]]["markdownDescription"] }) &
                     (Extract<M[K], { title: string }> extends never ?
                         unknown extends T[M[K]["key"]]["title"] ?
                             NonNullable<unknown>
@@ -90,7 +91,7 @@ export namespace NBTSchemas {
             ActorPrefix: {
                 id: "ActorPrefix",
                 title: "The ActorPrefix schema.",
-                description: "All entities share this base.",
+                markdownDescription: "All entities share this base.",
                 type: "compound",
                 required: [
                     "Chested",
@@ -134,35 +135,35 @@ export namespace NBTSchemas {
                 ],
                 properties: {
                     Chested: {
-                        description: "1 or 0 (true/false) - true if this entity is chested. Used by donkey, llama, and mule.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is chested. Used by donkey, llama, and mule.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     Color: {
-                        description: "The main color value of the entity. Used by sheep, llama, shulker, tropical fish, etc. Defaults to 0.",
+                        markdownDescription: "The main color value of the entity. Used by sheep, llama, shulker, tropical fish, etc. Defaults to 0.",
                         type: "byte",
                         default: {
                             type: "byte",
                             value: 0,
                         },
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     Color2: {
-                        description: "The entity's second color value. Used by tropical fish. Defaults to 0.",
+                        markdownDescription: "The entity's second color value. Used by tropical fish. Defaults to 0.",
                         type: "byte",
                         default: {
                             type: "byte",
                             value: 0,
                         },
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -170,53 +171,53 @@ export namespace NBTSchemas {
                     },
                     // REVIEW: Check if this property actually ever exists.
                     CustomName: {
-                        description: "(May not exist) The custom name of this entity.",
+                        markdownDescription: "(May not exist) The custom name of this entity.",
                         type: "string",
                     },
                     // REVIEW: Check if this property actually ever exists.
                     CustomNameVisible: {
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - (may not exist) if true, and this entity has a custom name, the name always appears above the entity, regardless of where the cursor points. If the entity does not have a custom name, a default name is shown.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     definitions: {
-                        description: "(May not exist) The namespaced ID of this entity and its current and previous component groups.",
+                        markdownDescription: "(May not exist) The namespaced ID of this entity and its current and previous component groups.",
                         type: "list",
                         items: {
-                            description: "UNDOCUMENTED.",
+                            markdownDescription: "UNDOCUMENTED.",
                             type: "string",
                         },
                     },
                     FallDistance: {
-                        description: "Distance the entity has fallen. Larger values cause more damage when the entity lands.",
+                        markdownDescription: "Distance the entity has fallen. Larger values cause more damage when the entity lands.",
                         type: "float",
                     },
                     // REVIEW: Check if this property actually ever exists.
                     Fire: {
-                        description: "Number of ticks until the fire is put out. Default 0 when not on fire.",
+                        markdownDescription: "Number of ticks until the fire is put out. Default 0 when not on fire.",
                         type: "short",
                     },
                     identifier: {
-                        description: "The namespaced ID of this entity.",
+                        markdownDescription: "The namespaced ID of this entity.",
                         type: "string",
                     },
                     internalComponents: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "compound",
                         required: ["EntityStorageKeyComponent"],
                         properties: {
                             EntityStorageKeyComponent: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "compound",
                                 required: ["StorageKey"],
                                 properties: {
                                     StorageKey: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "string",
                                     },
                                 },
@@ -224,180 +225,180 @@ export namespace NBTSchemas {
                         },
                     },
                     Invulnerable: {
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - true if the entity should not take damage. This applies to living and nonliving entities alike: mobs should not take damage from any source (including potion effects), and cannot be moved by fishing rods, attacks, explosions, or projectiles, and objects such as vehicles cannot be destroyed. Invulnerable player entities are also ignored by any hostile mobs. Note that these entities can be damaged by players in Creative mode. *needs testing*",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsAngry: {
-                        description: "1 or 0 (true/false) - true if this entity is angry. Used by wolf and bee.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is angry. Used by wolf and bee.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsAutonomous: {
-                        description: "1 or 0 (true/false) - true if this entity is an autonomous entity.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is an autonomous entity.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsBaby: {
-                        description: "1 or 0 (true/false) - true if this entity is a baby.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is a baby.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsEating: {
-                        description: "1 or 0 (true/false) - true if this entity is eating.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is eating.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsGliding: {
-                        description: "1 or 0 (true/false) - true if this entity is gliding.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is gliding.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsGlobal: {
-                        description: "1 or 0 (true/false) - true if this entity is a global entity (e.g. lightning bolt, ender dragon, arrow).",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is a global entity (e.g. lightning bolt, ender dragon, arrow).",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsIllagerCaptain: {
-                        description: "1 or 0 (true/false) - true if the entity is an illager captain. Used by pillager and vindicator.",
+                        markdownDescription: "1 or 0 (true/false) - true if the entity is an illager captain. Used by pillager and vindicator.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsOrphaned: {
-                        description: "1 or 0 (true/false) - true if this entity is not spawn from its parents. Used by all the mobs that can breed.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is not spawn from its parents. Used by all the mobs that can breed.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsOutOfControl: {
-                        description: "1 or 0 (true/false) - true if the entity is out of control. Used by boat.",
+                        markdownDescription: "1 or 0 (true/false) - true if the entity is out of control. Used by boat.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsRoaring: {
-                        description: "1 or 0 (true/false) - true if this entity is roaring. Used by ravager.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is roaring. Used by ravager.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsScared: {
-                        description: "1 or 0 (true/false) - true if this entity is scared.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is scared.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsStunned: {
-                        description: "1 or 0 (true/false) - true if this entity is stunned. Used by ravager.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is stunned. Used by ravager.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsSwimming: {
-                        description: "1 or 0 (true/false) - true if this entity is swimming.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is swimming.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsTamed: {
-                        description: "1 or 0 (true/false) - true if this entity is tamed.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is tamed.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     IsTrusting: {
-                        description: "1 or 0 (true/false) - true if this entity is trusting a player. Used by fox and ocelot.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is trusting a player. Used by fox and ocelot.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     LastDimensionId: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "int",
                     },
                     LinksTag: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "compound",
                         required: ["entityID", "LinkID"],
                         properties: {
                             entityID: {
-                                description: "The Unique ID of an entity.",
+                                markdownDescription: "The Unique ID of an entity.",
                                 type: "long",
                             },
                             LinkID: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
                     },
                     LootDropped: {
-                        description: "1 or 0 (true/false) - true if this entity can drop [loot](https://minecraft.wiki/w/Drops#Mob_drops) when died.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity can drop [loot](https://minecraft.wiki/w/Drops#Mob_drops) when died.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     MarkVariant: {
-                        description: "The ID of the mark variant. Used by villager, horse, bee etc. Defaults to 0.",
+                        markdownDescription: "The ID of the mark variant. Used by villager, horse, bee etc. Defaults to 0.",
                         type: "int",
                         default: {
                             type: "int",
@@ -405,34 +406,34 @@ export namespace NBTSchemas {
                         },
                     },
                     Motion: {
-                        description: "(May not exist) Three TAG_Floats describing the current dX, dY and dZ velocity of the entity in meters per tick.",
+                        markdownDescription: "(May not exist) Three TAG_Floats describing the current dX, dY and dZ velocity of the entity in meters per tick.",
                         type: "list",
                         items: [
                             {
-                                description: "dX",
+                                markdownDescription: "dX",
                                 type: "float",
                             },
                             {
-                                description: "dY",
+                                markdownDescription: "dY",
                                 type: "float",
                             },
                             {
-                                description: "dZ",
+                                markdownDescription: "dZ",
                                 type: "float",
                             },
                         ],
                     },
                     OnGround: {
-                        description: "1 or 0 (true/false) - true if the entity is touching the ground.",
+                        markdownDescription: "1 or 0 (true/false) - true if the entity is touching the ground.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     OwnerNew: {
-                        description: "UNDOCUMENTED. Defaults to -1.",
+                        markdownDescription: "UNDOCUMENTED. Defaults to -1.",
                         type: "long",
                         default: {
                             type: "long",
@@ -440,91 +441,92 @@ export namespace NBTSchemas {
                         },
                     },
                     Persistent: {
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - true if an entity should be [persistent](https://minecraft.wiki/w/Mob spawning#Despawning) in the world.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     PortalCooldown: {
-                        description:
+                        markdownDescription:
                             "The number of ticks before which the entity may be teleported back through a nether portal. Initially starts at 300 ticks (15 seconds) after teleportation and counts down to 0.",
                         type: "int",
                     },
                     Pos: {
-                        description: "Three TAG_Floats describing the current X, Y and Z position of the entity.",
+                        markdownDescription: "Three TAG_Floats describing the current X, Y and Z position of the entity.",
                         type: "list",
                         items: [
                             {
-                                description: "X",
+                                markdownDescription: "X",
                                 type: "float",
                             },
                             {
-                                description: "Y",
+                                markdownDescription: "Y",
                                 type: "float",
                             },
                             {
-                                description: "Z",
+                                markdownDescription: "Z",
                                 type: "float",
                             },
                         ],
                     },
                     Rotation: {
-                        description: "Two TAG_Floats representing rotation in degrees.",
+                        markdownDescription: "Two TAG_Floats representing rotation in degrees.",
                         type: "list",
                         items: [
                             {
-                                description: "The entity's rotation clockwise around the Y axis (called yaw). Due south is 0. Does not exceed 360 degrees.",
+                                markdownDescription:
+                                    "The entity's rotation clockwise around the Y axis (called yaw). Due south is 0. Does not exceed 360 degrees.",
                                 type: "float",
                             },
                             {
-                                description:
+                                markdownDescription:
                                     "The entity's declination from the horizon (called pitch). Horizontal is 0. Positive values look downward. Does not exceed positive or negative 90 degrees.",
                                 type: "float",
                             },
                         ],
                     },
                     Saddled: {
-                        description: "1 or 0 (true/false) - true if this entity is saddled.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is saddled.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     Sheared: {
-                        description: "1 or 0 (true/false) - true if this entity is sheared. Used by sheep and snow golem.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is sheared. Used by sheep and snow golem.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     ShowBottom: {
-                        description: "1 or 0 (true/false) - true if the End Crystal shows the bedrock slate underneath. *needs testing*",
+                        markdownDescription: "1 or 0 (true/false) - true if the End Crystal shows the bedrock slate underneath. *needs testing*",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     Sitting: {
-                        description: "1 or 0 (true/false) - true if this entity is sitting.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity is sitting.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     SkinID: {
-                        description: "The entity's Skin ID value. Used by villager and zombified villager. Defaults to 0.",
+                        markdownDescription: "The entity's Skin ID value. Used by villager and zombified villager. Defaults to 0.",
                         type: "int",
                         default: {
                             type: "int",
@@ -532,7 +534,7 @@ export namespace NBTSchemas {
                         },
                     },
                     Strength: {
-                        description: "Determines the number of items the entity can carry (items = 3 × strength). Used by llama. Defaults to 0.",
+                        markdownDescription: "Determines the number of items the entity can carry (items = 3 × strength). Used by llama. Defaults to 0.",
                         type: "int",
                         default: {
                             type: "int",
@@ -540,7 +542,7 @@ export namespace NBTSchemas {
                         },
                     },
                     StrengthMax: {
-                        description: "Determines the maximum number of items the entity can carry (items = 3 × strength). Defaults to 0.",
+                        markdownDescription: "Determines the maximum number of items the entity can carry (items = 3 × strength). Defaults to 0.",
                         type: "int",
                         default: {
                             type: "int",
@@ -548,19 +550,19 @@ export namespace NBTSchemas {
                         },
                     },
                     Tags: {
-                        description: "(May not exist) List of [scoreboard tags](https://minecraft.wiki/w/Scoreboard) of this entity.",
+                        markdownDescription: "(May not exist) List of [scoreboard tags](https://minecraft.wiki/w/Scoreboard) of this entity.",
                         type: "list",
                         items: {
-                            description: "A tag.",
+                            markdownDescription: "A tag.",
                             type: "string",
                         },
                     },
                     UniqueID: {
-                        description: "The Unique ID of this entity.",
+                        markdownDescription: "The Unique ID of this entity.",
                         type: "long",
                     },
                     Variant: {
-                        description: "The ID of the variant. Used by cat, villager, horse, etc. Defaults to 0.",
+                        markdownDescription: "The ID of the variant. Used by cat, villager, horse, etc. Defaults to 0.",
                         type: "int",
                         default: {
                             type: "int",
@@ -574,12 +576,12 @@ export namespace NBTSchemas {
             AutonomousEntities: {
                 id: "AutonomousEntities",
                 title: "The AutonomousEntities schema.",
-                description: "The autonomous entities data.",
+                markdownDescription: "The autonomous entities data.",
                 type: "compound",
                 required: ["AutonomousEntityList"],
                 properties: {
                     AutonomousEntityList: {
-                        description: "UNKNOWN.",
+                        markdownDescription: "UNKNOWN.",
                         type: "list",
                     },
                 },
@@ -589,24 +591,24 @@ export namespace NBTSchemas {
             BiomeData: {
                 id: "BiomeData",
                 title: "The BiomeData schema.",
-                description: "The [biome](https://minecraft.wiki/w/biome) data.",
+                markdownDescription: "The [biome](https://minecraft.wiki/w/biome) data.",
                 type: "compound",
                 required: ["list"],
                 properties: {
                     list: {
-                        description: "A list of compound tags representing biomes.",
+                        markdownDescription: "A list of compound tags representing biomes.",
                         type: "list",
                         items: {
-                            description: "A biome.",
+                            markdownDescription: "A biome.",
                             type: "compound",
                             required: ["id", "snowAccumulation"],
                             properties: {
                                 id: {
-                                    description: "The numerical [biome ID](https://minecraft.wiki/w/Biome).",
+                                    markdownDescription: "The numerical [biome ID](https://minecraft.wiki/w/Biome).",
                                     type: "short",
                                 },
                                 snowAccumulation: {
-                                    description: "The biome's snow accumulation. Eg. `0.125`.",
+                                    markdownDescription: "The biome's snow accumulation. Eg. `0.125`.",
                                     type: "float",
                                 },
                             },
@@ -619,25 +621,25 @@ export namespace NBTSchemas {
             BiomeIdsTable: {
                 id: "BiomeIdsTable",
                 title: "The BiomeIdsTable schema.",
-                description: "Biome numeric ID mappings for custom biomes.",
+                markdownDescription: "Biome numeric ID mappings for custom biomes.",
                 type: "compound",
                 required: ["list"],
                 properties: {
                     list: {
-                        description: "A list of compound tags representing custom biome types.",
+                        markdownDescription: "A list of compound tags representing custom biome types.",
                         type: "list",
                         items: {
-                            description: "A custom biome type.",
+                            markdownDescription: "A custom biome type.",
                             type: "compound",
                             required: ["id", "name"],
                             properties: {
                                 id: {
-                                    description: "The numerical [biome ID](https://minecraft.wiki/w/Biome) for this custom biome. Starts at 30,000.",
+                                    markdownDescription: "The numerical [biome ID](https://minecraft.wiki/w/Biome) for this custom biome. Starts at 30,000.",
                                     type: "short",
                                     minimum: 30_000,
                                 },
                                 name: {
-                                    description: "The custom biome's namespaced ID.",
+                                    markdownDescription: "The custom biome's namespaced ID.",
                                     type: "string",
                                 },
                             },
@@ -650,37 +652,37 @@ export namespace NBTSchemas {
             BlockEntity: {
                 id: "BlockEntity",
                 title: "The BlockEntity schema.",
-                description: "All block entities share this base.",
+                markdownDescription: "All block entities share this base.",
                 type: "compound",
                 required: ["id", "isMovable", "x", "y", "z"],
                 properties: {
                     CustomName: {
-                        description: "(May not exist) The custom name of the block entity.",
+                        markdownDescription: "(May not exist) The custom name of the block entity.",
                         type: "string",
                     },
                     id: {
-                        description: "The savegame ID of the block entity.",
+                        markdownDescription: "The savegame ID of the block entity.",
                         type: "string",
                     },
                     isMovable: {
-                        description: "1 or 0 (true/false) - true if the block entity is movable with a piston.",
+                        markdownDescription: "1 or 0 (true/false) - true if the block entity is movable with a piston.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     x: {
-                        description: "X coordinate of the block entity.",
+                        markdownDescription: "X coordinate of the block entity.",
                         type: "int",
                     },
                     y: {
-                        description: "Y coordinate of the block entity.",
+                        markdownDescription: "Y coordinate of the block entity.",
                         type: "int",
                     },
                     z: {
-                        description: "Z coordinate of the block entity.",
+                        markdownDescription: "Z coordinate of the block entity.",
                         type: "int",
                     },
                 },
@@ -689,18 +691,18 @@ export namespace NBTSchemas {
             ChunkLoadedRequest: {
                 id: "ChunkLoadedRequest",
                 title: "The ChunkLoadedRequest schema.",
-                description: "UNDOCUMENTED.",
+                markdownDescription: "UNDOCUMENTED.",
                 type: "compound",
                 properties: {
                     ActionType: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "byte", value: 2 }],
                     },
                     AllowNonTickingChunks: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -708,8 +710,8 @@ export namespace NBTSchemas {
                     },
                     AnimatePlacement: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -717,32 +719,32 @@ export namespace NBTSchemas {
                     },
                     AnimationMode: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "byte", value: 0 }],
                     },
                     AnimationSeconds: {
                         type: "float",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     AreaType: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "byte", value: 0 }],
                     },
                     BlocksPlaced: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: 0 }],
                     },
                     ChunkRequestListType: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "byte", value: 1 }],
                     },
                     IncludeBlocks: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -750,8 +752,8 @@ export namespace NBTSchemas {
                     },
                     IncludeEntities: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -759,219 +761,325 @@ export namespace NBTSchemas {
                     },
                     Integrity: {
                         type: "float",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "float", value: 100 }],
                     },
                     IntegritySeed: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: 0 }],
                     },
                     MaxX: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: -1 }],
                     },
                     MaxZ: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: -1 }],
                     },
                     MinX: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: -2 }],
                     },
                     MinZ: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: -2 }],
                     },
                     Mirror: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "byte", value: 0 }],
                     },
                     Name: {
                         type: "string",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "string", value: "mystructure:Tree1" }],
                     },
                     OffsetX: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: 0 }],
                     },
                     OffsetY: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: 0 }],
                     },
                     OffsetZ: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: 0 }],
                     },
                     PosX: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: -20 }],
                     },
                     PosY: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: -1 }],
                     },
                     PosZ: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: -22 }],
                     },
                     Rotation: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "byte", value: 0 }],
                     },
                     SizeX: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: 8 }],
                     },
                     SizeY: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: 100 }],
                     },
                     SizeZ: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "int", value: 7 }],
                     },
                     TickQueued: {
                         type: "long",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         examples: [{ type: "long", value: [0, 0] }],
                     },
                 },
             },
             // NOTE: Verified.
-            Data3D: {
-                id: "Data3D",
-                title: "The Data3D schema.",
-                description:
-                    "The NBT structure of the parsed data of the Data3D content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+            Overworld: {
+                id: "Overworld",
+                title: "The Overworld schema.",
+                markdownDescription: "The data of the overworld dimension, seems to currently just include the LimboEntities data.",
                 type: "compound",
-                required: ["heightMap", "biomes"],
-                properties: {
-                    heightMap: {
-                        description: "The height map data.\n\nIn it is stored as a 2D matrix with [x][z] height values.",
-                        type: "list",
-                        minItems: 16,
-                        maxItems: 16,
-                        items: {
-                            description: "A height map row. Its index corresponds to the offset on the x axis.",
-                            type: "list",
-                            minItems: 16,
-                            maxItems: 16,
-                            items: {
-                                description: "A height value. Its index corresponds to the offset on the z axis.",
-                                type: `${NBT.TagType.Short}`,
-                            },
-                        },
-                    },
-                    biomes: {
-                        description: "The biome data.",
-                        type: "list",
-                        items: {
-                            type: "compound",
-                            required: ["values", "palette"],
-                            properties: {
-                                values: {
-                                    description: "The biome values.\n\nThis is an array of indices in the biome palette, one for each block.",
-                                    type: "list",
-                                    items: {
-                                        type: "int",
-                                    },
-                                },
-                                palette: {
-                                    description: "The biome palette.\n\nThis is an array of the biome numeric IDs.",
-                                    type: "list",
-                                    items: {
-                                        type: "int",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
+                properties: {},
+                $ref: "LimboEntities",
             },
             // NOTE: Verified.
-            Digest: {
-                id: "Digest",
-                title: "The Digest schema.",
-                description:
-                    "The NBT structure of the parsed data of the Digest content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+            Nether: {
+                id: "Nether",
+                title: "The Nether schema.",
+                markdownDescription: "The data of the nether dimension, seems to currently just include the LimboEntities data.",
                 type: "compound",
-                required: ["entityIds"],
+                properties: {},
+                $ref: "LimboEntities",
+            },
+            // NOTE: Verified.
+            TheEnd: {
+                id: "TheEnd",
+                title: "The TheEnd schema.",
+                markdownDescription: "The data of the end dimension.",
+                type: "compound",
+                required: ["data"],
                 properties: {
-                    entityIds: {
-                        title: "Entity IDs",
-                        description: "The UUIDs of all of the entities in the associated chunk.",
-                        type: "list",
-                        items: {
-                            title: "Entity ID",
-                            description: "A UUID.",
-                            type: "long",
+                    data: {
+                        title: "Data",
+                        markdownDescription: "The data of the end dimension.",
+                        type: "compound",
+                        properties: {
+                            DragonFight: {
+                                title: "Dragon Fight",
+                                markdownDescription: "UNDOCUMENTED.",
+                                type: "compound",
+                                // REVIEW: Figure out if these properties are actually required.
+                                properties: {
+                                    DragonKilled: {
+                                        title: "Dragon Killed",
+                                        markdownDescription: "UNDOCUMENTED.",
+                                        type: "byte",
+                                        markdownEnumDescriptions: ["false", "true"],
+                                        enum: [
+                                            { type: "byte", value: 0 },
+                                            { type: "byte", value: 1 },
+                                        ],
+                                    },
+                                    DragonSpawned: {
+                                        title: "Dragon Spawned",
+                                        markdownDescription: "UNDOCUMENTED.",
+                                        type: "byte",
+                                        markdownEnumDescriptions: ["false", "true"],
+                                        enum: [
+                                            { type: "byte", value: 0 },
+                                            { type: "byte", value: 1 },
+                                        ],
+                                    },
+                                    DragonUUID: {
+                                        title: "Dragon UUID",
+                                        markdownDescription: "UNDOCUMENTED.",
+                                        type: "long",
+                                    },
+                                    ExitPortalLocation: {
+                                        title: "Exit Portal Location",
+                                        markdownDescription: "UNDOCUMENTED. A Vector3.",
+                                        type: "list",
+                                        items: [
+                                            {
+                                                title: "x",
+                                                markdownDescription: "X component of this vector.",
+                                                type: "int",
+                                            },
+                                            {
+                                                title: "y",
+                                                markdownDescription: "Y component of this vector.",
+                                                type: "int",
+                                            },
+                                            {
+                                                title: "z",
+                                                markdownDescription: "Z component of this vector.",
+                                                type: "int",
+                                            },
+                                        ],
+                                    },
+                                    Gateways: {
+                                        title: "Gateways",
+                                        markdownDescription: "UNDOCUMENTED.",
+                                        type: "list",
+                                        items: {
+                                            title: "Gateway",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                    },
+                                    IsRespawning: {
+                                        title: "Is Respawning",
+                                        markdownDescription: "UNDOCUMENTED.",
+                                        type: "byte",
+                                        markdownEnumDescriptions: ["false", "true"],
+                                        enum: [
+                                            { type: "byte", value: 0 },
+                                            { type: "byte", value: 1 },
+                                        ],
+                                    },
+                                    PreviouslyKilled: {
+                                        markdownDescription: "UNDOCUMENTED.",
+                                        type: "byte",
+                                        markdownEnumDescriptions: ["false", "true"],
+                                        enum: [
+                                            { type: "byte", value: 0 },
+                                            { type: "byte", value: 1 },
+                                        ],
+                                    },
+                                },
+                            },
+                            Gateways: {
+                                title: "Gateways",
+                                markdownDescription: "UNDOCUMENTED.",
+                                type: "list",
+                                items: {
+                                    title: "Gateway",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "compound",
+                                    required: ["Entry", "Exit"],
+                                    properties: {
+                                        Entry: {
+                                            title: "Entry",
+                                            markdownDescription: "UNDOCUMENTED. A Vector3.",
+                                            type: "list",
+                                            items: [
+                                                {
+                                                    title: "x",
+                                                    markdownDescription: "X component of this vector.",
+                                                    type: "int",
+                                                },
+                                                {
+                                                    title: "y",
+                                                    markdownDescription: "Y component of this vector.",
+                                                    type: "int",
+                                                },
+                                                {
+                                                    title: "z",
+                                                    markdownDescription: "Z component of this vector.",
+                                                    type: "int",
+                                                },
+                                            ],
+                                        },
+                                        Exit: {
+                                            title: "Exit",
+                                            markdownDescription: "UNDOCUMENTED. A Vector3.",
+                                            type: "list",
+                                            items: [
+                                                {
+                                                    title: "x",
+                                                    markdownDescription: "X component of this vector.",
+                                                    type: "int",
+                                                },
+                                                {
+                                                    title: "y",
+                                                    markdownDescription: "Y component of this vector.",
+                                                    type: "int",
+                                                },
+                                                {
+                                                    title: "z",
+                                                    markdownDescription: "Z component of this vector.",
+                                                    type: "int",
+                                                },
+                                            ],
+                                        },
+                                    },
+                                },
+                            },
                         },
                     },
                 },
+                allOf: [{ $ref: "LimboEntities" }],
+                additionalProperties: false,
             },
             // NOTE: Verified.
             DynamicProperties: {
                 id: "DynamicProperties",
                 title: "The DynamicProperties schema.",
-                description:
+                markdownDescription:
                     "The dynamic properties data of the add-ons that have been on the world. The property keys should be the add-ons' script module UUIDs.",
                 type: "compound",
                 additionalProperties: {
-                    description: "The dynamic properties of an add-on. The property keys should be the dynamic property keys.",
+                    markdownDescription: "The dynamic properties of an add-on. The property keys should be the dynamic property keys.",
                     type: "compound",
                     additionalProperties: {
                         oneOf: [
                             {
-                                description: "A string.",
+                                markdownDescription: "A string.",
                                 type: "string",
                             },
                             {
-                                description: "A boolean.",
+                                markdownDescription: "A boolean.",
                                 type: "byte",
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
                                 ],
-                                enumDescriptions: ["false", "true"],
+                                markdownEnumDescriptions: ["false", "true"],
                             },
                             {
-                                description: "A number.",
+                                markdownDescription: "A number.",
                                 type: "double",
                             },
                             {
-                                description: "A Vector3.",
+                                markdownDescription: "A Vector3.",
                                 type: "list",
                                 items: [
                                     {
                                         title: "x",
-                                        description: "X component of this vector.",
+                                        markdownDescription: "X component of this vector.",
                                         type: "float",
                                     },
                                     {
                                         title: "y",
-                                        description: "Y component of this vector.",
+                                        markdownDescription: "Y component of this vector.",
                                         type: "float",
                                     },
                                     {
                                         title: "z",
-                                        description: "Z component of this vector.",
+                                        markdownDescription: "Z component of this vector.",
                                         type: "float",
                                     },
                                 ],
@@ -981,140 +1089,10 @@ export namespace NBTSchemas {
                 },
             },
             // NOTE: Verified.
-            LevelChunkMetaDataDictionary: {
-                id: "LevelChunkMetaDataDictionary",
-                title: "The LevelChunkMetaDataDictionary schema.",
-                description:
-                    "Stores the NBT metadata of all chunks. Maps the xxHash64 hash of NBT data to that NBT data, so that each chunk need only store 8 bytes instead of the entire NBT; most chunks have the same metadata.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
-                type: "compound",
-                additionalProperties: {
-                    title: "Chunk Metadata Entry",
-                    description: "The NBT metadata of a chunk.",
-                    type: "compound",
-                    required: [
-                        "BiomeBaseGameVersion",
-                        "DimensionName",
-                        "GenerationSeed",
-                        "GeneratorType",
-                        "OriginalBaseGameVersion",
-                        "OriginalDimensionHeightRange",
-                        "SkullFlatteningPerformed",
-                    ],
-                    properties: {
-                        BiomeBaseGameVersion: {
-                            title: "Biome Base Game Version",
-                            description: 'UNDOCUMENTED. Currently observed value is "1.18.0".',
-                            type: "string",
-                            examples: [{ type: "string", value: "1.18.0" }],
-                        },
-                        DimensionName: {
-                            title: "Dimension Name",
-                            description: "The name of the dimension the chunk is in.",
-                            type: "string",
-                            enum: [
-                                { type: "string", value: "Overworld" },
-                                { type: "string", value: "Nether" },
-                                { type: "string", value: "TheEnd" },
-                            ],
-                            enumDescriptions: ["The Overworld dimension", "The Nether dimension", "The End dimension"],
-                        },
-                        GenerationSeed: {
-                            title: "Generation Seed",
-                            description: "The seed used to generate the chunk. This is whatever the seed of the world was when the chunk was generated.",
-                            type: "long",
-                        },
-                        GeneratorType: {
-                            title: "Generator Type",
-                            description: "UNDOCUMENTED.",
-                            type: "int",
-                        },
-                        LastSavedBaseGameVersion: {
-                            title: "Last Saved Base Game Version",
-                            description:
-                                "The base game version of the world when the chunk was last saved. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.",
-                            type: "string",
-                        },
-                        LastSavedDimensionHeightRange: {
-                            title: "Last Saved Dimension Height Range",
-                            description: "The height range of the chunk's dimension when the chunk was last saved.",
-                            type: "compound",
-                            required: ["max", "min"],
-                            properties: {
-                                max: {
-                                    title: "Max",
-                                    description: "The maximum height limit of the chunk's dimension when the chunk was last saved.",
-                                    type: "short",
-                                },
-                                min: {
-                                    title: "Min",
-                                    description: "The minimum height limit of the chunk's dimension when the chunk was last saved.",
-                                    type: "short",
-                                },
-                            },
-                        },
-                        NeighborAwareBlockUpgradeVersion: {
-                            title: "Neighbor Aware Block Upgrade Version",
-                            description: "UNDOCUMENTED. Currently observed value is 1.",
-                            type: "int",
-                            examples: [{ type: "int", value: 1 }],
-                        },
-                        OriginalBaseGameVersion: {
-                            title: "Original Base Game Version",
-                            description:
-                                "The base game version of the world when the chunk was originally generated. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.",
-                            type: "string",
-                        },
-                        OriginalDimensionHeightRange: {
-                            title: "Original Dimension Height Range",
-                            description: "The height range of the chunk's dimension when the chunk was originally generated.",
-                            type: "compound",
-                            required: ["max", "min"],
-                            properties: {
-                                max: {
-                                    title: "Max",
-                                    description: "The maximum height limit of the chunk's dimension when the chunk was originally generated.",
-                                    type: "short",
-                                },
-                                min: {
-                                    title: "Min",
-                                    description: "The minimum height limit of the chunk's dimension when the chunk was originally generated.",
-                                    type: "short",
-                                },
-                            },
-                        },
-                        Overworld1_18HeightExtended: {
-                            title: "Overworld 1.18 Height Extended",
-                            description: "UNDOCUMENTED. Currently observed value is 1.",
-                            type: "short",
-                            examples: [{ type: "short", value: 1 }],
-                        },
-                        SkullFlatteningPerformed: {
-                            title: "Skull Flattening Performed",
-                            description: "UNDOCUMENTED. Currently observed value is 1.",
-                            type: "short",
-                            examples: [{ type: "short", value: 1 }],
-                        },
-                        UnderwaterLavaLakeFixed: {
-                            title: "Underwater Lava Lake Fixed",
-                            description: "UNDOCUMENTED. Currently observed value is 1.",
-                            type: "short",
-                            examples: [{ type: "short", value: 1 }],
-                        },
-                        WorldGenBelowZeroFixed: {
-                            title: "World Gen Below Zero Fixed",
-                            description: "UNDOCUMENTED. Currently observed value is 1.",
-                            type: "short",
-                            examples: [{ type: "short", value: 1 }],
-                        },
-                    },
-                    additionalProperties: true,
-                },
-            },
-            // NOTE: Verified.
             LevelDat: {
                 id: "LevelDat",
                 title: "The LevelDat schema.",
-                description: "World data.",
+                markdownDescription: "World data.",
                 type: "compound",
                 properties: {
                     abilities: {
@@ -1122,8 +1100,8 @@ export namespace NBTSchemas {
                         properties: {
                             attackmobs: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player can attack mobs.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player can attack mobs.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1131,8 +1109,8 @@ export namespace NBTSchemas {
                             },
                             attackplayers: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player can attack other players.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player can attack other players.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1140,8 +1118,8 @@ export namespace NBTSchemas {
                             },
                             build: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player can place blocks.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player can place blocks.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1149,8 +1127,8 @@ export namespace NBTSchemas {
                             },
                             doorsandswitches: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player is able to interact with redstone components.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player is able to interact with redstone components.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1158,8 +1136,8 @@ export namespace NBTSchemas {
                             },
                             flying: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player is currently flying.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player is currently flying.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1167,7 +1145,7 @@ export namespace NBTSchemas {
                             },
                             flySpeed: {
                                 type: "float",
-                                description: "The flying speed, always 0.05 (or 0.05000000074505806).",
+                                markdownDescription: "The flying speed, always 0.05 (or 0.05000000074505806).",
                                 default: {
                                     type: "float",
                                     value: 0.05,
@@ -1175,8 +1153,8 @@ export namespace NBTSchemas {
                             },
                             instabuild: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player can instantly destroy blocks.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player can instantly destroy blocks.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1184,8 +1162,8 @@ export namespace NBTSchemas {
                             },
                             invulnerable: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1193,8 +1171,8 @@ export namespace NBTSchemas {
                             },
                             lightning: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player was struck by lightning.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player was struck by lightning.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1202,8 +1180,8 @@ export namespace NBTSchemas {
                             },
                             mayfly: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player can fly.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player can fly.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1211,8 +1189,8 @@ export namespace NBTSchemas {
                             },
                             mine: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player can destroy blocks.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player can destroy blocks.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1221,8 +1199,8 @@ export namespace NBTSchemas {
                             // REVIEW: Check if this property actually ever exists.
                             mute: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player messages cannot be seen by other players.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player messages cannot be seen by other players.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1231,8 +1209,8 @@ export namespace NBTSchemas {
                             // REVIEW: Check if this property actually ever exists.
                             noclip: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player can phase through blocks.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player can phase through blocks.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1240,8 +1218,8 @@ export namespace NBTSchemas {
                             },
                             op: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player has operator commands.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player has operator commands.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1249,8 +1227,8 @@ export namespace NBTSchemas {
                             },
                             opencontainers: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player is able to open containers.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player is able to open containers.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1259,7 +1237,7 @@ export namespace NBTSchemas {
                             // REVIEW: Check if this property actually ever exists.
                             permissionsLevel: {
                                 type: "int",
-                                description: "What permissions a player defaults to, when joining a world.",
+                                markdownDescription: "What permissions a player defaults to, when joining a world.",
                                 default: {
                                     type: "int",
                                     value: 0,
@@ -1268,7 +1246,7 @@ export namespace NBTSchemas {
                             // REVIEW: Check if this property actually ever exists.
                             playerPermissionsLevel: {
                                 type: "int",
-                                description: "What permissions a player has.",
+                                markdownDescription: "What permissions a player has.",
                                 default: {
                                     type: "int",
                                     value: 0,
@@ -1276,8 +1254,8 @@ export namespace NBTSchemas {
                             },
                             teleport: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player is allowed to teleport.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player is allowed to teleport.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1285,7 +1263,7 @@ export namespace NBTSchemas {
                             },
                             walkSpeed: {
                                 type: "float",
-                                description: "The walking speed, always 0.1.",
+                                markdownDescription: "The walking speed, always 0.1.",
                                 default: {
                                     type: "float",
                                     value: 0.1,
@@ -1294,8 +1272,8 @@ export namespace NBTSchemas {
                             // REVIEW: Check if this property actually ever exists.
                             worldbuilder: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the player is a world builder.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the player is a world builder.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1303,20 +1281,20 @@ export namespace NBTSchemas {
                             },
                             verticalFlySpeed: {
                                 type: "float",
-                                description: "The vertical fly speed, always 1.",
+                                markdownDescription: "The vertical fly speed, always 1.",
                                 default: {
                                     type: "float",
                                     value: 1,
                                 },
                             },
                         },
-                        description: "The default permissions for players in the world.",
+                        markdownDescription: "The default permissions for players in the world.",
                     },
                     // REVIEW: Check if this property actually ever exists.
                     allowdestructiveobjects: {
                         type: "byte",
-                        description: "The `allowdestructiveobjects` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `allowdestructiveobjects` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1325,8 +1303,8 @@ export namespace NBTSchemas {
                     // REVIEW: Check if this property actually ever exists.
                     allowmobs: {
                         type: "byte",
-                        description: "The `allowmobs` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `allowmobs` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1334,7 +1312,7 @@ export namespace NBTSchemas {
                     },
                     baseGameVersion: {
                         type: "string",
-                        description:
+                        markdownDescription:
                             "The version of Minecraft that is the maximum version to load resources from. Eg. setting this to `1.16.0` removes any features that were added after version `1.16.0`.",
                         default: {
                             type: "string",
@@ -1343,13 +1321,13 @@ export namespace NBTSchemas {
                     },
                     BiomeOverride: {
                         type: "string",
-                        description:
-                            "Makes the world into a [single biome](single biome) world and the biome set here is the biome of this single biome world.",
+                        markdownDescription:
+                            "Makes the world into a [single biome](https://minecraft.wiki/w/single biome) world and the biome set here is the biome of this single biome world.",
                     },
                     bonusChestEnabled: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if the bonus chest is enabled.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if the bonus chest is enabled.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1357,9 +1335,9 @@ export namespace NBTSchemas {
                     },
                     bonusChestSpawned: {
                         type: "byte",
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - true if the bonus chest has been placed in the world. Turning this to false spawns another bonus chest near the spawn coordinates.",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1368,8 +1346,8 @@ export namespace NBTSchemas {
                     // REVIEW: Check if this property actually ever exists.
                     codebuilder: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1377,8 +1355,8 @@ export namespace NBTSchemas {
                     },
                     commandblockoutput: {
                         type: "byte",
-                        description: "The `commandblockoutput` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `commandblockoutput` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1386,8 +1364,9 @@ export namespace NBTSchemas {
                     },
                     CenterMapsToOrigin: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if the maps should be on a grid or centered to exactly where they are created. Default to 0.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription:
+                            "1 or 0 (true/false) - true if the maps should be on a grid or centered to exactly where they are created. Default to 0.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1395,8 +1374,8 @@ export namespace NBTSchemas {
                     },
                     commandblocksenabled: {
                         type: "byte",
-                        description: "The `commandblocksenabled` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `commandblocksenabled` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1404,8 +1383,8 @@ export namespace NBTSchemas {
                     },
                     commandsEnabled: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if cheats are on.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if cheats are on.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1413,9 +1392,9 @@ export namespace NBTSchemas {
                     },
                     ConfirmedPlatformLockedContent: {
                         type: "byte",
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - tells if the world has Platform-Specific texture packs or content. Used to prevent cross play in specific worlds, that use assets allowed only on specific consoles.",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1423,12 +1402,12 @@ export namespace NBTSchemas {
                     },
                     currentTick: {
                         type: "long",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     Difficulty: {
                         type: "int",
-                        description: "The current difficulty setting. 0 is Peaceful, 1 is Easy, 2 is Normal, and 3 is Hard.",
-                        enumDescriptions: ["Peaceful", "Easy", "Normal", "Hard"],
+                        markdownDescription: "The current difficulty setting. 0 is Peaceful, 1 is Easy, 2 is Normal, and 3 is Hard.",
+                        markdownEnumDescriptions: ["Peaceful", "Easy", "Normal", "Hard"],
                         enum: [
                             { type: "int", value: 0 },
                             { type: "int", value: 1 },
@@ -1439,8 +1418,8 @@ export namespace NBTSchemas {
                     // REVIEW: Check if this property actually ever exists.
                     Dimension: {
                         type: "int",
-                        description: "The dimension the player is in. 0 is the Overworld, 1 is the Nether, and 2 is the End.",
-                        enumDescriptions: ["Overworld", "Nether", "The End"],
+                        markdownDescription: "The dimension the player is in. 0 is the Overworld, 1 is the Nether, and 2 is the End.",
+                        markdownEnumDescriptions: ["Overworld", "Nether", "The End"],
                         enum: [
                             { type: "int", value: 0 },
                             { type: "int", value: 1 },
@@ -1449,8 +1428,8 @@ export namespace NBTSchemas {
                     },
                     dodaylightcycle: {
                         type: "byte",
-                        description: "The `dodaylightcycle` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1458,8 +1437,8 @@ export namespace NBTSchemas {
                     },
                     doentitiydrops: {
                         type: "byte",
-                        description: "The `doentitiydrops` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `doentitiydrops` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1467,8 +1446,8 @@ export namespace NBTSchemas {
                     },
                     dofiretick: {
                         type: "byte",
-                        description: "The `dofiretick` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `dofiretick` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1476,8 +1455,8 @@ export namespace NBTSchemas {
                     },
                     doimmediaterespawn: {
                         type: "byte",
-                        description: "The `doimmediaterespawn` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `doimmediaterespawn` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1485,8 +1464,8 @@ export namespace NBTSchemas {
                     },
                     doinsomnia: {
                         type: "byte",
-                        description: "The `doinsomnia` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `doinsomnia` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1494,8 +1473,8 @@ export namespace NBTSchemas {
                     },
                     dolimitedcrafting: {
                         type: "byte",
-                        description: "The `dolimitedcrafting` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `dolimitedcrafting` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1503,8 +1482,8 @@ export namespace NBTSchemas {
                     },
                     domobloot: {
                         type: "byte",
-                        description: "The `domobloot` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `domobloot` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1512,8 +1491,8 @@ export namespace NBTSchemas {
                     },
                     domobspawning: {
                         type: "byte",
-                        description: "The `domobspawning` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `domobspawning` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1521,8 +1500,8 @@ export namespace NBTSchemas {
                     },
                     dotiledrops: {
                         type: "byte",
-                        description: "The `dotiledrops` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `dotiledrops` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1530,8 +1509,8 @@ export namespace NBTSchemas {
                     },
                     doweathercycle: {
                         type: "byte",
-                        description: "The `doweathercycle` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `doweathercycle` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1539,8 +1518,8 @@ export namespace NBTSchemas {
                     },
                     drowningdamage: {
                         type: "byte",
-                        description: "The `drowningdamage` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `drowningdamage` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1548,8 +1527,8 @@ export namespace NBTSchemas {
                     },
                     educationFeaturesEnabled: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1558,8 +1537,9 @@ export namespace NBTSchemas {
                     // For some reason this is actually an int.
                     editorWorldType: {
                         type: "int",
-                        description: "Marks a world as a [bedrock editor](Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription:
+                            "Marks a world as a [bedrock editor](https://minecraft.wiki/w/Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "int", value: 0 },
                             { type: "int", value: 1 },
@@ -1568,21 +1548,21 @@ export namespace NBTSchemas {
                     // REVIEW: Check if this property actually ever exists.
                     EducationOid: {
                         type: "string",
-                        description: "A [UUID](UUID). *info needed*",
+                        markdownDescription: "A [UUID](https://minecraft.wiki/w/UUID). *info needed*",
                     },
                     // REVIEW: Check if this property actually ever exists.
                     EducationProductId: {
                         type: "string",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     eduOffer: {
                         type: "int",
-                        description: "Marks a world as an Education Edition world (worlds with this set to 1 do not open on Bedrock!).",
+                        markdownDescription: "Marks a world as an Education Edition world (worlds with this set to 1 do not open on Bedrock!).",
                         default: {
                             type: "int",
                             value: 0,
                         },
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "int", value: 0 },
                             { type: "int", value: 1 },
@@ -1594,24 +1574,25 @@ export namespace NBTSchemas {
                         properties: {
                             buttonName: {
                                 type: "string",
-                                description:
+                                markdownDescription:
                                     "Unused in Bedrock Edition, but is used in Education Edition as part of the Resource Link feature on the Pause Screen. It defines the Resource Link Button Text.",
                             },
                             linkUri: {
                                 type: "string",
-                                description:
+                                markdownDescription:
                                     "Unused in Bedrock Edition, but is used in Education Edition as part of the Resource Link feature on the Pause Screen. It defines what link opens upon clicking the Resource Link Button.",
                             },
                         },
                     },
                     experiments: {
                         type: "compound",
-                        description: "The experimental toggles.",
+                        markdownDescription: "The experimental toggles.",
                         properties: {
                             experiments_ever_used: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the world is locked on [experimental gameplay](experimental gameplay).",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription:
+                                    "1 or 0 (true/false) - true if the world is locked on [experimental gameplay](https://minecraft.wiki/w/experimental gameplay).",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1619,8 +1600,8 @@ export namespace NBTSchemas {
                             },
                             saved_with_toggled_experiments: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the world has been saved with experiments on before.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the world has been saved with experiments on before.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1628,8 +1609,8 @@ export namespace NBTSchemas {
                             },
                             gametest: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the beta APIs experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the beta APIs experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1637,8 +1618,8 @@ export namespace NBTSchemas {
                             },
                             camera_aim_assist: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the camera aim assist experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the camera aim assist experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1646,8 +1627,8 @@ export namespace NBTSchemas {
                             },
                             data_driven_biomes: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the data driven biomes experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the data driven biomes experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1655,8 +1636,8 @@ export namespace NBTSchemas {
                             },
                             experimental_creator_cameras: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the experimental creator cameras experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the experimental creator cameras experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1664,8 +1645,8 @@ export namespace NBTSchemas {
                             },
                             jigsaw_structures: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the jigsaw structures experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the jigsaw structures experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1673,8 +1654,8 @@ export namespace NBTSchemas {
                             },
                             locator_bar: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the locator bar experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the locator bar experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1682,8 +1663,8 @@ export namespace NBTSchemas {
                             },
                             upcoming_creator_features: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the upcoming creator features experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the upcoming creator features experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1691,8 +1672,8 @@ export namespace NBTSchemas {
                             },
                             y_2025_drop_1: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the y_2025_drop_1 experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the y_2025_drop_1 experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1700,8 +1681,8 @@ export namespace NBTSchemas {
                             },
                             y_2025_drop_2: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the y_2025_drop_2 experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the y_2025_drop_2 experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1709,8 +1690,8 @@ export namespace NBTSchemas {
                             },
                             y_2025_drop_3: {
                                 type: "byte",
-                                description: "1 or 0 (true/false) - true if the y_2025_drop_3 experimental toggle is enabled.",
-                                enumDescriptions: ["false", "true"],
+                                markdownDescription: "1 or 0 (true/false) - true if the y_2025_drop_3 experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
                                     { type: "byte", value: 1 },
@@ -1719,7 +1700,7 @@ export namespace NBTSchemas {
                         },
                         additionalProperties: {
                             type: "byte",
-                            enumDescriptions: ["false", "true"],
+                            markdownEnumDescriptions: ["false", "true"],
                             enum: [
                                 { type: "byte", value: 0 },
                                 { type: "byte", value: 1 },
@@ -1728,8 +1709,8 @@ export namespace NBTSchemas {
                     },
                     falldamage: {
                         type: "byte",
-                        description: "The `falldamage` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `falldamage` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1737,8 +1718,8 @@ export namespace NBTSchemas {
                     },
                     firedamage: {
                         type: "byte",
-                        description: "The `firedamage` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `firedamage` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1746,7 +1727,7 @@ export namespace NBTSchemas {
                     },
                     FlatWorldLayers: {
                         type: "string",
-                        description:
+                        markdownDescription:
                             'JSON that controls generation of flat worlds. Default is `{"biome_id":1,"block_layers":[{"block_name":"minecraft:bedrock","count":1},{"block_name":"minecraft:dirt","count":2},{"block_name":"minecraft:grass_block","count":1}],"encoding_version":6,"structure_options":null,"world_version":"version.post_1_18"}`.',
                         default: {
                             type: "string",
@@ -1755,8 +1736,8 @@ export namespace NBTSchemas {
                     },
                     freezedamage: {
                         type: "byte",
-                        description: "The `freezedamage` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `freezedamage` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1764,7 +1745,7 @@ export namespace NBTSchemas {
                     },
                     functioncommandlimit: {
                         type: "int",
-                        description: "The `functioncommandlimit` [game rule](game rule).",
+                        markdownDescription: "The `functioncommandlimit` [game rule](https://minecraft.wiki/w/game rule).",
                         default: {
                             type: "int",
                             value: 10_000,
@@ -1773,8 +1754,8 @@ export namespace NBTSchemas {
                     // REVIEW: Check if this property actually ever exists.
                     globalmute: {
                         type: "byte",
-                        description: "The `globalmute` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `globalmute` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1782,8 +1763,8 @@ export namespace NBTSchemas {
                     },
                     ForceGameType: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if force the player into the game mode defined in `GameType`.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if force the player into the game mode defined in `GameType`.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1791,10 +1772,11 @@ export namespace NBTSchemas {
                     },
                     GameType: {
                         type: "int",
-                        description:
-                            "The default game mode of the player. 0 is [Survival](Survival), 1 is [Creative](Creative), 2 is [Adventure](Adventure), 5 is [Default](Game_mode#Default), and 6 is [Spectator](Spectator).",
+                        markdownDescription:
+                            "The default game mode of the player. 0 is [Survival](https://minecraft.wiki/w/Survival), 1 is [Creative](https://minecraft.wiki/w/Creative), 2 is [Adventure](https://minecraft.wiki/w/Adventure), 5 is [Default](https://minecraft.wiki/w/Game_mode#Default), and 6 is [Spectator](https://minecraft.wiki/w/Spectator).",
                         oneOf: [
                             {
+                                type: "int",
                                 not: {
                                     enum: [
                                         { type: "int", value: 0 },
@@ -1802,11 +1784,13 @@ export namespace NBTSchemas {
                                         { type: "int", value: 2 },
                                         { type: "int", value: 5 },
                                         { type: "int", value: 6 },
+                                        { type: "int", value: 7 },
                                     ],
                                 },
                             },
                             {
-                                enumDescriptions: ["Survival", "Creative", "Adventure", "Default", "Spectator"],
+                                type: "int",
+                                markdownEnumDescriptions: ["Survival", "Creative", "Adventure", "Default", "Spectator"],
                                 enum: [
                                     { type: "int", value: 0 },
                                     { type: "int", value: 1 },
@@ -1819,7 +1803,7 @@ export namespace NBTSchemas {
                     },
                     Generator: {
                         type: "int",
-                        description: "The world type. 0 is Old, 1 is Infinite, 2 is Flat, and 5 is Void.",
+                        markdownDescription: "The world type. 0 is Old, 1 is Infinite, 2 is Flat, and 5 is Void.",
                         oneOf: [
                             {
                                 not: {
@@ -1832,7 +1816,7 @@ export namespace NBTSchemas {
                                 },
                             },
                             {
-                                enumDescriptions: ["Old", "Infinite", "Flat", "Void"],
+                                markdownEnumDescriptions: ["Old", "Infinite", "Flat", "Void"],
                                 enum: [
                                     { type: "int", value: 0 },
                                     { type: "int", value: 1 },
@@ -1844,9 +1828,9 @@ export namespace NBTSchemas {
                     },
                     hasBeenLoadedInCreative: {
                         type: "byte",
-                        description:
-                            "Whether the world has achievements locked. Set to 1 if the default game mode is set to Creative, if [cheats](Commands#Cheats) have been enabled, or if a [behavior pack](add-on) has been equipped.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription:
+                            "Whether the world has achievements locked. Set to 1 if the default game mode is set to Creative, if [cheats](https://minecraft.wiki/w/Commands#Cheats) have been enabled, or if a [behavior pack](https://minecraft.wiki/w/add-on) has been equipped.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1854,8 +1838,8 @@ export namespace NBTSchemas {
                     },
                     hasLockedBehaviorPack: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1863,8 +1847,8 @@ export namespace NBTSchemas {
                     },
                     hasLockedResourcePack: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1872,8 +1856,8 @@ export namespace NBTSchemas {
                     },
                     HasUncompleteWorldFileOnDisk: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1881,8 +1865,8 @@ export namespace NBTSchemas {
                     },
                     immutableWorld: {
                         type: "byte",
-                        description: "Is read-only.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "Is read-only.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1890,12 +1874,22 @@ export namespace NBTSchemas {
                     },
                     InventoryVersion: {
                         type: "string",
-                        description: "Seems to correspond to the version the world was created or first opened in",
+                        markdownDescription: "Seems to correspond to the version the world was created or first opened in",
+                        examples: [
+                            {
+                                type: "string",
+                                value: "1.21.51",
+                            },
+                            {
+                                type: "string",
+                                value: "1.26.10-preview21",
+                            },
+                        ],
                     },
                     isCreatedInEditor: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if it was created from the [bedrock editor](Bedrock Editor).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if it was created from the [bedrock editor](https://minecraft.wiki/w/Bedrock Editor).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1903,8 +1897,8 @@ export namespace NBTSchemas {
                     },
                     isExportedFromEditor: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if exported from the [bedrock editor](Bedrock Editor).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if exported from the [bedrock editor](https://minecraft.wiki/w/Bedrock Editor).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1912,9 +1906,9 @@ export namespace NBTSchemas {
                     },
                     isFromLockedTemplate: {
                         type: "byte",
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - true if the world is created from a world template where the world options were intended not to be modified.",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1922,8 +1916,8 @@ export namespace NBTSchemas {
                     },
                     isFromWorldTemplate: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if the world is created from a world template.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if the world is created from a world template.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1931,8 +1925,8 @@ export namespace NBTSchemas {
                     },
                     IsHardcore: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if the world is in [Hardcore](Hardcore) mode.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if the world is in [Hardcore](https://minecraft.wiki/w/Hardcore) mode.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1940,8 +1934,8 @@ export namespace NBTSchemas {
                     },
                     isRandomSeedAllowed: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1949,9 +1943,9 @@ export namespace NBTSchemas {
                     },
                     isSingleUseWorld: {
                         type: "byte",
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - (unused) may cause world to not save, or delete after use. Seems to default back to false when a world is loaded.",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1959,9 +1953,9 @@ export namespace NBTSchemas {
                     },
                     isWorldTemplateOptionLocked: {
                         type: "byte",
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - true if the world options cannot be modified until the user accepts that they are changing the map.",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1969,8 +1963,8 @@ export namespace NBTSchemas {
                     },
                     keepinventory: {
                         type: "byte",
-                        description: "The `keepinventory` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `keepinventory` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1978,8 +1972,8 @@ export namespace NBTSchemas {
                     },
                     LANBroadcast: {
                         type: "byte",
-                        description: 'Whether the world has been opened with the "Visible to LAN players" world setting enabled.',
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: 'Whether the world has been opened with the "Visible to LAN players" world setting enabled.',
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1987,8 +1981,8 @@ export namespace NBTSchemas {
                     },
                     LANBroadcastIntent: {
                         type: "byte",
-                        description: 'Whether the "Visible to LAN players" world toggle is enabled.',
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: 'Whether the "Visible to LAN players" world toggle is enabled.',
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -1996,8 +1990,8 @@ export namespace NBTSchemas {
                     },
                     lastOpenedWithVersion: {
                         type: "list",
-                        description:
-                            "Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](Bedrock Edition Preview 1.20.30.22) the version is `1 20 30 22 1`.",
+                        markdownDescription:
+                            "Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock Edition Preview 1.20.30.22) the version is `1 20 30 22 1`.",
                         items: [
                             {
                                 title: "Major",
@@ -2018,7 +2012,7 @@ export namespace NBTSchemas {
                             {
                                 title: "Preview",
                                 type: "int",
-                                enumDescriptions: ["false", "true"],
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "int", value: 0 },
                                     { type: "int", value: 1 },
@@ -2028,11 +2022,11 @@ export namespace NBTSchemas {
                     },
                     LastPlayed: {
                         type: "long",
-                        description: "Stores a timestamp of when the world was last played as the number of seconds since the epoch (1/1/1970).",
+                        markdownDescription: "Stores a timestamp of when the world was last played as the number of seconds since the epoch (1/1/1970).",
                     },
                     LevelName: {
                         type: "string",
-                        description: "Specifies the name of the world.",
+                        markdownDescription: "Specifies the name of the world.",
                         default: {
                             type: "string",
                             value: "My World",
@@ -2040,15 +2034,15 @@ export namespace NBTSchemas {
                     },
                     lightningLevel: {
                         type: "float",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     lightningTime: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     LimitedWorldOriginX: {
                         type: "int",
-                        description: "The X coordinate where limited (old) world generation started.",
+                        markdownDescription: "The X coordinate where limited (old) world generation started.",
                         default: {
                             type: "int",
                             value: 0,
@@ -2056,7 +2050,7 @@ export namespace NBTSchemas {
                     },
                     LimitedWorldOriginY: {
                         type: "int",
-                        description: "The Y coordinate where limited (old) world generation started.",
+                        markdownDescription: "The Y coordinate where limited (old) world generation started.",
                         default: {
                             type: "int",
                             value: 0,
@@ -2064,7 +2058,7 @@ export namespace NBTSchemas {
                     },
                     LimitedWorldOriginZ: {
                         type: "int",
-                        description: "The Z coordinate where limited (old) world generation started.",
+                        markdownDescription: "The Z coordinate where limited (old) world generation started.",
                         default: {
                             type: "int",
                             value: 0,
@@ -2072,7 +2066,7 @@ export namespace NBTSchemas {
                     },
                     limitedWorldDepth: {
                         type: "int",
-                        description: "The depth (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.",
+                        markdownDescription: "The depth (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.",
                         default: {
                             type: "int",
                             value: 16,
@@ -2080,7 +2074,7 @@ export namespace NBTSchemas {
                     },
                     limitedWorldWidth: {
                         type: "int",
-                        description: "The width (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.",
+                        markdownDescription: "The width (in chunks) of the borders surrounding the (old) world generation. Defaults to 16.",
                         default: {
                             type: "int",
                             value: 16,
@@ -2088,8 +2082,8 @@ export namespace NBTSchemas {
                     },
                     locatorbar: {
                         type: "byte",
-                        description: "The `locatorbar` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `locatorbar` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2097,7 +2091,7 @@ export namespace NBTSchemas {
                     },
                     maxcommandchainlength: {
                         type: "int",
-                        description: "The `maxcommandchainlength` [game rule](game rule).",
+                        markdownDescription: "The `maxcommandchainlength` [game rule](https://minecraft.wiki/w/game rule).",
                         default: {
                             type: "int",
                             value: 65_535,
@@ -2105,8 +2099,8 @@ export namespace NBTSchemas {
                     },
                     MinimumCompatibleClientVersion: {
                         type: "list",
-                        description:
-                            "Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](Bedrock Edition Preview 1.20.30.22) the minimum compatible version is `1 20 30 0 0`.",
+                        markdownDescription:
+                            "Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock Edition Preview 1.20.30.22) the minimum compatible version is `1 20 30 0 0`.",
                         items: [
                             {
                                 title: "Major",
@@ -2127,7 +2121,7 @@ export namespace NBTSchemas {
                             {
                                 title: "Preview",
                                 type: "int",
-                                enumDescriptions: ["false", "true"],
+                                markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "int", value: 0 },
                                     { type: "int", value: 1 },
@@ -2137,8 +2131,8 @@ export namespace NBTSchemas {
                     },
                     mobgriefing: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2146,8 +2140,8 @@ export namespace NBTSchemas {
                     },
                     MultiplayerGame: {
                         type: "byte",
-                        description: 'Whether the world has been opened with the "Multiplayer Game" world setting enabled.',
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: 'Whether the world has been opened with the "Multiplayer Game" world setting enabled.',
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2155,8 +2149,8 @@ export namespace NBTSchemas {
                     },
                     MultiplayerGameIntent: {
                         type: "byte",
-                        description: 'Whether the "Multiplayer Game" world toggle is enabled.',
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: 'Whether the "Multiplayer Game" world toggle is enabled.',
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2164,8 +2158,8 @@ export namespace NBTSchemas {
                     },
                     naturalregeneration: {
                         type: "byte",
-                        description: "The `naturalregeneration` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `naturalregeneration` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2173,7 +2167,7 @@ export namespace NBTSchemas {
                     },
                     NetherScale: {
                         type: "int",
-                        description:
+                        markdownDescription:
                             "Defaults to 8. This is used to tell the game how many Overworld blocks go into one nether block (X blocks in the nether = 1 block in the overworld).",
                         default: {
                             type: "int",
@@ -2182,11 +2176,11 @@ export namespace NBTSchemas {
                     },
                     NetworkVersion: {
                         type: "int",
-                        description: "Seems to store the protocol version of the version the world was created or first opened in.",
+                        markdownDescription: "Seems to store the protocol version of the version the world was created or first opened in.",
                     },
                     Platform: {
                         type: "int",
-                        description: "Seems to store the platform that the level is created on. Currently observed value is 2.",
+                        markdownDescription: "Seems to store the platform that the level is created on. Currently observed value is 2.",
                         default: {
                             type: "int",
                             value: 2,
@@ -2194,12 +2188,12 @@ export namespace NBTSchemas {
                     },
                     PlatformBroadcastIntent: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     prid: {
                         type: "string",
-                        description:
-                            "The UUID of the premium world template this world was created with. Used for [Marketplace worlds](Marketplace#Worlds). *info needed*",
+                        markdownDescription:
+                            "The UUID of the premium world template this world was created with. Used for [Marketplace worlds](https://minecraft.wiki/w/Marketplace#Worlds). *info needed*",
                         default: {
                             type: "string",
                             value: "",
@@ -2207,8 +2201,8 @@ export namespace NBTSchemas {
                     },
                     projectilescanbreakblocks: {
                         type: "byte",
-                        description: "The `projectilescanbreakblocks` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `projectilescanbreakblocks` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2216,8 +2210,8 @@ export namespace NBTSchemas {
                     },
                     pvp: {
                         type: "byte",
-                        description: "The `pvp` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `pvp` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2225,19 +2219,19 @@ export namespace NBTSchemas {
                     },
                     rainLevel: {
                         type: "float",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     rainTime: {
                         type: "int",
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     RandomSeed: {
                         type: "long",
-                        description: "Level seed.",
+                        markdownDescription: "Level seed.",
                     },
                     randomtickspeed: {
                         type: "int",
-                        description: "The `randomtickspeed` [game rule](game rule).",
+                        markdownDescription: "The `randomtickspeed` [game rule](https://minecraft.wiki/w/game rule).",
                         default: {
                             type: "int",
                             value: 1,
@@ -2245,8 +2239,8 @@ export namespace NBTSchemas {
                     },
                     recipesunlock: {
                         type: "byte",
-                        description: "The `recipesunlock` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `recipesunlock` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2254,8 +2248,8 @@ export namespace NBTSchemas {
                     },
                     requiresCopiedPackRemovalCheck: {
                         type: "byte",
-                        description: "UNDOCUMENTED.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2263,8 +2257,8 @@ export namespace NBTSchemas {
                     },
                     respawnblocksexplode: {
                         type: "byte",
-                        description: "The `respawnblocksexplode` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `respawnblocksexplode` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2272,8 +2266,8 @@ export namespace NBTSchemas {
                     },
                     sendcommandfeedback: {
                         type: "byte",
-                        description: "The `sendcommandfeedback` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `sendcommandfeedback` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2281,7 +2275,7 @@ export namespace NBTSchemas {
                     },
                     serverChunkTickRange: {
                         type: "int",
-                        description: "Simulation distance. *info needed*",
+                        markdownDescription: "Simulation distance. *info needed*",
                         default: {
                             type: "int",
                             value: 4,
@@ -2289,8 +2283,8 @@ export namespace NBTSchemas {
                     },
                     showbordereffect: {
                         type: "byte",
-                        description: "The `showbordereffect` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `showbordereffect` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2298,8 +2292,8 @@ export namespace NBTSchemas {
                     },
                     showcoordinates: {
                         type: "byte",
-                        description: "The `showcoordinates` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `showcoordinates` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2307,8 +2301,8 @@ export namespace NBTSchemas {
                     },
                     showdaysplayed: {
                         type: "byte",
-                        description: "The `showdaysplayed` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `showdaysplayed` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2316,8 +2310,8 @@ export namespace NBTSchemas {
                     },
                     showdeathmessages: {
                         type: "byte",
-                        description: "The `showdeathmessages` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `showdeathmessages` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2325,8 +2319,8 @@ export namespace NBTSchemas {
                     },
                     showrecipemessages: {
                         type: "byte",
-                        description: "The `showrecipemessages` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `showrecipemessages` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2334,8 +2328,8 @@ export namespace NBTSchemas {
                     },
                     showtags: {
                         type: "byte",
-                        description: "The `showtags` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `showtags` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2343,8 +2337,8 @@ export namespace NBTSchemas {
                     },
                     spawnMobs: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if mobs can spawn.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if mobs can spawn.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2352,12 +2346,12 @@ export namespace NBTSchemas {
                     },
                     spawnradius: {
                         type: "int",
-                        description: "The `spawnradius` [game rule](game rule).",
+                        markdownDescription: "The `spawnradius` [game rule](https://minecraft.wiki/w/game rule).",
                     },
                     SpawnV1Villagers: {
                         type: "byte",
-                        description: "Spawn pre-1.10.0 villagers.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "Spawn pre-1.10.0 villagers.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2365,7 +2359,7 @@ export namespace NBTSchemas {
                     },
                     SpawnX: {
                         type: "int",
-                        description: "The X coordinate of the world spawn position. Defaults to 0.",
+                        markdownDescription: "The X coordinate of the world spawn position. Defaults to 0.",
                         default: {
                             type: "int",
                             value: 0,
@@ -2373,7 +2367,7 @@ export namespace NBTSchemas {
                     },
                     SpawnY: {
                         type: "int",
-                        description: "The Y coordinate of the world spawn position. Defaults to 64.",
+                        markdownDescription: "The Y coordinate of the world spawn position. Defaults to 64.",
                         default: {
                             type: "int",
                             value: 64,
@@ -2381,7 +2375,7 @@ export namespace NBTSchemas {
                     },
                     SpawnZ: {
                         type: "int",
-                        description: "The Z coordinate of the world spawn position. Defaults to 0.",
+                        markdownDescription: "The Z coordinate of the world spawn position. Defaults to 0.",
                         default: {
                             type: "int",
                             value: 0,
@@ -2389,8 +2383,8 @@ export namespace NBTSchemas {
                     },
                     startWithMapEnabled: {
                         type: "byte",
-                        description: "1 or 0 (true/false) - true if new players spawn with a locator map.",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "1 or 0 (true/false) - true if new players spawn with a locator map.",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2398,7 +2392,7 @@ export namespace NBTSchemas {
                     },
                     StorageVersion: {
                         type: "int",
-                        description: "Version of _Bedrock Edition_ Storage Tool, currently is 10.",
+                        markdownDescription: "Version of _Bedrock Edition_ Storage Tool, currently is 10.",
                         default: {
                             type: "int",
                             value: 10,
@@ -2406,9 +2400,9 @@ export namespace NBTSchemas {
                     },
                     texturePacksRequired: {
                         type: "byte",
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - true if the user must download the texture packs applied to the world to join, this option also disables global resource packs.",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2416,8 +2410,8 @@ export namespace NBTSchemas {
                     },
                     Time: {
                         type: "long",
-                        description:
-                            'Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](daylight cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](Daylight cycle#Daytime), 12000 is the start of [sunset](Daylight cycle#Sunset/dusk), 13800 is the start of [nighttime](Daylight cycle#Nighttime), 22200 is the start of [sunrise](Daylight cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.',
+                        markdownDescription:
+                            'Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](https://minecraft.wiki/w/daylight cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](https://minecraft.wiki/w/Daylight cycle#Daytime), 12000 is the start of [sunset](https://minecraft.wiki/w/Daylight cycle#Sunset/dusk), 13800 is the start of [nighttime](https://minecraft.wiki/w/Daylight cycle#Nighttime), 22200 is the start of [sunrise](https://minecraft.wiki/w/Daylight cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.',
                         default: {
                             type: "long",
                             value: 0n,
@@ -2425,8 +2419,8 @@ export namespace NBTSchemas {
                     },
                     tntexplodes: {
                         type: "byte",
-                        description: "The `tntexplodes` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `tntexplodes` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2434,8 +2428,8 @@ export namespace NBTSchemas {
                     },
                     tntexplosiondropdecay: {
                         type: "byte",
-                        description: "The `tntexplosiondropdecay` [game rule](game rule).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "The `tntexplosiondropdecay` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2443,8 +2437,8 @@ export namespace NBTSchemas {
                     },
                     useMsaGamertagsOnly: {
                         type: "byte",
-                        description: "Whether the world is restricted to Microsoft Accounts only (players must be signed in).",
-                        enumDescriptions: ["false", "true"],
+                        markdownDescription: "Whether the world is restricted to Microsoft Accounts only (players must be signed in).",
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2452,18 +2446,19 @@ export namespace NBTSchemas {
                     },
                     worldStartCount: {
                         type: "long",
-                        description: "Counts how many times the game has been closed since the world was created, with its value decreasing by 1 each time.",
+                        markdownDescription:
+                            "Counts how many times the game has been closed since the world was created, with its value decreasing by 1 each time.",
                     },
                     world_policies: {
                         type: "compound",
                         properties: {},
                         additionalProperties: true,
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     XBLBroadcastIntent: {
                         type: "int",
-                        description:
-                            'The [multiplayer](multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."',
+                        markdownDescription:
+                            'The [multiplayer](https://minecraft.wiki/w/multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."',
                         oneOf: [
                             {
                                 not: {
@@ -2489,7 +2484,7 @@ export namespace NBTSchemas {
                             },
                             {
                                 type: "int",
-                                enumDescriptions: ["disabled", "Invite Only", "Friends Only", "Friends of Friends"],
+                                markdownEnumDescriptions: ["disabled", "Invite Only", "Friends Only", "Friends of Friends"],
                                 enum: [
                                     {
                                         type: "int",
@@ -2514,19 +2509,1370 @@ export namespace NBTSchemas {
                 },
             },
             // NOTE: Verified.
+            LegacyOverworld: {
+                id: "LegacyOverworld",
+                markdownDescription: "The structure data of the Overworld dimension, this is the data for the `dimension0` LevelDB key.",
+                type: "compound",
+                required: ["mineshaft", "oceans", "scattered", "stronghold", "village"],
+                properties: {
+                    mansion: {
+                        title: "Woodland Mansions",
+                        markdownDescription: "The list of woodland mansions.",
+                        type: "compound",
+                        properties: {
+                            structures: {
+                                type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "IsValid"],
+                                    properties: {
+                                        BB: {
+                                            title: "Bounding Box",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "intArray",
+                                            minItems: 6,
+                                            maxItems: 6,
+                                        },
+                                        Children: {
+                                            title: "Children",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: {
+                                                type: "compound",
+                                                required: ["BB", "ID", "Mirror", "Rotation", "Template", "TemplatePosition", "gendepth", "orientation"],
+                                                properties: {
+                                                    BB: {
+                                                        title: "Bounding Box",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "intArray",
+                                                        minItems: 6,
+                                                        maxItems: 6,
+                                                    },
+                                                    ID: {
+                                                        title: "ID",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    Mirror: {
+                                                        title: "Mirror",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                        markdownEnumDescriptions: ["UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED."],
+                                                        enum: [
+                                                            { type: "int", value: 0 },
+                                                            { type: "int", value: 1 },
+                                                            { type: "int", value: 2 },
+                                                            { type: "int", value: 3 },
+                                                        ],
+                                                    },
+                                                    Rotation: {
+                                                        title: "Rotation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                        markdownEnumDescriptions: ["UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED."],
+                                                        enum: [
+                                                            { type: "int", value: 0 },
+                                                            { type: "int", value: 1 },
+                                                            { type: "int", value: 2 },
+                                                            { type: "int", value: 3 },
+                                                        ],
+                                                    },
+                                                    Template: {
+                                                        title: "Template",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "string",
+                                                        // [...new Set(data.mansion.value.structures.value.value.flatMap(v=>v.Children.value.value.flatMap(v=>v.Template.value)))].map(v=>({type: "string", value: v}))
+                                                        // TODO: Find more of this structure to find all possible templates, then switch this to an enum.
+                                                        examples: [
+                                                            {
+                                                                type: "string",
+                                                                value: "entrance",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "wall_flat",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "wall_corner",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "wall_window",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "roof",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "roof_front",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "small_wall",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "small_wall_corner",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "roof_corner",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "roof_inner_corner",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "corridor_floor",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "carpet_east",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "carpet_south",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "carpet_west",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "carpet_north",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "indoors_wall",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "indoors_door",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "2x2_a4",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_a5",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x1_a3",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x1_a4",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "2x2_a3",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_a7",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x1_a2",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_b1",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_a9",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "corridor_floor_2",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "carpet_south_2",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "carpet_west_2",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "indoors_wall_2",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "indoors_door_2",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x1_b4",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x1_b3",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x1_b2",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "2x2_b1",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "2x2_b5",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_c4",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "2x2_b4",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_c_stairs",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_c3",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_c1",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x1_as3",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "1x2_d4",
+                                                            },
+                                                        ],
+                                                    },
+                                                    TemplatePosition: {
+                                                        title: "Template Position",
+                                                        markdownDescription: "UNDOCUMENTED. A Vector3.",
+                                                        type: "list",
+                                                        items: [
+                                                            {
+                                                                title: "x",
+                                                                markdownDescription: "X component of this vector.",
+                                                                type: "int",
+                                                            },
+                                                            {
+                                                                title: "y",
+                                                                markdownDescription: "Y component of this vector.",
+                                                                type: "int",
+                                                            },
+                                                            {
+                                                                title: "z",
+                                                                markdownDescription: "Z component of this vector.",
+                                                                type: "int",
+                                                            },
+                                                        ],
+                                                    },
+                                                    gendepth: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    orientation: {
+                                                        title: "Orientation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ID: {
+                                            title: "ID",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            // IDEA: Observed value is 8, maybe make this a constant?
+                                        },
+                                        IsValid: {
+                                            title: "Is Valid",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "byte",
+                                            markdownEnumDescriptions: ["false", "true"],
+                                            enum: [
+                                                { type: "byte", value: 0 },
+                                                { type: "byte", value: 1 },
+                                            ],
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    mineshaft: {
+                        title: "Mineshafts",
+                        markdownDescription: "The list of mineshafts.",
+                        type: "compound",
+                        properties: {
+                            structures: {
+                                type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID"],
+                                    properties: {
+                                        BB: {
+                                            title: "Bounding Box",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "intArray",
+                                            minItems: 6,
+                                            maxItems: 6,
+                                        },
+                                        Children: {
+                                            title: "Children",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: {
+                                                type: "compound",
+                                                required: ["BB", "ID", "gendepth", "orientation"],
+                                                properties: {
+                                                    BB: {
+                                                        title: "Bounding Box",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "intArray",
+                                                        minItems: 6,
+                                                        maxItems: 6,
+                                                    },
+                                                    ID: {
+                                                        title: "ID",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    gendepth: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    orientation: {
+                                                        title: "Orientation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                },
+                                                // TODO: Fix the NBT schema to TypeScript type converter, as it doesn't include the types for these `oneOf` entries.
+                                                oneOf: [
+                                                    {
+                                                        type: "compound",
+                                                        properties: {},
+                                                        not: {
+                                                            oneOf: [{ required: ["D"] }, { required: ["Entrances"] }, { required: ["Num"] }],
+                                                        },
+                                                    },
+                                                    {
+                                                        type: "compound",
+                                                        required: ["D", "tf"],
+                                                        properties: {
+                                                            D: {
+                                                                title: "UNTITLED.",
+                                                                description: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            tf: {
+                                                                title: "UNTITLED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                        },
+                                                    },
+                                                    {
+                                                        type: "compound",
+                                                        required: ["Entrances"],
+                                                        properties: {
+                                                            Entrances: {
+                                                                title: "Entrances",
+                                                                markdownDescription: "The bounding boxes of the entrances.",
+                                                                type: "list",
+                                                                items: {
+                                                                    title: "Entrance Bounding Box",
+                                                                    markdownDescription: "The bounding box of an entrance.",
+                                                                    type: "intArray",
+                                                                    minItems: 6,
+                                                                    maxItems: 6,
+                                                                },
+                                                            },
+                                                        },
+                                                    },
+                                                    {
+                                                        type: "compound",
+                                                        required: ["Num", "hps", "hr", "sc"],
+                                                        properties: {
+                                                            Num: {
+                                                                title: "UNTITLED.",
+                                                                description: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            hps: {
+                                                                title: "UNTITLED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            hr: {
+                                                                title: "UNTITLED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            sc: {
+                                                                title: "UNTITLED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                        },
+                                                    },
+                                                ],
+                                            },
+                                        },
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ID: {
+                                            title: "ID",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            // IDEA: Observed value is 3, maybe make this a constant?
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    oceans: {
+                        title: "Ocean Monuments",
+                        markdownDescription: "The list of ocean monuments.",
+                        type: "compound",
+                        properties: {
+                            structures: {
+                                type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "iscreated"],
+                                    properties: {
+                                        BB: {
+                                            title: "Bounding Box",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "intArray",
+                                            minItems: 6,
+                                            maxItems: 6,
+                                        },
+                                        Children: {
+                                            title: "Children",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: {
+                                                type: "compound",
+                                                required: ["BB", "ID", "gendepth", "orientation"],
+                                                properties: {
+                                                    BB: {
+                                                        title: "Bounding Box",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "intArray",
+                                                        minItems: 6,
+                                                        maxItems: 6,
+                                                    },
+                                                    ID: {
+                                                        title: "ID",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    gendepth: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    orientation: {
+                                                        title: "Orientation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ID: {
+                                            title: "ID",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            // IDEA: Observed value is 4, maybe make this a constant?
+                                        },
+                                        iscreated: {
+                                            title: "Is Created",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "byte",
+                                            markdownEnumDescriptions: ["false", "true"],
+                                            enum: [
+                                                { type: "byte", value: 0 },
+                                                { type: "byte", value: 1 },
+                                            ],
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    scattered: {
+                        title: "Temples",
+                        markdownDescription: "The list of temples (desert pyramids, jungle pyramids, igloos, and swamp huts).",
+                        type: "compound",
+                        properties: {
+                            structures: {
+                                type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID"],
+                                    properties: {
+                                        BB: {
+                                            title: "Bounding Box",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "intArray",
+                                            minItems: 6,
+                                            maxItems: 6,
+                                        },
+                                        Children: {
+                                            title: "Children",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: {
+                                                type: "compound",
+                                                required: ["BB", "Depth", "HPos", "Height", "ID", "Width", "gendepth", "orientation"],
+                                                properties: {
+                                                    BB: {
+                                                        title: "Bounding Box",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "intArray",
+                                                        minItems: 6,
+                                                        maxItems: 6,
+                                                    },
+                                                    Depth: {
+                                                        title: "Depth",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    HPos: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    Height: {
+                                                        title: "Height",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    ID: {
+                                                        title: "ID",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    Width: {
+                                                        title: "Width",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    gendepth: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    orientation: {
+                                                        title: "Orientation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                },
+                                                oneOf: [
+                                                    {
+                                                        type: "compound",
+                                                        properties: {},
+                                                        not: {
+                                                            oneOf: [
+                                                                { required: ["Witch"] },
+                                                                { required: ["hasPlacedChest0"] },
+                                                                { required: ["hasPlacedHiddenChest"] },
+                                                            ],
+                                                        },
+                                                    },
+                                                    {
+                                                        type: "compound",
+                                                        required: ["Witch"],
+                                                        properties: {
+                                                            Witch: {
+                                                                title: "Witch",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                        },
+                                                    },
+                                                    {
+                                                        type: "compound",
+                                                        required: ["hasPlacedChest0", "hasPlacedChest1", "hasPlacedChest2", "hasPlacedChest3"],
+                                                        properties: {
+                                                            hasPlacedChest0: {
+                                                                title: "Has Placed Chest 0",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            hasPlacedChest1: {
+                                                                title: "Has Placed Chest 1",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            hasPlacedChest2: {
+                                                                title: "Has Placed Chest 2",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            hasPlacedChest3: {
+                                                                title: "Has Placed Chest 3",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                        },
+                                                    },
+                                                    {
+                                                        type: "compound",
+                                                        required: ["hasPlacedHiddenChest", "hasPlacedMainChest", "hasPlacedTrap0", "hasPlacedTrap1"],
+                                                        properties: {
+                                                            hasPlacedHiddenChest: {
+                                                                title: "Has Placed Hidden Chest",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            hasPlacedMainChest: {
+                                                                title: "Has Placed Main Chest",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            hasPlacedTrap0: {
+                                                                title: "Has Placed Trap 0",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            hasPlacedTrap1: {
+                                                                title: "Has Placed Trap 1",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                        },
+                                                    },
+                                                ],
+                                            },
+                                        },
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ID: {
+                                            title: "ID",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            // IDEA: Observed value is 6 (for all four temple types), maybe make this a constant?
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    stronghold: {
+                        title: "Strongholds",
+                        markdownDescription: "The list of strongholds.",
+                        type: "compound",
+                        properties: {
+                            structures: {
+                                type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "Valid"],
+                                    properties: {
+                                        BB: {
+                                            title: "Bounding Box",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "intArray",
+                                            minItems: 6,
+                                            maxItems: 6,
+                                        },
+                                        Children: {
+                                            title: "Children",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: {
+                                                type: "compound",
+                                                required: ["BB", "EntryDoor", "ID", "gendepth", "orientation"],
+                                                properties: {
+                                                    BB: {
+                                                        title: "Bounding Box",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "intArray",
+                                                        minItems: 6,
+                                                        maxItems: 6,
+                                                    },
+                                                    EntryDoor: {
+                                                        title: "Entry Door",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    ID: {
+                                                        title: "ID",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    Steps: {
+                                                        title: "Steps",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    Left: {
+                                                        title: "Left",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    Right: {
+                                                        title: "Right",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    gendepth: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    leftHigh: {
+                                                        title: "Left High",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    leftLow: {
+                                                        title: "Left Low",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    orientation: {
+                                                        title: "Orientation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    rightHigh: {
+                                                        title: "Right High",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    rightLow: {
+                                                        title: "Right Low",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ID: {
+                                            title: "ID",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            // IDEA: Observed value is 5, maybe make this a constant?
+                                        },
+                                        Valid: {
+                                            title: "Valid",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "byte",
+                                            markdownEnumDescriptions: ["false", "true"],
+                                            enum: [
+                                                { type: "byte", value: 0 },
+                                                { type: "byte", value: 1 },
+                                            ],
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    village: {
+                        title: "Villages",
+                        markdownDescription: "The list of villages.",
+                        type: "compound",
+                        properties: {
+                            structures: {
+                                type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "Valid"],
+                                    properties: {
+                                        BB: {
+                                            title: "Bounding Box",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "intArray",
+                                            minItems: 6,
+                                            maxItems: 6,
+                                        },
+                                        Children: {
+                                            title: "Children",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: {
+                                                type: "compound",
+                                                required: ["Abandoned", "BB", "Desert", "HPos", "ID", "Savannah", "Taiga", "VCount", "gendepth", "orientation"],
+                                                properties: {
+                                                    Abandoned: {
+                                                        title: "Is Abandoned",
+                                                        markdownDescription: "Whether this is an village is abandoned.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    BB: {
+                                                        title: "Bounding Box",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "intArray",
+                                                        minItems: 6,
+                                                        maxItems: 6,
+                                                    },
+                                                    Desert: {
+                                                        title: "Is Desert Village",
+                                                        markdownDescription: "Whether this is a desert village.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    HPos: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    ID: {
+                                                        title: "ID",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    Savannah: {
+                                                        title: "Is Savannah Village",
+                                                        markdownDescription: "Whether this is a savannah village.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    Taiga: {
+                                                        title: "Is Taiga Village",
+                                                        markdownDescription: "Whether this is a taiga village.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    VCount: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    gendepth: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    orientation: {
+                                                        title: "Orientation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ID: {
+                                            title: "ID",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            // IDEA: Observed value is 7, maybe make this a constant?
+                                        },
+                                        Valid: {
+                                            title: "Valid",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "byte",
+                                            markdownEnumDescriptions: ["false", "true"],
+                                            enum: [
+                                                { type: "byte", value: 0 },
+                                                { type: "byte", value: 1 },
+                                            ],
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
+            LegacyNether: {
+                id: "LegacyNether",
+                markdownDescription: "The structure data of the Nether dimension, this is the data for the `dimension1` LevelDB key.",
+                type: "compound",
+                required: ["bridge"],
+                properties: {
+                    bridge: {
+                        markdownDescription: "The list of nether fortresses.",
+                        type: "compound",
+                        properties: {
+                            structures: {
+                                type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID"],
+                                    properties: {
+                                        BB: {
+                                            title: "Bounding Box",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "intArray",
+                                            minItems: 6,
+                                            maxItems: 6,
+                                        },
+                                        Children: {
+                                            title: "Children",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: {
+                                                type: "compound",
+                                                required: ["BB", "ID", "gendepth", "orientation"],
+                                                properties: {
+                                                    BB: {
+                                                        title: "Bounding Box",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "intArray",
+                                                        minItems: 6,
+                                                        maxItems: 6,
+                                                    },
+                                                    ID: {
+                                                        title: "ID",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    gendepth: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    orientation: {
+                                                        title: "Orientation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ID: {
+                                            title: "ID",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            // IDEA: Observed value is 2, maybe make this a constant?
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
+            LegacyTheEnd: {
+                id: "LegacyTheEnd",
+                markdownDescription: "The structure data of the End dimension, this is the data for the `dimension2` LevelDB key.",
+                type: "compound",
+                required: ["endcity"],
+                properties: {
+                    endcity: {
+                        markdownDescription: "The list of end cities.",
+                        type: "compound",
+                        properties: {
+                            structures: {
+                                type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID"],
+                                    properties: {
+                                        BB: {
+                                            title: "Bounding Box",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "intArray",
+                                            minItems: 6,
+                                            maxItems: 6,
+                                        },
+                                        Children: {
+                                            title: "Children",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: {
+                                                type: "compound",
+                                                required: ["BB", "ID", "Overwrite", "Rotation", "Template", "TemplatePosition", "gendepth", "orientation"],
+                                                properties: {
+                                                    BB: {
+                                                        title: "Bounding Box",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "intArray",
+                                                        minItems: 6,
+                                                        maxItems: 6,
+                                                    },
+                                                    ID: {
+                                                        title: "ID",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    Overwrite: {
+                                                        title: "Overwrite",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "byte",
+                                                        markdownEnumDescriptions: ["false", "true"],
+                                                        enum: [
+                                                            { type: "byte", value: 0 },
+                                                            { type: "byte", value: 1 },
+                                                        ],
+                                                    },
+                                                    Rotation: {
+                                                        title: "Rotation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                        markdownEnumDescriptions: ["UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED."],
+                                                        enum: [
+                                                            { type: "int", value: 0 },
+                                                            { type: "int", value: 1 },
+                                                            { type: "int", value: 2 },
+                                                            { type: "int", value: 3 },
+                                                        ],
+                                                    },
+                                                    Template: {
+                                                        title: "Template",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "string",
+                                                        // [...new Set(data.endcity.value.structures.value.value.flatMap(v=>v.Children.value.value.flatMap(v=>v.Template.value)))].map(v=>({type: "string", value: v}))
+                                                        // TODO: Find more of this structure to find all possible templates, then switch this to an enum.
+                                                        examples: [
+                                                            {
+                                                                type: "string",
+                                                                value: "base_floor",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "second_floor",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "third_floor",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "third_roof",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "tower_base",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "tower_piece",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "bridge_end",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "bridge_piece",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "bridge_steep_stairs",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "base_roof",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "bridge_gentle_stairs",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "second_floor_2",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "third_floor_c",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "fat_tower_base",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "fat_tower_middle",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "ship",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "fat_tower_top",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "tower_top",
+                                                            },
+                                                            {
+                                                                type: "string",
+                                                                value: "second_roof",
+                                                            },
+                                                        ],
+                                                    },
+                                                    TemplatePosition: {
+                                                        title: "Template Position",
+                                                        markdownDescription: "UNDOCUMENTED. A Vector3.",
+                                                        type: "list",
+                                                        items: [
+                                                            {
+                                                                title: "x",
+                                                                markdownDescription: "X component of this vector.",
+                                                                type: "int",
+                                                            },
+                                                            {
+                                                                title: "y",
+                                                                markdownDescription: "Y component of this vector.",
+                                                                type: "int",
+                                                            },
+                                                            {
+                                                                title: "z",
+                                                                markdownDescription: "Z component of this vector.",
+                                                                type: "int",
+                                                            },
+                                                        ],
+                                                    },
+                                                    gendepth: {
+                                                        title: "UNTITLED.",
+                                                        description: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    orientation: {
+                                                        title: "Orientation",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ID: {
+                                            title: "ID",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            // IDEA: Observed value is 1, maybe make this a constant?
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
             LimboEntities: {
                 id: "LimboEntities",
-                description: "The limbo entities data.",
+                markdownDescription: "The limbo entities data.",
                 type: "compound",
                 required: ["data"],
                 properties: {
                     data: {
-                        description: "A compound with a list of limbo entities.",
+                        markdownDescription: "A compound with a list of limbo entities.",
                         type: "compound",
                         required: ["LimboEntities"],
                         properties: {
                             LimboEntities: {
-                                description: "UNKNOWN.",
+                                markdownDescription: "UNKNOWN.",
                                 type: "list",
                             },
                         },
@@ -2538,7 +3884,7 @@ export namespace NBTSchemas {
             Map: {
                 id: "Map",
                 title: "The Map schema.",
-                description: "NBT structure of a map.",
+                markdownDescription: "NBT structure of a map.",
                 type: "compound",
                 required: [
                     "mapId",
@@ -2557,28 +3903,28 @@ export namespace NBTSchemas {
                 ],
                 properties: {
                     mapId: {
-                        description: "The Unique ID of the map.",
+                        markdownDescription: "The Unique ID of the map.",
                         type: "long",
                     },
                     parentMapId: {
-                        description: "The Unique ID's of the parent maps.",
+                        markdownDescription: "The Unique ID's of the parent maps.",
                         type: "long",
                     },
                     dimension: {
-                        description:
+                        markdownDescription:
                             "0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The Nether), 2 = [The End](https://minecraft.wiki/w/The End), any other value = a static image with no player pin.",
                         type: "byte",
                     },
                     fullyExplored: {
-                        description: "1 if the map is full explored.",
+                        markdownDescription: "1 if the map is full explored.",
                         type: "byte",
                     },
                     mapLocked: {
-                        description: "1 if the map has been locked in a [cartography table](https://minecraft.wiki/w/cartography table).",
+                        markdownDescription: "1 if the map has been locked in a [cartography table](https://minecraft.wiki/w/cartography table).",
                         type: "byte",
                     },
                     scale: {
-                        description:
+                        markdownDescription:
                             "How zoomed in the map is, and must be a number between 0 and 4 (inclusive) that represent the level. Default 0. If this is changed in an [anvil](https://minecraft.wiki/w/anvil) or a [cartography table](https://minecraft.wiki/w/cartography table), the Unique ID of the map changes.",
                         type: "byte",
                         default: {
@@ -2587,7 +3933,7 @@ export namespace NBTSchemas {
                         },
                     },
                     unlimitedTracking: {
-                        description: "UNDOCUMENTED. Default 0.",
+                        markdownDescription: "UNDOCUMENTED. Default 0.",
                         type: "byte",
                         default: {
                             type: "byte",
@@ -2595,47 +3941,47 @@ export namespace NBTSchemas {
                         },
                     },
                     height: {
-                        description: "The height of the map. Is associated with the scale level.",
+                        markdownDescription: "The height of the map. Is associated with the scale level.",
                         type: "short",
                     },
                     width: {
-                        description: "The width of the map. Is associated with the scale level.",
+                        markdownDescription: "The width of the map. Is associated with the scale level.",
                         type: "short",
                     },
                     xCenter: {
-                        description: "Center of the map according to real world by X.",
+                        markdownDescription: "Center of the map according to real world by X.",
                         type: "int",
                     },
                     zCenter: {
-                        description: "Center of the map according to real world by Z.",
+                        markdownDescription: "Center of the map according to real world by Z.",
                         type: "int",
                     },
                     decorations: {
-                        description: "A list of optional icons to display on the map.",
+                        markdownDescription: "A list of optional icons to display on the map.",
                         type: "list",
                         items: {
-                            description: "An individual decoration.",
+                            markdownDescription: "An individual decoration.",
                             type: "compound",
                             properties: {
                                 data: {
-                                    description: "The data of the decoration.",
+                                    markdownDescription: "The data of the decoration.",
                                     type: "compound",
                                     required: ["rot", "type", "x", "y"],
                                     properties: {
                                         rot: {
-                                            description: "The rotation of the symbol, ranging from 0 to 15. South = 0, West = 4, North = 8, East = 12.",
+                                            markdownDescription: "The rotation of the symbol, ranging from 0 to 15. South = 0, West = 4, North = 8, East = 12.",
                                             type: "int",
                                         },
                                         type: {
-                                            description: "The ID of the [map icon](https://minecraft.wiki/w/Map icons.png) to display.",
+                                            markdownDescription: "The ID of the [map icon](https://minecraft.wiki/w/Map icons.png) to display.",
                                             type: "int",
                                         },
                                         x: {
-                                            description: "The horizontal column (x) where the decoration is located on the map (per pixel).",
+                                            markdownDescription: "The horizontal column (x) where the decoration is located on the map (per pixel).",
                                             type: "int",
                                         },
                                         y: {
-                                            description: "The vertical column (y) where the decoration is located on the map (per pixel).",
+                                            markdownDescription: "The vertical column (y) where the decoration is located on the map (per pixel).",
                                             type: "int",
                                         },
                                     },
@@ -2643,13 +3989,13 @@ export namespace NBTSchemas {
                                 // TODO: Figure out the correct schemas for the `key` property.
                                 // NOTE: The below schema has been verified but it is unknown if it is different in certain situations.
                                 key: {
-                                    description:
+                                    markdownDescription:
                                         "UNKNOWN. // CAUTION: This schema has only been verified in certain situations, it is possible that this might follow a different structure in other situations.",
                                     type: "compound",
                                     required: ["entityId", "type"],
                                     properties: {
                                         entityId: {
-                                            description: "UNDOCUMENTED.",
+                                            markdownDescription: "UNDOCUMENTED.",
                                             type: "long",
                                             default: {
                                                 type: "long",
@@ -2657,7 +4003,7 @@ export namespace NBTSchemas {
                                             },
                                         },
                                         type: {
-                                            description: "UNDOCUMENTED.",
+                                            markdownDescription: "UNDOCUMENTED.",
                                             type: "int",
                                             default: {
                                                 type: "int",
@@ -2672,19 +4018,19 @@ export namespace NBTSchemas {
                                 //     required: ["blockX", "blockY", "blockZ", "type"],
                                 //     properties: {
                                 //         blockX: {
-                                //             description: "The world x-position of the decoration.",
+                                //             markdownDescription: "The world x-position of the decoration.",
                                 //             type: "int",
                                 //         },
                                 //         blockY: {
-                                //             description: "The world y-position of the decoration.",
+                                //             markdownDescription: "The world y-position of the decoration.",
                                 //             type: "int",
                                 //         },
                                 //         blockZ: {
-                                //             description: "The world z-position of the decoration.",
+                                //             markdownDescription: "The world z-position of the decoration.",
                                 //             type: "int",
                                 //         },
                                 //         type: {
-                                //             description: "UNDOCUMENTED.",
+                                //             markdownDescription: "UNDOCUMENTED.",
                                 //             type: "int",
                                 //         },
                                 //     },
@@ -2693,7 +4039,7 @@ export namespace NBTSchemas {
                         },
                     },
                     colors: {
-                        description: "An array of bytes that represent color values (**65536 entries** for a default 128×128 map).",
+                        markdownDescription: "An array of bytes that represent color values (**65536 entries** for a default 128×128 map).",
                         type: "byteArray",
                     },
                 },
@@ -2702,41 +4048,41 @@ export namespace NBTSchemas {
             // NOTE: Verified.
             MobEvents: {
                 id: "MobEvents",
-                description: "NBT structure of [mob event](https://minecraft.wiki/w/Commands/mobevent)s.",
+                markdownDescription: "NBT structure of [mob event](https://minecraft.wiki/w/Commands/mobevent)s.",
                 type: "compound",
                 required: ["events_enabled", "minecraft:ender_dragon_event", "minecraft:pillager_patrols_event", "minecraft:wandering_trader_event"],
                 properties: {
                     events_enabled: {
-                        description: "1 or 0 (true/false) - true if the mob events can occur.",
+                        markdownDescription: "1 or 0 (true/false) - true if the mob events can occur.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     "minecraft:ender_dragon_event": {
-                        description: "1 or 0 (true/false) - true if the [ender dragon](https://minecraft.wiki/w/ender dragon) can spawn.",
+                        markdownDescription: "1 or 0 (true/false) - true if the [ender dragon](https://minecraft.wiki/w/ender dragon) can spawn.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     "minecraft:pillager_patrols_event": {
-                        description: "1 or 0 (true/false) - true if the [illager patrol](https://minecraft.wiki/w/illager patrol) can spawn.",
+                        markdownDescription: "1 or 0 (true/false) - true if the [illager patrol](https://minecraft.wiki/w/illager patrol) can spawn.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     "minecraft:wandering_trader_event": {
-                        description: "1 or 0 (true/false) - true if the [wandering trader](https://minecraft.wiki/w/wandering trader) can spawn.",
+                        markdownDescription: "1 or 0 (true/false) - true if the [wandering trader](https://minecraft.wiki/w/wandering trader) can spawn.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2749,43 +4095,51 @@ export namespace NBTSchemas {
             PendingTicks: {
                 id: "PendingTicks",
                 title: "The PendingTicks schema.",
-                description: "The list of pending ticks for a chunk.",
+                markdownDescription: "The list of pending ticks for a chunk.",
                 type: "compound",
-                required: ["currentTick", "tickList"],
+                required: ["tickList"],
                 properties: {
                     currentTick: {
                         title: "Current Tick",
-                        description: "The current tick.",
+                        markdownDescription: "The current tick.",
                         type: "int",
                     },
                     tickList: {
+                        title: "Tick List",
+                        markdownDescription: "The list of pending ticks.",
                         type: "list",
                         items: {
                             type: "compound",
+                            required: ["time", "x", "y", "z"],
                             properties: {
                                 blockState: {
                                     title: "Block State",
-                                    description: "The block type and block states of this block.",
+                                    markdownDescription: "The block type and block states of this block.",
                                     $ref: "Block",
+                                },
+                                tileID: {
+                                    title: "Tile ID",
+                                    markdownDescription: "The tile ID of this block. This was used in older versions of Minecraft.",
+                                    type: "int",
                                 },
                                 time: {
                                     title: "Time",
-                                    description: "The tick that this block should be ticked.",
+                                    markdownDescription: "The tick that this block should be ticked.",
                                     type: "long",
                                 },
                                 x: {
                                     title: "X",
-                                    description: "The world x-position of the block.",
+                                    markdownDescription: "The world x-position of the block.",
                                     type: "int",
                                 },
                                 y: {
                                     title: "Y",
-                                    description: "The world y-position of the block.",
+                                    markdownDescription: "The world y-position of the block.",
                                     type: "int",
                                 },
                                 z: {
                                     title: "Z",
-                                    description: "The world z-position of the block.",
+                                    markdownDescription: "The world z-position of the block.",
                                     type: "int",
                                 },
                             },
@@ -2798,7 +4152,7 @@ export namespace NBTSchemas {
             PlayerClient: {
                 id: "PlayerClient",
                 title: "The PlayerClient schema.",
-                description: "The player client data.",
+                markdownDescription: "The player client data.",
                 type: "compound",
                 properties: {
                     MsaId: {
@@ -2817,7 +4171,7 @@ export namespace NBTSchemas {
             Portals: {
                 id: "Portals",
                 title: "The Portals schema.",
-                description: "The portals data.",
+                markdownDescription: "The portals data.",
                 type: "compound",
                 properties: {
                     data: {
@@ -2858,46 +4212,172 @@ export namespace NBTSchemas {
                 $fragment: false,
             },
             // NOTE: Verified.
+            PositionTrackingLastId: {
+                id: "PositionTrackingLastId",
+                title: "The PositionTrackingLastId schema.",
+                markdownDescription: "The last ID for the lodestone compass position tracking database.",
+                type: "compound",
+                properties: {
+                    id: {
+                        title: "ID",
+                        markdownDescription: "The last ID for the lodestone compass position tracking database. It is stored in hex format. ex. 0x00000002",
+                        type: "string",
+                        pattern: "^0x[0-9a-fA-F]{8}$",
+                        patternErrorMessage: "The last ID for the lodestone compass position tracking database must be in hex format. ex. 0x00000002",
+                        default: {
+                            type: "string",
+                            value: "0x00000000",
+                        },
+                    },
+                    version: {
+                        title: "Version",
+                        markdownDescription: "The version of the lodestone compass position tracking database, currently 1.",
+                        type: "byte",
+                        const: {
+                            type: "byte",
+                            value: 1,
+                        },
+                        default: {
+                            type: "byte",
+                            value: 1,
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
+            PositionTrackingDB: {
+                id: "PositionTrackingDB",
+                title: "The PositionTrackingDB schema.",
+                markdownDescription: "An entry in the lodestone compass position tracking database.",
+                type: "compound",
+                properties: {
+                    dim: {
+                        title: "Dimension",
+                        markdownDescription: "The dimension of the lodestone the associated lodestone compass points to.",
+                        type: "int",
+                        markdownEnumDescriptions: ["Overworld", "Nether", "The End"],
+                        enum: [
+                            {
+                                type: "int",
+                                value: 0,
+                            },
+                            {
+                                type: "int",
+                                value: 1,
+                            },
+                            {
+                                type: "int",
+                                value: 2,
+                            },
+                        ],
+                    },
+                    id: {
+                        title: "ID",
+                        markdownDescription: "The last ID for the lodestone compass position tracking database. It is stored in hex format. ex. 0x00000002",
+                        type: "string",
+                        pattern: "^0x[0-9a-fA-F]{8}(?<!0x00000000)$",
+                        patternErrorMessage:
+                            "The last ID for the lodestone compass position tracking database must be in hex format and may not be 0x00000000. ex. 0x00000002",
+                        examples: [
+                            {
+                                type: "string",
+                                value: "0x00000001",
+                            },
+                            {
+                                type: "string",
+                                value: "0x00000002",
+                            },
+                        ],
+                    },
+                    pos: {
+                        title: "Position",
+                        markdownDescription: "The location of the lodestone the associated lodestone compass points to. A Vector3.",
+                        type: "list",
+                        items: [
+                            {
+                                title: "x",
+                                markdownDescription: "X component of this vector.",
+                                type: "int",
+                            },
+                            {
+                                title: "y",
+                                markdownDescription: "Y component of this vector.",
+                                type: "int",
+                            },
+                            {
+                                title: "z",
+                                markdownDescription: "Z component of this vector.",
+                                type: "int",
+                            },
+                        ],
+                    },
+                    status: {
+                        title: "Status",
+                        markdownDescription: "UNDOCUMENTED. Currently observed value is 0, but there could be other possible values.",
+                        type: "byte",
+                    },
+                    version: {
+                        title: "Version",
+                        markdownDescription: "The version of the lodestone compass position tracking database that this entry was saved in, currently 1.",
+                        type: "byte",
+                        const: {
+                            type: "byte",
+                            value: 1,
+                        },
+                        default: {
+                            type: "byte",
+                            value: 1,
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
             RandomTicks: {
                 id: "RandomTicks",
                 title: "The RandomTicks schema.",
-                description: "The list of random ticks for a chunk.",
+                markdownDescription: "The list of random ticks for a chunk.",
                 type: "compound",
+                // REVIEW: Check if RandomTicks was added before the PendingTicks tileID property was replaced with blockState to see if that property existed on RandomTicks at some point too, and if it did exist, mark blockState and currentTick as optional for RandomTicks.
                 required: ["currentTick", "tickList"],
                 properties: {
                     currentTick: {
                         title: "Current Tick",
-                        description: "The current tick.",
+                        markdownDescription: "The current tick.",
                         type: "int",
                     },
                     tickList: {
+                        title: "Tick List",
+                        markdownDescription: "The list of random ticks.",
                         type: "list",
                         items: {
                             type: "compound",
+                            required: ["blockState", "time", "x", "y", "z"],
                             properties: {
                                 blockState: {
                                     title: "Block State",
-                                    description: "The block type and block states of this block.",
+                                    markdownDescription: "The block type and block states of this block.",
                                     $ref: "Block",
                                 },
                                 time: {
                                     title: "Time",
-                                    description: "The tick that this block should be ticked.",
+                                    markdownDescription: "The tick that this block should be ticked.",
                                     type: "long",
                                 },
                                 x: {
                                     title: "X",
-                                    description: "The world x-position of the block.",
+                                    markdownDescription: "The world x-position of the block.",
                                     type: "int",
                                 },
                                 y: {
                                     title: "Y",
-                                    description: "The world y-position of the block.",
+                                    markdownDescription: "The world y-position of the block.",
                                     type: "int",
                                 },
                                 z: {
                                     title: "Z",
-                                    description: "The world z-position of the block.",
+                                    markdownDescription: "The world z-position of the block.",
                                     type: "int",
                                 },
                             },
@@ -2910,7 +4390,7 @@ export namespace NBTSchemas {
             SchedulerWT: {
                 id: "SchedulerWT",
                 title: "The SchedulerWT schema.",
-                description: "The schedulerWT data.",
+                markdownDescription: "The schedulerWT data.",
                 type: "compound",
                 properties: {
                     daysSinceLastWTSpawn: {
@@ -2918,7 +4398,7 @@ export namespace NBTSchemas {
                     },
                     isSpawningWT: {
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -2934,39 +4414,39 @@ export namespace NBTSchemas {
             Scoreboard: {
                 id: "Scoreboard",
                 title: "The Scoreboard schema.",
-                description: "NBT structure of [scoreboard](https://minecraft.wiki/w/scoreboard)s.",
+                markdownDescription: "NBT structure of [scoreboard](https://minecraft.wiki/w/scoreboard)s.",
                 type: "compound",
                 required: ["DisplayObjectives", "Entries", "Objectives"],
                 properties: {
                     Criteria: {
-                        description: "UNKNOWN.",
+                        markdownDescription: "UNKNOWN.",
                         type: "list",
                     },
                     DisplayObjectives: {
-                        description: "A  list of compound tags representing specific displayed objectives.",
+                        markdownDescription: "A  list of compound tags representing specific displayed objectives.",
                         type: "list",
                         items: {
-                            description: "A displayed objective.",
+                            markdownDescription: "A displayed objective.",
                             type: "compound",
                             required: ["Name", "ObjectiveName", "SortOrder"],
                             properties: {
                                 Name: {
-                                    description: "The **display slot** of this objective.",
+                                    markdownDescription: "The **display slot** of this objective.",
                                     type: "string",
                                 },
                                 ObjectiveName: {
-                                    description: "The internal **name** of the objective displayed.",
+                                    markdownDescription: "The internal **name** of the objective displayed.",
                                     type: "string",
                                 },
                                 SortOrder: {
-                                    description:
+                                    markdownDescription:
                                         "The **sort order** of the objective displayed. 0 = `ascending`, 1 = `descending`. If not specified, or the **display slot** is `belowname`, 1 by default.",
                                     type: "byte",
                                     default: {
                                         type: "byte",
                                         value: 1,
                                     },
-                                    enumDescriptions: ["ascending", "descending"],
+                                    markdownEnumDescriptions: ["ascending", "descending"],
                                     enum: [
                                         { type: "byte", value: 0 },
                                         { type: "byte", value: 1 },
@@ -2976,56 +4456,56 @@ export namespace NBTSchemas {
                         },
                     },
                     Entries: {
-                        description: "A list of compound tags representing individual entities.",
+                        markdownDescription: "A list of compound tags representing individual entities.",
                         type: "list",
                         items: {
-                            description: "An entity.",
+                            markdownDescription: "An entity.",
                             type: "compound",
                             required: ["IdentityType", "ScoreboardId"],
                             properties: {
                                 IdentityType: {
-                                    description: "The identity type of this entity. 1 = Player, 2 = Entity, 3 = Fake player.",
+                                    markdownDescription: "The identity type of this entity. 1 = Player, 2 = Entity, 3 = Fake player.",
                                     type: "byte",
                                     enum: [
                                         { type: "byte", value: 1 },
                                         { type: "byte", value: 2 },
                                         { type: "byte", value: 3 },
                                     ],
-                                    enumDescriptions: ["Player", "Entity", "Fake player"],
+                                    markdownEnumDescriptions: ["Player", "Entity", "Fake player"],
                                 },
                                 FakePlayerName: {
-                                    description: "Optional. The fake player's name.",
+                                    markdownDescription: "Optional. The fake player's name.",
                                     type: "string",
                                 },
                                 EntityId: {
-                                    description: "Optional. The entity's Unique ID.",
+                                    markdownDescription: "Optional. The entity's Unique ID.",
                                     type: "long",
                                 },
                                 PlayerId: {
-                                    description: "Optional. The player's Unique ID.",
+                                    markdownDescription: "Optional. The player's Unique ID.",
                                     type: "long",
                                 },
                                 ScoreboardId: {
-                                    description: "The numerical ID given to this entity on the scoreboard system, starting from 1.",
+                                    markdownDescription: "The numerical ID given to this entity on the scoreboard system, starting from 1.",
                                     type: "long",
                                 },
                             },
                         },
                     },
                     LastUniqueID: {
-                        description: "The numerical ID given to the last entity added on the scoreboard system.",
+                        markdownDescription: "The numerical ID given to the last entity added on the scoreboard system.",
                         type: "long",
                     },
                     Objectives: {
-                        description: "A list of compound tags representing objectives.",
+                        markdownDescription: "A list of compound tags representing objectives.",
                         type: "list",
                         items: {
-                            description: "An objective.",
+                            markdownDescription: "An objective.",
                             type: "compound",
                             required: ["Criteria", "DisplayName", "Name", "Scores"],
                             properties: {
                                 Criteria: {
-                                    description: "The **criterion** of this objective, currently, always `dummy`.",
+                                    markdownDescription: "The **criterion** of this objective, currently, always `dummy`.",
                                     type: "string",
                                     default: {
                                         type: "string",
@@ -3033,27 +4513,27 @@ export namespace NBTSchemas {
                                     },
                                 },
                                 DisplayName: {
-                                    description: "The **display name** of this objective.",
+                                    markdownDescription: "The **display name** of this objective.",
                                     type: "string",
                                 },
                                 Name: {
-                                    description: "The internal **name** of this objective.",
+                                    markdownDescription: "The internal **name** of this objective.",
                                     type: "string",
                                 },
                                 Scores: {
-                                    description: "A list of compound tags representing scores tracked on this objective.",
+                                    markdownDescription: "A list of compound tags representing scores tracked on this objective.",
                                     type: "list",
                                     items: {
-                                        description: "A tracked entity with a score.",
+                                        markdownDescription: "A tracked entity with a score.",
                                         type: "compound",
                                         required: ["Score", "ScoreboardId"],
                                         properties: {
                                             Score: {
-                                                description: "The score this entity has on this objective.",
+                                                markdownDescription: "The score this entity has on this objective.",
                                                 type: "int",
                                             },
                                             ScoreboardId: {
-                                                description: "The numerical ID given to this entity on the scoreboard system.",
+                                                markdownDescription: "The numerical ID given to this entity on the scoreboard system.",
                                                 type: "long",
                                             },
                                         },
@@ -3073,22 +4553,22 @@ export namespace NBTSchemas {
                 required: ["structure", "size", "structure_world_origin", "format_version"],
                 properties: {
                     structure: {
-                        description: "The structure data.",
+                        markdownDescription: "The structure data.",
                         type: "compound",
                         required: ["palette", "block_indices", "entities"],
                         properties: {
                             palette: {
-                                description: "The block palette.",
+                                markdownDescription: "The block palette.",
                                 type: "compound",
                                 required: ["default"],
                                 properties: {
                                     default: {
-                                        description: "The default block palette.",
+                                        markdownDescription: "The default block palette.",
                                         type: "compound",
                                         required: ["block_position_data", "block_palette"],
                                         properties: {
                                             block_position_data: {
-                                                description: "The block entity data.",
+                                                markdownDescription: "The block entity data.",
                                                 type: "compound",
                                                 patternProperties: {
                                                     "[0-9]+": {
@@ -3103,10 +4583,10 @@ export namespace NBTSchemas {
                                                 },
                                             },
                                             block_palette: {
-                                                description: "The block palette.",
+                                                markdownDescription: "The block palette.",
                                                 type: "list",
                                                 items: {
-                                                    description: "The block palette array.",
+                                                    markdownDescription: "The block palette array.",
                                                     $ref: "Block",
                                                 },
                                             },
@@ -3115,7 +4595,7 @@ export namespace NBTSchemas {
                                 },
                             },
                             block_indices: {
-                                description: `The block indices.
+                                markdownDescription: `The block indices.
 
 These are two arrays of indices in the block palette.
 
@@ -3128,26 +4608,26 @@ however when the corresponding block in the block layer is broken, this block ge
                                 items: [
                                     {
                                         title: "Block Layer",
-                                        description: "The block layer.",
+                                        markdownDescription: "The block layer.",
                                         type: "list",
                                         items: {
-                                            description: "A block index in this layer.",
+                                            markdownDescription: "A block index in this layer.",
                                             type: "int",
                                         },
                                     },
                                     {
                                         title: "Waterlog Layer",
-                                        description: "The waterlog layer.",
+                                        markdownDescription: "The waterlog layer.",
                                         type: "list",
                                         items: {
-                                            description: "A block index in this layer.",
+                                            markdownDescription: "A block index in this layer.",
                                             type: "int",
                                         },
                                     },
                                 ],
                             },
                             entities: {
-                                description: "The list of entities in the structure.",
+                                markdownDescription: "The list of entities in the structure.",
                                 type: "list",
                                 items: {
                                     $ref: "ActorPrefix",
@@ -3156,47 +4636,47 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     size: {
-                        description: "The size of the structure, as a tuple of 3 integers.",
+                        markdownDescription: "The size of the structure, as a tuple of 3 integers.",
                         type: "list",
                         items: [
                             {
                                 title: "x",
-                                description: "The size of the x axis.",
+                                markdownDescription: "The size of the x axis.",
                                 type: "int",
                                 minimum: 0,
                             },
                             {
                                 title: "y",
-                                description: "The size of the y axis.",
+                                markdownDescription: "The size of the y axis.",
                                 type: "int",
                                 minimum: 0,
                             },
                             {
                                 title: "z",
-                                description: "The size of the z axis.",
+                                markdownDescription: "The size of the z axis.",
                                 type: "int",
                                 minimum: 0,
                             },
                         ],
                     },
                     structure_world_origin: {
-                        description:
+                        markdownDescription:
                             "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
                         type: "list",
                         items: [
                             {
                                 title: "x",
-                                description: "The x coordinate.",
+                                markdownDescription: "The x coordinate.",
                                 type: "int",
                             },
                             {
                                 title: "y",
-                                description: "The y coordinate.",
+                                markdownDescription: "The y coordinate.",
                                 type: "int",
                             },
                             {
                                 title: "z",
-                                description: "The z coordinate.",
+                                markdownDescription: "The z coordinate.",
                                 type: "int",
                             },
                         ],
@@ -3205,7 +4685,7 @@ however when the corresponding block in the block layer is broken, this block ge
                      * The format version of the structure.
                      */
                     format_version: {
-                        description: "The format version of the structure.",
+                        markdownDescription: "The format version of the structure.",
                         type: "int",
                         enum: [
                             {
@@ -3220,7 +4700,7 @@ however when the corresponding block in the block layer is broken, this block ge
             TickingArea: {
                 id: "TickingArea",
                 title: "The TickingArea schema.",
-                description: "The tickingarea data.",
+                markdownDescription: "The tickingarea data.",
                 type: "compound",
                 required: ["Dimension", "IsCircle", "MaxX", "MaxZ", "MinX", "MinZ", "Name"],
                 properties: {
@@ -3232,7 +4712,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     IsAlwaysActive: {
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -3240,7 +4720,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     IsCircle: {
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -3270,7 +4750,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     Preload: {
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -3283,56 +4763,56 @@ however when the corresponding block in the block layer is broken, this block ge
             VillageDwellers: {
                 id: "VillageDwellers",
                 title: "The VillageDwellers schema.",
-                description: "The village dwellers data.",
+                markdownDescription: "The village dwellers data.",
                 type: "compound",
                 required: ["Dwellers"],
                 properties: {
                     Dwellers: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "list",
                         items: {
-                            description: "UNDOCUMENTED.",
+                            markdownDescription: "UNDOCUMENTED.",
                             type: "compound",
                             properties: {
                                 actors: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "list",
                                     items: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "compound",
                                         required: ["ID", "last_saved_pos", "TS"],
                                         properties: {
                                             ID: {
-                                                description: "UNDOCUMENTED.",
+                                                markdownDescription: "UNDOCUMENTED.",
                                                 type: "long",
                                             },
                                             last_saved_pos: {
-                                                description: "UNDOCUMENTED.",
+                                                markdownDescription: "UNDOCUMENTED.",
                                                 type: "list",
                                                 items: [
                                                     {
                                                         title: "x",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     {
                                                         title: "y",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     {
                                                         title: "z",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                 ],
                                             },
                                             TS: {
-                                                description: "UNDOCUMENTED.",
+                                                markdownDescription: "UNDOCUMENTED.",
                                                 type: "long",
                                             },
                                             last_worked: {
-                                                description: "UNDOCUMENTED.",
+                                                markdownDescription: "UNDOCUMENTED.",
                                                 type: "long",
                                             },
                                         },
@@ -3348,7 +4828,7 @@ however when the corresponding block in the block layer is broken, this block ge
             VillageInfo: {
                 id: "VillageInfo",
                 title: "The VillageInfo schema.",
-                description: "The village info data.",
+                markdownDescription: "The village info data.",
                 type: "compound",
                 required: [
                     "BDTime",
@@ -3373,84 +4853,84 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     BDTime: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "long",
                     },
                     GDTime: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "long",
                     },
                     Initialized: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
-                        enumDescriptions: ["false", "true"],
+                        markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
                         ],
                     },
                     MTick: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "long",
                     },
                     PDTick: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "long",
                     },
                     RX0: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RX1: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RY0: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RY1: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RZ0: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     RZ1: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Tick: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "long",
                     },
                     Version: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     X0: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     X1: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Y0: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Y1: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Z0: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Z1: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -3460,12 +4940,12 @@ however when the corresponding block in the block layer is broken, this block ge
             VillagePlayers: {
                 id: "VillagePlayers",
                 title: "The VillagePlayers schema.",
-                description: "The village players data.",
+                markdownDescription: "The village players data.",
                 type: "compound",
                 required: ["Players"],
                 properties: {
                     Players: {
-                        description: "UNKNOWN.",
+                        markdownDescription: "UNKNOWN.",
                         type: "list",
                     },
                 },
@@ -3475,7 +4955,7 @@ however when the corresponding block in the block layer is broken, this block ge
             VillagePOI: {
                 id: "VillagePOI",
                 title: "The VillagePOI schema.",
-                description: "The village POIs data.",
+                markdownDescription: "The village POIs data.",
                 type: "compound",
                 required: ["POI"],
                 properties: {
@@ -3560,12 +5040,12 @@ however when the corresponding block in the block layer is broken, this block ge
             VillageRaid: {
                 id: "VillageRaid",
                 title: "The VillageRaid schema.",
-                description: "The village raid data.",
+                markdownDescription: "The village raid data.",
                 type: "compound",
                 required: ["Raid"],
                 properties: {
                     Raid: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "compound",
                         required: [
                             "GameTick",
@@ -3584,60 +5064,60 @@ however when the corresponding block in the block layer is broken, this block ge
                         ],
                         properties: {
                             GameTick: {
-                                description: "Seems to be the tick the raid data was last updated.",
+                                markdownDescription: "Seems to be the tick the raid data was last updated.",
                                 type: "long",
                             },
                             GroupNum: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "byte",
                             },
                             NumGroups: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "byte",
                             },
                             NumRaiders: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "byte",
                             },
                             Raiders: {
-                                description: "The list of UUIDs of the raiders.",
+                                markdownDescription: "The list of UUIDs of the raiders.",
                                 type: "list",
                                 items: {
-                                    description: "The UUID of a raider.",
+                                    markdownDescription: "The UUID of a raider.",
                                     type: "long",
                                 },
                             },
                             SpawnFails: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "byte",
                             },
                             SpawnX: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "float",
                             },
                             SpawnY: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "float",
                             },
                             SpawnZ: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "float",
                             },
                             State: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             Status: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             Ticks: {
-                                description:
+                                markdownDescription:
                                     "Seems to be the number of ticks since the raid started (not sure if it is only counting while the raid is in loaded chunks or not).",
                                 type: "long",
                             },
                             TotalMaxHealth: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "float",
                             },
                         },
@@ -3649,12 +5129,12 @@ however when the corresponding block in the block layer is broken, this block ge
             //#region Schema Fragments
             Abilities: {
                 id: "Abilities",
-                description: "NBT structure of players' ability info.",
+                markdownDescription: "NBT structure of players' ability info.",
                 type: "compound",
                 required: ["abilities"],
                 properties: {
                     abilities: {
-                        description: "The player's ability setting.",
+                        markdownDescription: "The player's ability setting.",
                         type: "compound",
                         required: [
                             "attackmobs",
@@ -3680,83 +5160,83 @@ however when the corresponding block in the block layer is broken, this block ge
                         ],
                         properties: {
                             attackmobs: {
-                                description: "1 or 0 (true/false) - true if the player can attack mobs.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player can attack mobs.",
                                 type: "byte",
                             },
                             attackplayers: {
-                                description: "1 or 0 (true/false) - true if the player can attack other players.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player can attack other players.",
                                 type: "byte",
                             },
                             build: {
-                                description: "1 or 0 (true/false) - true if the player can place blocks.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player can place blocks.",
                                 type: "byte",
                             },
                             doorsandswitches: {
-                                description: "1 or 0 (true/false) - true if the player is able to interact with redstone components.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player is able to interact with redstone components.",
                                 type: "byte",
                             },
                             flying: {
-                                description: "1 or 0 (true/false) - true if the player is currently flying.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player is currently flying.",
                                 type: "byte",
                             },
                             flySpeed: {
-                                description: "The flying speed, always 0.05.",
+                                markdownDescription: "The flying speed, always 0.05.",
                                 type: "float",
                             },
                             instabuild: {
-                                description: "1 or 0 (true/false) - true if the player can instantly destroy blocks.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player can instantly destroy blocks.",
                                 type: "byte",
                             },
                             invulnerable: {
-                                description: "1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.",
                                 type: "byte",
                             },
                             lightning: {
-                                description: "1 or 0 (true/false) - true if the player was struck by lightning.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player was struck by lightning.",
                                 type: "byte",
                             },
                             mayfly: {
-                                description: "1 or 0 (true/false) - true if the player can fly.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player can fly.",
                                 type: "byte",
                             },
                             mine: {
-                                description: "1 or 0 (true/false) - true if the player can destroy blocks.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player can destroy blocks.",
                                 type: "byte",
                             },
                             mute: {
-                                description: "1 or 0 (true/false) - true if the player messages cannot be seen by other players.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player messages cannot be seen by other players.",
                                 type: "byte",
                             },
                             noclip: {
-                                description: "1 or 0 (true/false) - true if the player can phase through blocks.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player can phase through blocks.",
                                 type: "byte",
                             },
                             op: {
-                                description: "1 or 0 (true/false) - true if the player has operator commands.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player has operator commands.",
                                 type: "byte",
                             },
                             opencontainers: {
-                                description: "1 or 0 (true/false) - true if the player is able to open containers.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player is able to open containers.",
                                 type: "byte",
                             },
                             permissionsLevel: {
-                                description: "What permissions a player will default to, when joining a world.",
+                                markdownDescription: "What permissions a player will default to, when joining a world.",
                                 type: "int",
                             },
                             playerPermissionsLevel: {
-                                description: "What permissions a player has.",
+                                markdownDescription: "What permissions a player has.",
                                 type: "int",
                             },
                             teleport: {
-                                description: "1 or 0 (true/false) - true if the player is allowed to teleport.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player is allowed to teleport.",
                                 type: "byte",
                             },
                             walkSpeed: {
-                                description: "The walking speed, always 0.1.",
+                                markdownDescription: "The walking speed, always 0.1.",
                                 type: "float",
                             },
                             worldbuilder: {
-                                description: "1 or 0 (true/false) - true if the player is a world builder.",
+                                markdownDescription: "1 or 0 (true/false) - true if the player is a world builder.",
                                 type: "byte",
                             },
                         },
@@ -3766,65 +5246,65 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Attribute: {
                 id: "Attribute",
-                description: "NBT structure of an [attribute](https://minecraft.wiki/w/attribute).",
+                markdownDescription: "NBT structure of an [attribute](https://minecraft.wiki/w/attribute).",
                 type: "compound",
                 required: ["Base", "Current", "DefaultMax", "DefaultMin", "Max", "Min", "Name"],
                 properties: {
                     Base: {
-                        description: "The base value of this Attribute.",
+                        markdownDescription: "The base value of this Attribute.",
                         type: "float",
                     },
                     Current: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "float",
                     },
                     DefaultMax: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "float",
                     },
                     DefaultMin: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "float",
                     },
                     Max: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "float",
                     },
                     Min: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "float",
                     },
                     Modifiers: {
-                        description: "(May not exist) List of [Modifiers](https://minecraft.wiki/w/Attribute#Modifiers).",
+                        markdownDescription: "(May not exist) List of [Modifiers](https://minecraft.wiki/w/Attribute#Modifiers).",
                         type: "list",
                         items: {
-                            description: "An individual Modifier.",
+                            markdownDescription: "An individual Modifier.",
                             type: "compound",
                             $ref: "AttributeModifier",
                         },
                     },
                     Name: {
-                        description: "The name of this Attribute.",
+                        markdownDescription: "The name of this Attribute.",
                         type: "string",
                     },
                     TemporalBuffs: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "list",
                         items: [
                             {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "float",
                             },
                             {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         ],
@@ -3834,10 +5314,10 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Attributes: {
                 id: "Attributes",
-                description: "List of [attribute](https://minecraft.wiki/w/attribute)s.",
+                markdownDescription: "List of [attribute](https://minecraft.wiki/w/attribute)s.",
                 type: "list",
                 items: {
-                    description: "An attribute.",
+                    markdownDescription: "An attribute.",
                     type: "compound",
                     $ref: "Attribute",
                 },
@@ -3845,33 +5325,33 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             AttributeModifier: {
                 id: "AttributeModifier",
-                description: "NBT structure of an attribute [modifier](https://minecraft.wiki/w/modifier).",
+                markdownDescription: "NBT structure of an attribute [modifier](https://minecraft.wiki/w/modifier).",
                 type: "compound",
                 required: ["Amount", "Name", "Operand", "Operation", "UUIDLeast", "UUIDMost"],
                 properties: {
                     Amount: {
-                        description: "The amount by which this Modifier modifies the Base value in calculations.",
+                        markdownDescription: "The amount by which this Modifier modifies the Base value in calculations.",
                         type: "float",
                     },
                     Name: {
-                        description: "The Modifier's name.",
+                        markdownDescription: "The Modifier's name.",
                         type: "string",
                     },
                     Operand: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Operation: {
-                        description:
+                        markdownDescription:
                             "Defines the operation this Modifier executes on the Attribute's Base value. 0: Increment X by Amount, 1: Increment Y by X * Amount, 2: Y = Y * (1 + Amount) (equivalent to Increment Y by Y * Amount). *needs testing*",
                         type: "int",
                     },
                     UUIDLeast: {
-                        description: "This modifier's UUID Least.",
+                        markdownDescription: "This modifier's UUID Least.",
                         type: "long",
                     },
                     UUIDMost: {
-                        description: "This modifier's UUID Most.",
+                        markdownDescription: "This modifier's UUID Most.",
                         type: "long",
                     },
                 },
@@ -3880,21 +5360,21 @@ however when the corresponding block in the block layer is broken, this block ge
             Block: {
                 id: "Block",
                 title: "The Block schema.",
-                description: "NBT structure of a [block](https://minecraft.wiki/w/block).",
+                markdownDescription: "NBT structure of a [block](https://minecraft.wiki/w/block).",
                 type: "compound",
                 required: ["name", "states", "version"],
                 properties: {
                     name: {
-                        description: "The namespaced ID of this block.",
+                        markdownDescription: "The namespaced ID of this block.",
                         type: "string",
                     },
                     states: {
-                        description: "The block states of the block.",
+                        markdownDescription: "The block states of the block.",
                         type: "compound",
                         additionalProperties: true,
                     },
                     version: {
-                        description: "The data version.",
+                        markdownDescription: "The data version.",
                         type: "int",
                         examples: [
                             { type: "int", value: 18163713 },
@@ -3906,7 +5386,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             CommandBlock: {
                 id: "CommandBlock",
-                description:
+                markdownDescription:
                     "NBT structure of [command block](https://minecraft.wiki/w/command block) and [minecart with command block](https://minecraft.wiki/w/minecart with command block).",
                 type: "compound",
                 required: [
@@ -3923,49 +5403,49 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     Command: {
-                        description: "The command entered into the command block.",
+                        markdownDescription: "The command entered into the command block.",
                         type: "string",
                     },
                     CustomName: {
-                        description: "The custom name or hover text of this command block.",
+                        markdownDescription: "The custom name or hover text of this command block.",
                         type: "string",
                     },
                     ExecuteOnFirstTick: {
-                        description: "1 or 0 (true/false) - true if it executes on the first tick once saved or activated.",
+                        markdownDescription: "1 or 0 (true/false) - true if it executes on the first tick once saved or activated.",
                         type: "byte",
                     },
                     LastExecution: {
-                        description: "Stores the time when a command block was last executed.",
+                        markdownDescription: "Stores the time when a command block was last executed.",
                         type: "long",
                     },
                     LastOutput: {
-                        description:
+                        markdownDescription:
                             "The translation key of the output's last line generated by the command block. Still stored even if the [gamerule](https://minecraft.wiki/w/gamerule) commandBlockOutput is false. Appears in the command GUI.",
                         type: "string",
                     },
                     LastOutputParams: {
-                        description: "The params for the output's translation key.",
+                        markdownDescription: "The params for the output's translation key.",
                         type: "list",
                         items: {
-                            description: "A param.",
+                            markdownDescription: "A param.",
                             type: "string",
                         },
                     },
                     SuccessCount: {
-                        description: "Represents the strength of the analog signal output by redstone comparators attached to this command block.",
+                        markdownDescription: "Represents the strength of the analog signal output by redstone comparators attached to this command block.",
                         type: "int",
                     },
                     TickDelay: {
-                        description: "The delay between each execution.",
+                        markdownDescription: "The delay between each execution.",
                         type: "int",
                     },
                     TrackOutput: {
-                        description:
+                        markdownDescription:
                             '1 or 0 (true/false) - true if the `LastOutput` is stored. Can be toggled in the GUI by clicking a button near the "Previous Output" textbox.',
                         type: "byte",
                     },
                     Version: {
-                        description: "The data version.",
+                        markdownDescription: "The data version.",
                         type: "int",
                     },
                 },
@@ -3973,28 +5453,29 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             FireworkExplosion: {
                 id: "FireworkExplosion",
-                description: "NBT structure of [firework](https://minecraft.wiki/w/firework) and [firework star](https://minecraft.wiki/w/firework star).",
+                markdownDescription:
+                    "NBT structure of [firework](https://minecraft.wiki/w/firework) and [firework star](https://minecraft.wiki/w/firework star).",
                 type: "compound",
                 required: ["FireworkColor", "FireworkFade", "FireworkFlicker", "FireworkTrail", "FireworkType"],
                 properties: {
                     FireworkColor: {
-                        description: "Array of byte values corresponding to the primary colors of this firework's explosion.",
+                        markdownDescription: "Array of byte values corresponding to the primary colors of this firework's explosion.",
                         type: "byteArray",
                     },
                     FireworkFade: {
-                        description: "Array of byte values corresponding to the fading colors of this firework's explosion.",
+                        markdownDescription: "Array of byte values corresponding to the fading colors of this firework's explosion.",
                         type: "byteArray",
                     },
                     FireworkFlicker: {
-                        description: "1 or 0 (true/false) - true if this explosion has the twinkle effect (glowstone dust).",
+                        markdownDescription: "1 or 0 (true/false) - true if this explosion has the twinkle effect (glowstone dust).",
                         type: "byte",
                     },
                     FireworkTrail: {
-                        description: "1 or 0 (true/false) - true if this explosion has the trail effect (diamond).",
+                        markdownDescription: "1 or 0 (true/false) - true if this explosion has the trail effect (diamond).",
                         type: "byte",
                     },
                     FireworkType: {
-                        description:
+                        markdownDescription:
                             "The shape of this firework's explosion. 0 = Small Ball, 1 = Large Ball, 2 = Star-shaped, 3 = Creeper-shaped, and 4 = Burst. *needs testing*",
                         type: "byte",
                     },
@@ -4003,7 +5484,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             MobEffect: {
                 id: "MobEffect",
-                description: "NBT structure of a [status effect](https://minecraft.wiki/w/status effect).",
+                markdownDescription: "NBT structure of a [status effect](https://minecraft.wiki/w/status effect).",
                 type: "compound",
                 required: [
                     "Ambient",
@@ -4018,31 +5499,32 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     Ambient: {
-                        description: "1 or 0 (true/false) - true if this effect is provided by a beacon and therefore should be less intrusive on screen.",
+                        markdownDescription:
+                            "1 or 0 (true/false) - true if this effect is provided by a beacon and therefore should be less intrusive on screen.",
                         type: "byte",
                     },
                     Amplifier: {
-                        description: "The potion effect level. 0 is level 1.",
+                        markdownDescription: "The potion effect level. 0 is level 1.",
                         type: "byte",
                     },
                     DisplayOnScreenTextureAnimation: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     Duration: {
-                        description: "The number of ticks before the effect wears off.",
+                        markdownDescription: "The number of ticks before the effect wears off.",
                         type: "int",
                     },
                     DurationEasy: {
-                        description: "Duration for Easy mode.",
+                        markdownDescription: "Duration for Easy mode.",
                         type: "int",
                     },
                     DurationHard: {
-                        description: "Duration for Hard mode.",
+                        markdownDescription: "Duration for Hard mode.",
                         type: "int",
                     },
                     DurationNormal: {
-                        description: "Duration for Normal mode.",
+                        markdownDescription: "Duration for Normal mode.",
                         type: "int",
                     },
                     FactorCalculationData: {
@@ -4075,11 +5557,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     Id: {
-                        description: "The numerical effect ID.",
+                        markdownDescription: "The numerical effect ID.",
                         type: "byte",
                     },
                     ShowParticles: {
-                        description: "1 or 0 (true/false) - true if particles are shown.",
+                        markdownDescription: "1 or 0 (true/false) - true if particles are shown.",
                         type: "byte",
                     },
                 },
@@ -4087,7 +5569,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             MonsterSpawner: {
                 id: "MonsterSpawner",
-                description: "NBT structure of a [monster spawner](https://minecraft.wiki/w/monster spawner).",
+                markdownDescription: "NBT structure of a [monster spawner](https://minecraft.wiki/w/monster spawner).",
                 type: "compound",
                 required: [
                     "Delay",
@@ -4104,83 +5586,83 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     Delay: {
-                        description: "Ticks until next spawn. If 0, it spawns immediately when a player enters its range.",
+                        markdownDescription: "Ticks until next spawn. If 0, it spawns immediately when a player enters its range.",
                         type: "short",
                     },
                     DisplayEntityHeight: {
-                        description: "The height of entity model that displayed in the block.",
+                        markdownDescription: "The height of entity model that displayed in the block.",
                         type: "float",
                     },
                     DisplayEntityScale: {
-                        description: "The scale of entity model that displayed in the block.",
+                        markdownDescription: "The scale of entity model that displayed in the block.",
                         type: "float",
                     },
                     DisplayEntityWidth: {
-                        description: "The width of entity model that displayed in the block.",
+                        markdownDescription: "The width of entity model that displayed in the block.",
                         type: "float",
                     },
                     EntityIdentifier: {
-                        description: "The id of the entity to be summoned.",
+                        markdownDescription: "The id of the entity to be summoned.",
                         type: "string",
                     },
                     MaxNearbyEntities: {
-                        description:
+                        markdownDescription:
                             "The maximum number of nearby (within a box of `SpawnRange`*2+1 × `SpawnRange`*2+1 × 8 centered around the spawner block *needs testing*) entities whose IDs match this spawner's entity ID.",
                         type: "short",
                     },
                     MaxSpawnDelay: {
-                        description: "The maximum random delay for the next spawn delay.",
+                        markdownDescription: "The maximum random delay for the next spawn delay.",
                         type: "short",
                     },
                     MinSpawnDelay: {
-                        description: "The minimum random delay for the next spawn delay.",
+                        markdownDescription: "The minimum random delay for the next spawn delay.",
                         type: "short",
                     },
                     RequiredPlayerRange: {
-                        description: "Overrides the block radius of the sphere of activation by players for this spawner.",
+                        markdownDescription: "Overrides the block radius of the sphere of activation by players for this spawner.",
                         type: "short",
                     },
                     SpawnCount: {
-                        description: "How many mobs to attempt to spawn each time.",
+                        markdownDescription: "How many mobs to attempt to spawn each time.",
                         type: "short",
                     },
                     SpawnData: {
-                        description: "(May not exist) Contains tags to copy to the next spawned entity(s) after spawning.",
+                        markdownDescription: "(May not exist) Contains tags to copy to the next spawned entity(s) after spawning.",
                         type: "compound",
                         required: ["Properties", "TypeId", "Weight"],
                         properties: {
                             Properties: {
-                                description: "UNKNOWN.",
+                                markdownDescription: "UNKNOWN.",
                                 type: "compound",
                             },
                             TypeId: {
-                                description: "The entity's namespaced ID.",
+                                markdownDescription: "The entity's namespaced ID.",
                                 type: "string",
                             },
                             Weight: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
                     },
                     SpawnPotentials: {
-                        description: "(May not exist) List of possible entities to spawn.",
+                        markdownDescription: "(May not exist) List of possible entities to spawn.",
                         type: "list",
                         items: {
-                            description: "A potential future spawn.",
+                            markdownDescription: "A potential future spawn.",
                             type: "compound",
                             required: ["Properties", "TypeId", "Weight"],
                             properties: {
                                 Properties: {
-                                    description: "UNKNOWN.",
+                                    markdownDescription: "UNKNOWN.",
                                     type: "compound",
                                 },
                                 TypeId: {
-                                    description: "The entity's namespaced ID.",
+                                    markdownDescription: "The entity's namespaced ID.",
                                     type: "string",
                                 },
                                 Weight: {
-                                    description:
+                                    markdownDescription:
                                         "The chance that this spawn gets picked in comparison to other spawn weights. Must be positive and at least 1.",
                                     type: "int",
                                 },
@@ -4188,7 +5670,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     SpawnRange: {
-                        description:
+                        markdownDescription:
                             "The radius around which the spawner attempts to place mobs randomly. The spawn area is square, includes the block the spawner is in, and is centered around the spawner's x,z coordinates - not the spawner itself. *needs testing* Default value is 4.",
                         type: "short",
                     },
@@ -4199,21 +5681,21 @@ however when the corresponding block in the block layer is broken, this block ge
             //#region Entity NBT Schemas
             Entity_Minecart: {
                 id: "Entity_Minecart",
-                description: "Minecart entities include.",
+                markdownDescription: "Minecart entities include.",
                 type: "compound",
                 required: ["CustomDisplayTile"],
                 properties: {
                     CustomDisplayTile: {
-                        description: "1 or 0 (true/false) - (may not exist) if is displayed the custom tile in this minecart.",
+                        markdownDescription: "1 or 0 (true/false) - (may not exist) if is displayed the custom tile in this minecart.",
                         type: "byte",
                     },
                     DisplayBlock: {
-                        description: "(May not exist) The custom block in the minecart.",
+                        markdownDescription: "(May not exist) The custom block in the minecart.",
                         type: "compound",
                         $ref: "Block",
                     },
                     DisplayOffset: {
-                        description:
+                        markdownDescription:
                             "(May not exist) The offset of the block displayed in the Minecart in pixels. Positive values move the block upwards, while negative values move it downwards. A value of 16 moves the block up by exactly one multiple of its height. *needs testing*",
                         type: "int",
                     },
@@ -4223,12 +5705,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Villagers: {
                 id: "Entity_Villagers",
-                description: "Villager entities include.",
+                markdownDescription: "Villager entities include.",
                 type: "compound",
                 required: ["Willing"],
                 properties: {
                     Willing: {
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - true if the villager is willing to mate. Becomes true after certain trades (those that would cause offers to be refreshed), and false after mating.",
                         type: "byte",
                     },
@@ -4238,12 +5720,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Monster: {
                 id: "Entity_Monster",
-                description: "Monster entities include.",
+                markdownDescription: "Monster entities include.",
                 type: "compound",
                 required: ["SpawnedByNight"],
                 properties: {
                     SpawnedByNight: {
-                        description: "1 or 0 (true/false) - true if is spawned by night.",
+                        markdownDescription: "1 or 0 (true/false) - true if is spawned by night.",
                         type: "byte",
                     },
                 },
@@ -4252,11 +5734,11 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_HumanoidMonster: {
                 id: "Entity_HumanoidMonster",
-                description: "Humanoid monster entities include.",
+                markdownDescription: "Humanoid monster entities include.",
                 type: "compound",
                 properties: {
                     ItemInHand: {
-                        description: "(May not exist) The items in the entity's hand.",
+                        markdownDescription: "(May not exist) The items in the entity's hand.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
@@ -4266,7 +5748,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Mob: {
                 id: "Entity_Mob",
-                description: "Mob entities include.",
+                markdownDescription: "Mob entities include.",
                 type: "compound",
                 required: [
                     "Air",
@@ -4292,160 +5774,160 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     ActiveEffects: {
-                        description: "(May not exist) The list of potion effects on this mob.",
+                        markdownDescription: "(May not exist) The list of potion effects on this mob.",
                         type: "list",
                         items: {
-                            description: "An effect.",
+                            markdownDescription: "An effect.",
                             type: "compound",
                             $ref: "MobEffect",
                         },
                     },
                     Air: {
-                        description: "How much air the living entity has, in ticks.",
+                        markdownDescription: "How much air the living entity has, in ticks.",
                         type: "short",
                     },
                     Armor: {
-                        description: "The list of items the mob is wearing as armor.",
+                        markdownDescription: "The list of items the mob is wearing as armor.",
                         type: "list",
                         items: [
                             {
-                                description: "The item on the head.",
+                                markdownDescription: "The item on the head.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
                             {
-                                description: "The item on the chest.",
+                                markdownDescription: "The item on the chest.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
                             {
-                                description: "The item on the legs.",
+                                markdownDescription: "The item on the legs.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
                             {
-                                description: "The item on the feets.",
+                                markdownDescription: "The item on the feets.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
                         ],
                     },
                     AttackTime: {
-                        description: "Number of ticks the mob attacks for. 0 when not attacking.",
+                        markdownDescription: "Number of ticks the mob attacks for. 0 when not attacking.",
                         type: "short",
                     },
                     Attributes: {
-                        description:
+                        markdownDescription:
                             "A list of [Attribute](https://minecraft.wiki/w/Attribute)s for this mob. These are used for many purposes in internal calculations. Valid Attributes for a given mob are listed in the [main article](https://minecraft.wiki/w/Attribute).",
                         type: "list",
                         items: {
-                            description: "An Attribute.",
+                            markdownDescription: "An Attribute.",
                             type: "compound",
                             $ref: "Attribute",
                         },
                     },
                     BodyRot: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "float",
                     },
                     boundX: {
-                        description: "X of the bound origin.",
+                        markdownDescription: "X of the bound origin.",
                         type: "int",
                     },
                     boundY: {
-                        description: "Y of the bound origin.",
+                        markdownDescription: "Y of the bound origin.",
                         type: "int",
                     },
                     boundZ: {
-                        description: "Z of the bound origin.",
+                        markdownDescription: "Z of the bound origin.",
                         type: "int",
                     },
                     canPickupItems: {
-                        description: "1 or 0 (true/false) - true if this entity can pick up items.",
+                        markdownDescription: "1 or 0 (true/false) - true if this entity can pick up items.",
                         type: "byte",
                     },
                     Dead: {
-                        description: "1 or 0 (true/false) - true if dead.",
+                        markdownDescription: "1 or 0 (true/false) - true if dead.",
                         type: "byte",
                     },
                     DeathTime: {
-                        description: "Number of ticks the mob has been dead for. Controls death animations. 0 when alive.",
+                        markdownDescription: "Number of ticks the mob has been dead for. Controls death animations. 0 when alive.",
                         type: "short",
                     },
                     hasBoundOrigin: {
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - if this mob has bound origin. Only *needs testing* effects [Vex](https://minecraft.wiki/w/Vex). When a vex is idle, it wanders, selecting air blocks from within a 15×11×15 *needs testing* cuboid range centered at BoundX, BoundY, BoundZ. when it summoned the vex, this value is set to true, and the central spot is the location of the evoker. Or if an evoker was not involved, this value is false.",
                         type: "byte",
                     },
                     hasSetCanPickupItems: {
-                        description: "1 or 0 (true/false) - true if `canPickupItems` has been set by the game.",
+                        markdownDescription: "1 or 0 (true/false) - true if `canPickupItems` has been set by the game.",
                         type: "byte",
                     },
                     HurtTime: {
-                        description: "Number of ticks the mob turns red for after being hit. 0 when not recently hit.",
+                        markdownDescription: "Number of ticks the mob turns red for after being hit. 0 when not recently hit.",
                         type: "short",
                     },
                     LeasherID: {
-                        description: "The Unique ID of an entity that is leashing it with a lead. Set to -1 if there's no leasher.",
+                        markdownDescription: "The Unique ID of an entity that is leashing it with a lead. Set to -1 if there's no leasher.",
                         type: "long",
                     },
                     limitedLife: {
-                        description:
+                        markdownDescription:
                             "The left time in ticks until this entity disapears. Only *needs testing* effects [Evoker Fang](https://minecraft.wiki/w/Evoker Fang)s. For other entities, it is set to 0.",
                         type: "long",
                     },
                     Mainhand: {
-                        description: "The item being held in the mob's main hand.",
+                        markdownDescription: "The item being held in the mob's main hand.",
                         type: "list",
                         items: {
-                            description: "The item.",
+                            markdownDescription: "The item.",
                             type: "compound",
                             $ref: "Item_ItemStack",
                         },
                     },
                     NaturalSpawn: {
-                        description: "1 or 0 (true/false) - true if it is naturally spawned.",
+                        markdownDescription: "1 or 0 (true/false) - true if it is naturally spawned.",
                         type: "byte",
                     },
                     Offhand: {
-                        description: "The item being held in the mob's off hand.",
+                        markdownDescription: "The item being held in the mob's off hand.",
                         type: "list",
                         items: {
-                            description: "The item.",
+                            markdownDescription: "The item.",
                             type: "compound",
                             $ref: "Item_ItemStack",
                         },
                     },
                     persistingOffers: {
-                        description: "(May not exist) UNKNOWN.",
+                        markdownDescription: "(May not exist) UNKNOWN.",
                         type: "compound",
                     },
                     persistingRiches: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "int",
                     },
                     Surface: {
-                        description: "1 or 0 (true/false) - true if it is naturally spawned on the surface.",
+                        markdownDescription: "1 or 0 (true/false) - true if it is naturally spawned on the surface.",
                         type: "byte",
                     },
                     TargetCaptainID: {
-                        description: "(May not exist) The Unique ID of a captain to follow. Used by pillager and vindicator.",
+                        markdownDescription: "(May not exist) The Unique ID of a captain to follow. Used by pillager and vindicator.",
                         type: "long",
                     },
                     TargetID: {
-                        description: "The Unique ID of an entity that this entity is angry at.",
+                        markdownDescription: "The Unique ID of an entity that this entity is angry at.",
                         type: "long",
                     },
                     TradeExperience: {
-                        description: "(May not exist) Trade experiences of this trader entity.",
+                        markdownDescription: "(May not exist) Trade experiences of this trader entity.",
                         type: "int",
                     },
                     TradeTier: {
-                        description: "(May not exist) Trade tier of this trader entity.",
+                        markdownDescription: "(May not exist) Trade tier of this trader entity.",
                         type: "int",
                     },
                     WantsToBeJockey: {
-                        description: "(May not exist) unknown.",
+                        markdownDescription: "(May not exist) unknown.",
                         type: "byte",
                     },
                 },
@@ -4454,20 +5936,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_AbstractArrow: {
                 id: "Entity_AbstractArrow",
-                description: "Abstract arrow entities include.",
+                markdownDescription: "Abstract arrow entities include.",
                 type: "compound",
                 required: ["isCreative", "OwnerID", "player"],
                 properties: {
                     isCreative: {
-                        description: "1 or 0 (true/false) - true if its owner is a player in Creative mode.",
+                        markdownDescription: "1 or 0 (true/false) - true if its owner is a player in Creative mode.",
                         type: "byte",
                     },
                     OwnerID: {
-                        description: "The Unique ID of the entity this projectile was thrown by. Set to -1 if it has no owner.",
+                        markdownDescription: "The Unique ID of the entity this projectile was thrown by. Set to -1 if it has no owner.",
                         type: "long",
                     },
                     player: {
-                        description: "1 or 0 (true/false) - true if its owner is a player.",
+                        markdownDescription: "1 or 0 (true/false) - true if its owner is a player.",
                         type: "byte",
                     },
                 },
@@ -4476,20 +5958,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Throwable: {
                 id: "Entity_Throwable",
-                description: "Throwable entities include.",
+                markdownDescription: "Throwable entities include.",
                 type: "compound",
                 required: ["inGround", "OwnerID", "shake"],
                 properties: {
                     inGround: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     OwnerID: {
-                        description: "The Unique ID of the entity this projectile was thrown by.",
+                        markdownDescription: "The Unique ID of the entity this projectile was thrown by.",
                         type: "long",
                     },
                     shake: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -4498,60 +5980,60 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Allay: {
                 id: "Entity_Allay",
-                description: "Additional fields for [allay](https://minecraft.wiki/w/allay).",
+                markdownDescription: "Additional fields for [allay](https://minecraft.wiki/w/allay).",
                 type: "compound",
                 required: ["AllayDuplicationCooldown", "VibrationListener"],
                 properties: {
                     AllayDuplicationCooldown: {
-                        description: "The allay's duplication cooldown in ticks. This is set to 6000 ticks (5 minutes) when the allay duplicates.",
+                        markdownDescription: "The allay's duplication cooldown in ticks. This is set to 6000 ticks (5 minutes) when the allay duplicates.",
                         type: "long",
                     },
                     VibrationListener: {
-                        description: "The vibration event listener of this allay.",
+                        markdownDescription: "The vibration event listener of this allay.",
                         type: "compound",
                         required: ["selector"],
                         properties: {
                             event: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             pending: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "compound",
                                 required: ["distance", "source", "vibration", "x", "y", "z"],
                                 properties: {
                                     distance: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "float",
                                     },
                                     source: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "long",
                                     },
                                     vibration: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     x: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     y: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     z: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                 },
                             },
                             selector: {
-                                description: "UNKNOWN.",
+                                markdownDescription: "UNKNOWN.",
                                 type: "compound",
                             },
                             ticks: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
@@ -4567,7 +6049,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_AreaEffectCloud: {
                 id: "Entity_AreaEffectCloud",
-                description: "Additional fields for [area effect cloud](https://minecraft.wiki/w/area effect cloud).",
+                markdownDescription: "Additional fields for [area effect cloud](https://minecraft.wiki/w/area effect cloud).",
                 type: "compound",
                 required: [
                     "Duration",
@@ -4588,67 +6070,67 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     Duration: {
-                        description: "The maximum age of the field.",
+                        markdownDescription: "The maximum age of the field.",
                         type: "int",
                     },
                     DurationOnUse: {
-                        description: "The amount the duration of the field changes upon applying the effect.",
+                        markdownDescription: "The amount the duration of the field changes upon applying the effect.",
                         type: "int",
                     },
                     InitialRadius: {
-                        description: "The field's initial radius.",
+                        markdownDescription: "The field's initial radius.",
                         type: "float",
                     },
                     mobEffects: {
-                        description: "A list of the applied [effect](https://minecraft.wiki/w/effect)s.",
+                        markdownDescription: "A list of the applied [effect](https://minecraft.wiki/w/effect)s.",
                         type: "list",
                         items: {
                             $ref: "MobEffect",
                         },
                     },
                     OwnerId: {
-                        description: "The Unique ID of the entity who created the cloud. If it has no owner, defaults to -1.",
+                        markdownDescription: "The Unique ID of the entity who created the cloud. If it has no owner, defaults to -1.",
                         type: "long",
                     },
                     ParticleColor: {
-                        description: "The color of the particles.",
+                        markdownDescription: "The color of the particles.",
                         type: "int",
                     },
                     ParticleId: {
-                        description: "The particles displayed by the field.",
+                        markdownDescription: "The particles displayed by the field.",
                         type: "int",
                     },
                     PickupCount: {
-                        description: "How many [dragon's breath](https://minecraft.wiki/w/dragon's breath) can be picked up.",
+                        markdownDescription: "How many [dragon's breath](https://minecraft.wiki/w/dragon's breath) can be picked up.",
                         type: "int",
                     },
                     PotionId: {
-                        description:
+                        markdownDescription:
                             "The name of the default potion effect. See [potion data values](https://minecraft.wiki/w/potion#Item data) for valid IDs.",
                         type: "short",
                     },
                     Radius: {
-                        description: "The field's current radius.",
+                        markdownDescription: "The field's current radius.",
                         type: "float",
                     },
                     RadiusChangeOnPickup: {
-                        description: "The amount the radius changes when picked up by a glass bottle.",
+                        markdownDescription: "The amount the radius changes when picked up by a glass bottle.",
                         type: "float",
                     },
                     RadiusOnUse: {
-                        description: "The amount the radius changes upon applying the effect. Normally negative.",
+                        markdownDescription: "The amount the radius changes upon applying the effect. Normally negative.",
                         type: "float",
                     },
                     RadiusPerTick: {
-                        description: "The amount the radius changes per tick. Normally negative.",
+                        markdownDescription: "The amount the radius changes per tick. Normally negative.",
                         type: "float",
                     },
                     ReapplicationDelay: {
-                        description: "The number of ticks before reapplying the effect.",
+                        markdownDescription: "The number of ticks before reapplying the effect.",
                         type: "int",
                     },
                     SpawnTick: {
-                        description: "The time when it was spawned.",
+                        markdownDescription: "The time when it was spawned.",
                         type: "long",
                     },
                 },
@@ -4657,25 +6139,25 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Armadillo: {
                 id: "Entity_Armadillo",
-                description: "Additional fields for [armadillo](https://minecraft.wiki/w/armadillo).",
+                markdownDescription: "Additional fields for [armadillo](https://minecraft.wiki/w/armadillo).",
                 type: "compound",
                 required: ["properties"],
                 properties: {
                     properties: {
-                        description: "The armadillo `properties`.",
+                        markdownDescription: "The armadillo `properties`.",
                         type: "compound",
                         required: ["minecraft:is_rolled_up", "minecraft:is_threatened", "minecraft:is_trying_to_relax"],
                         properties: {
                             "minecraft:is_rolled_up": {
-                                description: "1 or 0 (true/false) - true if the armadillo is rolled up.",
+                                markdownDescription: "1 or 0 (true/false) - true if the armadillo is rolled up.",
                                 type: "byte",
                             },
                             "minecraft:is_threatened": {
-                                description: "1 or 0 (true/false) - true if the armadillo was hit.",
+                                markdownDescription: "1 or 0 (true/false) - true if the armadillo was hit.",
                                 type: "byte",
                             },
                             "minecraft:is_trying_to_relax": {
-                                description: "1 or 0 (true/false) - UNDOCUMENTED.",
+                                markdownDescription: "1 or 0 (true/false) - UNDOCUMENTED.",
                                 type: "byte",
                             },
                         },
@@ -4691,21 +6173,21 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ArmorStand: {
                 id: "Entity_ArmorStand",
-                description: "Additional fields for [armor stand](https://minecraft.wiki/w/armor stand).",
+                markdownDescription: "Additional fields for [armor stand](https://minecraft.wiki/w/armor stand).",
                 type: "compound",
                 required: ["Pose"],
                 properties: {
                     Pose: {
-                        description: "The ArmorStand's pose.",
+                        markdownDescription: "The ArmorStand's pose.",
                         type: "compound",
                         required: ["LastSignal", "PoseIndex"],
                         properties: {
                             LastSignal: {
-                                description: "The redstone signal level it received.",
+                                markdownDescription: "The redstone signal level it received.",
                                 type: "int",
                             },
                             PoseIndex: {
-                                description: "The index of current pose.",
+                                markdownDescription: "The index of current pose.",
                                 type: "int",
                             },
                         },
@@ -4716,40 +6198,40 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Arrow: {
                 id: "Entity_Arrow",
-                description: "Additional fields for [arrow](https://minecraft.wiki/w/arrow).",
+                markdownDescription: "Additional fields for [arrow](https://minecraft.wiki/w/arrow).",
                 type: "compound",
                 required: ["auxValue", "enchantFlame", "enchantInfinity", "mobEffects", "enchantPower", "enchantPunch"],
                 properties: {
                     auxValue: {
-                        description: "The metadata of this arrow. See [Arrow#Metadata](https://minecraft.wiki/w/Arrow#Metadata).",
+                        markdownDescription: "The metadata of this arrow. See [Arrow#Metadata](https://minecraft.wiki/w/Arrow#Metadata).",
                         type: "byte",
                     },
                     enchantFlame: {
-                        description:
+                        markdownDescription:
                             "The level of [Flame](https://minecraft.wiki/w/Flame) enchantment on the bow that shot this arrow, where 1 is level 1. 0 if no Flame enchantment.",
                         type: "byte",
                     },
                     enchantInfinity: {
-                        description:
+                        markdownDescription:
                             "The level of [Infinity](https://minecraft.wiki/w/Infinity) enchantment on the bow that shot this arrow, where 1 is level 1. 0 if no Infinity enchantment.",
                         type: "byte",
                     },
                     mobEffects: {
-                        description: "Effects on a tipped arrow.",
+                        markdownDescription: "Effects on a tipped arrow.",
                         type: "list",
                         items: {
-                            description: "An effect.",
+                            markdownDescription: "An effect.",
                             type: "compound",
                             $ref: "MobEffect",
                         },
                     },
                     enchantPower: {
-                        description:
+                        markdownDescription:
                             "The level of [Power](https://minecraft.wiki/w/Power) enchantment on the bow that shot this arrow, where 1 is level 1. 0 if no Power enchantment.",
                         type: "byte",
                     },
                     enchantPunch: {
-                        description:
+                        markdownDescription:
                             "The level of [Punch](https://minecraft.wiki/w/Punch) enchantment on the bow that shot this arrow, where 1 is level 1. 0 if no Punch enchantment.",
                         type: "byte",
                     },
@@ -4764,16 +6246,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Axolotl: {
                 id: "Entity_Axolotl",
-                description: "Additional fields for [axolotl](https://minecraft.wiki/w/axolotl).",
+                markdownDescription: "Additional fields for [axolotl](https://minecraft.wiki/w/axolotl).",
                 type: "compound",
                 required: ["TicksRemainingUntilDryOut"],
                 properties: {
                     DamageTime: {
-                        description: "(May not exist) Applies a defined amount of damage to the axolotl at specified intervals.",
+                        markdownDescription: "(May not exist) Applies a defined amount of damage to the axolotl at specified intervals.",
                         type: "short",
                     },
                     TicksRemainingUntilDryOut: {
-                        description:
+                        markdownDescription:
                             "Number of ticks until the axolotl dies when it is on the surface. Initially starts at 6000 ticks (5 minutes) and counts down to 0.",
                         type: "int",
                     },
@@ -4788,12 +6270,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Bat: {
                 id: "Entity_Bat",
-                description: "Additional fields for [bat](https://minecraft.wiki/w/bat).",
+                markdownDescription: "Additional fields for [bat](https://minecraft.wiki/w/bat).",
                 type: "compound",
                 required: ["BatFlags"],
                 properties: {
                     BatFlags: {
-                        description: "1 when hanging upside down and 0 when flying.More info",
+                        markdownDescription: "1 when hanging upside down and 0 when flying.More info",
                         type: "byte",
                     },
                 },
@@ -4802,17 +6284,17 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Bee: {
                 id: "Entity_Bee",
-                description: "Additional fields for [bee](https://minecraft.wiki/w/bee).",
+                markdownDescription: "Additional fields for [bee](https://minecraft.wiki/w/bee).",
                 type: "compound",
                 required: ["properties"],
                 properties: {
                     properties: {
-                        description: "The bee `properties`.",
+                        markdownDescription: "The bee `properties`.",
                         type: "compound",
                         required: ["minecraft:has_nectar"],
                         properties: {
                             "minecraft:has_nectar": {
-                                description: "1 or 0 (true/false) - true if the bee is carrying pollen.",
+                                markdownDescription: "1 or 0 (true/false) - true if the bee is carrying pollen.",
                                 type: "byte",
                             },
                         },
@@ -4828,7 +6310,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_BoatWithChest: {
                 id: "Entity_BoatWithChest",
-                description: "Additional fields for [boat with chest](https://minecraft.wiki/w/boat with chest).",
+                markdownDescription: "Additional fields for [boat with chest](https://minecraft.wiki/w/boat with chest).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
                 $ref: "ActorPrefix",
@@ -4836,17 +6318,17 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Breeze: {
                 id: "Entity_Breeze",
-                description: "Additional fields for [breeze](https://minecraft.wiki/w/breeze).",
+                markdownDescription: "Additional fields for [breeze](https://minecraft.wiki/w/breeze).",
                 type: "compound",
                 required: ["properties"],
                 properties: {
                     properties: {
-                        description: "The breeze `properties`.",
+                        markdownDescription: "The breeze `properties`.",
                         type: "compound",
                         required: ["minecraft:is_playing_idle_ground_sound"],
                         properties: {
                             "minecraft:is_playing_idle_ground_sound": {
-                                description: "1 or 0 (true/false) - true if the breeze is playing the `mob.breeze.idle_ground` sound.",
+                                markdownDescription: "1 or 0 (true/false) - true if the breeze is playing the `mob.breeze.idle_ground` sound.",
                                 type: "byte",
                             },
                         },
@@ -4857,7 +6339,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Camel: {
                 id: "Entity_Camel",
-                description: "Additional fields for [camel](https://minecraft.wiki/w/camel).",
+                markdownDescription: "Additional fields for [camel](https://minecraft.wiki/w/camel).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -4865,7 +6347,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Cat: {
                 id: "Entity_Cat",
-                description: "Additional fields for [cat](https://minecraft.wiki/w/cat).",
+                markdownDescription: "Additional fields for [cat](https://minecraft.wiki/w/cat).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -4873,22 +6355,22 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Chicken: {
                 id: "Entity_Chicken",
-                description: "Additional fields for [chicken](https://minecraft.wiki/w/chicken).",
+                markdownDescription: "Additional fields for [chicken](https://minecraft.wiki/w/chicken).",
                 type: "compound",
                 properties: {
                     entries: {
                         type: "list",
                         items: {
-                            description: "An entry.",
+                            markdownDescription: "An entry.",
                             type: "compound",
                             required: ["SpawnTimer", "StopSpawning"],
                             properties: {
                                 SpawnTimer: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "int",
                                 },
                                 StopSpawning: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "byte",
                                 },
                             },
@@ -4905,7 +6387,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Cow: {
                 id: "Entity_Cow",
-                description: "Additional fields for [cow](https://minecraft.wiki/w/cow).",
+                markdownDescription: "Additional fields for [cow](https://minecraft.wiki/w/cow).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -4913,7 +6395,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Creeper: {
                 id: "Entity_Creeper",
-                description: "Additional fields for [creeper](https://minecraft.wiki/w/creeper).",
+                markdownDescription: "Additional fields for [creeper](https://minecraft.wiki/w/creeper).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
                 $ref: "ActorPrefix",
@@ -4921,20 +6403,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Dolphin: {
                 id: "Entity_Dolphin",
-                description: "Additional fields for [dolphin](https://minecraft.wiki/w/dolphin).",
+                markdownDescription: "Additional fields for [dolphin](https://minecraft.wiki/w/dolphin).",
                 type: "compound",
                 required: ["BribeTime", "TicksRemainingUntilDryOut"],
                 properties: {
                     BribeTime: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     DamageTime: {
-                        description: "(May not exist) Applies a defined amount of damage to the dolphin at specified intervals.",
+                        markdownDescription: "(May not exist) Applies a defined amount of damage to the dolphin at specified intervals.",
                         type: "short",
                     },
                     TicksRemainingUntilDryOut: {
-                        description:
+                        markdownDescription:
                             "Number of ticks until the dolphin dies when it is on the surface. Initially starts at 2400 ticks (2 minutes) and counts down to 0.",
                         type: "int",
                     },
@@ -4949,12 +6431,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Donkey: {
                 id: "Entity_Donkey",
-                description: "Additional fields for [donkey](https://minecraft.wiki/w/donkey).",
+                markdownDescription: "Additional fields for [donkey](https://minecraft.wiki/w/donkey).",
                 type: "compound",
                 required: ["Temper"],
                 properties: {
                     Temper: {
-                        description:
+                        markdownDescription:
                             "Random number that ranges from 0 to 100; increases with feeding or trying to tame it. Higher values make the donkey easier to tame.",
                         type: "int",
                     },
@@ -4969,7 +6451,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Egg: {
                 id: "Entity_Egg",
-                description: "Additional fields for [egg](https://minecraft.wiki/w/egg).",
+                markdownDescription: "Additional fields for [egg](https://minecraft.wiki/w/egg).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -4977,19 +6459,19 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_EnderCrystal: {
                 id: "Entity_EnderCrystal",
-                description: "Additional fields for [ender crystal](https://minecraft.wiki/w/ender crystal).",
+                markdownDescription: "Additional fields for [ender crystal](https://minecraft.wiki/w/ender crystal).",
                 type: "compound",
                 properties: {
                     BlockTargetX: {
-                        description: "(May not exist) The block location its beam points to.",
+                        markdownDescription: "(May not exist) The block location its beam points to.",
                         type: "int",
                     },
                     BlockTargetY: {
-                        description: "(May not exist) See above.",
+                        markdownDescription: "(May not exist) See above.",
                         type: "int",
                     },
                     BlockTargetZ: {
-                        description: "(May not exist) See above.",
+                        markdownDescription: "(May not exist) See above.",
                         type: "int",
                     },
                 },
@@ -5003,12 +6485,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Enderman: {
                 id: "Entity_Enderman",
-                description: "Additional fields for [enderman](https://minecraft.wiki/w/enderman).",
+                markdownDescription: "Additional fields for [enderman](https://minecraft.wiki/w/enderman).",
                 type: "compound",
                 required: ["carriedBlock"],
                 properties: {
                     carriedBlock: {
-                        description: "The block carried by the enderman.",
+                        markdownDescription: "The block carried by the enderman.",
                         type: "compound",
                         $ref: "Block",
                     },
@@ -5018,12 +6500,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Endermite: {
                 id: "Entity_Endermite",
-                description: "Additional fields for [endermite](https://minecraft.wiki/w/endermite).",
+                markdownDescription: "Additional fields for [endermite](https://minecraft.wiki/w/endermite).",
                 type: "compound",
                 required: ["Lifetime"],
                 properties: {
                     Lifetime: {
-                        description: "How long the endermite has existed in ticks. Disappears when this reaches around 2400.",
+                        markdownDescription: "How long the endermite has existed in ticks. Disappears when this reaches around 2400.",
                         type: "int",
                     },
                 },
@@ -5032,7 +6514,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Evoker: {
                 id: "Entity_Evoker",
-                description: "Additional fields for [evoker](https://minecraft.wiki/w/evoker).",
+                markdownDescription: "Additional fields for [evoker](https://minecraft.wiki/w/evoker).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
                 $ref: "ActorPrefix",
@@ -5040,16 +6522,17 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ExperienceOrb: {
                 id: "Entity_ExperienceOrb",
-                description: "Additional fields for [experience orb](https://minecraft.wiki/w/experience orb).",
+                markdownDescription: "Additional fields for [experience orb](https://minecraft.wiki/w/experience orb).",
                 type: "compound",
                 required: ["Age", "experience value"],
                 properties: {
                     Age: {
-                        description: 'The number of ticks the XP orb has been "untouched". After 6000 ticks (5 minutes) the orb is destroyed. *needs testing*',
+                        markdownDescription:
+                            'The number of ticks the XP orb has been "untouched". After 6000 ticks (5 minutes) the orb is destroyed. *needs testing*',
                         type: "short",
                     },
                     "experience value": {
-                        description: "The amount of experience the orb gives when picked up.",
+                        markdownDescription: "The amount of experience the orb gives when picked up.",
                         type: "int",
                     },
                 },
@@ -5058,7 +6541,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ExperiencePotion: {
                 id: "Entity_ExperiencePotion",
-                description: "Additional fields for [experience potion](https://minecraft.wiki/w/experience potion).",
+                markdownDescription: "Additional fields for [experience potion](https://minecraft.wiki/w/experience potion).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -5066,7 +6549,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_FallingBlock: {
                 id: "Entity_FallingBlock",
-                description: "Additional fields for [falling block](https://minecraft.wiki/w/falling block).",
+                markdownDescription: "Additional fields for [falling block](https://minecraft.wiki/w/falling block).",
                 type: "compound",
                 required: ["Time"],
                 properties: {
@@ -5075,7 +6558,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Block",
                     },
                     Time: {
-                        description:
+                        markdownDescription:
                             "The number of ticks the entity has existed. If set to 0, the moment it ticks to 1, it vanishes if the block at its location has a different ID than the entity's `FallingBlock.Name`. If the block at its location has the same ID as its `FallingBlock.Name` when `Time` ticks from 0 to 1, the block is deleted, and the entity continues to fall, having overwritten it. When Time goes above 600, or above 100 while the block is below Y=1 or is outside building height, the entity is deleted. *needs testing*",
                         type: "byte",
                     },
@@ -5085,46 +6568,46 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Fireball: {
                 id: "Entity_Fireball",
-                description: "Additional fields for [fireball](https://minecraft.wiki/w/fireball).",
+                markdownDescription: "Additional fields for [fireball](https://minecraft.wiki/w/fireball).",
                 type: "compound",
                 required: ["Direction", "inGround", "power"],
                 properties: {
                     Direction: {
-                        description: "List of 3 doubles. Should be identical to Motion. *needs testing*",
+                        markdownDescription: "List of 3 doubles. Should be identical to Motion. *needs testing*",
                         type: "list",
                         items: [
                             {
-                                description: "X",
+                                markdownDescription: "X",
                                 type: "float",
                             },
                             {
-                                description: "Y",
+                                markdownDescription: "Y",
                                 type: "float",
                             },
                             {
-                                description: "Z",
+                                markdownDescription: "Z",
                                 type: "float",
                             },
                         ],
                     },
                     inGround: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     power: {
-                        description: "List of 3 floats that adds to `Direction` every tick. Act as the acceleration.",
+                        markdownDescription: "List of 3 floats that adds to `Direction` every tick. Act as the acceleration.",
                         type: "list",
                         items: [
                             {
-                                description: "X",
+                                markdownDescription: "X",
                                 type: "float",
                             },
                             {
-                                description: "Y",
+                                markdownDescription: "Y",
                                 type: "float",
                             },
                             {
-                                description: "Z",
+                                markdownDescription: "Z",
                                 type: "float",
                             },
                         ],
@@ -5140,16 +6623,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_FireworksRocket: {
                 id: "Entity_FireworksRocket",
-                description: "Additional fields for [firework rocket](https://minecraft.wiki/w/firework).",
+                markdownDescription: "Additional fields for [firework rocket](https://minecraft.wiki/w/firework).",
                 type: "compound",
                 required: ["Life", "LifeTime"],
                 properties: {
                     Life: {
-                        description: "The number of ticks this fireworks rocket has been flying for.",
+                        markdownDescription: "The number of ticks this fireworks rocket has been flying for.",
                         type: "int",
                     },
                     LifeTime: {
-                        description:
+                        markdownDescription:
                             "The number of ticks before this fireworks rocket explodes. This value is randomized when the firework is launched. *needs testing*",
                         type: "int",
                     },
@@ -5159,7 +6642,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_FishingBobber: {
                 id: "Entity_FishingBobber",
-                description: "Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing bobber).",
+                markdownDescription: "Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing bobber).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -5167,18 +6650,18 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Fox: {
                 id: "Entity_Fox",
-                description: "Additional fields for [fox](https://minecraft.wiki/w/fox).",
+                markdownDescription: "Additional fields for [fox](https://minecraft.wiki/w/fox).",
                 type: "compound",
                 required: ["TrustedPlayersAmount", "TrustedPlayer[0-9]+"],
                 properties: {
                     TrustedPlayersAmount: {
-                        description: "The number of players who are trusted by the fox.",
+                        markdownDescription: "The number of players who are trusted by the fox.",
                         type: "int",
                     },
                 },
                 patternProperties: {
                     "TrustedPlayer[0-9]+": {
-                        description: "A player's Unique ID. Note that `<_num_>` counts from 0.",
+                        markdownDescription: "A player's Unique ID. Note that `<_num_>` counts from 0.",
                         type: "long",
                     },
                 },
@@ -5192,7 +6675,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Frog: {
                 id: "Entity_Frog",
-                description: "Additional fields for [frog](https://minecraft.wiki/w/frog).",
+                markdownDescription: "Additional fields for [frog](https://minecraft.wiki/w/frog).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Breedable" }],
                 $ref: "ActorPrefix",
@@ -5200,12 +6683,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Goat: {
                 id: "Entity_Goat",
-                description: "Additional fields for [goat](https://minecraft.wiki/w/goat).",
+                markdownDescription: "Additional fields for [goat](https://minecraft.wiki/w/goat).",
                 type: "compound",
                 required: ["GoatHornCount"],
                 properties: {
                     GoatHornCount: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -5219,13 +6702,13 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_GuardianAndElderGuardian: {
                 id: "Entity_GuardianAndElderGuardian",
-                description:
+                markdownDescription:
                     "Additional fields for [guardian](https://minecraft.wiki/w/guardian) and [elder guardian](https://minecraft.wiki/w/elder guardian).",
                 type: "compound",
                 required: ["Elder"],
                 properties: {
                     Elder: {
-                        description: "1 or 0 (true/false) - true if it is an elder guardian.",
+                        markdownDescription: "1 or 0 (true/false) - true if it is an elder guardian.",
                         type: "byte",
                     },
                 },
@@ -5239,7 +6722,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Hoglin: {
                 id: "Entity_Hoglin",
-                description: "Additional fields for [hoglin](https://minecraft.wiki/w/hoglin).",
+                markdownDescription: "Additional fields for [hoglin](https://minecraft.wiki/w/hoglin).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5247,12 +6730,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Horse: {
                 id: "Entity_Horse",
-                description: "Additional fields for [horse](https://minecraft.wiki/w/horse).",
+                markdownDescription: "Additional fields for [horse](https://minecraft.wiki/w/horse).",
                 type: "compound",
                 required: ["Temper"],
                 properties: {
                     Temper: {
-                        description:
+                        markdownDescription:
                             "Random number that ranges from 0 to 100; increases with feeding or trying to tame it. Higher values make the horse easier to tame.",
                         type: "int",
                     },
@@ -5267,7 +6750,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Husk: {
                 id: "Entity_Husk",
-                description: "Additional fields for [husk](https://minecraft.wiki/w/husk).",
+                markdownDescription: "Additional fields for [husk](https://minecraft.wiki/w/husk).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Timer" }],
                 $ref: "ActorPrefix",
@@ -5275,7 +6758,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_IronGolem: {
                 id: "Entity_IronGolem",
-                description: "Additional fields for [iron golem](https://minecraft.wiki/w/iron golem).",
+                markdownDescription: "Additional fields for [iron golem](https://minecraft.wiki/w/iron golem).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
                 $ref: "ActorPrefix",
@@ -5283,26 +6766,26 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ItemEntity: {
                 id: "Entity_ItemEntity",
-                description: "Additional fields for [item entity](https://minecraft.wiki/w/Item (entity)).",
+                markdownDescription: "Additional fields for [item entity](https://minecraft.wiki/w/Item (entity)).",
                 type: "compound",
                 required: ["Age", "Health", "Item", "OwnerID"],
                 properties: {
                     Age: {
-                        description: 'The number of ticks the item has been "untouched". After 6000 ticks (5 minutes) the item is destroyed.',
+                        markdownDescription: 'The number of ticks the item has been "untouched". After 6000 ticks (5 minutes) the item is destroyed.',
                         type: "short",
                     },
                     Health: {
-                        description:
+                        markdownDescription:
                             "The health of the item, which starts at 5. Items take damage from fire, lava, and explosions. The item is destroyed when its health reaches 0. *needs testing*",
                         type: "short",
                     },
                     Item: {
-                        description: "The item of this stack.",
+                        markdownDescription: "The item of this stack.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
                     OwnerID: {
-                        description: "If present, only the player *needs testing* with this Unique ID can pick up the item.",
+                        markdownDescription: "If present, only the player *needs testing* with this Unique ID can pick up the item.",
                         type: "long",
                         default: {
                             type: "long",
@@ -5315,12 +6798,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Llama: {
                 id: "Entity_Llama",
-                description: "Additional fields for [llama](https://minecraft.wiki/w/llama).",
+                markdownDescription: "Additional fields for [llama](https://minecraft.wiki/w/llama).",
                 type: "compound",
                 required: ["Temper"],
                 properties: {
                     Temper: {
-                        description:
+                        markdownDescription:
                             "Random number that ranges from 0 to 100; increases with feeding or trying to tame it. Higher values make the llama easier to tame.",
                         type: "int",
                     },
@@ -5335,7 +6818,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_LlamaSpit: {
                 id: "Entity_LlamaSpit",
-                description: "Additional fields for [llama spit](https://minecraft.wiki/w/Llama_Spit).",
+                markdownDescription: "Additional fields for [llama spit](https://minecraft.wiki/w/Llama_Spit).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -5343,7 +6826,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_MinecartWithChest: {
                 id: "Entity_MinecartWithChest",
-                description: "Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart with chest).",
+                markdownDescription: "Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart with chest).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
                 $ref: "ActorPrefix",
@@ -5351,16 +6834,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_MinecartWithCommandBlock: {
                 id: "Entity_MinecartWithCommandBlock",
-                description: "Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart with command block).",
+                markdownDescription: "Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart with command block).",
                 type: "compound",
                 required: ["CurrentTickCount", "Ticking"],
                 properties: {
                     CurrentTickCount: {
-                        description: "Number of ticks until it executes the command again.",
+                        markdownDescription: "Number of ticks until it executes the command again.",
                         type: "int",
                     },
                     Ticking: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -5369,7 +6852,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_MinecartWithHopper: {
                 id: "Entity_MinecartWithHopper",
-                description: "Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart with hopper).",
+                markdownDescription: "Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart with hopper).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
                 $ref: "ActorPrefix",
@@ -5377,7 +6860,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_MinecartWithTNT: {
                 id: "Entity_MinecartWithTNT",
-                description: "Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart with tnt).",
+                markdownDescription: "Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart with tnt).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
                 $ref: "ActorPrefix",
@@ -5385,7 +6868,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Mooshroom: {
                 id: "Entity_Mooshroom",
-                description: "Additional fields for [mooshroom](https://minecraft.wiki/w/mooshroom).",
+                markdownDescription: "Additional fields for [mooshroom](https://minecraft.wiki/w/mooshroom).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5393,12 +6876,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Mule: {
                 id: "Entity_Mule",
-                description: "Additional fields for [mule](https://minecraft.wiki/w/mule).",
+                markdownDescription: "Additional fields for [mule](https://minecraft.wiki/w/mule).",
                 type: "compound",
                 required: ["Temper"],
                 properties: {
                     Temper: {
-                        description:
+                        markdownDescription:
                             "Random number that ranges from 0 to 100; increases with feeding or trying to tame it. Higher values make the mule easier to tame.",
                         type: "int",
                     },
@@ -5413,38 +6896,38 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_NPC: {
                 id: "Entity_NPC",
-                description: "Additional fields for [NPC](https://minecraft.wiki/w/NPC).",
+                markdownDescription: "Additional fields for [NPC](https://minecraft.wiki/w/NPC).",
                 type: "compound",
                 properties: {
                     Actions: {
-                        description: "(May not exist) The actions.",
+                        markdownDescription: "(May not exist) The actions.",
                         type: "string",
                     },
                     InterativeText: {
-                        description: "(May not exist) The interactive text.",
+                        markdownDescription: "(May not exist) The interactive text.",
                         type: "string",
                     },
                     PlayerSceneMapping: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "list",
                         items: {
-                            description: "A key-value pair.",
+                            markdownDescription: "A key-value pair.",
                             type: "compound",
                             required: ["PlayerID", "SceneName"],
                             properties: {
                                 PlayerID: {
-                                    description: "A player's Unique ID.",
+                                    markdownDescription: "A player's Unique ID.",
                                     type: "long",
                                 },
                                 SceneName: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "string",
                                 },
                             },
                         },
                     },
                     RawtextName: {
-                        description: "(May not exist) The name.",
+                        markdownDescription: "(May not exist) The name.",
                         type: "string",
                     },
                 },
@@ -5453,7 +6936,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Ocelot: {
                 id: "Entity_Ocelot",
-                description: "Additional fields for [ocelot](https://minecraft.wiki/w/ocelot).",
+                markdownDescription: "Additional fields for [ocelot](https://minecraft.wiki/w/ocelot).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5461,20 +6944,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Painting: {
                 id: "Entity_Painting",
-                description: "Additional fields for [painting](https://minecraft.wiki/w/painting).",
+                markdownDescription: "Additional fields for [painting](https://minecraft.wiki/w/painting).",
                 type: "compound",
                 required: ["Dir", "Direction"],
                 properties: {
                     Dir: {
-                        description: "The direction the painting faces: 0 is south, 1 is west, 2 is north, 3 is east. *needs testing*",
+                        markdownDescription: "The direction the painting faces: 0 is south, 1 is west, 2 is north, 3 is east. *needs testing*",
                         type: "byte",
                     },
                     Direction: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     Motif: {
-                        description: "(May not exist) The ID of the painting's artwork.",
+                        markdownDescription: "(May not exist) The ID of the painting's artwork.",
                         type: "string",
                     },
                 },
@@ -5483,7 +6966,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Panda: {
                 id: "Entity_Panda",
-                description: "Additional fields for [panda](https://minecraft.wiki/w/panda).",
+                markdownDescription: "Additional fields for [panda](https://minecraft.wiki/w/panda).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5491,7 +6974,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Pig: {
                 id: "Entity_Pig",
-                description: "Additional fields for [pig](https://minecraft.wiki/w/pig).",
+                markdownDescription: "Additional fields for [pig](https://minecraft.wiki/w/pig).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5499,7 +6982,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Piglin: {
                 id: "Entity_Piglin",
-                description: "Additional fields for [piglin](https://minecraft.wiki/w/piglin).",
+                markdownDescription: "Additional fields for [piglin](https://minecraft.wiki/w/piglin).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
                 $ref: "ActorPrefix",
@@ -5507,7 +6990,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_PiglinBrute: {
                 id: "Entity_PiglinBrute",
-                description: "Additional fields for [piglin brute](https://minecraft.wiki/w/piglin brute).",
+                markdownDescription: "Additional fields for [piglin brute](https://minecraft.wiki/w/piglin brute).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Home" }],
                 $ref: "ActorPrefix",
@@ -5515,7 +6998,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Pillager: {
                 id: "Entity_Pillager",
-                description: "Additional fields for [pillager](https://minecraft.wiki/w/pillager).",
+                markdownDescription: "Additional fields for [pillager](https://minecraft.wiki/w/pillager).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
                 $ref: "ActorPrefix",
@@ -5523,7 +7006,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Player: {
                 id: "Entity_Player",
-                description: "Additional fields for [player](https://minecraft.wiki/w/player).",
+                markdownDescription: "Additional fields for [player](https://minecraft.wiki/w/player).",
                 type: "compound",
                 required: [
                     "AgentID",
@@ -5562,190 +7045,190 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     AgentID: {
-                        description: "The Unique ID of the player's agent.",
+                        markdownDescription: "The Unique ID of the player's agent.",
                         type: "long",
                     },
                     DimensionId: {
-                        description: "The ID of the dimension the player is in.",
+                        markdownDescription: "The ID of the dimension the player is in.",
                         type: "int",
                     },
                     EnchantmentSeed: {
-                        description: "The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment table)s.",
+                        markdownDescription: "The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment table)s.",
                         type: "int",
                     },
                     EnderChestInventory: {
-                        description: "Each compound tag in this list is an item in the player's 27-slot ender chest inventory.",
+                        markdownDescription: "Each compound tag in this list is an item in the player's 27-slot ender chest inventory.",
                         type: "list",
                         items: {
-                            description: "An item in the inventory.",
+                            markdownDescription: "An item in the inventory.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The slot the item is in.",
+                                    markdownDescription: "The slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     fogCommandStack: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "list",
                         items: {
-                            description: "UNDOCUMENTED.",
+                            markdownDescription: "UNDOCUMENTED.",
                             type: "string",
                         },
                     },
                     format_version: {
-                        description: "The format version of this NBT.",
+                        markdownDescription: "The format version of this NBT.",
                         type: "string",
                     },
                     HasSeenCredits: {
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End portal).",
                         type: "byte",
                     },
                     Inventory: {
-                        description: "Each compound tag in this list is an item in the player's inventory.",
+                        markdownDescription: "Each compound tag in this list is an item in the player's inventory.",
                         type: "list",
                         items: {
-                            description: "An item in the inventory, including the slot tag.",
+                            markdownDescription: "An item in the inventory, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The slot the item is in.",
+                                    markdownDescription: "The slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     LeftShoulderRiderID: {
-                        description: "The Unique ID of the entity that is on the player's left shoulder.",
+                        markdownDescription: "The Unique ID of the entity that is on the player's left shoulder.",
                         type: "long",
                     },
                     MapIndex: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     PlayerGameMode: {
-                        description: "The game mode of the player.",
+                        markdownDescription: "The game mode of the player.",
                         type: "int",
                     },
                     PlayerLevel: {
-                        description: "The level shown on the [XP](https://minecraft.wiki/w/XP) bar.",
+                        markdownDescription: "The level shown on the [XP](https://minecraft.wiki/w/XP) bar.",
                         type: "int",
                     },
                     PlayerLevelProgress: {
-                        description: "The progress/percent across the XP bar to the next level.",
+                        markdownDescription: "The progress/percent across the XP bar to the next level.",
                         type: "float",
                     },
                     PlayerUIItems: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "list",
                         items: {
-                            description: "An item in the UI, including the slot tag.",
+                            markdownDescription: "An item in the UI, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The slot the item is in.",
+                                    markdownDescription: "The slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     recipe_unlocking: {
-                        description: "Contains information about the recipes that the player has unlocked.",
+                        markdownDescription: "Contains information about the recipes that the player has unlocked.",
                         type: "compound",
                         required: ["unlocked_recipes", "used_contexts"],
                         properties: {
                             unlocked_recipes: {
-                                description: "A list of all recipes the player has unlocked.",
+                                markdownDescription: "A list of all recipes the player has unlocked.",
                                 type: "list",
                                 items: {
-                                    description: "The name of a recipe, for instance `minecraft:stick` or `minecraft:ladder`.",
+                                    markdownDescription: "The name of a recipe, for instance `minecraft:stick` or `minecraft:ladder`.",
                                     type: "string",
                                 },
                             },
                             used_contexts: {
-                                description: "UNDOCUMENTED. Defaults to 2.",
+                                markdownDescription: "UNDOCUMENTED. Defaults to 2.",
                                 type: "int",
                             },
                         },
                     },
                     RideID: {
-                        description: "The Unique ID of the entity that the player is riding.",
+                        markdownDescription: "The Unique ID of the entity that the player is riding.",
                         type: "long",
                     },
                     RightShoulderRiderID: {
-                        description: "The Unique ID of the entity that is on the player's right shoulder.",
+                        markdownDescription: "The Unique ID of the entity that is on the player's right shoulder.",
                         type: "long",
                     },
                     SelectedContainerId: {
-                        description: "The ID of the selected container. *needs testing*",
+                        markdownDescription: "The ID of the selected container. *needs testing*",
                         type: "int",
                     },
                     SelectedInventorySlot: {
-                        description: "The selected inventory slot of the player.",
+                        markdownDescription: "The selected inventory slot of the player.",
                         type: "int",
                     },
                     Sleeping: {
-                        description: "1 or 0 (true/false) - true if the player is sleeping.",
+                        markdownDescription: "1 or 0 (true/false) - true if the player is sleeping.",
                         type: "byte",
                     },
                     SleepTimer: {
-                        description:
+                        markdownDescription:
                             "The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0. *needs testing*",
                         type: "short",
                     },
                     Sneaking: {
-                        description: "1 or 0 (true/false) - true if the player is sneaking.",
+                        markdownDescription: "1 or 0 (true/false) - true if the player is sneaking.",
                         type: "byte",
                     },
                     SpawnBlockPositionX: {
-                        description: "The X coordinate of the player's spawn block.",
+                        markdownDescription: "The X coordinate of the player's spawn block.",
                         type: "int",
                     },
                     SpawnBlockPositionY: {
-                        description: "The Y coordinate of the player's spawn block.",
+                        markdownDescription: "The Y coordinate of the player's spawn block.",
                         type: "int",
                     },
                     SpawnBlockPositionZ: {
-                        description: "The Z coordinate of the player's spawn block.",
+                        markdownDescription: "The Z coordinate of the player's spawn block.",
                         type: "int",
                     },
                     SpawnDimension: {
-                        description: "The dimension of the player's spawn point.",
+                        markdownDescription: "The dimension of the player's spawn point.",
                         type: "int",
                     },
                     SpawnX: {
-                        description: "The X coordinate of the player's spawn point.",
+                        markdownDescription: "The X coordinate of the player's spawn point.",
                         type: "int",
                     },
                     SpawnY: {
-                        description: "The Y coordinate of the player's spawn point.",
+                        markdownDescription: "The Y coordinate of the player's spawn point.",
                         type: "int",
                     },
                     SpawnZ: {
-                        description: "The Z coordinate of the player's spawn point.",
+                        markdownDescription: "The Z coordinate of the player's spawn point.",
                         type: "int",
                     },
                     TimeSinceRest: {
-                        description: "The time in ticks since last rest.",
+                        markdownDescription: "The time in ticks since last rest.",
                         type: "int",
                     },
                     WardenThreatDecreaseTimer: {
-                        description:
+                        markdownDescription:
                             "The number of ticks since the player was threatened for warden spawning. Increases by 1 every tick. After 12000 ticks (10 minutes) it will be set back to 0, and the `WardenThreatLevel` will be decreased by 1.",
                         type: "int",
                     },
                     WardenThreatLevel: {
-                        description: "A threat level between 0 and 4 (inclusive). The warden will spawn at level 4.",
+                        markdownDescription: "A threat level between 0 and 4 (inclusive). The warden will spawn at level 4.",
                         type: "int",
                     },
                     WardenThreatLevelIncreaseCooldown: {
-                        description:
+                        markdownDescription:
                             "The number of ticks before the `WardenThreatLevel` can be increased again. Decreases by 1 every tick. It is set 200 ticks (10 seconds) every time the threat level is increased.",
                         type: "int",
                     },
@@ -5760,7 +7243,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_PolarBear: {
                 id: "Entity_PolarBear",
-                description: "Additional fields for [polar bear](https://minecraft.wiki/w/polar bear).",
+                markdownDescription: "Additional fields for [polar bear](https://minecraft.wiki/w/polar bear).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5768,7 +7251,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Pufferfish: {
                 id: "Entity_Pufferfish",
-                description: "Additional fields for [pufferfish](https://minecraft.wiki/w/pufferfish).",
+                markdownDescription: "Additional fields for [pufferfish](https://minecraft.wiki/w/pufferfish).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Timer" }],
                 $ref: "ActorPrefix",
@@ -5776,16 +7259,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Rabbit: {
                 id: "Entity_Rabbit",
-                description: "Additional fields for [rabbit](https://minecraft.wiki/w/rabbit).",
+                markdownDescription: "Additional fields for [rabbit](https://minecraft.wiki/w/rabbit).",
                 type: "compound",
                 required: ["CarrotsEaten", "MoreCarrotTicks"],
                 properties: {
                     CarrotsEaten: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     MoreCarrotTicks: {
-                        description: "Set to 40 when a carrot crop is eaten, decreases by 0–2 every tick until it reaches 0. *needs testing*",
+                        markdownDescription: "Set to 40 when a carrot crop is eaten, decreases by 0–2 every tick until it reaches 0. *needs testing*",
                         type: "int",
                     },
                 },
@@ -5799,7 +7282,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Ravager: {
                 id: "Entity_Ravager",
-                description: "Additional fields for [ravager](https://minecraft.wiki/w/ravager).",
+                markdownDescription: "Additional fields for [ravager](https://minecraft.wiki/w/ravager).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
                 $ref: "ActorPrefix",
@@ -5807,7 +7290,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Sheep: {
                 id: "Entity_Sheep",
-                description: "Additional fields for [sheep](https://minecraft.wiki/w/sheep).",
+                markdownDescription: "Additional fields for [sheep](https://minecraft.wiki/w/sheep).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5815,7 +7298,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ShulkerBullet: {
                 id: "Entity_ShulkerBullet",
-                description: "Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker bullet).",
+                markdownDescription: "Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker bullet).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -5823,12 +7306,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Skeleton: {
                 id: "Entity_Skeleton",
-                description: "Additional fields for [skeleton](https://minecraft.wiki/w/skeleton).",
+                markdownDescription: "Additional fields for [skeleton](https://minecraft.wiki/w/skeleton).",
                 type: "compound",
                 required: ["ItemInHand"],
                 properties: {
                     ItemInHand: {
-                        description: "The item in its hand. Defaults to a bow.",
+                        markdownDescription: "The item in its hand. Defaults to a bow.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
@@ -5843,7 +7326,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_SkeletonHorse: {
                 id: "Entity_SkeletonHorse",
-                description: "Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton horse).",
+                markdownDescription: "Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton horse).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5851,12 +7334,13 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Slime: {
                 id: "Entity_Slime",
-                description: "Additional fields for [slime](https://minecraft.wiki/w/slime).",
+                markdownDescription: "Additional fields for [slime](https://minecraft.wiki/w/slime).",
                 type: "compound",
                 required: ["Size"],
                 properties: {
                     Size: {
-                        description: "The size of the slime. Note that this value is zero-based, so 0 is the smallest slime, 1 is the next larger, etc.",
+                        markdownDescription:
+                            "The size of the slime. Note that this value is zero-based, so 0 is the smallest slime, 1 is the next larger, etc.",
                         type: "byte",
                     },
                 },
@@ -5865,7 +7349,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Sniffer: {
                 id: "Entity_Sniffer",
-                description: "Additional fields for [sniffer](https://minecraft.wiki/w/sniffer).",
+                markdownDescription: "Additional fields for [sniffer](https://minecraft.wiki/w/sniffer).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5873,7 +7357,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Snowball: {
                 id: "Entity_Snowball",
-                description: "Additional fields for [snowball](https://minecraft.wiki/w/snowball).",
+                markdownDescription: "Additional fields for [snowball](https://minecraft.wiki/w/snowball).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -5881,7 +7365,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Strider: {
                 id: "Entity_Strider",
-                description: "Additional fields for [strider](https://minecraft.wiki/w/strider).",
+                markdownDescription: "Additional fields for [strider](https://minecraft.wiki/w/strider).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5889,7 +7373,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Tadpole: {
                 id: "Entity_Tadpole",
-                description: "Additional fields for [tadpole](https://minecraft.wiki/w/tadpole).",
+                markdownDescription: "Additional fields for [tadpole](https://minecraft.wiki/w/tadpole).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -5897,7 +7381,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ThrownEnderPearl: {
                 id: "Entity_ThrownEnderPearl",
-                description: "Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender pearl).",
+                markdownDescription: "Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender pearl).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -5905,12 +7389,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ThrownPotion: {
                 id: "Entity_ThrownPotion",
-                description: "Additional fields for thrown [potion](https://minecraft.wiki/w/potion).",
+                markdownDescription: "Additional fields for thrown [potion](https://minecraft.wiki/w/potion).",
                 type: "compound",
                 required: ["PotionId"],
                 properties: {
                     PotionId: {
-                        description: "The [ID of the potion effect](https://minecraft.wiki/w/Potion#Item data).",
+                        markdownDescription: "The [ID of the potion effect](https://minecraft.wiki/w/Potion#Item data).",
                         type: "short",
                     },
                 },
@@ -5924,17 +7408,17 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ThrownTrident: {
                 id: "Entity_ThrownTrident",
-                description: "Additional fields for thrown [trident](https://minecraft.wiki/w/trident).",
+                markdownDescription: "Additional fields for thrown [trident](https://minecraft.wiki/w/trident).",
                 type: "compound",
                 required: ["favoredSlot", "Trident"],
                 properties: {
                     favoredSlot: {
-                        description:
+                        markdownDescription:
                             "The slot id when it is thrown out.This means thrown trident with [Loyalty](https://minecraft.wiki/w/Loyalty) prefers to return to this slot when this slot is empty. Set to -1 when without [Loyalty](https://minecraft.wiki/w/Loyalty) enchantment.",
                         type: "int",
                     },
                     Trident: {
-                        description: "The item that is given when the entity is picked up.",
+                        markdownDescription: "The item that is given when the entity is picked up.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
@@ -5949,7 +7433,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_TNT: {
                 id: "Entity_TNT",
-                description: "Additional fields for [tnt](https://minecraft.wiki/w/tnt).",
+                markdownDescription: "Additional fields for [tnt](https://minecraft.wiki/w/tnt).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
                 $ref: "ActorPrefix",
@@ -5957,12 +7441,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Turtle: {
                 id: "Entity_Turtle",
-                description: "Additional fields for [turtle](https://minecraft.wiki/w/turtle).",
+                markdownDescription: "Additional fields for [turtle](https://minecraft.wiki/w/turtle).",
                 type: "compound",
                 required: ["IsPregnant"],
                 properties: {
                     IsPregnant: {
-                        description: "1 or 0 (true/false) - true if the turtle has eggs.",
+                        markdownDescription: "1 or 0 (true/false) - true if the turtle has eggs.",
                         type: "byte",
                     },
                 },
@@ -5976,12 +7460,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Vex: {
                 id: "Entity_Vex",
-                description: "Additional fields for [vex](https://minecraft.wiki/w/vex).",
+                markdownDescription: "Additional fields for [vex](https://minecraft.wiki/w/vex).",
                 type: "compound",
                 required: ["ItemInHand"],
                 properties: {
                     ItemInHand: {
-                        description: "The item in its hand. Defaults to an iron sword.",
+                        markdownDescription: "The item in its hand. Defaults to an iron sword.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
@@ -5991,20 +7475,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Villager_V2: {
                 id: "Entity_Villager_V2",
-                description: "Additional fields for [villager](https://minecraft.wiki/w/villager) (v2).",
+                markdownDescription: "Additional fields for [villager](https://minecraft.wiki/w/villager) (v2).",
                 type: "compound",
                 required: ["HasResupplied", "IsInRaid", "ReactToBell"],
                 properties: {
                     HasResupplied: {
-                        description: "1 or 0 (true/false) - true if the villager's trade has been resupplied.",
+                        markdownDescription: "1 or 0 (true/false) - true if the villager's trade has been resupplied.",
                         type: "byte",
                     },
                     IsInRaid: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     ReactToBell: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -6018,7 +7502,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Vindicator: {
                 id: "Entity_Vindicator",
-                description: "Additional fields for [vindicator](https://minecraft.wiki/w/vindicator).",
+                markdownDescription: "Additional fields for [vindicator](https://minecraft.wiki/w/vindicator).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
                 $ref: "ActorPrefix",
@@ -6026,22 +7510,22 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_WanderingTrader: {
                 id: "Entity_WanderingTrader",
-                description: "Additional fields for [wandering trader](https://minecraft.wiki/w/wandering trader).",
+                markdownDescription: "Additional fields for [wandering trader](https://minecraft.wiki/w/wandering trader).",
                 type: "compound",
                 properties: {
                     entries: {
                         type: "list",
                         items: {
-                            description: "An entry.",
+                            markdownDescription: "An entry.",
                             type: "compound",
                             required: ["SpawnTimer", "StopSpawning"],
                             properties: {
                                 SpawnTimer: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "int",
                                 },
                                 StopSpawning: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "byte",
                                 },
                             },
@@ -6058,79 +7542,79 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Warden: {
                 id: "Entity_Warden",
-                description: "Additional fields for [warden](https://minecraft.wiki/w/warden).",
+                markdownDescription: "Additional fields for [warden](https://minecraft.wiki/w/warden).",
                 type: "compound",
                 required: ["Nuisances", "VibrationListener"],
                 properties: {
                     Nuisances: {
-                        description: "List of nuisances that have angered the warden.",
+                        markdownDescription: "List of nuisances that have angered the warden.",
                         type: "list",
                         items: {
-                            description: "A nuisance.",
+                            markdownDescription: "A nuisance.",
                             type: "compound",
                             required: ["ActorId", "Anger", "Priority"],
                             properties: {
                                 ActorId: {
-                                    description: "The Unique ID of the entity that is associated with the anger.",
+                                    markdownDescription: "The Unique ID of the entity that is associated with the anger.",
                                     type: "long",
                                 },
                                 Anger: {
-                                    description: "The level of anger. It has a maximum value of 150 and decreases by 1 every second.",
+                                    markdownDescription: "The level of anger. It has a maximum value of 150 and decreases by 1 every second.",
                                     type: "int",
                                 },
                                 Priority: {
-                                    description: "1 or 0 (true/false) - true if the nuisance is priority.",
+                                    markdownDescription: "1 or 0 (true/false) - true if the nuisance is priority.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     VibrationListener: {
-                        description: "The vibration event listener of the warden.",
+                        markdownDescription: "The vibration event listener of the warden.",
                         type: "compound",
                         required: ["event", "pending", "selector", "ticks"],
                         properties: {
                             event: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             pending: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "compound",
                                 required: ["distance", "source", "vibration", "x", "y", "z"],
                                 properties: {
                                     distance: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "float",
                                     },
                                     source: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "long",
                                     },
                                     vibration: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     x: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     y: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     z: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                 },
                             },
                             selector: {
-                                description: "UNKNOWN.",
+                                markdownDescription: "UNKNOWN.",
                                 type: "compound",
                             },
                             ticks: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
@@ -6141,7 +7625,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_WindChargeProjectile: {
                 id: "Entity_WindChargeProjectile",
-                description: "Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind charge projectile).",
+                markdownDescription: "Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind charge projectile).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -6149,7 +7633,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Witch: {
                 id: "Entity_Witch",
-                description: "Additional fields for [witch](https://minecraft.wiki/w/witch).",
+                markdownDescription: "Additional fields for [witch](https://minecraft.wiki/w/witch).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
                 $ref: "ActorPrefix",
@@ -6157,7 +7641,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Wither: {
                 id: "Entity_Wither",
-                description: "Additional fields for [wither](https://minecraft.wiki/w/wither).",
+                markdownDescription: "Additional fields for [wither](https://minecraft.wiki/w/wither).",
                 type: "compound",
                 required: [
                     "AirAttack",
@@ -6175,55 +7659,56 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     AirAttack: {
-                        description:
+                        markdownDescription:
                             "Whether the wither exhibits first or second phase behavior, as well as whether the shield effect is visible - 1 for first phase and shield invisible, 0 for second phase and shield visible.",
                         type: "byte",
                     },
                     dyingFrames: {
-                        description: "The number of ticks remaining before the wither explodes during its death animation.",
+                        markdownDescription: "The number of ticks remaining before the wither explodes during its death animation.",
                         type: "int",
                     },
                     firerate: {
-                        description: "The delay in ticks between wither skull shots. Does not affect the delay between volleys.",
+                        markdownDescription: "The delay in ticks between wither skull shots. Does not affect the delay between volleys.",
                         type: "int",
                     },
                     Invul: {
-                        description:
+                        markdownDescription:
                             "The remaining number of ticks the wither will be invulnerable for. Updated to match SpawningFrames or dyingFrames every tick during spawn/death animation, otherwise remains static.",
                         type: "int",
                     },
                     lastHealthInterval: {
-                        description: "The greatest multiple of 75 that is fewer than the wither's lowest health. Does not increase if the wither is healed.",
+                        markdownDescription:
+                            "The greatest multiple of 75 that is fewer than the wither's lowest health. Does not increase if the wither is healed.",
                         type: "int",
                     },
                     maxHealth: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     oldSwellAmount: {
-                        description: "The swellAmount in the previous tick.",
+                        markdownDescription: "The swellAmount in the previous tick.",
                         type: "float",
                     },
                     overlayAlpha: {
-                        description:
+                        markdownDescription:
                             "The alpha/brightness of the wither texture overlay during its death animation. Has no effect outside the death animation.",
                         type: "float",
                     },
                     Phase: {
-                        description:
+                        markdownDescription:
                             "Which phase the wither is in. Has no effect on wither behavior or shield visibility. Has a value of 1 during spawning and first phase and 0 during second phase and death.",
                         type: "int",
                     },
                     ShieldHealth: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     SpawningFrames: {
-                        description: "The number of ticks remaining before the wither finishes its spawning animation and becomes vulnerable.",
+                        markdownDescription: "The number of ticks remaining before the wither finishes its spawning animation and becomes vulnerable.",
                         type: "int",
                     },
                     swellAmount: {
-                        description: "How much the wither has swelled during its death animation. Has no effect outside the death animation.",
+                        markdownDescription: "How much the wither has swelled during its death animation. Has no effect outside the death animation.",
                         type: "float",
                     },
                 },
@@ -6232,7 +7717,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_WitherSkull: {
                 id: "Entity_WitherSkull",
-                description: "Additional fields for [wither skull](https://minecraft.wiki/w/Wither).",
+                markdownDescription: "Additional fields for [wither skull](https://minecraft.wiki/w/Wither).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
                 $ref: "ActorPrefix",
@@ -6240,25 +7725,26 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Wolf: {
                 id: "Entity_Wolf",
-                description: "Additional fields for [wolf](https://minecraft.wiki/w/wolf).",
+                markdownDescription: "Additional fields for [wolf](https://minecraft.wiki/w/wolf).",
                 type: "compound",
                 required: ["properties"],
                 properties: {
                     properties: {
-                        description: "The wolf `properties`.",
+                        markdownDescription: "The wolf `properties`.",
                         type: "compound",
                         required: ["minecraft:has_armor", "minecraft:has_increased_max_health", "minecraft:is_armorable"],
                         properties: {
                             "minecraft:has_armor": {
-                                description: "1 or 0 (true/false) - true if the wolf has [wolf armor](https://minecraft.wiki/w/wolf armor).",
+                                markdownDescription: "1 or 0 (true/false) - true if the wolf has [wolf armor](https://minecraft.wiki/w/wolf armor).",
                                 type: "byte",
                             },
                             "minecraft:has_increased_max_health": {
-                                description: "1 or 0 (true/false) - true if the wolf's maximum health is 40.",
+                                markdownDescription: "1 or 0 (true/false) - true if the wolf's maximum health is 40.",
                                 type: "byte",
                             },
                             "minecraft:is_armorable": {
-                                description: "1 or 0 (true/false) - true if the wolf can be equipped with [wolf armor](https://minecraft.wiki/w/wolf armor).",
+                                markdownDescription:
+                                    "1 or 0 (true/false) - true if the wolf can be equipped with [wolf armor](https://minecraft.wiki/w/wolf armor).",
                                 type: "byte",
                             },
                         },
@@ -6274,7 +7760,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_Zombie: {
                 id: "Entity_Zombie",
-                description: "Additional fields for [zombie](https://minecraft.wiki/w/zombie).",
+                markdownDescription: "Additional fields for [zombie](https://minecraft.wiki/w/zombie).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Timer" }],
                 $ref: "ActorPrefix",
@@ -6282,7 +7768,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ZombieHorse: {
                 id: "Entity_ZombieHorse",
-                description: "Additional fields for [zombie horse](https://minecraft.wiki/w/zombie horse).",
+                markdownDescription: "Additional fields for [zombie horse](https://minecraft.wiki/w/zombie horse).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -6290,12 +7776,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ZombieVillager: {
                 id: "Entity_ZombieVillager",
-                description: "Additional fields for [zombie villager](https://minecraft.wiki/w/zombie villager).",
+                markdownDescription: "Additional fields for [zombie villager](https://minecraft.wiki/w/zombie villager).",
                 type: "compound",
                 required: ["SpawnedFromVillage"],
                 properties: {
                     SpawnedFromVillage: {
-                        description: "1 or 0 (true/false) - true if spawned from village.",
+                        markdownDescription: "1 or 0 (true/false) - true if spawned from village.",
                         type: "byte",
                     },
                 },
@@ -6304,12 +7790,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ZombifiedPiglin: {
                 id: "Entity_ZombifiedPiglin",
-                description: "Additional fields for [zombified piglin](https://minecraft.wiki/w/zombified piglin).",
+                markdownDescription: "Additional fields for [zombified piglin](https://minecraft.wiki/w/zombified piglin).",
                 type: "compound",
                 required: ["Anger"],
                 properties: {
                     Anger: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "short",
                     },
                 },
@@ -6320,35 +7806,35 @@ however when the corresponding block in the block layer is broken, this block ge
             //#region Block NBT Schemas
             Block_Banner: {
                 id: "Block_Banner",
-                description: "Additional fields for [banner](https://minecraft.wiki/w/banner).",
+                markdownDescription: "Additional fields for [banner](https://minecraft.wiki/w/banner).",
                 type: "compound",
                 required: ["Base", "Type"],
                 properties: {
                     Base: {
-                        description: "The base color of the banner. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
+                        markdownDescription: "The base color of the banner. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
                         type: "int",
                     },
                     Patterns: {
-                        description: "(May not exist) List of all patterns applied to the banner.",
+                        markdownDescription: "(May not exist) List of all patterns applied to the banner.",
                         type: "list",
                         items: {
-                            description: "An individual pattern.",
+                            markdownDescription: "An individual pattern.",
                             type: "compound",
                             required: ["Color", "Pattern"],
                             properties: {
                                 Color: {
-                                    description: "The base color of the pattern. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
+                                    markdownDescription: "The base color of the pattern. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
                                     type: "int",
                                 },
                                 Pattern: {
-                                    description: "The pattern ID code. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
+                                    markdownDescription: "The pattern ID code. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
                                     type: "string",
                                 },
                             },
                         },
                     },
                     Type: {
-                        description: "The type of the block entity. 0 is normal banner. 1 is ominous banner.",
+                        markdownDescription: "The type of the block entity. 0 is normal banner. 1 is ominous banner.",
                         type: "int",
                     },
                 },
@@ -6356,17 +7842,17 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Beacon: {
                 id: "Block_Beacon",
-                description: "Additional fields for [beacon](https://minecraft.wiki/w/beacon).",
+                markdownDescription: "Additional fields for [beacon](https://minecraft.wiki/w/beacon).",
                 type: "compound",
                 required: ["primary", "secondary"],
                 properties: {
                     primary: {
-                        description:
+                        markdownDescription:
                             "The primary effect selected, see [Potion effects](https://minecraft.wiki/w/Status_effect) for IDs. Set to 0 when no effect is selected.",
                         type: "int",
                     },
                     secondary: {
-                        description:
+                        markdownDescription:
                             "The secondary effect selected, see [Potion effects](https://minecraft.wiki/w/Status_effect) for IDs. Set to 0 when no effect is selected. When set without a primary effect, does nothing. When set to the same as the primary, the effect is given at level 2 (the normally available behavior for 5 effects). When set to a different value than the primary (normally only Regeneration), gives the effect at level 1. *needs testing*",
                         type: "int",
                     },
@@ -6375,12 +7861,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Bed: {
                 id: "Block_Bed",
-                description: "Additional fields for [bed](https://minecraft.wiki/w/bed).",
+                markdownDescription: "Additional fields for [bed](https://minecraft.wiki/w/bed).",
                 type: "compound",
                 required: ["color"],
                 properties: {
                     color: {
-                        description:
+                        markdownDescription:
                             "The data value that determines the color of the half-bed block. When a bed is broken, the color of the block entity at the bed's head becomes the color of the bed item when it drops. See [Bed#Metadata](https://minecraft.wiki/w/Bed#Metadata).",
                         type: "byte",
                     },
@@ -6389,36 +7875,36 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_BeehiveAndBeeNest: {
                 id: "Block_BeehiveAndBeeNest",
-                description: "Additional fields for [beehive](https://minecraft.wiki/w/beehive) and bee nest.",
+                markdownDescription: "Additional fields for [beehive](https://minecraft.wiki/w/beehive) and bee nest.",
                 type: "compound",
                 required: ["ShouldSpawnBees"],
                 properties: {
                     Occupants: {
-                        description: "(May not exist) Entities currently in the hive.",
+                        markdownDescription: "(May not exist) Entities currently in the hive.",
                         type: "list",
                         items: {
-                            description: "An entity in the hive.",
+                            markdownDescription: "An entity in the hive.",
                             type: "compound",
                             required: ["ActorIdentifier", "SaveData", "TicksLeftToStay"],
                             properties: {
                                 ActorIdentifier: {
-                                    description: "The entity in the hive. Always `minecraft:bee<>` in vanilla game. more info",
+                                    markdownDescription: "The entity in the hive. Always `minecraft:bee<>` in vanilla game. more info",
                                     type: "string",
                                 },
                                 SaveData: {
-                                    description: "The NBT data of the entity in the hive.",
+                                    markdownDescription: "The NBT data of the entity in the hive.",
                                     type: "compound",
                                     $ref: "ActorPrefix",
                                 },
                                 TicksLeftToStay: {
-                                    description: "The time in ticks until the entity leave the beehive.",
+                                    markdownDescription: "The time in ticks until the entity leave the beehive.",
                                     type: "int",
                                 },
                             },
                         },
                     },
                     ShouldSpawnBees: {
-                        description: "1 or 0 (true/false) - true if new bees will be spawned.",
+                        markdownDescription: "1 or 0 (true/false) - true if new bees will be spawned.",
                         type: "byte",
                     },
                 },
@@ -6426,20 +7912,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Bell: {
                 id: "Block_Bell",
-                description: "Additional fields for [bell](https://minecraft.wiki/w/bell).",
+                markdownDescription: "Additional fields for [bell](https://minecraft.wiki/w/bell).",
                 type: "compound",
                 required: ["Direction", "Ringing", "Ticks"],
                 properties: {
                     Direction: {
-                        description: "The direction data of this bell.",
+                        markdownDescription: "The direction data of this bell.",
                         type: "int",
                     },
                     Ringing: {
-                        description: "1 or 0 (true/false) - true if it is ringing.",
+                        markdownDescription: "1 or 0 (true/false) - true if it is ringing.",
                         type: "byte",
                     },
                     Ticks: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -6447,32 +7933,32 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_BrewingStand: {
                 id: "Block_BrewingStand",
-                description: "Additional fields for [brewing stand](https://minecraft.wiki/w/brewing stand).",
+                markdownDescription: "Additional fields for [brewing stand](https://minecraft.wiki/w/brewing stand).",
                 type: "compound",
                 required: ["CookTime", "FuelAmount", "FuelTotal", "Items"],
                 properties: {
                     CookTime: {
-                        description: "The number of ticks until the potions are finished.",
+                        markdownDescription: "The number of ticks until the potions are finished.",
                         type: "short",
                     },
                     FuelAmount: {
-                        description: "Remaining fuel for the brewing stand.",
+                        markdownDescription: "Remaining fuel for the brewing stand.",
                         type: "short",
                     },
                     FuelTotal: {
-                        description: "The max fuel numder for the fuel bar.",
+                        markdownDescription: "The max fuel numder for the fuel bar.",
                         type: "short",
                     },
                     Items: {
-                        description: "List of items in brewing stand.",
+                        markdownDescription: "List of items in brewing stand.",
                         type: "list",
                         items: {
-                            description: "An item in the brewing stand, including the slot tag.",
+                            markdownDescription: "An item in the brewing stand, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The slot the item is in.",
+                                    markdownDescription: "The slot the item is in.",
                                     type: "byte",
                                 },
                             },
@@ -6483,17 +7969,18 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_CampfireAndSoulCampfire: {
                 id: "Block_CampfireAndSoulCampfire",
-                description: "Additional fields for [campfire](https://minecraft.wiki/w/campfire) and [soul campfire](https://minecraft.wiki/w/soul campfire).",
+                markdownDescription:
+                    "Additional fields for [campfire](https://minecraft.wiki/w/campfire) and [soul campfire](https://minecraft.wiki/w/soul campfire).",
                 type: "compound",
                 required: ["ItemTime[0-9]+"],
                 patternProperties: {
                     "Item[0-9]+": {
-                        description: "(May not exist) An items currently cooking. `<_num_>` is 1, 2, 3, and 4.",
+                        markdownDescription: "(May not exist) An items currently cooking. `<_num_>` is 1, 2, 3, and 4.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
                     "ItemTime[0-9]+": {
-                        description: "How long each item has been cooking. `<_num_>` is 1, 2, 3, and 4.",
+                        markdownDescription: "How long each item has been cooking. `<_num_>` is 1, 2, 3, and 4.",
                         type: "int",
                     },
                 },
@@ -6501,36 +7988,36 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Cauldron: {
                 id: "Block_Cauldron",
-                description: "Additional fields for [cauldron](https://minecraft.wiki/w/cauldron).",
+                markdownDescription: "Additional fields for [cauldron](https://minecraft.wiki/w/cauldron).",
                 type: "compound",
                 required: ["Items", "PotionId", "PotionType"],
                 properties: {
                     CustomColor: {
-                        description: "(May not exist) This tag exists only if the cauldron stores dyed water; stores a 32-bit ARGB encoded color.",
+                        markdownDescription: "(May not exist) This tag exists only if the cauldron stores dyed water; stores a 32-bit ARGB encoded color.",
                         type: "int",
                     },
                     Items: {
-                        description: "List of items in this container.",
+                        markdownDescription: "List of items in this container.",
                         type: "list",
                         items: {
-                            description: "An item, including the slot tag.",
+                            markdownDescription: "An item, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The inventory slot the item is in.",
+                                    markdownDescription: "The inventory slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     PotionId: {
-                        description:
+                        markdownDescription:
                             "If the cauldron contains a potion, this tag stores the ID of that potion. If there is no potion stored, then this tag is set to -1.",
                         type: "short",
                     },
                     PotionType: {
-                        description:
+                        markdownDescription:
                             "If the cauldron contains a potion, this tag stores the type of that potion. 0 is normal, 1 is splash, 2 is lingering. If there is no potion stored, then this tag is set to -1.",
                         type: "short",
                     },
@@ -6539,40 +8026,40 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Chalkboard: {
                 id: "Block_Chalkboard",
-                description: "Additional fields for [chalkboard](https://minecraft.wiki/w/chalkboard).",
+                markdownDescription: "Additional fields for [chalkboard](https://minecraft.wiki/w/chalkboard).",
                 type: "compound",
                 required: ["BaseX", "BaseY", "BaseZ", "Locked", "OnGround", "Owner", "Size", "Text"],
                 properties: {
                     BaseX: {
-                        description: "The X position of its base.",
+                        markdownDescription: "The X position of its base.",
                         type: "int",
                     },
                     BaseY: {
-                        description: "The Y position of its base.",
+                        markdownDescription: "The Y position of its base.",
                         type: "int",
                     },
                     BaseZ: {
-                        description: "The Z position of its base.",
+                        markdownDescription: "The Z position of its base.",
                         type: "int",
                     },
                     Locked: {
-                        description: "1 or 0 (true/false) - true if it is on locked.",
+                        markdownDescription: "1 or 0 (true/false) - true if it is on locked.",
                         type: "byte",
                     },
                     OnGround: {
-                        description: "1 or 0 (true/false) - true if it is on ground.",
+                        markdownDescription: "1 or 0 (true/false) - true if it is on ground.",
                         type: "byte",
                     },
                     Owner: {
-                        description: "The Unique ID of its owner.",
+                        markdownDescription: "The Unique ID of its owner.",
                         type: "long",
                     },
                     Size: {
-                        description: "The size of this chalkboard.",
+                        markdownDescription: "The size of this chalkboard.",
                         type: "int",
                     },
                     Text: {
-                        description: "The text on the chalkboard.",
+                        markdownDescription: "The text on the chalkboard.",
                         type: "string",
                     },
                 },
@@ -6580,21 +8067,21 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_ChemistryTables: {
                 id: "Block_ChemistryTables",
-                description:
+                markdownDescription:
                     "Additional fields for chemistry tables ([compound creator](https://minecraft.wiki/w/compound creator), [element constructor](https://minecraft.wiki/w/element constructor), [lab table](https://minecraft.wiki/w/lab table), [material reducer](https://minecraft.wiki/w/material reducer)).",
                 type: "compound",
                 required: ["itemAux", "itemId", "itemStack"],
                 properties: {
                     itemAux: {
-                        description: "(Only for Lab Table) UNDOCUMENTED.",
+                        markdownDescription: "(Only for Lab Table) UNDOCUMENTED.",
                         type: "short",
                     },
                     itemId: {
-                        description: "(Only for Lab Table) UNDOCUMENTED.",
+                        markdownDescription: "(Only for Lab Table) UNDOCUMENTED.",
                         type: "int",
                     },
                     itemStack: {
-                        description: "(Only for Lab Table) UNDOCUMENTED.",
+                        markdownDescription: "(Only for Lab Table) UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -6602,53 +8089,53 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Chests: {
                 id: "Block_Chests",
-                description:
+                markdownDescription:
                     "Additional fields for [chest](https://minecraft.wiki/w/chest), [trapped chest](https://minecraft.wiki/w/trapped chest), [barrel](https://minecraft.wiki/w/barrel), and [ender chest](https://minecraft.wiki/w/ender chest).",
                 type: "compound",
                 required: ["Findable", "forceunpair", "Items"],
                 properties: {
                     Findable: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     forceunpair: {
-                        description: "1 or 0 (true/false) - (may not exist) true if this chest is unpair with chest next to it.",
+                        markdownDescription: "1 or 0 (true/false) - (may not exist) true if this chest is unpair with chest next to it.",
                         type: "byte",
                     },
                     Items: {
-                        description: "List of items in this container.",
+                        markdownDescription: "List of items in this container.",
                         type: "list",
                         items: {
-                            description: "An item, including the slot tag.",
+                            markdownDescription: "An item, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The inventory slot the item is in.",
+                                    markdownDescription: "The inventory slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     LootTable: {
-                        description:
+                        markdownDescription:
                             "(May not exist) Loot table to be used to fill the chest when it is next opened, or the items are otherwise interacted with.",
                         type: "string",
                     },
                     LootTableSeed: {
-                        description: "(May not exist) Seed for generating the loot table. 0 or omitted use a random seed.",
+                        markdownDescription: "(May not exist) Seed for generating the loot table. 0 or omitted use a random seed.",
                         type: "int",
                     },
                     pairlead: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "byte",
                     },
                     pairx: {
-                        description: "(May not exist) The X position of the chest paired with.",
+                        markdownDescription: "(May not exist) The X position of the chest paired with.",
                         type: "int",
                     },
                     pairz: {
-                        description: "(May not exist) The Z position of the chest paired with.",
+                        markdownDescription: "(May not exist) The Z position of the chest paired with.",
                         type: "int",
                     },
                 },
@@ -6656,21 +8143,21 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_ChiseledBookshelf: {
                 id: "Block_ChiseledBookshelf",
-                description: "Additional fields for [chiseled bookshelf](https://minecraft.wiki/w/chiseled bookshelf).",
+                markdownDescription: "Additional fields for [chiseled bookshelf](https://minecraft.wiki/w/chiseled bookshelf).",
                 type: "compound",
                 required: ["Items", "LastInteractedSlot"],
                 properties: {
                     Items: {
-                        description: "List of books in the bookshelf.",
+                        markdownDescription: "List of books in the bookshelf.",
                         type: "list",
                         items: {
-                            description: "An item in the chiseled bookshelf.",
+                            markdownDescription: "An item in the chiseled bookshelf.",
                             type: "compound",
                             $ref: "Item_ItemStack",
                         },
                     },
                     LastInteractedSlot: {
-                        description: "Last interacted slot (1-6), or 0 if no slot has been interacted with yet.",
+                        markdownDescription: "Last interacted slot (1-6), or 0 if no slot has been interacted with yet.",
                         type: "int",
                     },
                 },
@@ -6678,37 +8165,37 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_CommandBlock: {
                 id: "Block_CommandBlock",
-                description: "Additional fields for [command block](https://minecraft.wiki/w/command block).",
+                markdownDescription: "Additional fields for [command block](https://minecraft.wiki/w/command block).",
                 type: "compound",
                 required: ["auto", "conditionMet", "LPCondionalMode", "LPRedstoneMode", "LPCommandMode", "powered"],
                 properties: {
                     auto: {
-                        description: "1 or 0 (true/false) - Allows to activate the command without the requirement of a redstone signal.",
+                        markdownDescription: "1 or 0 (true/false) - Allows to activate the command without the requirement of a redstone signal.",
                         type: "byte",
                     },
                     conditionalMode: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "byte",
                     },
                     conditionMet: {
-                        description:
+                        markdownDescription:
                             "1 or 0 (true/false) - if a conditional command block had its condition met when last activated. True if not a conditional command block.",
                         type: "byte",
                     },
                     LPCondionalMode: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     LPRedstoneMode: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     LPCommandMode: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     powered: {
-                        description: "1 or 0 (true/false) - true if the command block is powered by redstone.",
+                        markdownDescription: "1 or 0 (true/false) - true if the command block is powered by redstone.",
                         type: "byte",
                     },
                 },
@@ -6721,12 +8208,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Comparator: {
                 id: "Block_Comparator",
-                description: "Additional fields for [comparator](https://minecraft.wiki/w/comparator).",
+                markdownDescription: "Additional fields for [comparator](https://minecraft.wiki/w/comparator).",
                 type: "compound",
                 required: ["OutputSignal"],
                 properties: {
                     OutputSignal: {
-                        description: "Represents the strength of the analog signal output of this redstone comparator.",
+                        markdownDescription: "Represents the strength of the analog signal output of this redstone comparator.",
                         type: "int",
                     },
                 },
@@ -6734,16 +8221,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Conduit: {
                 id: "Block_Conduit",
-                description: "Additional fields for [conduit](https://minecraft.wiki/w/conduit).",
+                markdownDescription: "Additional fields for [conduit](https://minecraft.wiki/w/conduit).",
                 type: "compound",
                 required: ["Active", "Target"],
                 properties: {
                     Active: {
-                        description: "1 or 0 (true/false) - true if it is active.",
+                        markdownDescription: "1 or 0 (true/false) - true if it is active.",
                         type: "byte",
                     },
                     Target: {
-                        description: "The Unique ID of the hostile mob the conduit is currently attacking. If there's no target, defaults to -1.",
+                        markdownDescription: "The Unique ID of the hostile mob the conduit is currently attacking. If there's no target, defaults to -1.",
                         type: "long",
                     },
                 },
@@ -6751,24 +8238,25 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Crafter: {
                 id: "Block_Crafter",
-                description: "Additional fields for [crafter](https://minecraft.wiki/w/crafter).",
+                markdownDescription: "Additional fields for [crafter](https://minecraft.wiki/w/crafter).",
                 type: "compound",
                 required: ["disabled_slots", "Items"],
                 properties: {
                     disabled_slots: {
-                        description: "Indexes of slots that are disabled.",
+                        markdownDescription: "Indexes of slots that are disabled.",
                         type: "short",
                     },
                     Items: {
-                        description: "List of items in the crafter.",
+                        markdownDescription: "List of items in the crafter.",
                         type: "list",
                         items: {
-                            description: "An item in the crafter, including the slot tag. Crafter slots are numbered 0-8. 0 starts in the top left corner.",
+                            markdownDescription:
+                                "An item in the crafter, including the slot tag. Crafter slots are numbered 0-8. 0 starts in the top left corner.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The inventory slot the item is in.",
+                                    markdownDescription: "The inventory slot the item is in.",
                                     type: "byte",
                                 },
                             },
@@ -6779,20 +8267,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_DecoratedPot: {
                 id: "Block_DecoratedPot",
-                description: "Additional fields for [decorated pot](https://minecraft.wiki/w/decorated pot).",
+                markdownDescription: "Additional fields for [decorated pot](https://minecraft.wiki/w/decorated pot).",
                 type: "compound",
                 required: ["item", "sherds"],
                 properties: {
                     item: {
-                        description: "The item in the decorated pot.",
+                        markdownDescription: "The item in the decorated pot.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
                     sherds: {
-                        description: "List of sherds on this decorated pot.",
+                        markdownDescription: "List of sherds on this decorated pot.",
                         type: "list",
                         items: {
-                            description: "[Item ID](https://minecraft.wiki/w/Bedrock Edition data values) of this face. Defaults to `minecraft:brick`.",
+                            markdownDescription: "[Item ID](https://minecraft.wiki/w/Bedrock Edition data values) of this face. Defaults to `minecraft:brick`.",
                             type: "string",
                         },
                     },
@@ -6801,32 +8289,32 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_DispenserAndDropper: {
                 id: "Block_DispenserAndDropper",
-                description: "Additional fields for [dispenser](https://minecraft.wiki/w/dispenser) and [dropper](https://minecraft.wiki/w/dropper).",
+                markdownDescription: "Additional fields for [dispenser](https://minecraft.wiki/w/dispenser) and [dropper](https://minecraft.wiki/w/dropper).",
                 type: "compound",
                 required: ["Items"],
                 properties: {
                     Items: {
-                        description: "List of items in this container.",
+                        markdownDescription: "List of items in this container.",
                         type: "list",
                         items: {
-                            description: "An item, including the slot tag.",
+                            markdownDescription: "An item, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The inventory slot the item is in.",
+                                    markdownDescription: "The inventory slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     LootTable: {
-                        description:
+                        markdownDescription:
                             "(May not exist) Loot table to be used to fill the chest when it is next opened, or the items are otherwise interacted with.",
                         type: "string",
                     },
                     LootTableSeed: {
-                        description: "(May not exist) Seed for generating the loot table. 0 or omitted use a random seed.",
+                        markdownDescription: "(May not exist) Seed for generating the loot table. 0 or omitted use a random seed.",
                         type: "int",
                     },
                 },
@@ -6834,16 +8322,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_EnchantmentTable: {
                 id: "Block_EnchantmentTable",
-                description: "Additional fields for [Enchantment table](https://minecraft.wiki/w/Enchantment table).",
+                markdownDescription: "Additional fields for [Enchantment table](https://minecraft.wiki/w/Enchantment table).",
                 type: "compound",
                 required: ["rott"],
                 properties: {
                     CustomName: {
-                        description: "(May not exist) The name of this enchantment table.",
+                        markdownDescription: "(May not exist) The name of this enchantment table.",
                         type: "string",
                     },
                     rott: {
-                        description: "The clockwise rotation of the book in radians. Top of the book points West when 0.",
+                        markdownDescription: "The clockwise rotation of the book in radians. Top of the book points West when 0.",
                         type: "float",
                     },
                 },
@@ -6851,28 +8339,28 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_EndGateway: {
                 id: "Block_EndGateway",
-                description: "Additional fields for [end gateway](https://minecraft.wiki/w/end gateway).",
+                markdownDescription: "Additional fields for [end gateway](https://minecraft.wiki/w/end gateway).",
                 type: "compound",
                 required: ["Age", "ExitPortal"],
                 properties: {
                     Age: {
-                        description: "Age of the portal, in ticks. This is used to determine when the beam is rendered.",
+                        markdownDescription: "Age of the portal, in ticks. This is used to determine when the beam is rendered.",
                         type: "int",
                     },
                     ExitPortal: {
-                        description: "Location entities are teleported to when entering the portal.",
+                        markdownDescription: "Location entities are teleported to when entering the portal.",
                         type: "list",
                         items: [
                             {
-                                description: "X coordinate of target location.",
+                                markdownDescription: "X coordinate of target location.",
                                 type: "int",
                             },
                             {
-                                description: "Y coordinate of target location.",
+                                markdownDescription: "Y coordinate of target location.",
                                 type: "int",
                             },
                             {
-                                description: "Z coordinate of target location.",
+                                markdownDescription: "Z coordinate of target location.",
                                 type: "int",
                             },
                         ],
@@ -6882,11 +8370,11 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_FlowerPot: {
                 id: "Block_FlowerPot",
-                description: "Additional fields for [flower pot](https://minecraft.wiki/w/flower pot).",
+                markdownDescription: "Additional fields for [flower pot](https://minecraft.wiki/w/flower pot).",
                 type: "compound",
                 properties: {
                     PlantBlock: {
-                        description: "(May not exist) The block in the pot.",
+                        markdownDescription: "(May not exist) The block in the pot.",
                         type: "compound",
                         $ref: "Block",
                     },
@@ -6895,41 +8383,41 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Furnace: {
                 id: "Block_Furnace",
-                description:
+                markdownDescription:
                     "Additional fields for [furnace](https://minecraft.wiki/w/furnace), [smoker](https://minecraft.wiki/w/smoker), and [blast furnace](https://minecraft.wiki/w/blast furnace).",
                 type: "compound",
                 required: ["BurnDuration", "BurnTime", "CookTime", "Items", "StoredXPInt"],
                 properties: {
                     BurnDuration: {
-                        description: "The total time that in ticks that the currently used fuel can burn.",
+                        markdownDescription: "The total time that in ticks that the currently used fuel can burn.",
                         type: "short",
                     },
                     BurnTime: {
-                        description: "Number of ticks left before the current fuel runs out.",
+                        markdownDescription: "Number of ticks left before the current fuel runs out.",
                         type: "short",
                     },
                     CookTime: {
-                        description:
+                        markdownDescription:
                             "Number of ticks the item has been smelting for. The item finishes smelting when this value reaches 200 (10 seconds). Is reset to 0 if BurnTime reaches 0. *needs testing*",
                         type: "short",
                     },
                     Items: {
-                        description: "List of items in this container.",
+                        markdownDescription: "List of items in this container.",
                         type: "list",
                         items: {
-                            description: "An item in the furnace, including the slot tag.",
+                            markdownDescription: "An item in the furnace, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The inventory slot the item is in.",
+                                    markdownDescription: "The inventory slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     StoredXPInt: {
-                        description: "The number of experiences it stores.",
+                        markdownDescription: "The number of experiences it stores.",
                         type: "int",
                     },
                 },
@@ -6937,27 +8425,27 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Hopper: {
                 id: "Block_Hopper",
-                description: "Additional fields for [hopper](https://minecraft.wiki/w/hopper).",
+                markdownDescription: "Additional fields for [hopper](https://minecraft.wiki/w/hopper).",
                 type: "compound",
                 required: ["Items", "TransferCooldown"],
                 properties: {
                     Items: {
-                        description: "List of items in this container.",
+                        markdownDescription: "List of items in this container.",
                         type: "list",
                         items: {
-                            description: "An item, including the slot tag.",
+                            markdownDescription: "An item, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The inventory slot the item is in.",
+                                    markdownDescription: "The inventory slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     TransferCooldown: {
-                        description: "Time until the next transfer in game ticks, naturally between 1 and 8 or 0 if there is no transfer.",
+                        markdownDescription: "Time until the next transfer in game ticks, naturally between 1 and 8 or 0 if there is no transfer.",
                         type: "int",
                     },
                 },
@@ -6965,21 +8453,21 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_ItemFrame: {
                 id: "Block_ItemFrame",
-                description: "Additional fields for [item frame](https://minecraft.wiki/w/item frame).",
+                markdownDescription: "Additional fields for [item frame](https://minecraft.wiki/w/item frame).",
                 type: "compound",
                 required: ["Item"],
                 properties: {
                     Item: {
-                        description: "The items in this item frame.",
+                        markdownDescription: "The items in this item frame.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
                     ItemDropChance: {
-                        description: "(May not exist) The chance of item dropping when the item frame is broken.",
+                        markdownDescription: "(May not exist) The chance of item dropping when the item frame is broken.",
                         type: "float",
                     },
                     ItemRotation: {
-                        description: "(May not exist) The rotation of the item in the item frame.",
+                        markdownDescription: "(May not exist) The rotation of the item in the item frame.",
                         type: "float",
                     },
                 },
@@ -6987,30 +8475,30 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Jigsaw: {
                 id: "Block_Jigsaw",
-                description: "Additional fields for [jigsaw](https://minecraft.wiki/w/jigsaw).",
+                markdownDescription: "Additional fields for [jigsaw](https://minecraft.wiki/w/jigsaw).",
                 type: "compound",
                 required: ["final_state", "joint", "name", "target", "target_pool"],
                 properties: {
                     final_state: {
-                        description: "The block that this jigsaw block becomes.",
+                        markdownDescription: "The block that this jigsaw block becomes.",
                         type: "string",
                     },
                     joint: {
-                        description: 'The joint option value, either "rollable" or "aligned".',
+                        markdownDescription: 'The joint option value, either "rollable" or "aligned".',
                         type: "string",
                     },
                     name: {
-                        description:
+                        markdownDescription:
                             "The jigsaw block's name. This jigsaw block will be aligned with another structure's jigsaw block which has this value in the target tag.",
                         type: "string",
                     },
                     target: {
-                        description:
+                        markdownDescription:
                             "The jigsaw block's target name. This jigsaw block will be aligned with another structure's jigsaw block which has this value in the name tag.",
                         type: "string",
                     },
                     target_pool: {
-                        description: "The jigsaw block's target pool to select a structure from.",
+                        markdownDescription: "The jigsaw block's target pool to select a structure from.",
                         type: "string",
                     },
                 },
@@ -7018,11 +8506,11 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Jukebox: {
                 id: "Block_Jukebox",
-                description: "Additional fields for [jukebox](https://minecraft.wiki/w/jukebox).",
+                markdownDescription: "Additional fields for [jukebox](https://minecraft.wiki/w/jukebox).",
                 type: "compound",
                 properties: {
                     RecordItem: {
-                        description: "(May not exist) The record item in it.",
+                        markdownDescription: "(May not exist) The record item in it.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
@@ -7031,25 +8519,25 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Lectern: {
                 id: "Block_Lectern",
-                description: "Additional fields for [lectern](https://minecraft.wiki/w/lectern).",
+                markdownDescription: "Additional fields for [lectern](https://minecraft.wiki/w/lectern).",
                 type: "compound",
                 required: ["hasBook"],
                 properties: {
                     book: {
-                        description: "(May not exist) The book item currently on the lectern.",
+                        markdownDescription: "(May not exist) The book item currently on the lectern.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
                     hasBook: {
-                        description: "1 or 0 (true/false) - (may not exist) true if it has a book.",
+                        markdownDescription: "1 or 0 (true/false) - (may not exist) true if it has a book.",
                         type: "byte",
                     },
                     page: {
-                        description: "(May not exist) The page the book is currently on, starting from 0.",
+                        markdownDescription: "(May not exist) The page the book is currently on, starting from 0.",
                         type: "int",
                     },
                     totalPages: {
-                        description: "(May not exist) The total pages the book has.",
+                        markdownDescription: "(May not exist) The total pages the book has.",
                         type: "int",
                     },
                 },
@@ -7057,11 +8545,11 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Lodestone: {
                 id: "Block_Lodestone",
-                description: "Additional fields for [lodestone](https://minecraft.wiki/w/lodestone).",
+                markdownDescription: "Additional fields for [lodestone](https://minecraft.wiki/w/lodestone).",
                 type: "compound",
                 properties: {
                     trackingHandle: {
-                        description: "(May not exist) The id of lodestone.",
+                        markdownDescription: "(May not exist) The id of lodestone.",
                         type: "int",
                     },
                 },
@@ -7069,42 +8557,42 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_MonsterSpawner: {
                 id: "Block_MonsterSpawner",
-                description: "Additional fields for [monster spawner](https://minecraft.wiki/w/monster spawner).",
+                markdownDescription: "Additional fields for [monster spawner](https://minecraft.wiki/w/monster spawner).",
                 type: "compound",
                 $ref: "MonsterSpawner",
                 $fragment: false,
             },
             Block_MovingBlock: {
                 id: "Block_MovingBlock",
-                description: "Additional fields for [moving block](https://minecraft.wiki/w/moving block).",
+                markdownDescription: "Additional fields for [moving block](https://minecraft.wiki/w/moving block).",
                 type: "compound",
                 required: ["movingBlock", "movingBlockExtra", "pistonPosX", "pistonPosY", "pistonPosZ"],
                 properties: {
                     movingBlock: {
-                        description: "The main layer of moving block represented by this block entity.",
+                        markdownDescription: "The main layer of moving block represented by this block entity.",
                         type: "compound",
                         $ref: "Block",
                     },
                     movingBlockExtra: {
-                        description: "The [extra moving block layer](https://minecraft.wiki/w/Waterlogging) represented by this block entity.",
+                        markdownDescription: "The [extra moving block layer](https://minecraft.wiki/w/Waterlogging) represented by this block entity.",
                         type: "compound",
                         $ref: "Block",
                     },
                     movingEntity: {
-                        description: "(May not exist) The block entity stored in this moving block.",
+                        markdownDescription: "(May not exist) The block entity stored in this moving block.",
                         type: "compound",
                         $ref: "BlockEntity",
                     },
                     pistonPosX: {
-                        description: "X coordinate of the piston base.",
+                        markdownDescription: "X coordinate of the piston base.",
                         type: "int",
                     },
                     pistonPosY: {
-                        description: "Y coordinate of the piston base.",
+                        markdownDescription: "Y coordinate of the piston base.",
                         type: "int",
                     },
                     pistonPosZ: {
-                        description: "Z coordinate of the piston base.",
+                        markdownDescription: "Z coordinate of the piston base.",
                         type: "int",
                     },
                 },
@@ -7112,12 +8600,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_NoteBlock: {
                 id: "Block_NoteBlock",
-                description: "Additional fields for [note block](https://minecraft.wiki/w/note block).",
+                markdownDescription: "Additional fields for [note block](https://minecraft.wiki/w/note block).",
                 type: "compound",
                 required: ["note"],
                 properties: {
                     note: {
-                        description: "The pitch of the note block.",
+                        markdownDescription: "The pitch of the note block.",
                         type: "byte",
                     },
                 },
@@ -7125,20 +8613,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_NetherReactor: {
                 id: "Block_NetherReactor",
-                description: "Additional fields for [nether reactor](https://minecraft.wiki/w/nether reactor).",
+                markdownDescription: "Additional fields for [nether reactor](https://minecraft.wiki/w/nether reactor).",
                 type: "compound",
                 required: ["HasFinished", "IsInitialized", "Progress"],
                 properties: {
                     HasFinished: {
-                        description: "1 or 0 (true/false) - true if the reactor has completed its activation phase, and has gone dark.",
+                        markdownDescription: "1 or 0 (true/false) - true if the reactor has completed its activation phase, and has gone dark.",
                         type: "byte",
                     },
                     IsInitialized: {
-                        description: "1 or 0 (true/false) - true if the reactor has been activated, and has turned red.",
+                        markdownDescription: "1 or 0 (true/false) - true if the reactor has been activated, and has turned red.",
                         type: "byte",
                     },
                     Progress: {
-                        description: "Number of ticks the reactor has been active for. It finishes after 900 game ticks (45 seconds).",
+                        markdownDescription: "Number of ticks the reactor has been active for. It finishes after 900 game ticks (45 seconds).",
                         type: "short",
                     },
                 },
@@ -7146,86 +8634,86 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Piston: {
                 id: "Block_Piston",
-                description: "Additional fields for [piston](https://minecraft.wiki/w/piston).",
+                markdownDescription: "Additional fields for [piston](https://minecraft.wiki/w/piston).",
                 type: "compound",
                 required: ["AttachedBlocks", "BreakBlocks", "LastProgress", "NewState", "Progress", "State", "Sticky"],
                 properties: {
                     AttachedBlocks: {
-                        description: "The list of positions of blocks it should move.",
+                        markdownDescription: "The list of positions of blocks it should move.",
                         type: "list",
                         items: [
                             {
-                                description: "A block's X coordinate.",
+                                markdownDescription: "A block's X coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "A block's Y coordinate.",
+                                markdownDescription: "A block's Y coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "A block's Z coordinate.",
+                                markdownDescription: "A block's Z coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "Another block's X coordinate.",
+                                markdownDescription: "Another block's X coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "Another block's Y coordinate.",
+                                markdownDescription: "Another block's Y coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "Another block's Z coordinate.",
+                                markdownDescription: "Another block's Z coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "etc.",
+                                markdownDescription: "etc.",
                                 type: "int",
                             },
                         ],
                     },
                     BreakBlocks: {
-                        description: "The list of positions of blocks it should break.",
+                        markdownDescription: "The list of positions of blocks it should break.",
                         type: "list",
                         items: [
                             {
-                                description: "A block's X coordinate.",
+                                markdownDescription: "A block's X coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "A block's Y coordinate.",
+                                markdownDescription: "A block's Y coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "A block's Z coordinate.",
+                                markdownDescription: "A block's Z coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "Another block's X coordinate.",
+                                markdownDescription: "Another block's X coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "Another block's Y coordinate.",
+                                markdownDescription: "Another block's Y coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "Another block's Z coordinate.",
+                                markdownDescription: "Another block's Z coordinate.",
                                 type: "int",
                             },
                             {
-                                description: "etc.",
+                                markdownDescription: "etc.",
                                 type: "int",
                             },
                         ],
                     },
                     LastProgress: {
-                        description: "Progress in last tick.",
+                        markdownDescription: "Progress in last tick.",
                         type: "float",
                     },
                     NewState: {
-                        description: "Next state. Can be 0 (unextended), 1 (pushing), 2 (extended), or 3 (pulling).",
+                        markdownDescription: "Next state. Can be 0 (unextended), 1 (pushing), 2 (extended), or 3 (pulling).",
                         type: "byte",
-                        enumDescriptions: ["unextended", "pushing", "extended", "pulling"],
+                        markdownEnumDescriptions: ["unextended", "pushing", "extended", "pulling"],
                         enum: [
                             { type: "byte", value: 0 },
                             { type: "byte", value: 1 },
@@ -7234,15 +8722,15 @@ however when the corresponding block in the block layer is broken, this block ge
                         ],
                     },
                     Progress: {
-                        description: "How far the block has been moved. Can be 0.0, 0.5, and 1.0.",
+                        markdownDescription: "How far the block has been moved. Can be 0.0, 0.5, and 1.0.",
                         type: "float",
                     },
                     State: {
-                        description: "Current state.",
+                        markdownDescription: "Current state.",
                         type: "byte",
                     },
                     Sticky: {
-                        description: "1 or 0 (true/false) - true if this piston is sticky.",
+                        markdownDescription: "1 or 0 (true/false) - true if this piston is sticky.",
                         type: "byte",
                     },
                 },
@@ -7250,45 +8738,45 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_SculkCatalyst: {
                 id: "Block_SculkCatalyst",
-                description: "Additional fields for [sculk catalyst](https://minecraft.wiki/w/sculk catalyst).",
+                markdownDescription: "Additional fields for [sculk catalyst](https://minecraft.wiki/w/sculk catalyst).",
                 type: "compound",
                 required: ["cursors"],
                 properties: {
                     cursors: {
-                        description: "List of charges associated with the sculk catalyst.",
+                        markdownDescription: "List of charges associated with the sculk catalyst.",
                         type: "list",
                         items: {
-                            description: "A charge.",
+                            markdownDescription: "A charge.",
                             type: "compound",
                             required: ["charge", "decay", "facing", "update", "x", "y", "z"],
                             properties: {
                                 charge: {
-                                    description: "How much power is in the charge.",
+                                    markdownDescription: "How much power is in the charge.",
                                     type: "short",
                                 },
                                 decay: {
-                                    description:
+                                    markdownDescription:
                                         "Be 1 if the charge was spread from a sculk or sculk vein, 0 otherwise. The charge can spread to any block if this tag is 1. If it is 0, all the powers in the charge disappear when it spreads to a block not in sculk family. *needs testing*",
                                     type: "short",
                                 },
                                 facing: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "short",
                                 },
                                 update: {
-                                    description: "Delay in ticks until the charge begins to travel after being created. *needs testing*",
+                                    markdownDescription: "Delay in ticks until the charge begins to travel after being created. *needs testing*",
                                     type: "short",
                                 },
                                 x: {
-                                    description: "X coordinate of the charge.",
+                                    markdownDescription: "X coordinate of the charge.",
                                     type: "int",
                                 },
                                 y: {
-                                    description: "Y coordinate of the charge.",
+                                    markdownDescription: "Y coordinate of the charge.",
                                     type: "int",
                                 },
                                 z: {
-                                    description: "Z coordinate of the charge.",
+                                    markdownDescription: "Z coordinate of the charge.",
                                     type: "int",
                                 },
                             },
@@ -7299,57 +8787,57 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_SculkShrieker_SculkSensor_AndCalibratedSculkSensor: {
                 id: "Block_SculkShrieker_SculkSensor_AndCalibratedSculkSensor",
-                description:
+                markdownDescription:
                     "Additional fields for [sculk shrieker](https://minecraft.wiki/w/sculk shrieker), [sculk sensor](https://minecraft.wiki/w/sculk sensor), and [calibrated sculk sensor](https://minecraft.wiki/w/calibrated sculk sensor).",
                 type: "compound",
                 required: ["VibrationListener"],
                 properties: {
                     VibrationListener: {
-                        description: "The vibration event listener of the sculk shrieker, sculk sensor, and calibrated sculk sensor.",
+                        markdownDescription: "The vibration event listener of the sculk shrieker, sculk sensor, and calibrated sculk sensor.",
                         type: "compound",
                         required: ["event", "pending", "selector", "ticks"],
                         properties: {
                             event: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             pending: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "compound",
                                 required: ["distance", "source", "vibration", "x", "y", "z"],
                                 properties: {
                                     distance: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "float",
                                     },
                                     source: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "long",
                                     },
                                     vibration: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     x: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     y: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                     z: {
-                                        description: "UNDOCUMENTED.",
+                                        markdownDescription: "UNDOCUMENTED.",
                                         type: "int",
                                     },
                                 },
                             },
                             selector: {
-                                description: "UNKNOWN.",
+                                markdownDescription: "UNKNOWN.",
                                 type: "compound",
                             },
                             ticks: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                         },
@@ -7359,12 +8847,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_ShulkerBox: {
                 id: "Block_ShulkerBox",
-                description: "Additional fields for [shulker box](https://minecraft.wiki/w/shulker box).",
+                markdownDescription: "Additional fields for [shulker box](https://minecraft.wiki/w/shulker box).",
                 type: "compound",
                 required: ["facing"],
                 properties: {
                     facing: {
-                        description: "The facing of this shulker box.",
+                        markdownDescription: "The facing of this shulker box.",
                         type: "float",
                     },
                 },
@@ -7377,78 +8865,78 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_SignAndHangingSign: {
                 id: "Block_SignAndHangingSign",
-                description: "Additional fields for [sign](https://minecraft.wiki/w/sign) and hanging sign.",
+                markdownDescription: "Additional fields for [sign](https://minecraft.wiki/w/sign) and hanging sign.",
                 type: "compound",
                 required: ["BackText", "FrontText", "IsWaxed"],
                 properties: {
                     BackText: {
-                        description: "A compound which discribes back text. The same structure as FrontText.",
+                        markdownDescription: "A compound which discribes back text. The same structure as FrontText.",
                         type: "compound",
                         required: ["HideGlowOutline", "IgnoreLighting", "PersistFormatting", "SignTextColor", "Text", "TextOwner"],
                         properties: {
                             HideGlowOutline: {
-                                description: "1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.",
+                                markdownDescription: "1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.",
                                 type: "byte",
                             },
                             IgnoreLighting: {
-                                description:
+                                markdownDescription:
                                     "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow ink sac).",
                                 type: "byte",
                             },
                             PersistFormatting: {
-                                description: "UNDOCUMENTED. Defaults to 1.",
+                                markdownDescription: "UNDOCUMENTED. Defaults to 1.",
                                 type: "byte",
                             },
                             SignTextColor: {
-                                description:
+                                markdownDescription:
                                     'The color that has been used to dye the sign. Is a 32-bit encoded color, defaults to `-16777216` (black). One of `-986896` for "White", `-425955` for "Orange", `-3715395` for "Magenta", `-12930086` for "Light Blue", `-75715` for "Yellow", `-8337633` for "Lime", `-816214` for "Pink", `-12103854` for "Gray", `-6447721` for "Light Gray", `-15295332` for "Cyan", `-7785800` for "Purple", `-12827478` for "Blue", `-8170446` for "Brown", `-10585066` for "Green", `-5231066` for "Red", and `-16777216` for "Black".',
                                 type: "int",
                             },
                             Text: {
-                                description: "The text on it.",
+                                markdownDescription: "The text on it.",
                                 type: "string",
                             },
                             TextOwner: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "string",
                             },
                         },
                     },
                     FrontText: {
-                        description: "A compound which discribes front text.",
+                        markdownDescription: "A compound which discribes front text.",
                         type: "compound",
                         required: ["HideGlowOutline", "IgnoreLighting", "PersistFormatting", "SignTextColor", "Text", "TextOwner"],
                         properties: {
                             HideGlowOutline: {
-                                description: "1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.",
+                                markdownDescription: "1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.",
                                 type: "byte",
                             },
                             IgnoreLighting: {
-                                description:
+                                markdownDescription:
                                     "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow ink sac).",
                                 type: "byte",
                             },
                             PersistFormatting: {
-                                description: "UNDOCUMENTED. Defaults to 1.",
+                                markdownDescription: "UNDOCUMENTED. Defaults to 1.",
                                 type: "byte",
                             },
                             SignTextColor: {
-                                description:
+                                markdownDescription:
                                     'The color that has been used to dye the sign. Is a 32-bit encoded color, defaults to `-16777216` (black). One of `-986896` for "White", `-425955` for "Orange", `-3715395` for "Magenta", `-12930086` for "Light Blue", `-75715` for "Yellow", `-8337633` for "Lime", `-816214` for "Pink", `-12103854` for "Gray", `-6447721` for "Light Gray", `-15295332` for "Cyan", `-7785800` for "Purple", `-12827478` for "Blue", `-8170446` for "Brown", `-10585066` for "Green", `-5231066` for "Red", and `-16777216` for "Black".',
                                 type: "int",
                             },
                             Text: {
-                                description: "The text on it.",
+                                markdownDescription: "The text on it.",
                                 type: "string",
                             },
                             TextOwner: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "string",
                             },
                         },
                     },
                     IsWaxed: {
-                        description: "1 or 0 (true/false) - true if the text is locked with [honeycomb](https://minecraft.wiki/w/honeycomb).",
+                        markdownDescription: "1 or 0 (true/false) - true if the text is locked with [honeycomb](https://minecraft.wiki/w/honeycomb).",
                         type: "byte",
                     },
                 },
@@ -7456,20 +8944,20 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Skull: {
                 id: "Block_Skull",
-                description: "Additional fields for [skull](https://minecraft.wiki/w/skull).",
+                markdownDescription: "Additional fields for [skull](https://minecraft.wiki/w/skull).",
                 type: "compound",
                 required: ["MouthMoving", "MouthTickCount", "Rotation"],
                 properties: {
                     MouthMoving: {
-                        description: "1 or 0 (true/false) - true if this dragon head's mouth is moving.",
+                        markdownDescription: "1 or 0 (true/false) - true if this dragon head's mouth is moving.",
                         type: "byte",
                     },
                     MouthTickCount: {
-                        description: "The animation frame of the dragon head's mouth movement. *needs testing*",
+                        markdownDescription: "The animation frame of the dragon head's mouth movement. *needs testing*",
                         type: "int",
                     },
                     Rotation: {
-                        description: "The rotation of this skull.",
+                        markdownDescription: "The rotation of this skull.",
                         type: "float",
                     },
                 },
@@ -7477,7 +8965,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_StructureBlock: {
                 id: "Block_StructureBlock",
-                description: "Additional fields for [structure block](https://minecraft.wiki/w/structure block).",
+                markdownDescription: "Additional fields for [structure block](https://minecraft.wiki/w/structure block).",
                 type: "compound",
                 required: [
                     "animationMode",
@@ -7503,84 +8991,84 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     animationMode: {
-                        description: "The mode of animation.",
+                        markdownDescription: "The mode of animation.",
                         type: "byte",
                     },
                     animationSeconds: {
-                        description: "The duration of the animation.",
+                        markdownDescription: "The duration of the animation.",
                         type: "float",
                     },
                     data: {
-                        description:
+                        markdownDescription:
                             "The mode of the structure block, values for data are the same as the data values for the item. Ex. 0 = Data, 1 = Save, 2 = Load, 3 = Corner, 4 = Inventory, 5 = Export.",
                         type: "int",
                     },
                     dataField: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "string",
                     },
                     ignoreEntities: {
-                        description: "1 or 0 (true/false) - true if the entities should be ignored in the structure.",
+                        markdownDescription: "1 or 0 (true/false) - true if the entities should be ignored in the structure.",
                         type: "byte",
                     },
                     integrity: {
-                        description: "How complete the structure is that gets placed.",
+                        markdownDescription: "How complete the structure is that gets placed.",
                         type: "float",
                     },
                     isPowered: {
-                        description: "1 or 0 (true/false) - true if this structure block is being powered by redstone.",
+                        markdownDescription: "1 or 0 (true/false) - true if this structure block is being powered by redstone.",
                         type: "byte",
                     },
                     mirror: {
-                        description: "How the structure is mirrored.",
+                        markdownDescription: "How the structure is mirrored.",
                         type: "byte",
                     },
                     redstoneSaveMode: {
-                        description: "The current redstone mode of this structure block.",
+                        markdownDescription: "The current redstone mode of this structure block.",
                         type: "int",
                     },
                     removeBlocks: {
-                        description: "1 or 0 (true/false) - true if the blocks should be removed in the structure.",
+                        markdownDescription: "1 or 0 (true/false) - true if the blocks should be removed in the structure.",
                         type: "byte",
                     },
                     rotation: {
-                        description: "Rotation of the structure.",
+                        markdownDescription: "Rotation of the structure.",
                         type: "byte",
                     },
                     seed: {
-                        description: "The seed to use for the structure integrity, 0 means random. *needs testing*",
+                        markdownDescription: "The seed to use for the structure integrity, 0 means random. *needs testing*",
                         type: "long",
                     },
                     showBoundingBox: {
-                        description: "1 or 0 (true/false) - true if show the structure's bounding box to players in Creative mode.",
+                        markdownDescription: "1 or 0 (true/false) - true if show the structure's bounding box to players in Creative mode.",
                         type: "byte",
                     },
                     structureName: {
-                        description: "Name of the structure.",
+                        markdownDescription: "Name of the structure.",
                         type: "string",
                     },
                     xStructureOffset: {
-                        description: "X-offset of the structure.",
+                        markdownDescription: "X-offset of the structure.",
                         type: "int",
                     },
                     yStructureOffset: {
-                        description: "Y-offset of the structure.",
+                        markdownDescription: "Y-offset of the structure.",
                         type: "int",
                     },
                     zStructureOffset: {
-                        description: "Z-offset of the structure.",
+                        markdownDescription: "Z-offset of the structure.",
                         type: "int",
                     },
                     xStructureSize: {
-                        description: "X-size of the structure.",
+                        markdownDescription: "X-size of the structure.",
                         type: "int",
                     },
                     yStructureSize: {
-                        description: "Y-size of the structure.",
+                        markdownDescription: "Y-size of the structure.",
                         type: "int",
                     },
                     zStructureSize: {
-                        description: "Z-size of the structure.",
+                        markdownDescription: "Z-size of the structure.",
                         type: "int",
                     },
                 },
@@ -7588,36 +9076,36 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_SuspiciousBlock: {
                 id: "Block_SuspiciousBlock",
-                description:
+                markdownDescription:
                     "Additional fields for [suspicious sand](https://minecraft.wiki/w/suspicious sand) and [suspicious gravel](https://minecraft.wiki/w/suspicious gravel).",
                 type: "compound",
                 required: ["brush_count", "brush_direction", "type"],
                 properties: {
                     brush_count: {
-                        description:
+                        markdownDescription:
                             "The number of times the suspicious block is being brushed by the player, from 1 to 10 (the item will be extracted when it reaches 10). If the player stops brushing, it will progressively return to 0. And if it hasn't been brushed yet, defaults to 0.",
                         type: "int",
                     },
                     brush_direction: {
-                        description:
+                        markdownDescription:
                             "The direction of the suspicious block that was brushed. 0 = Down, 1 = Up, 2 = North, 3 = South, 4 = West, 5 = East, or 6 if it has not been brushed yet.",
                         type: "byte",
                     },
                     item: {
-                        description: "(May not exist) The item in the suspicious block.",
+                        markdownDescription: "(May not exist) The item in the suspicious block.",
                         type: "compound",
                         $ref: "Item_ItemStack",
                     },
                     LootTable: {
-                        description: "(May not exist) Loot table to be used to generate the hidden item when brushed.",
+                        markdownDescription: "(May not exist) Loot table to be used to generate the hidden item when brushed.",
                         type: "string",
                     },
                     LootTableSeed: {
-                        description: "(May not exist) Seed for generating the loot table. 0 or omitted use a random seed.",
+                        markdownDescription: "(May not exist) Seed for generating the loot table. 0 or omitted use a random seed.",
                         type: "int",
                     },
                     type: {
-                        description: "The type of suspicious block. Valid types are `minecraft:suspicious_sand` and `minecraft:suspicious_gravel`.",
+                        markdownDescription: "The type of suspicious block. Valid types are `minecraft:suspicious_sand` and `minecraft:suspicious_gravel`.",
                         type: "string",
                     },
                 },
@@ -7625,7 +9113,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_TrialSpawner: {
                 id: "Block_TrialSpawner",
-                description:
+                markdownDescription:
                     "Additional fields for [trial spawner](https://minecraft.wiki/w/trial spawner) and [ominous trial spawner](https://minecraft.wiki/w/ominous trial spawner).",
                 type: "compound",
                 required: [
@@ -7641,11 +9129,11 @@ however when the corresponding block in the block layer is broken, this block ge
                 ],
                 properties: {
                     required_player_range: {
-                        description: "Between 1 and 128. Defaults to 14. &mdash; Maximum distance in blocks for players to join the battle.",
+                        markdownDescription: "Between 1 and 128. Defaults to 14. &mdash; Maximum distance in blocks for players to join the battle.",
                         type: "int",
                     },
                     normal_config: {
-                        description: "Optional, see configuration for defaults. &mdash; The configuration to use when not ominous.",
+                        markdownDescription: "Optional, see configuration for defaults. &mdash; The configuration to use when not ominous.",
                         type: "compound",
                         required: [
                             "spawn_range",
@@ -7661,53 +9149,55 @@ however when the corresponding block in the block layer is broken, this block ge
                         ],
                         properties: {
                             spawn_range: {
-                                description: "Between 1 and 128. Defaults to 4. &mdash; Maximum distance in blocks that mobs can spawn.",
+                                markdownDescription: "Between 1 and 128. Defaults to 4. &mdash; Maximum distance in blocks that mobs can spawn.",
                                 type: "int",
                             },
                             total_mobs: {
-                                description: "Defaults to 6. &mdash; Total amount of mobs spawned before cooldown for a single player.",
+                                markdownDescription: "Defaults to 6. &mdash; Total amount of mobs spawned before cooldown for a single player.",
                                 type: "float",
                             },
                             simultaneous_mobs: {
-                                description: "Defaults to 2. &mdash; The amount of spawned mobs from this spawner that are allowed to exist simultaneously.",
+                                markdownDescription:
+                                    "Defaults to 2. &mdash; The amount of spawned mobs from this spawner that are allowed to exist simultaneously.",
                                 type: "float",
                             },
                             total_mobs_added_per_player: {
-                                description: "Defaults to 2. &mdash; Amount of total mobs added for each additional player.",
+                                markdownDescription: "Defaults to 2. &mdash; Amount of total mobs added for each additional player.",
                                 type: "float",
                             },
                             simultaneous_mobs_added_per_player: {
-                                description: "Defaults to 1. &mdash; Amount of simultaneous mobs added for each additional player.",
+                                markdownDescription: "Defaults to 1. &mdash; Amount of simultaneous mobs added for each additional player.",
                                 type: "float",
                             },
                             ticks_between_spawn: {
-                                description: "Defaults to 20. &mdash; Time in ticks between spawn attempts.",
+                                markdownDescription: "Defaults to 20. &mdash; Time in ticks between spawn attempts.",
                                 type: "int",
                             },
                             target_cooldown_length: {
-                                description: "Defaults to 36000. &mdash; Time in ticks of the cooldown period. Includes the time spend dispensing the reward.",
+                                markdownDescription:
+                                    "Defaults to 36000. &mdash; Time in ticks of the cooldown period. Includes the time spend dispensing the reward.",
                                 type: "int",
                             },
                             spawn_potentials: {
-                                description: "List of possible entities to spawn.",
+                                markdownDescription: "List of possible entities to spawn.",
                                 type: "list",
                                 items: {
-                                    description:
+                                    markdownDescription:
                                         "A potential future spawn. _After_ the spawner makes an attempt at spawning, it chooses one of these entries at random and uses it to prepare for the next spawn.",
                                     type: "compound",
                                     required: ["Weight", "TypeID", "equipment_loot_table"],
                                     properties: {
                                         Weight: {
-                                            description:
+                                            markdownDescription:
                                                 "The chance that this spawn gets picked in comparison to other spawn weights. Must be positive and at least 1.",
                                             type: "int",
                                         },
                                         TypeID: {
-                                            description: "An entity ID.",
+                                            markdownDescription: "An entity ID.",
                                             type: "string",
                                         },
                                         equipment_loot_table: {
-                                            description:
+                                            markdownDescription:
                                                 "Optional path to a [loot table](https://minecraft.wiki/w/loot table). Determines the equipment the entity will wear.",
                                             type: "string",
                                         },
@@ -7715,99 +9205,99 @@ however when the corresponding block in the block layer is broken, this block ge
                                 },
                             },
                             loot_tables_to_eject: {
-                                description: "List of possible loot tables to give as reward.",
+                                markdownDescription: "List of possible loot tables to give as reward.",
                                 type: "list",
                                 items: {
-                                    description: "A potential loot table.",
+                                    markdownDescription: "A potential loot table.",
                                     type: "compound",
                                     required: ["weight", "data"],
                                     properties: {
                                         weight: {
-                                            description:
+                                            markdownDescription:
                                                 "The chance that this loot table gets picked in comparison to other loot table weights. Must be positive and at least 1.",
                                             type: "int",
                                         },
                                         data: {
-                                            description: "A path to a [loot table](https://minecraft.wiki/w/loot table).",
+                                            markdownDescription: "A path to a [loot table](https://minecraft.wiki/w/loot table).",
                                             type: "string",
                                         },
                                     },
                                 },
                             },
                             items_to_drop_when_ominous: {
-                                description:
+                                markdownDescription:
                                     "Defaults to `loot_tables/spawners/trial_chamber/items_to_drop_when_ominous.json` &mdash; A path to a [loot table](https://minecraft.wiki/w/loot table). Determines the items used by [ominous item spawner](https://minecraft.wiki/w/ominous item spawner)s spawned during the active phase when ominous. Ignored in normal mode.",
                                 type: "string",
                             },
                         },
                     },
                     ominous_config: {
-                        description:
+                        markdownDescription:
                             "Optional, defaults to normal_config. When individual entries are omitted, they also default to their setting in normal_config. &mdash; The configuration to use when ominous.",
                         type: "compound",
                     },
                     registered_players: {
-                        description:
+                        markdownDescription:
                             "A set of player UUIDs. &mdash; All the players that have joined the battle. The length of this array determines the amount of mobs and amount of reward.",
                         type: "list",
                         items: {
-                            description: "A player UUID.",
+                            markdownDescription: "A player UUID.",
                             type: "compound",
                             required: ["uuid"],
                             properties: {
                                 uuid: {
-                                    description: "The UUID.",
+                                    markdownDescription: "The UUID.",
                                     type: "long",
                                 },
                             },
                         },
                     },
                     current_mobs: {
-                        description: "A set of mob UUIDs. &mdash; The mobs that were spawned by this spawner and are still alive.",
+                        markdownDescription: "A set of mob UUIDs. &mdash; The mobs that were spawned by this spawner and are still alive.",
                         type: "list",
                         items: {
-                            description: "An entity UUID.",
+                            markdownDescription: "An entity UUID.",
                             type: "compound",
                             required: ["uuid"],
                             properties: {
                                 uuid: {
-                                    description: "The UUID.",
+                                    markdownDescription: "The UUID.",
                                     type: "long",
                                 },
                             },
                         },
                     },
                     cooldown_end_at: {
-                        description: "Gametime in ticks when the cooldown ends. 0 if not currently in cooldown.",
+                        markdownDescription: "Gametime in ticks when the cooldown ends. 0 if not currently in cooldown.",
                         type: "long",
                     },
                     next_mob_spawns_at: {
-                        description: "Gametime in ticks when the next spawn attempt happens. 0 if not currently active.",
+                        markdownDescription: "Gametime in ticks when the next spawn attempt happens. 0 if not currently active.",
                         type: "long",
                     },
                     spawn_data: {
-                        description:
+                        markdownDescription:
                             "The next mob to attempt to spawn. Selected from spawn_potentials after the last attempt. Determines the mob displayed in the spawner.",
                         type: "compound",
                         required: ["Weight", "TypeID", "equipment_loot_table"],
                         properties: {
                             Weight: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             TypeID: {
-                                description: "An entity ID.",
+                                markdownDescription: "An entity ID.",
                                 type: "string",
                             },
                             equipment_loot_table: {
-                                description:
+                                markdownDescription:
                                     "Optional path to a [loot table](https://minecraft.wiki/w/loot table). Determines the equipment the entity will wear.",
                                 type: "string",
                             },
                         },
                     },
                     selected_loot_table: {
-                        description:
+                        markdownDescription:
                             "A path to the [loot table](https://minecraft.wiki/w/loot table) that is given as reward. Unset if not currently giving rewards. Selected from loot_tables_to_eject after all mobs are defeated.",
                         type: "string",
                     },
@@ -7816,35 +9306,36 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_Vault: {
                 id: "Block_Vault",
-                description: "Additional fields for [vault](https://minecraft.wiki/w/vault) and [ominous vault](https://minecraft.wiki/w/ominous vault).",
+                markdownDescription:
+                    "Additional fields for [vault](https://minecraft.wiki/w/vault) and [ominous vault](https://minecraft.wiki/w/ominous vault).",
                 type: "compound",
                 required: ["config", "data"],
                 properties: {
                     config: {
-                        description: "Configuration data that does not automatically change. All fields are optional.",
+                        markdownDescription: "Configuration data that does not automatically change. All fields are optional.",
                         type: "compound",
                         required: ["activation_range", "deactivation_range", "loot_table", "override_loot_table_to_display", "key_item"],
                         properties: {
                             activation_range: {
-                                description: "The range in blocks when the vault should activate. Defaults to 4.",
+                                markdownDescription: "The range in blocks when the vault should activate. Defaults to 4.",
                                 type: "float",
                             },
                             deactivation_range: {
-                                description: "The range in blocks when the vault should deactivate. Defaults to 4.5.",
+                                markdownDescription: "The range in blocks when the vault should deactivate. Defaults to 4.5.",
                                 type: "float",
                             },
                             loot_table: {
-                                description:
+                                markdownDescription:
                                     "A path to the [loot table](https://minecraft.wiki/w/loot table) that is ejected when unlocking the vault. Defaults to `loot_tables/chests/trial_chambers/reward.json` for _normal_ vaults and `loot_tables/chests/trial_chambers/reward_ominous.json` for _ominous_ vaults.",
                                 type: "string",
                             },
                             override_loot_table_to_display: {
-                                description:
+                                markdownDescription:
                                     "A path to the loot table that is used to display items in the vault. If not present, the game will use the loot_table field.",
                                 type: "string",
                             },
                             key_item: {
-                                description:
+                                markdownDescription:
                                     "The key item that is used to check for valid keys. Defaults to `minecraft:trial_key` for _normal_ vaults and `minecraft:ominous_trial_key` for _ominous_ vaults.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
@@ -7852,39 +9343,39 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     data: {
-                        description: "Data that is used to keep track of the current state of the vault.",
+                        markdownDescription: "Data that is used to keep track of the current state of the vault.",
                         type: "compound",
                         required: ["display_item", "items_to_eject", "rewarded_players", "state_updating_resumes_at", "total_ejections_needed"],
                         properties: {
                             display_item: {
-                                description: "The item that is currently being displayed.",
+                                markdownDescription: "The item that is currently being displayed.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
                             items_to_eject: {
-                                description: "List of item stacks that have been rolled by the loot table and are waiting to be ejected.",
+                                markdownDescription: "List of item stacks that have been rolled by the loot table and are waiting to be ejected.",
                                 type: "list",
                                 items: {
-                                    description: "An item stack.",
+                                    markdownDescription: "An item stack.",
                                     type: "compound",
                                     $ref: "Item_ItemStack",
                                 },
                             },
                             rewarded_players: {
-                                description: "A set of player UUIDs that have already received their rewards from this vault.",
+                                markdownDescription: "A set of player UUIDs that have already received their rewards from this vault.",
                                 type: "list",
                                 items: {
-                                    description: "A UUID.",
+                                    markdownDescription: "A UUID.",
                                     type: "long",
                                 },
                             },
                             state_updating_resumes_at: {
-                                description:
+                                markdownDescription:
                                     "The game time when the vault will process block state changes, such as changing from `unlocking` to `ejecting` after a delay.",
                                 type: "long",
                             },
                             total_ejections_needed: {
-                                description: "The total amount of item stacks that need to be ejected.",
+                                markdownDescription: "The total amount of item stacks that need to be ejected.",
                                 type: "long",
                             },
                         },
@@ -7896,49 +9387,49 @@ however when the corresponding block in the block layer is broken, this block ge
             //#region Item NBT Schemas
             Item_ItemStack: {
                 id: "Item_ItemStack",
-                description: "All items share this base.",
+                markdownDescription: "All items share this base.",
                 type: "compound",
                 required: ["Count", "Damage", "Name", "WasPickedUp"],
                 properties: {
                     Block: {
-                        description: "(May not exist) What block is placed when placing a block item.",
+                        markdownDescription: "(May not exist) What block is placed when placing a block item.",
                         type: "compound",
                         $ref: "Block",
                     },
                     CanDestroy: {
-                        description: "(May not exist) Controls what block types this item can destroy.",
+                        markdownDescription: "(May not exist) Controls what block types this item can destroy.",
                         type: "list",
                         items: {
-                            description: "A block ID.",
+                            markdownDescription: "A block ID.",
                             type: "string",
                         },
                     },
                     CanPlaceOn: {
-                        description: "(May not exist) Controls what block types this block may be placed on.",
+                        markdownDescription: "(May not exist) Controls what block types this block may be placed on.",
                         type: "list",
                         items: {
-                            description: "A block ID.",
+                            markdownDescription: "A block ID.",
                             type: "string",
                         },
                     },
                     Count: {
-                        description: "Number of items stacked in this inventory slot.",
+                        markdownDescription: "Number of items stacked in this inventory slot.",
                         type: "byte",
                     },
                     Damage: {
-                        description: "The metadata value. Note that this tag does not store items' damage value.",
+                        markdownDescription: "The metadata value. Note that this tag does not store items' damage value.",
                         type: "short",
                     },
                     Name: {
-                        description: "The item ID.",
+                        markdownDescription: "The item ID.",
                         type: "string",
                     },
                     tag: {
-                        description: "(May not exist) Additional information about the item.",
+                        markdownDescription: "(May not exist) Additional information about the item.",
                         type: "compound",
                     },
                     WasPickedUp: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -7946,7 +9437,8 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_ArmorTrim: {
                 id: "Item_ArmorTrim",
-                description: "Additional fields when an [armor](https://minecraft.wiki/w/armor) is [trimmed](https://minecraft.wiki/w/Smithing Template).",
+                markdownDescription:
+                    "Additional fields when an [armor](https://minecraft.wiki/w/armor) is [trimmed](https://minecraft.wiki/w/Smithing Template).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -7954,16 +9446,16 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["Trim"],
                         properties: {
                             Trim: {
-                                description: "Properties of the armor trim.",
+                                markdownDescription: "Properties of the armor trim.",
                                 type: "compound",
                                 required: ["Material", "Pattern"],
                                 properties: {
                                     Material: {
-                                        description: "The material which decides the color of armor trim.",
+                                        markdownDescription: "The material which decides the color of armor trim.",
                                         type: "string",
                                     },
                                     Pattern: {
-                                        description: "The pattern of armor trim.",
+                                        markdownDescription: "The pattern of armor trim.",
                                         type: "string",
                                     },
                                 },
@@ -7976,26 +9468,26 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_BookAndQuills: {
                 id: "Item_BookAndQuills",
-                description: "Additional fields for [book and quill](https://minecraft.wiki/w/book and quill)s.",
+                markdownDescription: "Additional fields for [book and quill](https://minecraft.wiki/w/book and quill)s.",
                 type: "compound",
                 properties: {
                     tag: {
                         type: "compound",
                         properties: {
                             pages: {
-                                description: "(May not exist) The list of pages in the book.",
+                                markdownDescription: "(May not exist) The list of pages in the book.",
                                 type: "list",
                                 items: {
-                                    description: "A single page in the book.",
+                                    markdownDescription: "A single page in the book.",
                                     type: "compound",
                                     required: ["photoname", "text"],
                                     properties: {
                                         photoname: {
-                                            description: "Filename of a [photo](https://minecraft.wiki/w/photo) in this page if included.",
+                                            markdownDescription: "Filename of a [photo](https://minecraft.wiki/w/photo) in this page if included.",
                                             type: "string",
                                         },
                                         text: {
-                                            description: "The text in this page.",
+                                            markdownDescription: "The text in this page.",
                                             type: "string",
                                         },
                                     },
@@ -8009,7 +9501,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_BucketOfAquaticMob: {
                 id: "Item_BucketOfAquaticMob",
-                description: "Additional fields for [bucket](https://minecraft.wiki/w/bucket).",
+                markdownDescription: "Additional fields for [bucket](https://minecraft.wiki/w/bucket).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8017,27 +9509,28 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["AppendCustomName"],
                         properties: {
                             AppendCustomName: {
-                                description: "1 or 0 (true/false) - true if the entity color, state, and id are used to generate the bucket item's name.",
+                                markdownDescription:
+                                    "1 or 0 (true/false) - true if the entity color, state, and id are used to generate the bucket item's name.",
                                 type: "byte",
                             },
                             BodyID: {
-                                description: "(May not exist) The translation key of entity's state. Used to generate the bucket item's name.",
+                                markdownDescription: "(May not exist) The translation key of entity's state. Used to generate the bucket item's name.",
                                 type: "string",
                             },
                             ColorID: {
-                                description: "(May not exist) The translation key of a color. Used to generate the bucket item's name.",
+                                markdownDescription: "(May not exist) The translation key of a color. Used to generate the bucket item's name.",
                                 type: "string",
                             },
                             Color2ID: {
-                                description: "(May not exist) The translation key of another color. Used to generate the bucket item's name.",
+                                markdownDescription: "(May not exist) The translation key of another color. Used to generate the bucket item's name.",
                                 type: "string",
                             },
                             CustomName: {
-                                description: "(May not exist) The custom name of entity in it. Used to generate the bucket item's name.",
+                                markdownDescription: "(May not exist) The custom name of entity in it. Used to generate the bucket item's name.",
                                 type: "string",
                             },
                             GroupName: {
-                                description: "(May not exist) UNDOCUMENTED. Used to generate the bucket item's name.",
+                                markdownDescription: "(May not exist) UNDOCUMENTED. Used to generate the bucket item's name.",
                                 type: "string",
                             },
                         },
@@ -8053,7 +9546,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_Crossbow: {
                 id: "Item_Crossbow",
-                description: "Additional fields for [crossbow](https://minecraft.wiki/w/crossbow).",
+                markdownDescription: "Additional fields for [crossbow](https://minecraft.wiki/w/crossbow).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8061,7 +9554,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["chargedItem"],
                         properties: {
                             chargedItem: {
-                                description: "The items this crossbow has charged.",
+                                markdownDescription: "The items this crossbow has charged.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
@@ -8073,7 +9566,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_FilledMap: {
                 id: "Item_FilledMap",
-                description: "Additional fields for [filled map](https://minecraft.wiki/w/filled map).",
+                markdownDescription: "Additional fields for [filled map](https://minecraft.wiki/w/filled map).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8081,27 +9574,27 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["map_display_players", "map_name_index", "map_uuid"],
                         properties: {
                             map_display_players: {
-                                description: "1 or 0 (true/false) - (may not exist) true if the map displays player markers.",
+                                markdownDescription: "1 or 0 (true/false) - (may not exist) true if the map displays player markers.",
                                 type: "byte",
                             },
                             map_is_init: {
-                                description: "(May not exist) UNDOCUMENTED.",
+                                markdownDescription: "(May not exist) UNDOCUMENTED.",
                                 type: "byte",
                             },
                             map_is_scaling: {
-                                description: "(May not exist) UNDOCUMENTED.",
+                                markdownDescription: "(May not exist) UNDOCUMENTED.",
                                 type: "byte",
                             },
                             map_name_index: {
-                                description: "The index of the map's name.",
+                                markdownDescription: "The index of the map's name.",
                                 type: "int",
                             },
                             map_scale: {
-                                description: "(May not exist) UNDOCUMENTED.",
+                                markdownDescription: "(May not exist) UNDOCUMENTED.",
                                 type: "int",
                             },
                             map_uuid: {
-                                description: "The UUID of the map used in this item.",
+                                markdownDescription: "The UUID of the map used in this item.",
                                 type: "long",
                             },
                         },
@@ -8112,7 +9605,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_FireworkRocket: {
                 id: "Item_FireworkRocket",
-                description: "Additional fields for [firework rocket](https://minecraft.wiki/w/firework rocket).",
+                markdownDescription: "Additional fields for [firework rocket](https://minecraft.wiki/w/firework rocket).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8123,16 +9616,16 @@ however when the corresponding block in the block layer is broken, this block ge
                                 required: ["Explosions", "Flight"],
                                 properties: {
                                     Explosions: {
-                                        description: "List of compounds representing each explosion this firework causes.",
+                                        markdownDescription: "List of compounds representing each explosion this firework causes.",
                                         type: "list",
                                         items: {
-                                            description: "A explosion effect.",
+                                            markdownDescription: "A explosion effect.",
                                             type: "compound",
                                             $ref: "FireworkExplosion",
                                         },
                                     },
                                     Flight: {
-                                        description:
+                                        markdownDescription:
                                             "Indicates the flight duration of the firework (equals the amount of gunpowder used in crafting the rocket). Can be anything from -128 to 127.",
                                         type: "byte",
                                     },
@@ -8146,7 +9639,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_FireworkStar: {
                 id: "Item_FireworkStar",
-                description: "Additional fields for [firework star](https://minecraft.wiki/w/firework star).",
+                markdownDescription: "Additional fields for [firework star](https://minecraft.wiki/w/firework star).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8154,11 +9647,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["customColor", "FireworksItem"],
                         properties: {
                             customColor: {
-                                description: "The color of this firework star.",
+                                markdownDescription: "The color of this firework star.",
                                 type: "int",
                             },
                             FireworksItem: {
-                                description: "The explosion effect contributed by this firework star.",
+                                markdownDescription: "The explosion effect contributed by this firework star.",
                                 type: "compound",
                                 $ref: "FireworkExplosion",
                             },
@@ -8170,11 +9663,11 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_GlowStick: {
                 id: "Item_GlowStick",
-                description: "Additional fields for [glow stick](https://minecraft.wiki/w/glow stick).",
+                markdownDescription: "Additional fields for [glow stick](https://minecraft.wiki/w/glow stick).",
                 type: "compound",
                 properties: {
                     active_time: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "long",
                     },
                 },
@@ -8183,14 +9676,14 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_HorseArmor: {
                 id: "Item_HorseArmor",
-                description: "Additional fields for [horse armor](https://minecraft.wiki/w/horse armor).",
+                markdownDescription: "Additional fields for [horse armor](https://minecraft.wiki/w/horse armor).",
                 type: "compound",
                 properties: {
                     tag: {
                         type: "compound",
                         properties: {
                             customColor: {
-                                description: "(May not exist) The color of the leather armor.",
+                                markdownDescription: "(May not exist) The color of the leather armor.",
                                 type: "int",
                             },
                         },
@@ -8201,7 +9694,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_LodestoneCompass: {
                 id: "Item_LodestoneCompass",
-                description: "Additional fields for [lodestone compass](https://minecraft.wiki/w/lodestone compass).",
+                markdownDescription: "Additional fields for [lodestone compass](https://minecraft.wiki/w/lodestone compass).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8209,7 +9702,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["trackingHandle"],
                         properties: {
                             trackingHandle: {
-                                description: "The ID of lodestone to track.",
+                                markdownDescription: "The ID of lodestone to track.",
                                 type: "int",
                             },
                         },
@@ -8220,7 +9713,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_Potion: {
                 id: "Item_Potion",
-                description: "Additional fields for [potion](https://minecraft.wiki/w/potion).",
+                markdownDescription: "Additional fields for [potion](https://minecraft.wiki/w/potion).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8228,7 +9721,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["wasJustBrewed"],
                         properties: {
                             wasJustBrewed: {
-                                description: "1 or 0 (true/false) - (may not exist) true if item is brewed in brewing stand.",
+                                markdownDescription: "1 or 0 (true/false) - (may not exist) true if item is brewed in brewing stand.",
                                 type: "byte",
                             },
                         },
@@ -8239,7 +9732,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_Shield: {
                 id: "Item_Shield",
-                description: "Additional fields for [shield](https://minecraft.wiki/w/shield).",
+                markdownDescription: "Additional fields for [shield](https://minecraft.wiki/w/shield).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8247,23 +9740,25 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["Base"],
                         properties: {
                             Base: {
-                                description: "The base color of the banner on the shield. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
+                                markdownDescription:
+                                    "The base color of the banner on the shield. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
                                 type: "int",
                             },
                             Patterns: {
-                                description: "(May not exist) List of all patterns applied to the banner on the shield.",
+                                markdownDescription: "(May not exist) List of all patterns applied to the banner on the shield.",
                                 type: "list",
                                 items: {
-                                    description: "An individual pattern.",
+                                    markdownDescription: "An individual pattern.",
                                     type: "compound",
                                     required: ["Color", "Pattern"],
                                     properties: {
                                         Color: {
-                                            description: "The base color of the pattern. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
+                                            markdownDescription:
+                                                "The base color of the pattern. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
                                             type: "int",
                                         },
                                         Pattern: {
-                                            description: "The pattern ID code. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
+                                            markdownDescription: "The pattern ID code. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).",
                                             type: "string",
                                         },
                                     },
@@ -8277,7 +9772,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_WrittenBook: {
                 id: "Item_WrittenBook",
-                description: "Additional fields for [written book](https://minecraft.wiki/w/written book).",
+                markdownDescription: "Additional fields for [written book](https://minecraft.wiki/w/written book).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -8285,38 +9780,38 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["author", "generation", "pages", "title", "xuid"],
                         properties: {
                             author: {
-                                description: "The author of this book.",
+                                markdownDescription: "The author of this book.",
                                 type: "string",
                             },
                             generation: {
-                                description: "The copy tier of the book. 0 = Original, 1 = Copy of original, 2 = Copy of copy.",
+                                markdownDescription: "The copy tier of the book. 0 = Original, 1 = Copy of original, 2 = Copy of copy.",
                                 type: "int",
                             },
                             pages: {
-                                description: "The list of pages in the book.",
+                                markdownDescription: "The list of pages in the book.",
                                 type: "list",
                                 items: {
-                                    description: "A single page in the book.",
+                                    markdownDescription: "A single page in the book.",
                                     type: "compound",
                                     required: ["photoname", "text"],
                                     properties: {
                                         photoname: {
-                                            description: "Filename of a [photo](https://minecraft.wiki/w/photo) in this page if included.",
+                                            markdownDescription: "Filename of a [photo](https://minecraft.wiki/w/photo) in this page if included.",
                                             type: "string",
                                         },
                                         text: {
-                                            description: "The text in this page.",
+                                            markdownDescription: "The text in this page.",
                                             type: "string",
                                         },
                                     },
                                 },
                             },
                             title: {
-                                description: "The title of this book.",
+                                markdownDescription: "The title of this book.",
                                 type: "string",
                             },
                             xuid: {
-                                description: "UNDOCUMENTED.",
+                                markdownDescription: "UNDOCUMENTED.",
                                 type: "long",
                             },
                         },
@@ -8329,24 +9824,24 @@ however when the corresponding block in the block layer is broken, this block ge
             //#region Component NBT Schemas
             Component_Economy_trade_table: {
                 id: "Component_Economy_trade_table",
-                description: "This component is used by villagers and wandering traders.",
+                markdownDescription: "This component is used by villagers and wandering traders.",
                 type: "compound",
                 required: ["Riches"],
                 properties: {
                     Riches: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Offers: {
-                        description: "(May not exist) The trade info.",
+                        markdownDescription: "(May not exist) The trade info.",
                         type: "compound",
                         required: ["Recipes", "TierExpRequirements"],
                         properties: {
                             Recipes: {
-                                description: "The list of trade recipes.",
+                                markdownDescription: "The list of trade recipes.",
                                 type: "list",
                                 items: {
-                                    description: "A recipe.",
+                                    markdownDescription: "A recipe.",
                                     type: "compound",
                                     required: [
                                         "buyA",
@@ -8364,61 +9859,62 @@ however when the corresponding block in the block layer is broken, this block ge
                                     ],
                                     properties: {
                                         buyA: {
-                                            description: "The first 'cost' item.",
+                                            markdownDescription: "The first 'cost' item.",
                                             type: "compound",
                                             $ref: "Item_ItemStack",
                                         },
                                         buyB: {
-                                            description: "(May not exist) The second 'cost' item",
+                                            markdownDescription: "(May not exist) The second 'cost' item",
                                             type: "compound",
                                             $ref: "Item_ItemStack",
                                         },
                                         sell: {
-                                            description: "The item being sold for each set of cost items.",
+                                            markdownDescription: "The item being sold for each set of cost items.",
                                             type: "compound",
                                             $ref: "Item_ItemStack",
                                         },
                                         tier: {
-                                            description: "The tier that the trader needs to reach to access this recipe.",
+                                            markdownDescription: "The tier that the trader needs to reach to access this recipe.",
                                             type: "int",
                                         },
                                         uses: {
-                                            description:
+                                            markdownDescription:
                                                 "The number of times this trade has been used. The trade becomes disabled when this is greater or equal to maxUses.",
                                             type: "int",
                                         },
                                         maxUses: {
-                                            description:
+                                            markdownDescription:
                                                 "The maximum number of times this trade can be used before it is disabled. Increases by a random amount from 2 to 12 when offers are refreshed. *needs testing*",
                                             type: "int",
                                         },
                                         traderExp: {
-                                            description: "The trade experiences to be rewarded to this trader entity.",
+                                            markdownDescription: "The trade experiences to be rewarded to this trader entity.",
                                             type: "int",
                                         },
                                         rewardExp: {
-                                            description: "1 or 0 (true/false) - true if this trade provides XP orb drops.",
+                                            markdownDescription: "1 or 0 (true/false) - true if this trade provides XP orb drops.",
                                             type: "byte",
                                         },
                                         demand: {
-                                            description: "The price adjuster of the first 'cost' item based on demand. Updated when a villager resupply.",
+                                            markdownDescription:
+                                                "The price adjuster of the first 'cost' item based on demand. Updated when a villager resupply.",
                                             type: "int",
                                         },
                                         buyCountA: {
-                                            description: "The count needed for the first 'cost' item.",
+                                            markdownDescription: "The count needed for the first 'cost' item.",
                                             type: "int",
                                         },
                                         buyCountB: {
-                                            description: "The count needed for the second 'cost' item.",
+                                            markdownDescription: "The count needed for the second 'cost' item.",
                                             type: "int",
                                         },
                                         priceMultiplierA: {
-                                            description:
+                                            markdownDescription:
                                                 "The multiplier on the demand and discount price adjuster; the final adjusted price is added to the first 'cost' item's price.",
                                             type: "float",
                                         },
                                         priceMultiplierB: {
-                                            description:
+                                            markdownDescription:
                                                 "The multiplier on the demand and discount price adjuster; the final adjusted price is added to the second 'cost' item's price.",
                                             type: "float",
                                         },
@@ -8426,15 +9922,15 @@ however when the corresponding block in the block layer is broken, this block ge
                                 },
                             },
                             TierExpRequirements: {
-                                description: "Trade experiences required to become each trade tier.",
+                                markdownDescription: "Trade experiences required to become each trade tier.",
                                 type: "list",
                                 items: {
-                                    description: "A tier.",
+                                    markdownDescription: "A tier.",
                                     type: "compound",
                                     required: ["<''tier_level_num''>"],
                                     properties: {
                                         "<''tier_level_num''>": {
-                                            description: "Trade xperiences required to become this tier.",
+                                            markdownDescription: "Trade xperiences required to become this tier.",
                                             type: "int",
                                         },
                                     },
@@ -8443,27 +9939,27 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                     ConvertedFromVillagerV1: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "byte",
                     },
                     TradeTablePath: {
-                        description: "(May not exist) The path of the json file of the trade table.",
+                        markdownDescription: "(May not exist) The path of the json file of the trade table.",
                         type: "string",
                     },
                     LowTierCuredDiscount: {
-                        description: "(May not exist) The discount price adjuster gained by curing zombie villagers",
+                        markdownDescription: "(May not exist) The discount price adjuster gained by curing zombie villagers",
                         type: "int",
                     },
                     HighTierCuredDiscount: {
-                        description: "(May not exist) The discount price adjuster gained by curing zombie villagers",
+                        markdownDescription: "(May not exist) The discount price adjuster gained by curing zombie villagers",
                         type: "int",
                     },
                     NearbyCuredDiscount: {
-                        description: "(May not exist) The discount price adjuster gained by curing nearby zombie villagers",
+                        markdownDescription: "(May not exist) The discount price adjuster gained by curing nearby zombie villagers",
                         type: "int",
                     },
                     NearbyCuredDiscountTimeStamp: {
-                        description: "(May not exist) The discount price adjuster gained by curing nearby zombie villagers",
+                        markdownDescription: "(May not exist) The discount price adjuster gained by curing nearby zombie villagers",
                         type: "int",
                     },
                 },
@@ -8471,13 +9967,14 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Ageable: {
                 id: "Component_Ageable",
-                description:
+                markdownDescription:
                     "This component is used by axolotls, bees, cats, chickens, cows, dolphins, donkeys, foxes, goats, hoglins, horses, llamas, mooshrooms, mules, ocelots, pandas, pigs, polar bears, rabbits, sheep, skeleton horses, sniffers, striders, tadpoles, turtles, villagers, wolves, and zombie horses.",
                 type: "compound",
                 required: ["Age"],
                 properties: {
                     Age: {
-                        description: "Represents the age of the entity in ticks; when negative, the entity is a baby. When 0, the entity becomes an adult.",
+                        markdownDescription:
+                            "Represents the age of the entity in ticks; when negative, the entity is a baby. When 0, the entity becomes an adult.",
                         type: "int",
                     },
                 },
@@ -8485,21 +9982,21 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Balloon: {
                 id: "Component_Balloon",
-                description:
+                markdownDescription:
                     "This component is used by allays, bees, chickens, cows, donkeys, foxes, glow squids, horses, iron golems, llamas, mooshrooms, mules, pandas, pigs, rabbits, sheep, skeleton horses, snow golems, and zombie horses.",
                 type: "compound",
                 required: ["ballon_attached", "ballon_max_height", "ballon_should_drop"],
                 properties: {
                     ballon_attached: {
-                        description: "The Unique ID of the attached entity.",
+                        markdownDescription: "The Unique ID of the attached entity.",
                         type: "long",
                     },
                     ballon_max_height: {
-                        description: "Max height.",
+                        markdownDescription: "Max height.",
                         type: "float",
                     },
                     ballon_should_drop: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -8507,13 +10004,13 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Breathable: {
                 id: "Component_Breathable",
-                description:
+                markdownDescription:
                     "This component is used by axolotls, bats, bees, cats, cave spiders, chickens, cows, creepers, dolphins, donkeys, drowned, elder guardians, endermen, endermites, evokers, fish, foxes, frogs, ghasts, glow squids, goats, guardians, hoglins, horses, husks, llamas, magma cubes, mooshrooms, mules, ocelots, pandas, parrots, phantoms, piglins, piglin brutes, pillagers, pigs, players, polar bears, pufferfish, rabbits, ravagers, salmon, sheep, shulkers, silverfish, skeletons, skeleton horses, slimes, sniffers, snow golems, tropical fish, spiders, squids, sea turtles, strays, villagers, vindicators, wardens, wandering traders, withers, wither skeletons, tadpoles, witches, wolves, zombies, zoglins, zombie horses, zombified piglins, and zombie villagers.",
                 type: "compound",
                 required: ["Air"],
                 properties: {
                     Air: {
-                        description: "How much air the living entity has, in ticks.",
+                        markdownDescription: "How much air the living entity has, in ticks.",
                         type: "short",
                     },
                 },
@@ -8521,22 +10018,22 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Breedable: {
                 id: "Component_Breedable",
-                description:
+                markdownDescription:
                     "This component is used by axolotls, bees, cats, chickens, cows, dolphins, donkeys, foxes, goats, hoglins, horses, llamas, mooshrooms, mules, ocelots, pandas, pigs, polar bears, rabbits, sheep, skeleton horses, sniffers, striders, tadpoles, turtles, villagers, wolves, and zombie horses.",
                 type: "compound",
                 required: ["InLove", "LoveCause", "BreedCooldown"],
                 properties: {
                     InLove: {
-                        description:
+                        markdownDescription:
                             "Number of ticks until the entity loses its breeding hearts and stops searching for a mate. 0 when not searching for a mate *needs testing*.",
                         type: "int",
                     },
                     LoveCause: {
-                        description: "The Unique ID of the entity that caused this animal to breed.",
+                        markdownDescription: "The Unique ID of the entity that caused this animal to breed.",
                         type: "long",
                     },
                     BreedCooldown: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -8544,12 +10041,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Bribeable: {
                 id: "Component_Bribeable",
-                description: "This component is only used by dolphins.",
+                markdownDescription: "This component is only used by dolphins.",
                 type: "compound",
                 required: ["BribeTime"],
                 properties: {
                     BribeTime: {
-                        description: "Time in ticks before the Entity can be bribed again. *needs testing*",
+                        markdownDescription: "Time in ticks before the Entity can be bribed again. *needs testing*",
                         type: "int",
                     },
                 },
@@ -8557,7 +10054,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Inventory: {
                 id: "Component_Inventory",
-                description:
+                markdownDescription:
                     "This component is used by minecarts with chest, minecarts with command block, minecarts with hopper, horses, donkeys, llamas, mules, pandas, and villagers.",
                 type: "compound",
                 required: ["InventoryVersion", "LootTable", "LootTableSeed"],
@@ -8565,27 +10062,27 @@ however when the corresponding block in the block layer is broken, this block ge
                     ChestItems: {
                         type: "list",
                         items: {
-                            description: "An item in the inventory, including the slot tag.",
+                            markdownDescription: "An item in the inventory, including the slot tag.",
                             type: "compound",
                             required: ["Slot"],
                             properties: {
                                 Slot: {
-                                    description: "The slot the item is in.",
+                                    markdownDescription: "The slot the item is in.",
                                     type: "byte",
                                 },
                             },
                         },
                     },
                     InventoryVersion: {
-                        description: "e.g. 1.17.20-beta23",
+                        markdownDescription: "e.g. 1.17.20-beta23",
                         type: "string",
                     },
                     LootTable: {
-                        description: "Loot table to be used to fill the inventory when it is next opened, or the items are otherwise interacted with.",
+                        markdownDescription: "Loot table to be used to fill the inventory when it is next opened, or the items are otherwise interacted with.",
                         type: "string",
                     },
                     LootTableSeed: {
-                        description: "Seed for generating the loot table. 0 or omitted uses a random seed *needs testing*.",
+                        markdownDescription: "Seed for generating the loot table. 0 or omitted uses a random seed *needs testing*.",
                         type: "int",
                     },
                 },
@@ -8593,12 +10090,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Damage_over_time: {
                 id: "Component_Damage_over_time",
-                description: "This component is used by axolotls and dolphins.",
+                markdownDescription: "This component is used by axolotls and dolphins.",
                 type: "compound",
                 required: ["DamageTime"],
                 properties: {
                     DamageTime: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "short",
                     },
                 },
@@ -8606,16 +10103,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Drying_out_timer: {
                 id: "Component_Drying_out_timer",
-                description: "This component is used by axolotls and dolphins.",
+                markdownDescription: "This component is used by axolotls and dolphins.",
                 type: "compound",
                 required: ["CompleteTick", "State"],
                 properties: {
                     CompleteTick: {
-                        description: "The time when this entity completely dries out.",
+                        markdownDescription: "The time when this entity completely dries out.",
                         type: "long",
                     },
                     State: {
-                        description: "Must be a boolean. 1 if it already dried out.",
+                        markdownDescription: "Must be a boolean. 1 if it already dried out.",
                         type: "int",
                     },
                 },
@@ -8623,21 +10120,21 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Dweller: {
                 id: "Component_Dweller",
-                description:
+                markdownDescription:
                     'This component is used by cats, iron golems, villagers, evokers, pillagers, ravagers, vindicators, and witches. These mobs are classified into "roles" in the component, with cats being "passive", iron golems being "defenders", evokers, pillagers, ravagers, vindicators, and witches being "hostile", and villagers being "inhabitants".',
                 type: "compound",
                 required: ["DwellingUniqueID", "RewardPlayersOnFirstFounding"],
                 properties: {
                     DwellingUniqueID: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "string",
                     },
                     RewardPlayersOnFirstFounding: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     PreferredProfession: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "string",
                     },
                 },
@@ -8645,19 +10142,19 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Explode: {
                 id: "Component_Explode",
-                description: "This component is used by TNT, minecarts with TNT, creepers, ghast fireballs, end crystals, and wither skulls.",
+                markdownDescription: "This component is used by TNT, minecarts with TNT, creepers, ghast fireballs, end crystals, and wither skulls.",
                 type: "compound",
                 properties: {
                     Fuse: {
-                        description: "(May not exist)  Number of ticks before the explosion",
+                        markdownDescription: "(May not exist)  Number of ticks before the explosion",
                         type: "byte",
                     },
                     IsFuseLit: {
-                        description: "(May not exist)  Does the time before the explosion started decreasing",
+                        markdownDescription: "(May not exist)  Does the time before the explosion started decreasing",
                         type: "byte",
                     },
                     AllowUnderwater: {
-                        description: "(May not exist)  Explosion will cause damage to territory even underwater",
+                        markdownDescription: "(May not exist)  Explosion will cause damage to territory even underwater",
                         type: "byte",
                     },
                 },
@@ -8665,22 +10162,22 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Genetics: {
                 id: "Component_Genetics",
-                description: "This component is used by goat and pandas.",
+                markdownDescription: "This component is used by goat and pandas.",
                 type: "compound",
                 properties: {
                     GeneArray: {
                         type: "list",
                         items: {
-                            description: "A gene pair",
+                            markdownDescription: "A gene pair",
                             type: "compound",
                             required: ["HiddenAllele", "MainAllele"],
                             properties: {
                                 HiddenAllele: {
-                                    description: "the hidden allele.",
+                                    markdownDescription: "the hidden allele.",
                                     type: "int",
                                 },
                                 MainAllele: {
-                                    description: "the main allele.",
+                                    markdownDescription: "the main allele.",
                                     type: "int",
                                 },
                             },
@@ -8691,30 +10188,30 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Home: {
                 id: "Component_Home",
-                description: "This component is used by bees, elder guardians, guardians, piglin brutes, and turtles.",
+                markdownDescription: "This component is used by bees, elder guardians, guardians, piglin brutes, and turtles.",
                 type: "compound",
                 required: ["HomePos", "HomeDimensionId"],
                 properties: {
                     HomePos: {
-                        description: "The position of the entity's home.",
+                        markdownDescription: "The position of the entity's home.",
                         type: "list",
                         items: [
                             {
-                                description: "X",
+                                markdownDescription: "X",
                                 type: "float",
                             },
                             {
-                                description: "Y",
+                                markdownDescription: "Y",
                                 type: "float",
                             },
                             {
-                                description: "Z",
+                                markdownDescription: "Z",
                                 type: "float",
                             },
                         ],
                     },
                     HomeDimensionId: {
-                        description: "The dimension where the entity's home is.",
+                        markdownDescription: "The dimension where the entity's home is.",
                         type: "int",
                     },
                 },
@@ -8722,12 +10219,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Insomnia: {
                 id: "Component_Insomnia",
-                description: "This component is only used by players.",
+                markdownDescription: "This component is only used by players.",
                 type: "compound",
                 required: ["TimeSinceRest"],
                 properties: {
                     TimeSinceRest: {
-                        description: "The time in ticks since last rest.",
+                        markdownDescription: "The time in ticks since last rest.",
                         type: "int",
                     },
                 },
@@ -8735,32 +10232,32 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Trade_table: {
                 id: "Component_Trade_table",
-                description: "This component is used by old villagers.",
+                markdownDescription: "This component is used by old villagers.",
                 type: "compound",
                 required: ["sizeOfTradeFirstTimeVector", "TradeTier", "Riches", "Willing"],
                 properties: {
                     sizeOfTradeFirstTimeVector: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     FirstTimeTrade: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "int",
                     },
                     TradeTier: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Riches: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "int",
                     },
                     Willing: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     Offers: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "list",
                     },
                 },
@@ -8768,12 +10265,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Tamemount: {
                 id: "Component_Tamemount",
-                description: "This component is used by horses, donkeys, mules, and llamas.",
+                markdownDescription: "This component is used by horses, donkeys, mules, and llamas.",
                 type: "compound",
                 required: ["Temper"],
                 properties: {
                     Temper: {
-                        description:
+                        markdownDescription:
                             "Random number that ranges from 0 to 100; increases with feeding or trying to tame it. Higher values make a horse easier to tame.",
                         type: "int",
                     },
@@ -8782,35 +10279,35 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Npc: {
                 id: "Component_Npc",
-                description: "This component is only used by NPCs.",
+                markdownDescription: "This component is only used by NPCs.",
                 type: "compound",
                 properties: {
                     RawtextName: {
-                        description: "(May not exist) The name.",
+                        markdownDescription: "(May not exist) The name.",
                         type: "string",
                     },
                     InteractiveText: {
-                        description: "(May not exist) The interactive text.",
+                        markdownDescription: "(May not exist) The interactive text.",
                         type: "string",
                     },
                     Actions: {
-                        description: "(May not exist) The actions.",
+                        markdownDescription: "(May not exist) The actions.",
                         type: "string",
                     },
                     PlayerSceneMapping: {
-                        description: "(May not exist) UNDOCUMENTED.",
+                        markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "list",
                         items: {
-                            description: "A key-value pair.",
+                            markdownDescription: "A key-value pair.",
                             type: "compound",
                             required: ["PlayerID", "SceneName"],
                             properties: {
                                 PlayerID: {
-                                    description: "A player's Unique ID.",
+                                    markdownDescription: "A player's Unique ID.",
                                     type: "long",
                                 },
                                 SceneName: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "string",
                                 },
                             },
@@ -8821,46 +10318,46 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Projectile: {
                 id: "Component_Projectile",
-                description: "The entity's root tag.",
+                markdownDescription: "The entity's root tag.",
                 type: "compound",
                 required: ["TargetID", "StuckToBlockPos", "CollisionPos"],
                 properties: {
                     TargetID: {
-                        description: "Optional. The UniqueID of the entity which the projectile was launched to.",
+                        markdownDescription: "Optional. The UniqueID of the entity which the projectile was launched to.",
                         type: "long",
                     },
                     StuckToBlockPos: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "list",
                         items: [
                             {
-                                description: "X",
+                                markdownDescription: "X",
                                 type: "int",
                             },
                             {
-                                description: "Y",
+                                markdownDescription: "Y",
                                 type: "int",
                             },
                             {
-                                description: "Z",
+                                markdownDescription: "Z",
                                 type: "int",
                             },
                         ],
                     },
                     CollisionPos: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "list",
                         items: [
                             {
-                                description: "X",
+                                markdownDescription: "X",
                                 type: "float",
                             },
                             {
-                                description: "Y",
+                                markdownDescription: "Y",
                                 type: "float",
                             },
                             {
-                                description: "Z",
+                                markdownDescription: "Z",
                                 type: "float",
                             },
                         ],
@@ -8870,22 +10367,22 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Spawn_entity: {
                 id: "Component_Spawn_entity",
-                description: "This component is used by chickens and wandering traders.",
+                markdownDescription: "This component is used by chickens and wandering traders.",
                 type: "compound",
                 properties: {
                     entries: {
                         type: "list",
                         items: {
-                            description: "An entry.",
+                            markdownDescription: "An entry.",
                             type: "compound",
                             required: ["SpawnTimer", "StopSpawning"],
                             properties: {
                                 SpawnTimer: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "int",
                                 },
                                 StopSpawning: {
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "byte",
                                 },
                             },
@@ -8896,21 +10393,21 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Timer: {
                 id: "Component_Timer",
-                description:
+                markdownDescription:
                     "This component is used by bees, boats, guardians, hoglins, husks, piglins, piglin brutes, players, pufferfish, ravagers, skeletons, wandering traders, and zombies.",
                 type: "compound",
                 required: ["TimeStamp", "HasExecuted", "CountTime"],
                 properties: {
                     TimeStamp: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "long",
                     },
                     HasExecuted: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     CountTime: {
-                        description: "Deprecated. UNDOCUMENTED.",
+                        markdownDescription: "Deprecated. UNDOCUMENTED.",
                         type: "int",
                     },
                 },
@@ -8918,12 +10415,12 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Trade_resupply: {
                 id: "Component_Trade_resupply",
-                description: "This component is only used by villagers.",
+                markdownDescription: "This component is only used by villagers.",
                 type: "compound",
                 required: ["HasResupplied"],
                 properties: {
                     HasResupplied: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -8931,18 +10428,18 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Trust: {
                 id: "Component_Trust",
-                description: "This component is only used by foxes.",
+                markdownDescription: "This component is only used by foxes.",
                 type: "compound",
                 required: ["TrustedPlayersAmount", "TrustedPlayer[0-9]+"],
                 properties: {
                     TrustedPlayersAmount: {
-                        description: "The number of players who are trusted by this entity.",
+                        markdownDescription: "The number of players who are trusted by this entity.",
                         type: "int",
                     },
                 },
                 patternProperties: {
                     "TrustedPlayer[0-9]+": {
-                        description: "A player's Unique ID. Note that <num> counts from 0.",
+                        markdownDescription: "A player's Unique ID. Note that <num> counts from 0.",
                         type: "long",
                     },
                 },
@@ -8950,17 +10447,17 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_CommandBlockComponent: {
                 id: "Component_CommandBlockComponent",
-                description:
+                markdownDescription:
                     "This component may be not accessable with [Behavior Pack](https://minecraft.wiki/w/Add-on). But it is used by activated [Minecart with Command Block](https://minecraft.wiki/w/Minecart with Command Block)",
                 type: "compound",
                 required: ["Ticking", "CurrentTickCount"],
                 properties: {
                     Ticking: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     CurrentTickCount: {
-                        description: "Number of ticks until it executes the command again.",
+                        markdownDescription: "Number of ticks until it executes the command again.",
                         type: "int",
                     },
                 },
@@ -8968,15 +10465,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_FogCommandComponent: {
                 id: "Component_FogCommandComponent",
-                description: "This component may be not accessable with [Behavior Pack](https://minecraft.wiki/w/Add-on). But it is used by player entity.",
+                markdownDescription:
+                    "This component may be not accessable with [Behavior Pack](https://minecraft.wiki/w/Add-on). But it is used by player entity.",
                 type: "compound",
                 required: ["fogCommandStack"],
                 properties: {
                     fogCommandStack: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "list",
                         items: {
-                            description: "UNDOCUMENTED.",
+                            markdownDescription: "UNDOCUMENTED.",
                             type: "string",
                         },
                     },
@@ -8985,16 +10483,16 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Component_Hide: {
                 id: "Component_Hide",
-                description: "This component is only used by villagers.",
+                markdownDescription: "This component is only used by villagers.",
                 type: "compound",
                 required: ["IsInRaid", "ReactToBell"],
                 properties: {
                     IsInRaid: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                     ReactToBell: {
-                        description: "UNDOCUMENTED.",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
                 },
@@ -9002,10 +10500,677 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             //#endregion
             //#region Custom NBT Schemas
+            // NOTE: Verified.
+            Data2DLegacy: {
+                id: "Data2DLegacy",
+                title: "The Data2DLegacy schema.",
+                markdownDescription:
+                    "The NBT structure of the parsed data of the Data2DLegacy content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["heightMap", "biomeData"],
+                properties: {
+                    heightMap: {
+                        markdownDescription: "The height map data.\n\nIn it is stored as a 2D matrix with [x][z] height values.",
+                        type: "list",
+                        minItems: 16,
+                        maxItems: 16,
+                        items: {
+                            markdownDescription: "A height map row. Its index corresponds to the offset on the x axis.",
+                            type: "list",
+                            minItems: 16,
+                            maxItems: 16,
+                            items: {
+                                markdownDescription: "A height value. Its index corresponds to the offset on the z axis.",
+                                type: `${NBT.TagType.Short}`,
+                            },
+                        },
+                    },
+                    biomeData: {
+                        markdownDescription:
+                            "The biome data.\n\nIn it is stored as a 2D matrix with [x][z] tuples of a biome numeric ID followed by red, green and blue values.",
+                        type: "list",
+                        minItems: 16,
+                        maxItems: 16,
+                        items: {
+                            markdownDescription: "A biome data row. Its index corresponds to the offset on the x axis.",
+                            type: "list",
+                            minItems: 16,
+                            maxItems: 16,
+                            items: {
+                                markdownDescription: "A tuple of the biome data for this xz column. Its index corresponds to the offset on the z axis.",
+                                type: "list",
+                                items: [
+                                    {
+                                        title: "Biome ID",
+                                        markdownDescription: "A biome numeric ID value.",
+                                        type: `${NBT.TagType.Byte}`,
+                                    },
+                                    {
+                                        title: "Red",
+                                        markdownDescription: "The red channel of the biome color.",
+                                        type: `${NBT.TagType.Byte}`,
+                                    },
+                                    {
+                                        title: "Green",
+                                        markdownDescription: "The green channel of the biome color.",
+                                        type: `${NBT.TagType.Byte}`,
+                                    },
+                                    {
+                                        title: "Blue",
+                                        markdownDescription: "The blue channel of the biome color.",
+                                        type: `${NBT.TagType.Byte}`,
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            Data2D: {
+                id: "Data2D",
+                title: "The Data2D schema.",
+                markdownDescription:
+                    "The NBT structure of the parsed data of the Data2D content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["heightMap", "biomeData"],
+                properties: {
+                    heightMap: {
+                        markdownDescription: "The height map data.\n\nIn it is stored as a 2D matrix with [x][z] height values.",
+                        type: "list",
+                        minItems: 16,
+                        maxItems: 16,
+                        items: {
+                            markdownDescription: "A height map row. Its index corresponds to the offset on the x axis.",
+                            type: "list",
+                            minItems: 16,
+                            maxItems: 16,
+                            items: {
+                                markdownDescription: "A height value. Its index corresponds to the offset on the z axis.",
+                                type: `${NBT.TagType.Short}`,
+                            },
+                        },
+                    },
+                    biomeData: {
+                        markdownDescription: "The biome data.\n\nIn it is stored as a 2D matrix with [x][z] biome numeric ID values.",
+                        type: "list",
+                        minItems: 16,
+                        maxItems: 16,
+                        items: {
+                            markdownDescription: "A biome data row. Its index corresponds to the offset on the x axis.",
+                            type: "list",
+                            minItems: 16,
+                            maxItems: 16,
+                            items: {
+                                markdownDescription: "A biome numeric ID value. Its index corresponds to the offset on the z axis.",
+                                type: `${NBT.TagType.Byte}`,
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            Data3D: {
+                id: "Data3D",
+                title: "The Data3D schema.",
+                markdownDescription:
+                    "The NBT structure of the parsed data of the Data3D content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["heightMap", "biomes"],
+                properties: {
+                    heightMap: {
+                        markdownDescription: "The height map data.\n\nIn it is stored as a 2D matrix with [x][z] height values.",
+                        type: "list",
+                        minItems: 16,
+                        maxItems: 16,
+                        items: {
+                            markdownDescription: "A height map row. Its index corresponds to the offset on the x axis.",
+                            type: "list",
+                            minItems: 16,
+                            maxItems: 16,
+                            items: {
+                                markdownDescription: "A height value. Its index corresponds to the offset on the z axis.",
+                                type: `${NBT.TagType.Short}`,
+                            },
+                        },
+                    },
+                    biomes: {
+                        markdownDescription: "The biome data.",
+                        type: "list",
+                        items: {
+                            type: "compound",
+                            required: ["values", "palette"],
+                            properties: {
+                                values: {
+                                    markdownDescription: "The biome values.\n\nThis is an array of indices in the biome palette, one for each block.",
+                                    type: "list",
+                                    minItems: 4096,
+                                    maxItems: 4096,
+                                    items: {
+                                        type: "int",
+                                    },
+                                },
+                                palette: {
+                                    markdownDescription: "The biome palette.\n\nThis is an array of the biome numeric IDs.",
+                                    type: "list",
+                                    minItems: 4096,
+                                    maxItems: 4096,
+                                    items: {
+                                        type: "int",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            Digest: {
+                id: "Digest",
+                title: "The Digest schema.",
+                markdownDescription:
+                    "The NBT structure of the parsed data of the Digest content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["entityIds"],
+                properties: {
+                    entityIds: {
+                        title: "Entity IDs",
+                        markdownDescription: "The UUIDs of all of the entities in the associated chunk.",
+                        type: "list",
+                        items: {
+                            title: "Entity ID",
+                            markdownDescription: "A UUID.",
+                            type: "long",
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            LegacyTerrain: {
+                id: "LegacyTerrain",
+                title: "The LegacyTerrain schema.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the LegacyTerrain content type.",
+                type: "compound",
+                required: ["block_ids", "block_data", "sky_light", "block_light", "dirty_columns", "grass_color"],
+                properties: {
+                    block_ids: {
+                        title: "Block IDs",
+                        markdownDescription: "32768 block IDs representing a 16x16x128 chunk.",
+                        type: "list",
+                        minItems: 32768,
+                        maxItems: 32768,
+                        items: {
+                            title: "Block ID",
+                            markdownDescription: "The block ID at a given (i, j, y) coordinate.",
+                            type: "byte",
+                        },
+                    },
+                    block_data: {
+                        title: "Block Data",
+                        markdownDescription: "Metadata nibble for each block (0-15).",
+                        type: "list",
+                        minItems: 32768,
+                        maxItems: 32768,
+                        items: {
+                            title: "Block Data",
+                            markdownDescription: "The metadata value for a block.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                    sky_light: {
+                        title: "Sky Light",
+                        markdownDescription: "Sky light nibble for each block (0-15).",
+                        type: "list",
+                        minItems: 32768,
+                        maxItems: 32768,
+                        items: {
+                            title: "Sky Light",
+                            markdownDescription: "The sky light value for a block.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                    block_light: {
+                        title: "Block Light",
+                        markdownDescription: "Block light nibble for each block (0-15).",
+                        type: "list",
+                        minItems: 32768,
+                        maxItems: 32768,
+                        items: {
+                            title: "Block Light",
+                            markdownDescription: "The block light value for a block.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                    dirty_columns: {
+                        title: "Dirty Columns",
+                        markdownDescription: "256 bytes representing a 16x16 grid of dirty column flags.",
+                        type: "list",
+                        minItems: 256,
+                        maxItems: 256,
+                        items: {
+                            title: "Dirty Column Flag",
+                            markdownDescription: "A byte representing whether a vertical column is dirty.",
+                            type: "byte",
+                        },
+                    },
+                    grass_color: {
+                        title: "Grass Color",
+                        markdownDescription: "1024 bytes representing a 16x16x4 array of grass color data.",
+                        type: "list",
+                        minItems: 1024,
+                        maxItems: 1024,
+                        items: {
+                            title: "Grass Color Component",
+                            markdownDescription: "A byte representing one of four color components for a column.",
+                            type: "byte",
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            LevelChunkMetaDataDictionary: {
+                id: "LevelChunkMetaDataDictionary",
+                title: "The LevelChunkMetaDataDictionary schema.",
+                markdownDescription:
+                    "Stores the NBT metadata of all chunks. Maps the xxHash64 hash of NBT data to that NBT data, so that each chunk need only store 8 bytes instead of the entire NBT; most chunks have the same metadata.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                additionalProperties: {
+                    title: "Chunk Metadata Entry",
+                    markdownDescription: "The NBT metadata of a chunk.",
+                    type: "compound",
+                    required: [
+                        "BiomeBaseGameVersion",
+                        "DimensionName",
+                        "GenerationSeed",
+                        "GeneratorType",
+                        "OriginalBaseGameVersion",
+                        "OriginalDimensionHeightRange",
+                        "SkullFlatteningPerformed",
+                    ],
+                    properties: {
+                        BiomeBaseGameVersion: {
+                            title: "Biome Base Game Version",
+                            markdownDescription: 'UNDOCUMENTED. Currently observed value is "1.18.0".',
+                            type: "string",
+                            examples: [{ type: "string", value: "1.18.0" }],
+                        },
+                        DimensionName: {
+                            title: "Dimension Name",
+                            markdownDescription: "The name of the dimension the chunk is in.",
+                            type: "string",
+                            markdownEnumDescriptions: ["The Overworld dimension", "The Nether dimension", "The End dimension"],
+                            enum: [
+                                { type: "string", value: "Overworld" },
+                                { type: "string", value: "Nether" },
+                                { type: "string", value: "TheEnd" },
+                            ],
+                        },
+                        GenerationSeed: {
+                            title: "Generation Seed",
+                            markdownDescription:
+                                "The seed used to generate the chunk. This is whatever the seed of the world was when the chunk was generated.",
+                            type: "long",
+                        },
+                        GeneratorType: {
+                            title: "Generator Type",
+                            markdownDescription: "UNDOCUMENTED.",
+                            type: "int",
+                        },
+                        LastSavedBaseGameVersion: {
+                            title: "Last Saved Base Game Version",
+                            markdownDescription:
+                                "The base game version of the world when the chunk was last saved. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.",
+                            type: "string",
+                        },
+                        LastSavedDimensionHeightRange: {
+                            title: "Last Saved Dimension Height Range",
+                            markdownDescription: "The height range of the chunk's dimension when the chunk was last saved.",
+                            type: "compound",
+                            required: ["max", "min"],
+                            properties: {
+                                max: {
+                                    title: "Max",
+                                    markdownDescription: "The maximum height limit of the chunk's dimension when the chunk was last saved.",
+                                    type: "short",
+                                },
+                                min: {
+                                    title: "Min",
+                                    markdownDescription: "The minimum height limit of the chunk's dimension when the chunk was last saved.",
+                                    type: "short",
+                                },
+                            },
+                        },
+                        NeighborAwareBlockUpgradeVersion: {
+                            title: "Neighbor Aware Block Upgrade Version",
+                            markdownDescription: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "int",
+                            examples: [{ type: "int", value: 1 }],
+                        },
+                        OriginalBaseGameVersion: {
+                            title: "Original Base Game Version",
+                            markdownDescription:
+                                "The base game version of the world when the chunk was originally generated. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.",
+                            type: "string",
+                        },
+                        OriginalDimensionHeightRange: {
+                            title: "Original Dimension Height Range",
+                            markdownDescription: "The height range of the chunk's dimension when the chunk was originally generated.",
+                            type: "compound",
+                            required: ["max", "min"],
+                            properties: {
+                                max: {
+                                    title: "Max",
+                                    markdownDescription: "The maximum height limit of the chunk's dimension when the chunk was originally generated.",
+                                    type: "short",
+                                },
+                                min: {
+                                    title: "Min",
+                                    markdownDescription: "The minimum height limit of the chunk's dimension when the chunk was originally generated.",
+                                    type: "short",
+                                },
+                            },
+                        },
+                        Overworld1_18HeightExtended: {
+                            title: "Overworld 1.18 Height Extended",
+                            markdownDescription: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "short",
+                            examples: [{ type: "short", value: 1 }],
+                        },
+                        SkullFlatteningPerformed: {
+                            title: "Skull Flattening Performed",
+                            markdownDescription: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "short",
+                            examples: [{ type: "short", value: 1 }],
+                        },
+                        UnderwaterLavaLakeFixed: {
+                            title: "Underwater Lava Lake Fixed",
+                            markdownDescription: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "short",
+                            examples: [{ type: "short", value: 1 }],
+                        },
+                        WorldGenBelowZeroFixed: {
+                            title: "World Gen Below Zero Fixed",
+                            markdownDescription: "UNDOCUMENTED. Currently observed value is 1.",
+                            type: "short",
+                            examples: [{ type: "short", value: 1 }],
+                        },
+                    },
+                    additionalProperties: true,
+                },
+            },
+            // NOTE: Verified.
             SubChunkPrefix: {
                 id: "SubChunkPrefix",
                 title: "The SubChunkPrefix schema.",
-                description: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
+                type: "compound",
+                oneOf: [
+                    {
+                        $ref: "SubChunkPrefix_v0",
+                    },
+                    {
+                        $ref: "SubChunkPrefix_v1",
+                    },
+                    {
+                        $ref: "SubChunkPrefix_v8",
+                    },
+                ],
+                $fragment: false,
+            },
+            // NOTE: Verified.
+            SubChunkPrefix_v0: {
+                id: "SubChunkPrefix_v0",
+                title: "The SubChunkPrefix schema for versions 0, 2, 3, 4, 5, 6, and 7.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
+                type: "compound",
+                required: ["version", "block_ids", "block_data"],
+                properties: {
+                    version: {
+                        type: "byte",
+                        enum: [
+                            {
+                                type: "byte",
+                                value: 0x00,
+                            },
+                            {
+                                type: "byte",
+                                value: 0x02,
+                            },
+                            {
+                                type: "byte",
+                                value: 0x03,
+                            },
+                            {
+                                type: "byte",
+                                value: 0x04,
+                            },
+                            {
+                                type: "byte",
+                                value: 0x05,
+                            },
+                            {
+                                type: "byte",
+                                value: 0x06,
+                            },
+                            {
+                                type: "byte",
+                                value: 0x07,
+                            },
+                        ],
+                    },
+                    block_ids: {
+                        title: "Block IDs",
+                        markdownDescription: "The block IDs representing each block in the subchunk.",
+                        type: "list",
+                        minItems: 4096,
+                        maxItems: 4096,
+                        items: {
+                            title: "Block ID",
+                            markdownDescription: "The block ID of a block in the subchunk.",
+                            type: "byte",
+                        },
+                    },
+                    block_data: {
+                        title: "Block Data",
+                        markdownDescription: "The data values for each block in the subchunk.",
+                        type: "list",
+                        minItems: 4096,
+                        maxItems: 4096,
+                        items: {
+                            title: "Block Data",
+                            markdownDescription: "The data value for a block in the subchunk.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                    sky_light: {
+                        title: "Sky Light",
+                        markdownDescription:
+                            "The sky light values for each block in the subchunk. Only written in older versions, and is ignored in newer versions.",
+                        type: "list",
+                        minItems: 4096,
+                        maxItems: 4096,
+                        items: {
+                            title: "Sky Light",
+                            markdownDescription: "The sky light value for a block in the subchunk.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                    block_light: {
+                        title: "Block Light",
+                        markdownDescription:
+                            "The block light values for each block in the subchunk. Only written in older versions, and is ignored in newer versions.",
+                        type: "list",
+                        minItems: 4096,
+                        maxItems: 4096,
+                        items: {
+                            title: "Block Light",
+                            markdownDescription: "The block light value for a block in the subchunk.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            SubChunkPrefix_v1: {
+                id: "SubChunkPrefix_v1",
+                title: "The SubChunkPrefix schema for version 1.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
+                type: "compound",
+                required: ["version", "layerCount", "layers"],
+                properties: {
+                    version: {
+                        type: "byte",
+                        enum: [
+                            {
+                                type: "byte",
+                                value: 0x01,
+                            },
+                        ],
+                    },
+                    layerCount: {
+                        type: "byte",
+                        enum: [
+                            {
+                                type: "byte",
+                                value: 1,
+                            },
+                        ],
+                    },
+                    layers: {
+                        type: "list",
+                        items: [
+                            {
+                                $ref: "SubChunkPrefixLayer",
+                            },
+                        ],
+                    },
+                },
+            },
+            // NOTE: Verified.
+            SubChunkPrefix_v8: {
+                id: "SubChunkPrefix_v8",
+                title: "The SubChunkPrefix schema for versions 8 and 9.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
                 type: "compound",
                 required: ["version", "layerCount", "layers"],
                 properties: {
@@ -9035,17 +11200,51 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
-                $fragment: false,
             },
+            // NOTE: Verified.
             SubChunkPrefixLayer: {
                 id: "SubChunkPrefixLayer",
                 title: "The SubChunkPrefixLayer schema.",
-                description: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
                 type: "compound",
                 required: ["storageVersion", "palette", "block_indices"],
                 properties: {
                     storageVersion: {
                         type: "byte",
+                        enum: [
+                            {
+                                type: "byte",
+                                value: 1,
+                            },
+                            {
+                                type: "byte",
+                                value: 2,
+                            },
+                            {
+                                type: "byte",
+                                value: 3,
+                            },
+                            {
+                                type: "byte",
+                                value: 4,
+                            },
+                            {
+                                type: "byte",
+                                value: 5,
+                            },
+                            {
+                                type: "byte",
+                                value: 6,
+                            },
+                            {
+                                type: "byte",
+                                value: 8,
+                            },
+                            {
+                                type: "byte",
+                                value: 16,
+                            },
+                        ],
                     },
                     palette: {
                         type: "compound",
@@ -9053,6 +11252,8 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     block_indices: {
                         type: "list",
+                        minItems: 4096,
+                        maxItems: 4096,
                         items: {
                             type: "int",
                         },
@@ -9070,7 +11271,7 @@ however when the corresponding block in the block layer is broken, this block ge
              */
             Players: {
                 key: "PlayerClient",
-                description: "The players data.",
+                markdownDescription: "The players data.",
             },
             /**
              * This is an alias of {@link nbtSchemas.Entity_Player}.
@@ -9372,9 +11573,11 @@ however when the corresponding block in the block layer is broken, this block ge
         /**
          * @todo
          */
-        definitions?: {
-            [name: string]: NBTSchema;
-        } | undefined;
+        definitions?:
+            | {
+                  [name: string]: NBTSchema;
+              }
+            | undefined;
         /**
          * The description of this schema.
          */
@@ -9410,7 +11613,8 @@ however when the corresponding block in the block layer is broken, this block ge
             | NBTSchemaMap
             | {
                   [prop: string]: string[];
-              } | undefined;
+              }
+            | undefined;
         /**
          * @todo
          */
@@ -9530,28 +11734,30 @@ however when the corresponding block in the block layer is broken, this block ge
         /**
          * @todo
          */
-        defaultSnippets?: {
-            /**
-             * The label of this snippet.
-             */
-            label?: string | undefined;
-            /**
-             * The description of this snippet.
-             */
-            description?: string | undefined;
-            /**
-             * The markdown description of this snippet.
-             */
-            markdownDescription?: string | undefined;
-            /**
-             * The body of this snippet.
-             */
-            body?: any;
-            /**
-             * The body text of this snippet.
-             */
-            bodyText?: string | undefined;
-        }[] | undefined;
+        defaultSnippets?:
+            | {
+                  /**
+                   * The label of this snippet.
+                   */
+                  label?: string | undefined;
+                  /**
+                   * The description of this snippet.
+                   */
+                  description?: string | undefined;
+                  /**
+                   * The markdown description of this snippet.
+                   */
+                  markdownDescription?: string | undefined;
+                  /**
+                   * The body of this snippet.
+                   */
+                  body?: any;
+                  /**
+                   * The body text of this snippet.
+                   */
+                  bodyText?: string | undefined;
+              }[]
+            | undefined;
         /**
          * @todo
          */
@@ -9630,8 +11836,21 @@ however when the corresponding block in the block layer is broken, this block ge
                      *
                      * @default true
                      */
-                    inlineRefs?: boolean;
+                    inlineRefs?: boolean | undefined;
+                    /**
+                     * If the schema should be for the value of the compound instead of the whole compound
+                     * (as in instead of `{"type":"compound","value":{...}}` it would make a schema just
+                     * for the value property (the `{...}`)).
+                     *
+                     * @default false
+                     */
+                    makeValueSchema?: boolean | undefined;
                 }
+
+                export const defaultConvertOptions: Full<ConvertOptions> = {
+                    inlineRefs: true,
+                    makeValueSchema: false,
+                };
 
                 /**
                  * Convert a custom NBT schema into JSON Schema for NBT tags.
@@ -9644,19 +11863,21 @@ however when the corresponding block in the block layer is broken, this block ge
                 export function nbtSchemaToJsonSchema(
                     schema: Partial<(Omit<NBTSchema, keyof NBTSubSchema> & NBTSubSchema) | boolean>,
                     allSchemas: Record<string, NBTSchema | NBTSchemaFragment> = nbtSchemas,
-                    options: ConvertOptions = {}
+                    options: ConvertOptions = {},
+                    isRoot: boolean = true
                 ): JSONSchemaRef {
                     if (typeof schema === "boolean") {
                         return schema;
                     }
 
+                    if (!schema) throw new TypeError("schema is required, recieved " + schema);
                     if (schema.$ref) {
-                        if (options.inlineRefs ?? true) {
+                        if (options.inlineRefs ?? defaultConvertOptions.inlineRefs) {
                             const refTarget: NBTSchema | NBTSchemaFragment | undefined = allSchemas[schema.$ref];
                             if (!refTarget) {
                                 throw new Error(`Unknown $ref: ${schema.$ref}`);
                             }
-                            return nbtSchemaToJsonSchema(refTarget, allSchemas, options);
+                            return nbtSchemaToJsonSchema(refTarget, allSchemas, options, isRoot);
                         } else {
                             return { $ref: schema.$ref }; // preserve the ref
                         }
@@ -9668,54 +11889,98 @@ however when the corresponding block in the block layer is broken, this block ge
                         $schema: schema.$schema,
                         title: schema.title,
                         description: schema.description,
+                        markdownDescription: schema.markdownDescription,
                     };
+                    if (!("id" in schema)) delete jsonSchema.id;
+                    if (!("$id" in schema)) delete jsonSchema.$id;
+                    if (!("$schema" in schema)) delete jsonSchema.$schema;
+                    if (!("title" in schema)) delete jsonSchema.title;
+                    if (!("description" in schema)) delete jsonSchema.description;
+                    if (!("markdownDescription" in schema)) delete jsonSchema.markdownDescription;
+
+                    for (const key of ["oneOf", "anyOf", "allOf"] as const) {
+                        if (!(key in schema) || !schema[key]) continue;
+                        jsonSchema[key] = schema[key].map((s: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(s, allSchemas, options, isRoot));
+                    }
+                    for (const key of ["not"] as const) {
+                        if (!(key in schema) || schema[key] === undefined) continue;
+                        jsonSchema[key] = nbtSchemaToJsonSchema(schema[key], allSchemas, options, isRoot);
+                    }
+
+                    let valueSchema: JSONSchemaRef = jsonSchema;
 
                     if (schema.type) {
                         if (Array.isArray(schema.type)) {
-                            jsonSchema.oneOf = schema.type.map((t) => tagTypeToSchema(t, schema, allSchemas, options));
+                            jsonSchema.oneOf = schema.type.map((t) => tagTypeToSchema(t, schema, allSchemas, options, isRoot));
                         } else {
-                            if (schema.type === "compound" && schema.id && !schema.properties) {
+                            /* if (schema.type === "compound" && schema.id && !schema.properties) {
                                 const data: JSONSchema = tagTypeToSchema(schema.type, schema, allSchemas, options);
                                 Object.assign(jsonSchema, { ...data, ...(data.properties!.value as JSONSchema) });
-                            } else {
-                                Object.assign(jsonSchema, tagTypeToSchema(schema.type, schema, allSchemas, options));
+                            } else  */ {
+                                Object.assign(jsonSchema, tagTypeToSchema(schema.type, schema, allSchemas, options, isRoot));
+                                if ((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && !isRoot) {
+                                    valueSchema = jsonSchema.properties?.value ?? jsonSchema;
+                                }
                             }
                         }
                     }
 
+                    // copy over JSON-Schema-like constraints (minItems, maxItems, etc.)
+                    for (const k of [
+                        "enum",
+                        "enumDescriptions",
+                        "markdownEnumDescriptions",
+                        "const",
+                        "doNotSuggest",
+                        "errorMessage",
+                        "deprecationMessage",
+                        "examples",
+                        "suggestSortText",
+                    ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                        keyof NBTSubSchema &
+                        keyof NBTSchema &
+                        keyof NBTSchemaFragment)[]) {
+                        if (schema[k] !== undefined) {
+                            jsonSchema[k] = schema[k];
+                        }
+                    }
+
+                    if (typeof valueSchema !== "object") return jsonSchema;
                     if (schema.required) {
-                        jsonSchema.required = schema.required;
+                        valueSchema.required = schema.required;
                     }
 
                     if (schema.properties) {
-                        jsonSchema.type = "object";
-                        jsonSchema.properties = {};
+                        valueSchema.type = "object";
+                        valueSchema.properties = {};
                         for (const [k, v] of Object.entries(schema.properties)) {
-                            jsonSchema.properties[k] = nbtSchemaToJsonSchema(v, allSchemas, options);
+                            valueSchema.properties[k] = nbtSchemaToJsonSchema(v, allSchemas, options, false);
                         }
                     }
 
                     if (schema.patternProperties) {
-                        jsonSchema.patternProperties = {};
+                        valueSchema.patternProperties = {};
                         for (const [k, v] of Object.entries(schema.patternProperties)) {
-                            jsonSchema.patternProperties[k] = nbtSchemaToJsonSchema(v, allSchemas, options);
+                            valueSchema.patternProperties[k] = nbtSchemaToJsonSchema(v, allSchemas, options, false);
                         }
                     }
 
                     if (schema.additionalProperties !== undefined) {
                         if (typeof schema.additionalProperties === "boolean") {
-                            jsonSchema.additionalProperties = schema.additionalProperties;
+                            valueSchema.additionalProperties = schema.additionalProperties;
                         } else {
-                            jsonSchema.additionalProperties = nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options);
+                            valueSchema.additionalProperties = nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options, isRoot);
                         }
                     }
 
                     // Only apply top-level items if this schema is a plain JSON array, not an NBT list
                     if (schema.items && schema.type !== NBT.TagType.List) {
                         if (Array.isArray(schema.items)) {
-                            jsonSchema.items = schema.items.map((item: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(item, allSchemas, options));
+                            valueSchema.items = schema.items.map(
+                                (item: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(item, allSchemas, options, false)
+                            );
                         } else if (typeof schema.items === "object") {
-                            jsonSchema.items = nbtSchemaToJsonSchema(schema.items, allSchemas, options);
+                            valueSchema.items = nbtSchemaToJsonSchema(schema.items, allSchemas, options, false);
                         }
                     }
 
@@ -9723,18 +11988,27 @@ however when the corresponding block in the block layer is broken, this block ge
                     for (const k of [
                         "minItems",
                         "maxItems",
+                        "minProperties",
+                        "maxProperties",
                         "minLength",
                         "maxLength",
                         "minimum",
                         "maximum",
-                        "enum",
-                        "const",
+                        "exclusiveMinimum",
+                        "exclusiveMaximum",
+                        "multipleOf",
+                        "errorMessage",
+                        "format",
+                        "pattern",
+                        "patternErrorMessage",
+                        "propertyNames",
+                        "uniqueItems",
                     ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                         keyof NBTSubSchema &
                         keyof NBTSchema &
                         keyof NBTSchemaFragment)[]) {
                         if (schema[k] !== undefined) {
-                            jsonSchema[k] = schema[k];
+                            valueSchema[k] = schema[k];
                         }
                     }
 
@@ -9745,132 +12019,1085 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: string,
                     schema: NBTSubSchema,
                     allSchemas: Record<string, NBTSchema | NBTSchemaFragment>,
-                    options: ConvertOptions
+                    options: ConvertOptions,
+                    isRoot: boolean = false
                 ): JSONSchema {
                     switch (type) {
                         case NBT.TagType.Byte:
                         case NBT.TagType.Short:
-                        case NBT.TagType.Int:
-                            return {
-                                type: "object",
-                                properties: {
-                                    type: { const: type },
-                                    value: { type: "integer" },
-                                },
-                                required: ["type", "value"],
-                            };
+                        case NBT.TagType.Int: {
+                            const valueType: JSONSchema = { type: "integer" };
+                            if (
+                                (schema.description === undefined && schema.markdownDescription === undefined) ||
+                                !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
+                            ) {
+                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                            }
+                            switch (type) {
+                                case NBT.TagType.Byte:
+                                    valueType.minimum = -128;
+                                    valueType.maximum = 127;
+                                    break;
+                                case NBT.TagType.Short:
+                                    valueType.minimum = -32768;
+                                    valueType.maximum = 32767;
+                                    break;
+                                case NBT.TagType.Int:
+                                    valueType.minimum = -2147483648;
+                                    valueType.maximum = 2147483647;
+                                    break;
+                            }
+                            if (schema.enum?.some((v) => v.type === type)) {
+                                valueType.enum = schema.enum.filter((v) => v.type === type).map((v) => v.value);
+                                if (schema.enumDescriptions) {
+                                    valueType.enumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDescriptions![v[1]]!);
+                                }
+                                if (schema.markdownEnumDescriptions) {
+                                    valueType.markdownEnumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                            }
+                            if (schema.const !== undefined) {
+                                valueType.const =
+                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                            }
+                            if (schema.examples?.some((v) => v.type === type)) {
+                                valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
+                            }
+                            if (schema.default !== undefined) {
+                                valueType.default =
+                                    "type" in schema.default && "value" in schema.default && schema.default.type === type ?
+                                        schema.default.value
+                                    :   schema.default;
+                            }
 
-                        case NBT.TagType.Long:
-                            return {
-                                type: "object",
-                                properties: {
-                                    type: { const: type },
-                                    value: {
-                                        type: "array",
-                                        items: { type: "integer" },
-                                        minItems: 2,
-                                        maxItems: 2,
+                            let resultSchema: JSONSchema = valueType;
+                            if (!((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)) {
+                                resultSchema = {
+                                    type: "object",
+                                    properties: {
+                                        type: { const: type },
+                                        value: valueType,
                                     },
-                                },
-                                required: ["type", "value"],
+                                    required: ["type", "value"],
+                                };
+                                for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = JSON.parse(
+                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                                    }
+                                }
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = schema[k];
+                                    }
+                                }
+                            }
+                            for (const k of [
+                                "id",
+                                "$id",
+                                "$schema",
+                                "$ref",
+                                "$comment",
+                                "title",
+                                "description",
+                                "markdownDescription",
+                                "doNotSuggest",
+                                "errorMessage",
+                                "deprecationMessage",
+                                "suggestSortText",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    resultSchema[k] = schema[k];
+                                }
+                            }
+                            for (const k of [
+                                // "minItems",
+                                // "maxItems",
+                                // "minProperties",
+                                // "maxProperties",
+                                "minLength",
+                                "maxLength",
+                                "minimum",
+                                "maximum",
+                                "exclusiveMinimum",
+                                "exclusiveMaximum",
+                                "multipleOf",
+                                "errorMessage",
+                                "format",
+                                "pattern",
+                                "patternErrorMessage",
+                                // "propertyNames",
+                                // "uniqueItems",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    valueType[k] = schema[k];
+                                }
+                            }
+                            return resultSchema;
+                        }
+
+                        case NBT.TagType.Long: {
+                            const valueType: JSONSchema = {
+                                type: "array",
+                                items: [
+                                    { title: "High", type: "integer", minimum: -0x80000000, maximum: 0x7fffffff },
+                                    { title: "Low", type: "integer", minimum: -0x80000000, maximum: 0x7fffffff },
+                                ],
+                                minItems: 2,
+                                maxItems: 2,
                             };
+                            if (
+                                (schema.description === undefined && schema.markdownDescription === undefined) ||
+                                !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
+                            ) {
+                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                            }
+                            if (schema.enum?.some((v) => v.type === type)) {
+                                valueType.enum = schema.enum
+                                    .filter((v) => v.type === type)
+                                    .map((v) => (typeof v.value === "bigint" ? toLongParts(v.value) : v.value));
+                                if (schema.enumDescriptions) {
+                                    valueType.enumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDescriptions![v[1]]!);
+                                }
+                                if (schema.markdownEnumDescriptions) {
+                                    valueType.markdownEnumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                            }
+                            if (schema.const !== undefined) {
+                                valueType.const =
+                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ?
+                                        typeof schema.const.value === "bigint" ?
+                                            toLongParts(schema.const.value)
+                                        :   schema.const.value
+                                    :   schema.const;
+                            }
+                            if (schema.examples?.some((v) => v.type === type)) {
+                                valueType.examples = schema.examples
+                                    .filter((v) => v.type === type)
+                                    .map((v) => (typeof v.value === "bigint" ? toLongParts(v.value) : v.value));
+                            }
+                            if (schema.default !== undefined) {
+                                valueType.default =
+                                    "type" in schema.default && "value" in schema.default && schema.default.type === type ?
+                                        typeof schema.default.value === "bigint" ?
+                                            toLongParts(schema.default.value)
+                                        :   schema.default.value
+                                    : typeof schema.default === "bigint" ? toLongParts(schema.default)
+                                    : schema.default;
+                            }
+
+                            let resultSchema: JSONSchema = valueType;
+                            if (!((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)) {
+                                resultSchema = {
+                                    type: "object",
+                                    properties: {
+                                        type: { const: type },
+                                        value: valueType,
+                                    },
+                                    required: ["type", "value"],
+                                };
+                                for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = JSON.parse(
+                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                                    }
+                                }
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = schema[k];
+                                    }
+                                }
+                            }
+                            for (const k of [
+                                "id",
+                                "$id",
+                                "$schema",
+                                "$ref",
+                                "$comment",
+                                "title",
+                                "description",
+                                "markdownDescription",
+                                "doNotSuggest",
+                                "errorMessage",
+                                "deprecationMessage",
+                                "suggestSortText",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    resultSchema[k] = schema[k];
+                                }
+                            }
+                            for (const k of [
+                                // "minItems",
+                                // "maxItems",
+                                // "minProperties",
+                                // "maxProperties",
+                                // "minLength",
+                                // "maxLength",
+                                // "minimum",
+                                // "maximum",
+                                // "exclusiveMinimum",
+                                // "exclusiveMaximum",
+                                // "multipleOf",
+                                "errorMessage",
+                                "format",
+                                "pattern",
+                                "patternErrorMessage",
+                                // "propertyNames",
+                                // "uniqueItems",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    valueType[k] = schema[k];
+                                }
+                            }
+                            return resultSchema;
+                        }
 
                         case NBT.TagType.Float:
-                        case NBT.TagType.Double:
-                            return {
-                                type: "object",
-                                properties: {
-                                    type: { const: type },
-                                    value: { type: "number" },
-                                },
-                                required: ["type", "value"],
-                            };
+                        case NBT.TagType.Double: {
+                            const valueType: JSONSchema = { type: "number" };
+                            if (
+                                (schema.description === undefined && schema.markdownDescription === undefined) ||
+                                !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
+                            ) {
+                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                            }
+                            if (schema.enum?.some((v) => v.type === type)) {
+                                valueType.enum = schema.enum.filter((v) => v.type === type).map((v) => v.value);
+                                if (schema.enumDescriptions) {
+                                    valueType.enumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDescriptions![v[1]]!);
+                                }
+                                if (schema.markdownEnumDescriptions) {
+                                    valueType.markdownEnumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                            }
+                            if (schema.const !== undefined) {
+                                valueType.const =
+                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                            }
+                            if (schema.examples?.some((v) => v.type === type)) {
+                                valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
+                            }
+                            if (schema.default !== undefined) {
+                                valueType.default =
+                                    "type" in schema.default && "value" in schema.default && schema.default.type === type ?
+                                        schema.default.value
+                                    :   schema.default;
+                            }
 
-                        case NBT.TagType.String:
-                            return {
-                                type: "object",
-                                properties: {
-                                    type: { const: type },
-                                    value: { type: "string" },
-                                },
-                                required: ["type", "value"],
-                            };
+                            let resultSchema: JSONSchema = valueType;
+                            if (!((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)) {
+                                resultSchema = {
+                                    type: "object",
+                                    properties: {
+                                        type: { const: type },
+                                        value: valueType,
+                                    },
+                                    required: ["type", "value"],
+                                };
+                                for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = JSON.parse(
+                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                                    }
+                                }
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = schema[k];
+                                    }
+                                }
+                            }
+                            for (const k of [
+                                "id",
+                                "$id",
+                                "$schema",
+                                "$ref",
+                                "$comment",
+                                "title",
+                                "description",
+                                "markdownDescription",
+                                "doNotSuggest",
+                                "errorMessage",
+                                "deprecationMessage",
+                                "suggestSortText",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    resultSchema[k] = schema[k];
+                                }
+                            }
+                            for (const k of [
+                                // "minItems",
+                                // "maxItems",
+                                // "minProperties",
+                                // "maxProperties",
+                                "minLength",
+                                "maxLength",
+                                "minimum",
+                                "maximum",
+                                "exclusiveMinimum",
+                                "exclusiveMaximum",
+                                "multipleOf",
+                                "errorMessage",
+                                "format",
+                                "pattern",
+                                "patternErrorMessage",
+                                // "propertyNames",
+                                // "uniqueItems",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    valueType[k] = schema[k];
+                                }
+                            }
+                            return resultSchema;
+                        }
 
-                        case NBT.TagType.List:
-                            return {
+                        case NBT.TagType.String: {
+                            const valueType: JSONSchema = { type: "string" };
+                            if (
+                                (schema.description === undefined && schema.markdownDescription === undefined) ||
+                                !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
+                            ) {
+                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                            }
+                            if (schema.enum?.some((v) => v.type === type)) {
+                                valueType.enum = schema.enum.filter((v) => v.type === type).map((v) => v.value);
+                                if (schema.enumDescriptions) {
+                                    valueType.enumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDescriptions![v[1]]!);
+                                }
+                                if (schema.markdownEnumDescriptions) {
+                                    valueType.markdownEnumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                            }
+                            if (schema.const !== undefined) {
+                                valueType.const =
+                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                            }
+                            if (schema.examples?.some((v) => v.type === type)) {
+                                valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
+                            }
+                            if (schema.default !== undefined) {
+                                valueType.default =
+                                    "type" in schema.default && "value" in schema.default && schema.default.type === type ?
+                                        schema.default.value
+                                    :   schema.default;
+                            }
+
+                            let resultSchema: JSONSchema = valueType;
+                            if (!((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)) {
+                                resultSchema = {
+                                    type: "object",
+                                    properties: {
+                                        type: { const: type },
+                                        value: valueType,
+                                    },
+                                    required: ["type", "value"],
+                                };
+                                for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = JSON.parse(
+                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                                    }
+                                }
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = schema[k];
+                                    }
+                                }
+                            }
+                            for (const k of [
+                                "id",
+                                "$id",
+                                "$schema",
+                                "$ref",
+                                "$comment",
+                                "title",
+                                "description",
+                                "markdownDescription",
+                                "doNotSuggest",
+                                "errorMessage",
+                                "deprecationMessage",
+                                "suggestSortText",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    resultSchema[k] = schema[k];
+                                }
+                            }
+                            for (const k of [
+                                // "minItems",
+                                // "maxItems",
+                                // "minProperties",
+                                // "maxProperties",
+                                "minLength",
+                                "maxLength",
+                                "minimum",
+                                "maximum",
+                                "exclusiveMinimum",
+                                "exclusiveMaximum",
+                                "multipleOf",
+                                "errorMessage",
+                                "format",
+                                "pattern",
+                                "patternErrorMessage",
+                                // "propertyNames",
+                                // "uniqueItems",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    valueType[k] = schema[k];
+                                }
+                            }
+                            return resultSchema;
+                        }
+
+                        case NBT.TagType.List: {
+                            const valueType: JSONSchema = {
                                 type: "object",
                                 properties: {
-                                    type: { const: "list" },
-                                    value: {
-                                        type: "object",
-                                        properties: {
-                                            type: { type: "string" },
-                                            value: {
-                                                type: "array",
-                                                items: schema.items ? nbtSchemaToJsonSchema(schema.items as NBTSubSchema, allSchemas, options) : {},
+                                    type:
+                                        (
+                                            !schema.items ||
+                                            schema.items === true ||
+                                            (schema.items instanceof Array ?
+                                                schema.items.includes(true) ||
+                                                schema.items.includes(false) ||
+                                                schema.items.length === 0 ||
+                                                schema.items.every((v) => (v as Exclude<NBTSubSchemaRef, boolean>).type === undefined)
+                                            :   schema.items.type === undefined || (schema.items.type instanceof Array && schema.items.type.length === 0))
+                                        ) ?
+                                            { type: "string" }
+                                        :   {
+                                                enum: [
+                                                    ...new Set(
+                                                        (schema.items instanceof Array ?
+                                                            schema.items.flatMap((v) => [(v as Exclude<NBTSubSchemaRef, boolean>).type].flat())
+                                                        :   [schema.items.type].flat()
+                                                        ).filter((v) => v !== undefined)
+                                                    ),
+                                                ],
                                             },
-                                        },
-                                        required: ["type", "value"],
-                                    },
-                                },
-                                required: ["type", "value"],
-                            };
-
-                        case NBT.TagType.Compound:
-                            return {
-                                type: "object",
-                                properties: {
-                                    type: { const: "compound" },
                                     value: {
-                                        type: "object",
-                                        properties:
-                                            schema.properties ?
-                                                Object.fromEntries(
-                                                    Object.entries(schema.properties).map(([k, v]): [string, JSONSchemaRef] => [
-                                                        k,
-                                                        nbtSchemaToJsonSchema(v, allSchemas, options),
-                                                    ])
-                                                )
+                                        type: "array",
+                                        items:
+                                            schema.items ?
+                                                nbtSchemaToJsonSchema(schema.items as NBTSubSchema, allSchemas, { ...options, makeValueSchema: true }, true)
                                             :   {},
-                                        required: schema.required,
-                                        additionalProperties: schema.additionalProperties ?? true,
                                     },
                                 },
                                 required: ["type", "value"],
                             };
+                            if (
+                                (schema.description === undefined && schema.markdownDescription === undefined) ||
+                                !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
+                            ) {
+                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                            }
+                            if (schema.enum?.some((v) => v.type === type)) {
+                                valueType.enum = schema.enum.filter((v) => v.type === type).map((v) => v.value);
+                                if (schema.enumDescriptions) {
+                                    valueType.enumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDescriptions![v[1]]!);
+                                }
+                                if (schema.markdownEnumDescriptions) {
+                                    valueType.markdownEnumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                            }
+                            if (schema.const !== undefined) {
+                                valueType.const =
+                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                            }
+                            if (schema.examples?.some((v) => v.type === type)) {
+                                valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
+                            }
+                            if (schema.default !== undefined) {
+                                valueType.default =
+                                    "type" in schema.default && "value" in schema.default && schema.default.type === type ?
+                                        schema.default.value
+                                    :   schema.default;
+                            }
+
+                            let resultSchema: JSONSchema = valueType;
+                            if (!((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)) {
+                                resultSchema = {
+                                    type: "object",
+                                    properties: {
+                                        type: { const: type },
+                                        value: valueType,
+                                    },
+                                    required: ["type", "value"],
+                                };
+                                for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = JSON.parse(
+                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                                    }
+                                }
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = schema[k];
+                                    }
+                                }
+                            }
+                            for (const k of [
+                                "id",
+                                "$id",
+                                "$schema",
+                                "$ref",
+                                "$comment",
+                                "title",
+                                "description",
+                                "markdownDescription",
+                                "doNotSuggest",
+                                "errorMessage",
+                                "deprecationMessage",
+                                "suggestSortText",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    resultSchema[k] = schema[k];
+                                }
+                            }
+                            for (const k of [
+                                "minItems",
+                                "maxItems",
+                                // "minProperties",
+                                // "maxProperties",
+                                // "minLength",
+                                // "maxLength",
+                                // "minimum",
+                                // "maximum",
+                                // "exclusiveMinimum",
+                                // "exclusiveMaximum",
+                                // "multipleOf",
+                                "errorMessage",
+                                "format",
+                                "pattern",
+                                "patternErrorMessage",
+                                // "propertyNames",
+                                "uniqueItems",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    valueType[k] = schema[k];
+                                }
+                            }
+                            return resultSchema;
+                        }
+
+                        case NBT.TagType.Compound: {
+                            const valueType: JSONSchema = {
+                                type: "object",
+                                properties:
+                                    schema.properties ?
+                                        Object.fromEntries(
+                                            Object.entries(schema.properties).map(([k, v]): [string, JSONSchemaRef] => [
+                                                k,
+                                                nbtSchemaToJsonSchema(v, allSchemas, options, false),
+                                            ])
+                                        )
+                                    :   {},
+                                required: schema.required,
+                                additionalProperties: schema.additionalProperties ?? true,
+                            };
+                            if (
+                                (schema.description === undefined && schema.markdownDescription === undefined) ||
+                                !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
+                            ) {
+                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                            }
+                            if (schema.enum?.some((v) => v.type === type)) {
+                                valueType.enum = schema.enum.filter((v) => v.type === type).map((v) => v.value);
+                                if (schema.enumDescriptions) {
+                                    valueType.enumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDescriptions![v[1]]!);
+                                }
+                                if (schema.markdownEnumDescriptions) {
+                                    valueType.markdownEnumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                            }
+                            if (schema.const !== undefined) {
+                                valueType.const =
+                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                            }
+                            if (schema.examples?.some((v) => v.type === type)) {
+                                valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
+                            }
+                            if (schema.default !== undefined) {
+                                valueType.default =
+                                    "type" in schema.default && "value" in schema.default && schema.default.type === type ?
+                                        schema.default.value
+                                    :   schema.default;
+                            }
+
+                            let resultSchema: JSONSchema = valueType;
+                            if (!((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)) {
+                                resultSchema = {
+                                    type: "object",
+                                    properties: {
+                                        type: { const: type },
+                                        value: valueType,
+                                    },
+                                    required: ["type", "value"],
+                                };
+                                for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = JSON.parse(
+                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                                    }
+                                }
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = schema[k];
+                                    }
+                                }
+                            }
+                            for (const k of [
+                                "id",
+                                "$id",
+                                "$schema",
+                                "$ref",
+                                "$comment",
+                                "title",
+                                "description",
+                                "markdownDescription",
+                                "doNotSuggest",
+                                "errorMessage",
+                                "deprecationMessage",
+                                "suggestSortText",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    resultSchema[k] = schema[k];
+                                }
+                            }
+                            for (const k of [
+                                // "minItems",
+                                // "maxItems",
+                                "minProperties",
+                                "maxProperties",
+                                // "minLength",
+                                // "maxLength",
+                                // "minimum",
+                                // "maximum",
+                                // "exclusiveMinimum",
+                                // "exclusiveMaximum",
+                                // "multipleOf",
+                                "errorMessage",
+                                "format",
+                                "pattern",
+                                "patternErrorMessage",
+                                "propertyNames",
+                                // "uniqueItems",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    valueType[k] = schema[k];
+                                }
+                            }
+                            return resultSchema;
+                        }
 
                         case NBT.TagType.ByteArray:
                         case NBT.TagType.ShortArray:
-                        case NBT.TagType.IntArray:
-                            return {
-                                type: "object",
-                                properties: {
-                                    type: { const: type },
-                                    value: {
-                                        type: "array",
-                                        items: { type: "integer" },
-                                    },
-                                },
-                                required: ["type", "value"],
+                        case NBT.TagType.IntArray: {
+                            const valueType: JSONSchema = {
+                                type: "array",
+                                items: { type: "integer" },
                             };
+                            if (
+                                (schema.description === undefined && schema.markdownDescription === undefined) ||
+                                !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
+                            ) {
+                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                            }
+                            switch (type) {
+                                case NBT.TagType.ByteArray:
+                                    (valueType.items as JSONSchema).minimum = -128;
+                                    (valueType.items as JSONSchema).maximum = 127;
+                                    break;
+                                case NBT.TagType.ShortArray:
+                                    (valueType.items as JSONSchema).minimum = -32768;
+                                    (valueType.items as JSONSchema).maximum = 32767;
+                                    break;
+                                case NBT.TagType.IntArray:
+                                    (valueType.items as JSONSchema).minimum = -2147483648;
+                                    (valueType.items as JSONSchema).maximum = 2147483647;
+                                    break;
+                            }
+                            if (schema.enum?.some((v) => v.type === type)) {
+                                valueType.enum = schema.enum.filter((v) => v.type === type).map((v) => v.value);
+                                if (schema.enumDescriptions) {
+                                    valueType.enumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDescriptions![v[1]]!);
+                                }
+                                if (schema.markdownEnumDescriptions) {
+                                    valueType.markdownEnumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                            }
+                            if (schema.const !== undefined) {
+                                valueType.const =
+                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                            }
+                            if (schema.examples?.some((v) => v.type === type)) {
+                                valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
+                            }
+                            if (schema.default !== undefined) {
+                                valueType.default =
+                                    "type" in schema.default && "value" in schema.default && schema.default.type === type ?
+                                        schema.default.value
+                                    :   schema.default;
+                            }
 
-                        case NBT.TagType.LongArray:
-                            return {
-                                type: "object",
-                                properties: {
-                                    type: { const: type },
-                                    value: {
-                                        type: "array",
-                                        items: {
-                                            type: "array",
-                                            items: { type: "integer" },
-                                            minItems: 2,
-                                            maxItems: 2,
-                                        },
+                            let resultSchema: JSONSchema = valueType;
+                            if (!((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)) {
+                                resultSchema = {
+                                    type: "object",
+                                    properties: {
+                                        type: { const: type },
+                                        value: valueType,
                                     },
+                                    required: ["type", "value"],
+                                };
+                                for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = JSON.parse(
+                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                                    }
+                                }
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = schema[k];
+                                    }
+                                }
+                            }
+                            for (const k of [
+                                "id",
+                                "$id",
+                                "$schema",
+                                "$ref",
+                                "$comment",
+                                "title",
+                                "description",
+                                "markdownDescription",
+                                "doNotSuggest",
+                                "errorMessage",
+                                "deprecationMessage",
+                                "suggestSortText",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    resultSchema[k] = schema[k];
+                                }
+                            }
+                            for (const k of [
+                                "minItems",
+                                "maxItems",
+                                // "minProperties",
+                                // "maxProperties",
+                                // "minLength",
+                                // "maxLength",
+                                // "minimum",
+                                // "maximum",
+                                // "exclusiveMinimum",
+                                // "exclusiveMaximum",
+                                // "multipleOf",
+                                "errorMessage",
+                                "format",
+                                "pattern",
+                                "patternErrorMessage",
+                                // "propertyNames",
+                                "uniqueItems",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    valueType[k] = schema[k];
+                                }
+                            }
+                            return resultSchema;
+                        }
+
+                        case NBT.TagType.LongArray: {
+                            const valueType: JSONSchema = {
+                                type: "array",
+                                items: {
+                                    type: "array",
+                                    items: { type: "integer", minimum: -0x80000000, maximum: 0x7fffffff },
+                                    minItems: 2,
+                                    maxItems: 2,
                                 },
-                                required: ["type", "value"],
                             };
+                            if (
+                                (schema.description === undefined && schema.markdownDescription === undefined) ||
+                                !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
+                            ) {
+                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                            }
+                            if (schema.enum?.some((v) => v.type === type)) {
+                                valueType.enum = schema.enum
+                                    .filter((v) => v.type === type)
+                                    .map((v) =>
+                                        JSON.parse(JSON.stringify(v.value, (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)))
+                                    );
+                                if (schema.enumDescriptions) {
+                                    valueType.enumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDescriptions![v[1]]!);
+                                }
+                                if (schema.markdownEnumDescriptions) {
+                                    valueType.markdownEnumDescriptions = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                            }
+                            if (schema.const !== undefined) {
+                                valueType.const =
+                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ?
+                                        JSON.parse(
+                                            JSON.stringify(schema.const.value, (_k: string, v: unknown): unknown =>
+                                                typeof v === "bigint" ? toLongParts(v) : v
+                                            )
+                                        )
+                                    :   JSON.parse(
+                                            JSON.stringify(schema.const, (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                            }
+                            if (schema.examples?.some((v) => v.type === type)) {
+                                valueType.examples = schema.examples
+                                    .filter((v) => v.type === type)
+                                    .map((v) =>
+                                        JSON.parse(JSON.stringify(v.value, (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)))
+                                    );
+                            }
+                            if (schema.default !== undefined) {
+                                valueType.default =
+                                    "type" in schema.default && "value" in schema.default && schema.default.type === type ?
+                                        JSON.parse(
+                                            JSON.stringify(schema.default.value, (_k: string, v: unknown): unknown =>
+                                                typeof v === "bigint" ? toLongParts(v) : v
+                                            )
+                                        )
+                                    :   JSON.parse(
+                                            JSON.stringify(schema.default, (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                            }
+
+                            let resultSchema: JSONSchema = valueType;
+                            if (!((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)) {
+                                resultSchema = {
+                                    type: "object",
+                                    properties: {
+                                        type: { const: type },
+                                        value: valueType,
+                                    },
+                                    required: ["type", "value"],
+                                };
+                                for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = JSON.parse(
+                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        );
+                                    }
+                                }
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                    (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                    keyof NBTSubSchema &
+                                    keyof NBTSchema &
+                                    keyof NBTSchemaFragment)[]) {
+                                    if (schema[k] !== undefined) {
+                                        resultSchema[k] = schema[k];
+                                    }
+                                }
+                            }
+                            for (const k of [
+                                "id",
+                                "$id",
+                                "$schema",
+                                "$ref",
+                                "$comment",
+                                "title",
+                                "description",
+                                "markdownDescription",
+                                "doNotSuggest",
+                                "errorMessage",
+                                "deprecationMessage",
+                                "suggestSortText",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    resultSchema[k] = schema[k];
+                                }
+                            }
+                            for (const k of [
+                                "minItems",
+                                "maxItems",
+                                // "minProperties",
+                                // "maxProperties",
+                                // "minLength",
+                                // "maxLength",
+                                // "minimum",
+                                // "maximum",
+                                // "exclusiveMinimum",
+                                // "exclusiveMaximum",
+                                // "multipleOf",
+                                "errorMessage",
+                                "format",
+                                "pattern",
+                                "patternErrorMessage",
+                                // "propertyNames",
+                                "uniqueItems",
+                            ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                                keyof NBTSubSchema &
+                                keyof NBTSchema &
+                                keyof NBTSchemaFragment)[]) {
+                                if (schema[k] !== undefined) {
+                                    valueType[k] = schema[k];
+                                }
+                            }
+                            return resultSchema;
+                        }
 
                         default:
                             throw new Error(`Unsupported NBT type: ${type}`);
@@ -10132,11 +13359,131 @@ however when the corresponding block in the block layer is broken, this block ge
                     const parts: string[] = [];
 
                     if (schema.title) parts.push(schema.title);
-                    if (schema.description) parts.push(schema.description);
+                    if (schema.markdownDescription ?? schema.description) parts.push(schema.markdownDescription ?? schema.description!);
                     // if (schema.description) parts.push(schema.title ? "@description\n" + schema.description : schema.description); // Alternate version if you the description should use the `description` TSDoc tag if there is a title.
 
                     if (symbolReference && symbolReference.length > 0)
                         parts.push(symbolReference.map((ref: string, i: number): string => `@see {@link ${ref}}`).join("\n"));
+
+                    // Handle min/max length
+                    if (schema.minLength !== undefined) {
+                        const val: string = formatValue(schema.minLength);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@minLength\n${val}`);
+                        } else {
+                            parts.push(`@minLength ${val}`);
+                        }
+                    }
+                    if (schema.maxLength !== undefined) {
+                        const val: string = formatValue(schema.maxLength);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@maxLength\n${val}`);
+                        } else {
+                            parts.push(`@maxLength ${val}`);
+                        }
+                    }
+
+                    // Handle min/max items
+                    if (schema.minItems !== undefined) {
+                        const val: string = formatValue(schema.minItems);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@minItems\n${val}`);
+                        } else {
+                            parts.push(`@minItems ${val}`);
+                        }
+                    }
+                    if (schema.maxItems !== undefined) {
+                        const val: string = formatValue(schema.maxItems);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@maxItems\n${val}`);
+                        } else {
+                            parts.push(`@maxItems ${val}`);
+                        }
+                    }
+
+                    // Handle min/max properties
+                    if (schema.minProperties !== undefined) {
+                        const val: string = formatValue(schema.minProperties);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@minProperties\n${val}`);
+                        } else {
+                            parts.push(`@minProperties ${val}`);
+                        }
+                    }
+                    if (schema.maxProperties !== undefined) {
+                        const val: string = formatValue(schema.maxProperties);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@maxProperties\n${val}`);
+                        } else {
+                            parts.push(`@maxProperties ${val}`);
+                        }
+                    }
+
+                    // Handle min/max and exclusive min/max
+                    if (schema.minimum !== undefined) {
+                        const val: string = formatValue(schema.minimum);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@minimum\n${val}`);
+                        } else {
+                            parts.push(`@minimum ${val}`);
+                        }
+                    }
+                    if (schema.maximum !== undefined) {
+                        const val: string = formatValue(schema.maximum);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@maximum\n${val}`);
+                        } else {
+                            parts.push(`@maximum ${val}`);
+                        }
+                    }
+                    if (schema.exclusiveMinimum !== undefined) {
+                        const val: string = formatValue(schema.exclusiveMinimum);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@exclusiveMinimum\n${val}`);
+                        } else {
+                            parts.push(`@exclusiveMinimum ${val}`);
+                        }
+                    }
+                    if (schema.exclusiveMaximum !== undefined) {
+                        const val: string = formatValue(schema.exclusiveMaximum);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@exclusiveMaximum\n${val}`);
+                        } else {
+                            parts.push(`@exclusiveMaximum ${val}`);
+                        }
+                    }
+
+                    // Handle other restriction properties
+                    if (schema.multipleOf !== undefined) {
+                        const val: string = formatValue(schema.multipleOf);
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
+                            parts.push(`@multipleOf\n${val}`);
+                        } else {
+                            parts.push(`@multipleOf ${val}`);
+                        }
+                    }
+
+                    // Handle deprecation
+                    if (schema.deprecationMessage !== undefined) {
+                        const msg: string = schema.deprecationMessage;
+                        // Put on new line if contains non-alphanumeric characters
+                        if (/[^a-zA-Z0-9_.=+-]/.test(msg) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(msg)) {
+                            parts.push(`@deprecated\n${msg}`);
+                        } else {
+                            parts.push(`@deprecated ${msg}`);
+                        }
+                    }
 
                     // Handle default value
                     if (schema.default !== undefined) {
@@ -10165,9 +13512,28 @@ however when the corresponding block in the block layer is broken, this block ge
                     if (schema.enum && Array.isArray(schema.enum)) {
                         parts.push(`@enum ${formatEnum(schema.enum)}`);
 
-                        if (schema.enumDescriptions && Array.isArray(schema.enumDescriptions)) {
+                        const enumDescriptions: string[] | undefined =
+                            schema.markdownEnumDescriptions ? [...schema.markdownEnumDescriptions]
+                            : schema.enumDescriptions ? [...schema.enumDescriptions]
+                            : undefined;
+
+                        // Merge markdownEnumDescriptions and enumDescriptions if enumDescriptions is longer.
+                        if (
+                            enumDescriptions &&
+                            schema.markdownEnumDescriptions?.length &&
+                            schema.enumDescriptions?.length &&
+                            schema.enumDescriptions.length > schema.markdownEnumDescriptions.length
+                        ) {
+                            for (let i = 0; i < schema.enumDescriptions.length; i++) {
+                                if (i in enumDescriptions) continue;
+                                if (!(i in schema.enumDescriptions)) continue;
+                                enumDescriptions[i] = schema.enumDescriptions[i]!;
+                            }
+                        }
+
+                        if (enumDescriptions && Array.isArray(enumDescriptions)) {
                             parts.push(
-                                `@enumDescriptions\n${schema.enumDescriptions
+                                `@enumDescriptions\n${enumDescriptions
                                     .map(
                                         (d: string, i: number): string =>
                                             `- ${schema.enum![i]?.value !== undefined ? `\`${schema.enum![i]?.value}\`` : `UNKNOWN_ENUM_MEMBER_${i}`}: ${d}`
@@ -10178,10 +13544,10 @@ however when the corresponding block in the block layer is broken, this block ge
                     }
 
                     if (parts.length === 0) return "";
-                    const lines = parts
+                    const lines: string[] = parts
                         .join("\n\n")
                         .split("\n")
-                        .map((l) => `${indent} * ${l}`);
+                        .map((l: string): string => `${indent} * ${l}`);
                     return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
                 }
 
@@ -10337,6 +13703,42 @@ however when the corresponding block in the block layer is broken, this block ge
                             }
                         }
                     }
+                    let allOfNonRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (schema.allOf !== undefined) {
+                        const nonRefAllOfs: NBTSubSchema[] = schema.allOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                        );
+                        if (nonRefAllOfs.length > 0) {
+                            allOfNonRefTypes ??= [] as unknown as [string];
+                            for (const nonRefAllOf of nonRefAllOfs) {
+                                const types = nonRefAllOf.type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                allOfNonRefTypes.push(
+                                    Array.isArray(types) ?
+                                        types.map((t: string): string => buildBuiltTypeForTag(t, nonRefAllOf, indent, opts, ctx).value).join("|")
+                                    :   buildBuiltTypeForTag(types, nonRefAllOf, indent, opts, ctx).value
+                                );
+                            }
+                        }
+                    }
+                    let oneOfNonRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (schema.oneOf !== undefined) {
+                        const nonRefOneOfs: NBTSubSchema[] = schema.oneOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                        );
+                        if (nonRefOneOfs.length > 0) {
+                            oneOfNonRefTypes ??= [] as unknown as [string];
+                            for (const nonRefOneOf of nonRefOneOfs) {
+                                const types = nonRefOneOf.type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                oneOfNonRefTypes.push(
+                                    Array.isArray(types) ?
+                                        types.map((t: string): string => buildBuiltTypeForTag(t, nonRefOneOf, indent, opts, ctx).value).join("|")
+                                    :   buildBuiltTypeForTag(types, nonRefOneOf, indent, opts, ctx).value
+                                );
+                            }
+                        }
+                    }
                     const inlineRefTypes = {
                         allOf: [] as string[],
                         oneOf: [] as string[],
@@ -10403,12 +13805,20 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: builtType.type,
                         value:
                             (opts.inlineRefs ?? false) ?
-                                `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
-                                    inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                                }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
-                            :   `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
-                                    allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
-                                }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
+                                `${(allOfRefTypes || oneOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                    inlineRefTypes.allOf || allOfNonRefTypes ?
+                                        ` & ${[...(inlineRefTypes.allOf ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}`
+                                    :   ""
+                                }${inlineRefTypes.oneOf || oneOfNonRefTypes ? ` & (${[...(inlineRefTypes.oneOf ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
+                                    /^ & /,
+                                    ""
+                                )
+                            :   `${(allOfRefTypes || oneOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                    allOfRefTypes || allOfNonRefTypes ? ` & ${[...(allOfRefTypes ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}` : ""
+                                }${oneOfRefTypes || oneOfNonRefTypes ? ` & (${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
+                                    /^ & /,
+                                    ""
+                                ),
                     };
                 }
 
@@ -10771,6 +14181,42 @@ however when the corresponding block in the block layer is broken, this block ge
                             }
                         }
                     }
+                    let allOfNonRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (schema.allOf !== undefined) {
+                        const nonRefAllOfs: NBTSubSchema[] = schema.allOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                        );
+                        if (nonRefAllOfs.length > 0) {
+                            allOfNonRefTypes ??= [] as unknown as [string];
+                            for (const nonRefAllOf of nonRefAllOfs) {
+                                const types = nonRefAllOf.type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                allOfNonRefTypes.push(
+                                    Array.isArray(types) ?
+                                        types.map((t: string): string => buildTypeForTag(t, nonRefAllOf, indent, opts, ctx)).join("|")
+                                    :   buildTypeForTag(types, nonRefAllOf, indent, opts, ctx)
+                                );
+                            }
+                        }
+                    }
+                    let oneOfNonRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (schema.oneOf !== undefined) {
+                        const nonRefOneOfs: NBTSubSchema[] = schema.oneOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                        );
+                        if (nonRefOneOfs.length > 0) {
+                            oneOfNonRefTypes ??= [] as unknown as [string];
+                            for (const nonRefOneOf of nonRefOneOfs) {
+                                const types = nonRefOneOf.type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                oneOfNonRefTypes.push(
+                                    Array.isArray(types) ?
+                                        types.map((t: string): string => buildTypeForTag(t, nonRefOneOf, indent, opts, ctx)).join("|")
+                                    :   buildTypeForTag(types, nonRefOneOf, indent, opts, ctx)
+                                );
+                            }
+                        }
+                    }
                     const inlineRefTypes = {
                         allOf: [] as string[],
                         oneOf: [] as string[],
@@ -10783,11 +14229,13 @@ however when the corresponding block in the block layer is broken, this block ge
                                 inlineRefTypes.allOf.push(
                                     Array.isArray(types) ?
                                         types
-                                            .map((t: string): string =>
-                                                buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                            .map(
+                                                (t: string): string =>
+                                                    buildBuiltTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                                        .value
                                             )
                                             .join("|")
-                                    :   buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                    :   buildBuiltTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx).value
                                 );
                             }
                         if (oneOfRefTypes)
@@ -10797,11 +14245,13 @@ however when the corresponding block in the block layer is broken, this block ge
                                 inlineRefTypes.oneOf.push(
                                     Array.isArray(types) ?
                                         types
-                                            .map((t: string): string =>
-                                                buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                            .map(
+                                                (t: string): string =>
+                                                    buildBuiltTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                                        .value
                                             )
                                             .join("|")
-                                    :   buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                    :   buildBuiltTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx).value
                                 );
                             }
                     }
@@ -10827,12 +14277,15 @@ however when the corresponding block in the block layer is broken, this block ge
 
                     const builtType = buildTypeForTag(st, resolvedSchema, indent, opts, ctx!);
                     return (opts.inlineRefs ?? false) ?
-                            `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
-                                inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                            }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
-                        :   `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
-                                allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
-                            }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
+                            `${(allOfRefTypes || oneOfRefTypes || allOfNonRefTypes || oneOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
+                                inlineRefTypes.allOf || allOfNonRefTypes ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                            }${inlineRefTypes.oneOf || oneOfNonRefTypes ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
+                        :   `${(allOfRefTypes || oneOfRefTypes || allOfNonRefTypes || oneOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
+                                allOfRefTypes || allOfNonRefTypes ? ` & ${[...(allOfRefTypes ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}` : ""
+                            }${oneOfRefTypes || oneOfNonRefTypes ? ` & (${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
+                                /^ & /,
+                                ""
+                            );
                 }
 
                 /**
@@ -10844,7 +14297,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  * @returns The TypeScript type string.
                  *
                  * @todo Add support for `oneOf`, `anyOf`, `allOf`, `not`, `patternProperties`, and `$ref`.
-                 * @todo `minProperties`, `maxProperties`, `minItems`, `maxItems`, `minLength`, `maxLength`, `minimum`, `maximum`, `pattern`, `deprecationMessage`, `exclusiveMinimum`, `exclusiveMaximum`, `multipleOf`, and `uniqueItems` should add a TSDoc comment.
+                 * @todo `pattern`, `deprecationMessage`, `multipleOf`, and `uniqueItems` should add a TSDoc comment.
                  * @todo Add support for using the `title` property on items of lists for their labels in their tuple types.
                  */
                 export function nbtSchemaToTypeScriptType(
@@ -11178,7 +14631,7 @@ however when the corresponding block in the block layer is broken, this block ge
 
                     if (primitiveTags.has(t as `${NBT.TagType | "end"}`)) {
                         const base: NBTSubSchema = { type: t as `${NBT.TagType}` };
-                        if (node.description) base.description = node.description;
+                        if (node.description) base.markdownDescription = node.description;
                         return Utils.Misc.fixNBTSchemaPropertyOrder(base);
                     }
 
@@ -11257,7 +14710,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     }
 
                     const fallback: NBTSubSchema = { type: node.type as `${NBT.TagType}` };
-                    if (node.description) fallback.description = node.description;
+                    if (node.description) fallback.markdownDescription = node.description;
                     return Utils.Misc.fixNBTSchemaPropertyOrder(fallback);
                 }
 
@@ -11494,10 +14947,10 @@ however when the corresponding block in the block layer is broken, this block ge
                             }
                             if (
                                 schemaSubContainer.groups!.description &&
-                                (!result.description || (options.replaceSchemaRootTagDescriptionsWithDescriptionText ?? true))
+                                (!result.markdownDescription || (options.replaceSchemaRootTagDescriptionsWithDescriptionText ?? true))
                             )
-                                result.description = wikiToMarkdown(schemaSubContainer.groups!.description!.replace(/:$/, "."));
-                            for (const prop of ["id", "title", "description", "type", "required", "properties"] as const satisfies (
+                                result.markdownDescription = wikiToMarkdown(schemaSubContainer.groups!.description!.replace(/:$/, "."));
+                            for (const prop of ["id", "title", "description", "markdownDescription", "type", "required", "properties"] as const satisfies (
                                 | keyof NBTSchema
                                 | keyof NBTSchemaFragment
                             )[]) {
@@ -11525,10 +14978,10 @@ however when the corresponding block in the block layer is broken, this block ge
              */
             export function fixNBTSchemaPropertyOrder<T extends NBTSubSchema | NBTSchema | NBTSchemaFragment>(schema: T): T {
                 let result: T = {
-                    ...{ id: void 0, title: void 0, description: void 0, type: void 0, required: void 0, properties: void 0 }, // Moves these properties to this position in this order.
+                    ...{ id: void 0, title: void 0, description: void 0, markdownDescription: void 0, type: void 0, required: void 0, properties: void 0 }, // Moves these properties to this position in this order.
                     ...schema,
                 };
-                for (const prop of ["id", "title", "description", "type", "required", "properties"] as const satisfies (
+                for (const prop of ["id", "title", "description", "markdownDescription", "type", "required", "properties"] as const satisfies (
                     | keyof NBTSubSchema
                     | keyof NBTSchema
                     | keyof NBTSchemaFragment
@@ -12038,6 +15491,8 @@ however when the corresponding block in the block layer is broken, this block ge
                         value: {
                             /**
                              * The numerical [biome ID](https://minecraft.wiki/w/Biome) for this custom biome. Starts at 30,000.
+                             *
+                             * @minimum 30000
                              */
                             id: { type: "short"; value: number };
                             /**
@@ -12304,71 +15759,144 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * The Data3D schema.
+         * The Overworld schema.
          *
-         * The NBT structure of the parsed data of the Data3D content type.
+         * The data of the overworld dimension, seems to currently just include the LimboEntities data.
          *
-         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
-         * This is because the actual data is stored in binary format.
-         *
-         * @see {@link NBTSchemas.nbtSchemas.Data3D}
+         * @see {@link NBTSchemas.nbtSchemas.Overworld}
          */
-        export type Data3D = {
+        export type Overworld = { type: "compound"; value: object } & LimboEntities;
+
+        /**
+         * The Nether schema.
+         *
+         * The data of the nether dimension, seems to currently just include the LimboEntities data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Nether}
+         */
+        export type Nether = { type: "compound"; value: object } & LimboEntities;
+
+        /**
+         * The TheEnd schema.
+         *
+         * The data of the end dimension.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.TheEnd}
+         */
+        export type TheEnd = {
             type: "compound";
             value: {
                 /**
-                 * The height map data.
+                 * Data
                  *
-                 * In it is stored as a 2D matrix with [x][z] height values.
+                 * The data of the end dimension.
                  */
-                heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
-                /**
-                 * The biome data.
-                 */
-                biomes: {
-                    type: "list";
+                data: {
+                    type: "compound";
                     value: {
-                        type: "compound";
-                        value: {
-                            /**
-                             * The biome values.
-                             *
-                             * This is an array of indices in the biome palette, one for each block.
-                             */
-                            values: { type: "list"; value: { type: "int"; value: number[] } };
-                            /**
-                             * The biome palette.
-                             *
-                             * This is an array of the biome numeric IDs.
-                             */
-                            palette: { type: "list"; value: { type: "int"; value: number[] } };
-                        }[];
+                        /**
+                         * Dragon Fight
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        DragonFight?: {
+                            type: "compound";
+                            value: {
+                                /**
+                                 * Dragon Killed
+                                 *
+                                 * UNDOCUMENTED.
+                                 *
+                                 * @enum 0 | 1
+                                 *
+                                 * @enumDescriptions
+                                 * - `0`: false
+                                 * - `1`: true
+                                 */
+                                DragonKilled?: { type: "byte"; value: 0 | 1 };
+                                /**
+                                 * Dragon Spawned
+                                 *
+                                 * UNDOCUMENTED.
+                                 *
+                                 * @enum 0 | 1
+                                 *
+                                 * @enumDescriptions
+                                 * - `0`: false
+                                 * - `1`: true
+                                 */
+                                DragonSpawned?: { type: "byte"; value: 0 | 1 };
+                                /**
+                                 * Dragon UUID
+                                 *
+                                 * UNDOCUMENTED.
+                                 */
+                                DragonUUID?: { type: "long"; value: [high: number, low: number] };
+                                /**
+                                 * Exit Portal Location
+                                 *
+                                 * UNDOCUMENTED. A Vector3.
+                                 */
+                                ExitPortalLocation?: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                /**
+                                 * Gateways
+                                 *
+                                 * UNDOCUMENTED.
+                                 */
+                                Gateways?: { type: "list"; value: { type: "int"; value: number[] } };
+                                /**
+                                 * Is Respawning
+                                 *
+                                 * UNDOCUMENTED.
+                                 *
+                                 * @enum 0 | 1
+                                 *
+                                 * @enumDescriptions
+                                 * - `0`: false
+                                 * - `1`: true
+                                 */
+                                IsRespawning?: { type: "byte"; value: 0 | 1 };
+                                /**
+                                 * UNDOCUMENTED.
+                                 *
+                                 * @enum 0 | 1
+                                 *
+                                 * @enumDescriptions
+                                 * - `0`: false
+                                 * - `1`: true
+                                 */
+                                PreviouslyKilled?: { type: "byte"; value: 0 | 1 };
+                            };
+                        };
+                        /**
+                         * Gateways
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        Gateways?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Entry
+                                     *
+                                     * UNDOCUMENTED. A Vector3.
+                                     */
+                                    Entry: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                    /**
+                                     * Exit
+                                     *
+                                     * UNDOCUMENTED. A Vector3.
+                                     */
+                                    Exit: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                }[];
+                            };
+                        };
                     };
                 };
             };
-        };
-
-        /**
-         * The Digest schema.
-         *
-         * The NBT structure of the parsed data of the Digest content type.
-         *
-         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
-         * This is because the actual data is stored in binary format.
-         *
-         * @see {@link NBTSchemas.nbtSchemas.Digest}
-         */
-        export type Digest = {
-            type: "compound";
-            value: {
-                /**
-                 * Entity IDs
-                 *
-                 * The UUIDs of all of the entities in the associated chunk.
-                 */
-                entityIds: { type: "list"; value: { type: "long"; value: [high: number, low: number][] } };
-            };
-        };
+        } & LimboEntities;
 
         /**
          * The DynamicProperties schema.
@@ -12384,159 +15912,6 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         [key: string]: { type: unknown; value: any };
-                    };
-                };
-            };
-        };
-
-        /**
-         * The LevelChunkMetaDataDictionary schema.
-         *
-         * Stores the NBT metadata of all chunks. Maps the xxHash64 hash of NBT data to that NBT data, so that each chunk need only store 8 bytes instead of the entire NBT; most chunks have the same metadata.
-         *
-         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
-         * This is because the actual data is stored in binary format.
-         *
-         * @see {@link NBTSchemas.nbtSchemas.LevelChunkMetaDataDictionary}
-         */
-        export type LevelChunkMetaDataDictionary = {
-            type: "compound";
-            value: {
-                [key: string]: {
-                    type: "compound";
-                    value: {
-                        /**
-                         * Biome Base Game Version
-                         *
-                         * UNDOCUMENTED. Currently observed value is "1.18.0".
-                         *
-                         * @example
-                         * "1.18.0"
-                         */
-                        BiomeBaseGameVersion: { type: "string"; value: string };
-                        /**
-                         * Dimension Name
-                         *
-                         * The name of the dimension the chunk is in.
-                         *
-                         * @enum "Overworld" | "Nether" | "TheEnd"
-                         *
-                         * @enumDescriptions
-                         * - `Overworld`: The Overworld dimension
-                         * - `Nether`: The Nether dimension
-                         * - `TheEnd`: The End dimension
-                         */
-                        DimensionName: { type: "string"; value: "Overworld" | "Nether" | "TheEnd" };
-                        /**
-                         * Generation Seed
-                         *
-                         * The seed used to generate the chunk. This is whatever the seed of the world was when the chunk was generated.
-                         */
-                        GenerationSeed: { type: "long"; value: [high: number, low: number] };
-                        /**
-                         * Generator Type
-                         *
-                         * UNDOCUMENTED.
-                         */
-                        GeneratorType: { type: "int"; value: number };
-                        /**
-                         * Last Saved Base Game Version
-                         *
-                         * The base game version of the world when the chunk was last saved. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.
-                         */
-                        LastSavedBaseGameVersion?: { type: "string"; value: string };
-                        /**
-                         * Last Saved Dimension Height Range
-                         *
-                         * The height range of the chunk's dimension when the chunk was last saved.
-                         */
-                        LastSavedDimensionHeightRange?: {
-                            type: "compound";
-                            value: {
-                                /**
-                                 * Max
-                                 *
-                                 * The maximum height limit of the chunk's dimension when the chunk was last saved.
-                                 */
-                                max: { type: "short"; value: number };
-                                /**
-                                 * Min
-                                 *
-                                 * The minimum height limit of the chunk's dimension when the chunk was last saved.
-                                 */
-                                min: { type: "short"; value: number };
-                            };
-                        };
-                        /**
-                         * Neighbor Aware Block Upgrade Version
-                         *
-                         * UNDOCUMENTED. Currently observed value is 1.
-                         *
-                         * @example 1
-                         */
-                        NeighborAwareBlockUpgradeVersion?: { type: "int"; value: number };
-                        /**
-                         * Original Base Game Version
-                         *
-                         * The base game version of the world when the chunk was originally generated. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.
-                         */
-                        OriginalBaseGameVersion: { type: "string"; value: string };
-                        /**
-                         * Original Dimension Height Range
-                         *
-                         * The height range of the chunk's dimension when the chunk was originally generated.
-                         */
-                        OriginalDimensionHeightRange: {
-                            type: "compound";
-                            value: {
-                                /**
-                                 * Max
-                                 *
-                                 * The maximum height limit of the chunk's dimension when the chunk was originally generated.
-                                 */
-                                max: { type: "short"; value: number };
-                                /**
-                                 * Min
-                                 *
-                                 * The minimum height limit of the chunk's dimension when the chunk was originally generated.
-                                 */
-                                min: { type: "short"; value: number };
-                            };
-                        };
-                        /**
-                         * Overworld 1.18 Height Extended
-                         *
-                         * UNDOCUMENTED. Currently observed value is 1.
-                         *
-                         * @example 1
-                         */
-                        Overworld1_18HeightExtended?: { type: "short"; value: number };
-                        /**
-                         * Skull Flattening Performed
-                         *
-                         * UNDOCUMENTED. Currently observed value is 1.
-                         *
-                         * @example 1
-                         */
-                        SkullFlatteningPerformed: { type: "short"; value: number };
-                        /**
-                         * Underwater Lava Lake Fixed
-                         *
-                         * UNDOCUMENTED. Currently observed value is 1.
-                         *
-                         * @example 1
-                         */
-                        UnderwaterLavaLakeFixed?: { type: "short"; value: number };
-                        /**
-                         * World Gen Below Zero Fixed
-                         *
-                         * UNDOCUMENTED. Currently observed value is 1.
-                         *
-                         * @example 1
-                         */
-                        WorldGenBelowZeroFixed?: { type: "short"; value: number };
-                    } & {
-                        [key: string]: { type: any; value: any };
                     };
                 };
             };
@@ -12751,7 +16126,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * The `allowdestructiveobjects` [game rule](game rule).
+                 * The `allowdestructiveobjects` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12761,7 +16136,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 allowdestructiveobjects?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `allowmobs` [game rule](game rule).
+                 * The `allowmobs` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12778,7 +16153,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 baseGameVersion?: { type: "string"; value: string };
                 /**
-                 * Makes the world into a [single biome](single biome) world and the biome set here is the biome of this single biome world.
+                 * Makes the world into a [single biome](https://minecraft.wiki/w/single biome) world and the biome set here is the biome of this single biome world.
                  */
                 BiomeOverride?: { type: "string"; value: string };
                 /**
@@ -12812,7 +16187,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 codebuilder?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `commandblockoutput` [game rule](game rule).
+                 * The `commandblockoutput` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12832,7 +16207,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 CenterMapsToOrigin?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `commandblocksenabled` [game rule](game rule).
+                 * The `commandblocksenabled` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12889,7 +16264,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Dimension?: { type: "int"; value: 0 | 1 | 2 };
                 /**
-                 * The `dodaylightcycle` [game rule](game rule).
+                 * The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12899,7 +16274,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 dodaylightcycle?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doentitiydrops` [game rule](game rule).
+                 * The `doentitiydrops` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12909,7 +16284,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 doentitiydrops?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `dofiretick` [game rule](game rule).
+                 * The `dofiretick` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12919,7 +16294,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 dofiretick?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doimmediaterespawn` [game rule](game rule).
+                 * The `doimmediaterespawn` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12929,7 +16304,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 doimmediaterespawn?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doinsomnia` [game rule](game rule).
+                 * The `doinsomnia` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12939,7 +16314,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 doinsomnia?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `dolimitedcrafting` [game rule](game rule).
+                 * The `dolimitedcrafting` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12949,7 +16324,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 dolimitedcrafting?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `domobloot` [game rule](game rule).
+                 * The `domobloot` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12959,7 +16334,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 domobloot?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `domobspawning` [game rule](game rule).
+                 * The `domobspawning` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12969,7 +16344,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 domobspawning?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `dotiledrops` [game rule](game rule).
+                 * The `dotiledrops` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12979,7 +16354,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 dotiledrops?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doweathercycle` [game rule](game rule).
+                 * The `doweathercycle` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -12989,7 +16364,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 doweathercycle?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `drowningdamage` [game rule](game rule).
+                 * The `drowningdamage` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13009,7 +16384,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 educationFeaturesEnabled?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * Marks a world as a [bedrock editor](Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).
+                 * Marks a world as a [bedrock editor](https://minecraft.wiki/w/Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).
                  *
                  * @enum 0 | 1
                  *
@@ -13019,7 +16394,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 editorWorldType?: { type: "int"; value: 0 | 1 };
                 /**
-                 * A [UUID](UUID). *info needed*
+                 * A [UUID](https://minecraft.wiki/w/UUID). *info needed*
                  */
                 EducationOid?: { type: "string"; value: string };
                 /**
@@ -13058,7 +16433,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * 1 or 0 (true/false) - true if the world is locked on [experimental gameplay](experimental gameplay).
+                         * 1 or 0 (true/false) - true if the world is locked on [experimental gameplay](https://minecraft.wiki/w/experimental gameplay).
                          *
                          * @enum 0 | 1
                          *
@@ -13182,7 +16557,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * The `falldamage` [game rule](game rule).
+                 * The `falldamage` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13192,7 +16567,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 falldamage?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `firedamage` [game rule](game rule).
+                 * The `firedamage` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13209,7 +16584,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 FlatWorldLayers?: { type: "string"; value: string };
                 /**
-                 * The `freezedamage` [game rule](game rule).
+                 * The `freezedamage` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13219,13 +16594,13 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 freezedamage?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `functioncommandlimit` [game rule](game rule).
+                 * The `functioncommandlimit` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @default 10000
                  */
                 functioncommandlimit?: { type: "int"; value: number };
                 /**
-                 * The `globalmute` [game rule](game rule).
+                 * The `globalmute` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13245,15 +16620,15 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ForceGameType?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The default game mode of the player. 0 is [Survival](Survival), 1 is [Creative](Creative), 2 is [Adventure](Adventure), 5 is [Default](Game_mode#Default), and 6 is [Spectator](Spectator).
+                 * The default game mode of the player. 0 is [Survival](https://minecraft.wiki/w/Survival), 1 is [Creative](https://minecraft.wiki/w/Creative), 2 is [Adventure](https://minecraft.wiki/w/Adventure), 5 is [Default](https://minecraft.wiki/w/Game_mode#Default), and 6 is [Spectator](https://minecraft.wiki/w/Spectator).
                  */
-                GameType?: { type: "int"; value: number };
+                GameType?: { type: "int"; value: number } & ({ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 5 | 6 });
                 /**
                  * The world type. 0 is Old, 1 is Infinite, 2 is Flat, and 5 is Void.
                  */
-                Generator?: { type: "int"; value: number };
+                Generator?: { type: "int"; value: number } & ({ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 5 });
                 /**
-                 * Whether the world has achievements locked. Set to 1 if the default game mode is set to Creative, if [cheats](Commands#Cheats) have been enabled, or if a [behavior pack](add-on) has been equipped.
+                 * Whether the world has achievements locked. Set to 1 if the default game mode is set to Creative, if [cheats](https://minecraft.wiki/w/Commands#Cheats) have been enabled, or if a [behavior pack](https://minecraft.wiki/w/add-on) has been equipped.
                  *
                  * @enum 0 | 1
                  *
@@ -13304,10 +16679,16 @@ however when the corresponding block in the block layer is broken, this block ge
                 immutableWorld?: { type: "byte"; value: 0 | 1 };
                 /**
                  * Seems to correspond to the version the world was created or first opened in
+                 *
+                 * @example
+                 * "1.21.51"
+                 *
+                 * @example
+                 * "1.26.10-preview21"
                  */
                 InventoryVersion?: { type: "string"; value: string };
                 /**
-                 * 1 or 0 (true/false) - true if it was created from the [bedrock editor](Bedrock Editor).
+                 * 1 or 0 (true/false) - true if it was created from the [bedrock editor](https://minecraft.wiki/w/Bedrock Editor).
                  *
                  * @enum 0 | 1
                  *
@@ -13317,7 +16698,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 isCreatedInEditor?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * 1 or 0 (true/false) - true if exported from the [bedrock editor](Bedrock Editor).
+                 * 1 or 0 (true/false) - true if exported from the [bedrock editor](https://minecraft.wiki/w/Bedrock Editor).
                  *
                  * @enum 0 | 1
                  *
@@ -13347,7 +16728,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 isFromWorldTemplate?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * 1 or 0 (true/false) - true if the world is in [Hardcore](Hardcore) mode.
+                 * 1 or 0 (true/false) - true if the world is in [Hardcore](https://minecraft.wiki/w/Hardcore) mode.
                  *
                  * @enum 0 | 1
                  *
@@ -13387,7 +16768,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 isWorldTemplateOptionLocked?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `keepinventory` [game rule](game rule).
+                 * The `keepinventory` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13417,7 +16798,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LANBroadcastIntent?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](Bedrock Edition Preview 1.20.30.22) the version is `1 20 30 22 1`.
+                 * Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock Edition Preview 1.20.30.22) the version is `1 20 30 22 1`.
                  */
                 lastOpenedWithVersion?: { type: "list"; value: { type: "int"; value: [number, number, number, number, 0 | 1] } };
                 /**
@@ -13469,7 +16850,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 limitedWorldWidth?: { type: "int"; value: number };
                 /**
-                 * The `locatorbar` [game rule](game rule).
+                 * The `locatorbar` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13479,13 +16860,13 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 locatorbar?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `maxcommandchainlength` [game rule](game rule).
+                 * The `maxcommandchainlength` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @default 65535
                  */
                 maxcommandchainlength?: { type: "int"; value: number };
                 /**
-                 * Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](Bedrock Edition Preview 1.20.30.22) the minimum compatible version is `1 20 30 0 0`.
+                 * Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock Edition Preview 1.20.30.22) the minimum compatible version is `1 20 30 0 0`.
                  */
                 MinimumCompatibleClientVersion?: { type: "list"; value: { type: "int"; value: [number, number, number, number, 0 | 1] } };
                 /**
@@ -13519,7 +16900,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 MultiplayerGameIntent?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `naturalregeneration` [game rule](game rule).
+                 * The `naturalregeneration` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13549,14 +16930,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 PlatformBroadcastIntent?: { type: "int"; value: number };
                 /**
-                 * The UUID of the premium world template this world was created with. Used for [Marketplace worlds](Marketplace#Worlds). *info needed*
+                 * The UUID of the premium world template this world was created with. Used for [Marketplace worlds](https://minecraft.wiki/w/Marketplace#Worlds). *info needed*
                  *
                  * @default
                  * ""
                  */
                 prid?: { type: "string"; value: string };
                 /**
-                 * The `projectilescanbreakblocks` [game rule](game rule).
+                 * The `projectilescanbreakblocks` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13566,7 +16947,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 projectilescanbreakblocks?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `pvp` [game rule](game rule).
+                 * The `pvp` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13588,13 +16969,13 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 RandomSeed?: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * The `randomtickspeed` [game rule](game rule).
+                 * The `randomtickspeed` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @default 1
                  */
                 randomtickspeed?: { type: "int"; value: number };
                 /**
-                 * The `recipesunlock` [game rule](game rule).
+                 * The `recipesunlock` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13614,7 +16995,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 requiresCopiedPackRemovalCheck?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `respawnblocksexplode` [game rule](game rule).
+                 * The `respawnblocksexplode` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13624,7 +17005,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 respawnblocksexplode?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `sendcommandfeedback` [game rule](game rule).
+                 * The `sendcommandfeedback` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13640,7 +17021,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 serverChunkTickRange?: { type: "int"; value: number };
                 /**
-                 * The `showbordereffect` [game rule](game rule).
+                 * The `showbordereffect` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13650,7 +17031,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showbordereffect?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showcoordinates` [game rule](game rule).
+                 * The `showcoordinates` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13660,7 +17041,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showcoordinates?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showdaysplayed` [game rule](game rule).
+                 * The `showdaysplayed` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13670,7 +17051,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showdaysplayed?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showdeathmessages` [game rule](game rule).
+                 * The `showdeathmessages` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13680,7 +17061,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showdeathmessages?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showrecipemessages` [game rule](game rule).
+                 * The `showrecipemessages` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13690,7 +17071,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showrecipemessages?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showtags` [game rule](game rule).
+                 * The `showtags` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13710,7 +17091,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 spawnMobs?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `spawnradius` [game rule](game rule).
+                 * The `spawnradius` [game rule](https://minecraft.wiki/w/game rule).
                  */
                 spawnradius?: { type: "int"; value: number };
                 /**
@@ -13768,14 +17149,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 texturePacksRequired?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](daylight cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](Daylight cycle#Daytime), 12000 is the start of [sunset](Daylight cycle#Sunset/dusk), 13800 is the start of [nighttime](Daylight cycle#Nighttime), 22200 is the start of [sunrise](Daylight cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.
+                 * Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](https://minecraft.wiki/w/daylight cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](https://minecraft.wiki/w/Daylight cycle#Daytime), 12000 is the start of [sunset](https://minecraft.wiki/w/Daylight cycle#Sunset/dusk), 13800 is the start of [nighttime](https://minecraft.wiki/w/Daylight cycle#Nighttime), 22200 is the start of [sunrise](https://minecraft.wiki/w/Daylight cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.
                  *
                  * @default
                  * [high: 0, low: 0]
                  */
                 Time?: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * The `tntexplodes` [game rule](game rule).
+                 * The `tntexplodes` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13785,7 +17166,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 tntexplodes?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `tntexplosiondropdecay` [game rule](game rule).
+                 * The `tntexplosiondropdecay` [game rule](https://minecraft.wiki/w/game rule).
                  *
                  * @enum 0 | 1
                  *
@@ -13818,9 +17199,1404 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * The [multiplayer](multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."
+                 * The [multiplayer](https://minecraft.wiki/w/multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."
                  */
-                XBLBroadcastIntent?: { type: "int"; value: number };
+                XBLBroadcastIntent?: { type: "int"; value: number } & ({ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 3 });
+            };
+        };
+
+        /**
+         * The structure data of the Overworld dimension, this is the data for the `dimension0` LevelDB key.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LegacyOverworld}
+         */
+        export type LegacyOverworld = {
+            type: "compound";
+            value: {
+                /**
+                 * Woodland Mansions
+                 *
+                 * The list of woodland mansions.
+                 */
+                mansion?: {
+                    type: "compound";
+                    value: {
+                        structures?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Bounding Box
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @minItems 6
+                                     *
+                                     * @maxItems 6
+                                     */
+                                    BB: { type: "intArray"; value: number[] };
+                                    /**
+                                     * Children
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Children: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            value: {
+                                                /**
+                                                 * Bounding Box
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @minItems 6
+                                                 *
+                                                 * @maxItems 6
+                                                 */
+                                                BB: { type: "intArray"; value: number[] };
+                                                /**
+                                                 * ID
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                ID: { type: "int"; value: number };
+                                                /**
+                                                 * Mirror
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1 | 2 | 3
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: UNDOCUMENTED.
+                                                 * - `1`: UNDOCUMENTED.
+                                                 * - `2`: UNDOCUMENTED.
+                                                 * - `3`: UNDOCUMENTED.
+                                                 */
+                                                Mirror: { type: "int"; value: 0 | 1 | 2 | 3 };
+                                                /**
+                                                 * Rotation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1 | 2 | 3
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: UNDOCUMENTED.
+                                                 * - `1`: UNDOCUMENTED.
+                                                 * - `2`: UNDOCUMENTED.
+                                                 * - `3`: UNDOCUMENTED.
+                                                 */
+                                                Rotation: { type: "int"; value: 0 | 1 | 2 | 3 };
+                                                /**
+                                                 * Template
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @example
+                                                 * "entrance"
+                                                 *
+                                                 * @example
+                                                 * "wall_flat"
+                                                 *
+                                                 * @example
+                                                 * "wall_corner"
+                                                 *
+                                                 * @example
+                                                 * "wall_window"
+                                                 *
+                                                 * @example
+                                                 * "roof"
+                                                 *
+                                                 * @example
+                                                 * "roof_front"
+                                                 *
+                                                 * @example
+                                                 * "small_wall"
+                                                 *
+                                                 * @example
+                                                 * "small_wall_corner"
+                                                 *
+                                                 * @example
+                                                 * "roof_corner"
+                                                 *
+                                                 * @example
+                                                 * "roof_inner_corner"
+                                                 *
+                                                 * @example
+                                                 * "corridor_floor"
+                                                 *
+                                                 * @example
+                                                 * "carpet_east"
+                                                 *
+                                                 * @example
+                                                 * "carpet_south"
+                                                 *
+                                                 * @example
+                                                 * "carpet_west"
+                                                 *
+                                                 * @example
+                                                 * "carpet_north"
+                                                 *
+                                                 * @example
+                                                 * "indoors_wall"
+                                                 *
+                                                 * @example
+                                                 * "indoors_door"
+                                                 *
+                                                 * @example
+                                                 * "2x2_a4"
+                                                 *
+                                                 * @example
+                                                 * "1x2_a5"
+                                                 *
+                                                 * @example
+                                                 * "1x1_a3"
+                                                 *
+                                                 * @example
+                                                 * "1x1_a4"
+                                                 *
+                                                 * @example
+                                                 * "2x2_a3"
+                                                 *
+                                                 * @example
+                                                 * "1x2_a7"
+                                                 *
+                                                 * @example
+                                                 * "1x1_a2"
+                                                 *
+                                                 * @example
+                                                 * "1x2_b1"
+                                                 *
+                                                 * @example
+                                                 * "1x2_a9"
+                                                 *
+                                                 * @example
+                                                 * "corridor_floor_2"
+                                                 *
+                                                 * @example
+                                                 * "carpet_south_2"
+                                                 *
+                                                 * @example
+                                                 * "carpet_west_2"
+                                                 *
+                                                 * @example
+                                                 * "indoors_wall_2"
+                                                 *
+                                                 * @example
+                                                 * "indoors_door_2"
+                                                 *
+                                                 * @example
+                                                 * "1x1_b4"
+                                                 *
+                                                 * @example
+                                                 * "1x1_b3"
+                                                 *
+                                                 * @example
+                                                 * "1x1_b2"
+                                                 *
+                                                 * @example
+                                                 * "2x2_b1"
+                                                 *
+                                                 * @example
+                                                 * "2x2_b5"
+                                                 *
+                                                 * @example
+                                                 * "1x2_c4"
+                                                 *
+                                                 * @example
+                                                 * "2x2_b4"
+                                                 *
+                                                 * @example
+                                                 * "1x2_c_stairs"
+                                                 *
+                                                 * @example
+                                                 * "1x2_c3"
+                                                 *
+                                                 * @example
+                                                 * "1x2_c1"
+                                                 *
+                                                 * @example
+                                                 * "1x1_as3"
+                                                 *
+                                                 * @example
+                                                 * "1x2_d4"
+                                                 */
+                                                Template: { type: "string"; value: string };
+                                                /**
+                                                 * Template Position
+                                                 *
+                                                 * UNDOCUMENTED. A Vector3.
+                                                 */
+                                                TemplatePosition: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                gendepth: { type: "int"; value: number };
+                                                /**
+                                                 * Orientation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                orientation: { type: "int"; value: number };
+                                            }[];
+                                        };
+                                    };
+                                    /**
+                                     * Chunk X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * ID
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ID: { type: "int"; value: number };
+                                    /**
+                                     * Is Valid
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @enum 0 | 1
+                                     *
+                                     * @enumDescriptions
+                                     * - `0`: false
+                                     * - `1`: true
+                                     */
+                                    IsValid: { type: "byte"; value: 0 | 1 };
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /**
+                 * Mineshafts
+                 *
+                 * The list of mineshafts.
+                 */
+                mineshaft: {
+                    type: "compound";
+                    value: {
+                        structures?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Bounding Box
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @minItems 6
+                                     *
+                                     * @maxItems 6
+                                     */
+                                    BB: { type: "intArray"; value: number[] };
+                                    /**
+                                     * Children
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Children: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            value: {
+                                                /**
+                                                 * Bounding Box
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @minItems 6
+                                                 *
+                                                 * @maxItems 6
+                                                 */
+                                                BB: { type: "intArray"; value: number[] };
+                                                /**
+                                                 * ID
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                ID: { type: "int"; value: number };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                gendepth: { type: "int"; value: number };
+                                                /**
+                                                 * Orientation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                orientation: { type: "int"; value: number };
+                                            } & (
+                                                | object
+                                                | {
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      D: { type: "int"; value: number };
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      tf: { type: "byte"; value: 0 | 1 };
+                                                  }
+                                                | {
+                                                      /**
+                                                       * Entrances
+                                                       *
+                                                       * The bounding boxes of the entrances.
+                                                       */
+                                                      Entrances: { type: "list"; value: { type: "intArray"; value: number[][] } };
+                                                  }
+                                                | {
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      Num: { type: "int"; value: number };
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hps: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hr: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      sc: { type: "byte"; value: 0 | 1 };
+                                                  }
+                                            )[];
+                                        };
+                                    };
+                                    /**
+                                     * Chunk X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * ID
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ID: { type: "int"; value: number };
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /**
+                 * Ocean Monuments
+                 *
+                 * The list of ocean monuments.
+                 */
+                oceans: {
+                    type: "compound";
+                    value: {
+                        structures?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Bounding Box
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @minItems 6
+                                     *
+                                     * @maxItems 6
+                                     */
+                                    BB: { type: "intArray"; value: number[] };
+                                    /**
+                                     * Children
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Children: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            value: {
+                                                /**
+                                                 * Bounding Box
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @minItems 6
+                                                 *
+                                                 * @maxItems 6
+                                                 */
+                                                BB: { type: "intArray"; value: number[] };
+                                                /**
+                                                 * ID
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                ID: { type: "int"; value: number };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                gendepth: { type: "int"; value: number };
+                                                /**
+                                                 * Orientation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                orientation: { type: "int"; value: number };
+                                            }[];
+                                        };
+                                    };
+                                    /**
+                                     * Chunk X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * ID
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ID: { type: "int"; value: number };
+                                    /**
+                                     * Is Created
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @enum 0 | 1
+                                     *
+                                     * @enumDescriptions
+                                     * - `0`: false
+                                     * - `1`: true
+                                     */
+                                    iscreated: { type: "byte"; value: 0 | 1 };
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /**
+                 * Temples
+                 *
+                 * The list of temples (desert pyramids, jungle pyramids, igloos, and swamp huts).
+                 */
+                scattered: {
+                    type: "compound";
+                    value: {
+                        structures?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Bounding Box
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @minItems 6
+                                     *
+                                     * @maxItems 6
+                                     */
+                                    BB: { type: "intArray"; value: number[] };
+                                    /**
+                                     * Children
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Children: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            value: {
+                                                /**
+                                                 * Bounding Box
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @minItems 6
+                                                 *
+                                                 * @maxItems 6
+                                                 */
+                                                BB: { type: "intArray"; value: number[] };
+                                                /**
+                                                 * Depth
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                Depth: { type: "int"; value: number };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                HPos: { type: "int"; value: number };
+                                                /**
+                                                 * Height
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                Height: { type: "int"; value: number };
+                                                /**
+                                                 * ID
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                ID: { type: "int"; value: number };
+                                                /**
+                                                 * Width
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                Width: { type: "int"; value: number };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                gendepth: { type: "int"; value: number };
+                                                /**
+                                                 * Orientation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                orientation: { type: "int"; value: number };
+                                            } & (
+                                                | object
+                                                | {
+                                                      /**
+                                                       * Witch
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      Witch: { type: "byte"; value: 0 | 1 };
+                                                  }
+                                                | {
+                                                      /**
+                                                       * Has Placed Chest 0
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hasPlacedChest0: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * Has Placed Chest 1
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hasPlacedChest1: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * Has Placed Chest 2
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hasPlacedChest2: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * Has Placed Chest 3
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hasPlacedChest3: { type: "byte"; value: 0 | 1 };
+                                                  }
+                                                | {
+                                                      /**
+                                                       * Has Placed Hidden Chest
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hasPlacedHiddenChest: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * Has Placed Main Chest
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hasPlacedMainChest: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * Has Placed Trap 0
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hasPlacedTrap0: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * Has Placed Trap 1
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      hasPlacedTrap1: { type: "byte"; value: 0 | 1 };
+                                                  }
+                                            )[];
+                                        };
+                                    };
+                                    /**
+                                     * Chunk X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * ID
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ID: { type: "int"; value: number };
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /**
+                 * Strongholds
+                 *
+                 * The list of strongholds.
+                 */
+                stronghold: {
+                    type: "compound";
+                    value: {
+                        structures?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Bounding Box
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @minItems 6
+                                     *
+                                     * @maxItems 6
+                                     */
+                                    BB: { type: "intArray"; value: number[] };
+                                    /**
+                                     * Children
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Children: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            value: {
+                                                /**
+                                                 * Bounding Box
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @minItems 6
+                                                 *
+                                                 * @maxItems 6
+                                                 */
+                                                BB: { type: "intArray"; value: number[] };
+                                                /**
+                                                 * Entry Door
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                EntryDoor: { type: "int"; value: number };
+                                                /**
+                                                 * ID
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                ID: { type: "int"; value: number };
+                                                /**
+                                                 * Steps
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                Steps?: { type: "int"; value: number };
+                                                /**
+                                                 * Left
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                Left?: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * Right
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                Right?: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                gendepth: { type: "int"; value: number };
+                                                /**
+                                                 * Left High
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                leftHigh?: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * Left Low
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                leftLow?: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * Orientation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                orientation: { type: "int"; value: number };
+                                                /**
+                                                 * Right High
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                rightHigh?: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * Right Low
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                rightLow?: { type: "byte"; value: 0 | 1 };
+                                            }[];
+                                        };
+                                    };
+                                    /**
+                                     * Chunk X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * ID
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ID: { type: "int"; value: number };
+                                    /**
+                                     * Valid
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @enum 0 | 1
+                                     *
+                                     * @enumDescriptions
+                                     * - `0`: false
+                                     * - `1`: true
+                                     */
+                                    Valid: { type: "byte"; value: 0 | 1 };
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /**
+                 * Villages
+                 *
+                 * The list of villages.
+                 */
+                village: {
+                    type: "compound";
+                    value: {
+                        structures?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Bounding Box
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @minItems 6
+                                     *
+                                     * @maxItems 6
+                                     */
+                                    BB: { type: "intArray"; value: number[] };
+                                    /**
+                                     * Children
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Children: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            value: {
+                                                /**
+                                                 * Is Abandoned
+                                                 *
+                                                 * Whether this is an village is abandoned.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                Abandoned: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * Bounding Box
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @minItems 6
+                                                 *
+                                                 * @maxItems 6
+                                                 */
+                                                BB: { type: "intArray"; value: number[] };
+                                                /**
+                                                 * Is Desert Village
+                                                 *
+                                                 * Whether this is a desert village.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                Desert: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                HPos: { type: "int"; value: number };
+                                                /**
+                                                 * ID
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                ID: { type: "int"; value: number };
+                                                /**
+                                                 * Is Savannah Village
+                                                 *
+                                                 * Whether this is a savannah village.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                Savannah: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * Is Taiga Village
+                                                 *
+                                                 * Whether this is a taiga village.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                Taiga: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                VCount: { type: "int"; value: number };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                gendepth: { type: "int"; value: number };
+                                                /**
+                                                 * Orientation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                orientation: { type: "int"; value: number };
+                                            }[];
+                                        };
+                                    };
+                                    /**
+                                     * Chunk X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * ID
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ID: { type: "int"; value: number };
+                                    /**
+                                     * Valid
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @enum 0 | 1
+                                     *
+                                     * @enumDescriptions
+                                     * - `0`: false
+                                     * - `1`: true
+                                     */
+                                    Valid: { type: "byte"; value: 0 | 1 };
+                                }[];
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        /**
+         * The structure data of the Nether dimension, this is the data for the `dimension1` LevelDB key.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LegacyNether}
+         */
+        export type LegacyNether = {
+            type: "compound";
+            value: {
+                /**
+                 * The list of nether fortresses.
+                 */
+                bridge: {
+                    type: "compound";
+                    value: {
+                        structures?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Bounding Box
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @minItems 6
+                                     *
+                                     * @maxItems 6
+                                     */
+                                    BB: { type: "intArray"; value: number[] };
+                                    /**
+                                     * Children
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Children: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            value: {
+                                                /**
+                                                 * Bounding Box
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @minItems 6
+                                                 *
+                                                 * @maxItems 6
+                                                 */
+                                                BB: { type: "intArray"; value: number[] };
+                                                /**
+                                                 * ID
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                ID: { type: "int"; value: number };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                gendepth: { type: "int"; value: number };
+                                                /**
+                                                 * Orientation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                orientation: { type: "int"; value: number };
+                                            }[];
+                                        };
+                                    };
+                                    /**
+                                     * Chunk X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * ID
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ID: { type: "int"; value: number };
+                                }[];
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        /**
+         * The structure data of the End dimension, this is the data for the `dimension2` LevelDB key.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LegacyTheEnd}
+         */
+        export type LegacyTheEnd = {
+            type: "compound";
+            value: {
+                /**
+                 * The list of end cities.
+                 */
+                endcity: {
+                    type: "compound";
+                    value: {
+                        structures?: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Bounding Box
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @minItems 6
+                                     *
+                                     * @maxItems 6
+                                     */
+                                    BB: { type: "intArray"; value: number[] };
+                                    /**
+                                     * Children
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Children: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            value: {
+                                                /**
+                                                 * Bounding Box
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @minItems 6
+                                                 *
+                                                 * @maxItems 6
+                                                 */
+                                                BB: { type: "intArray"; value: number[] };
+                                                /**
+                                                 * ID
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                ID: { type: "int"; value: number };
+                                                /**
+                                                 * Overwrite
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: false
+                                                 * - `1`: true
+                                                 */
+                                                Overwrite: { type: "byte"; value: 0 | 1 };
+                                                /**
+                                                 * Rotation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @enum 0 | 1 | 2 | 3
+                                                 *
+                                                 * @enumDescriptions
+                                                 * - `0`: UNDOCUMENTED.
+                                                 * - `1`: UNDOCUMENTED.
+                                                 * - `2`: UNDOCUMENTED.
+                                                 * - `3`: UNDOCUMENTED.
+                                                 */
+                                                Rotation: { type: "int"; value: 0 | 1 | 2 | 3 };
+                                                /**
+                                                 * Template
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * @example
+                                                 * "base_floor"
+                                                 *
+                                                 * @example
+                                                 * "second_floor"
+                                                 *
+                                                 * @example
+                                                 * "third_floor"
+                                                 *
+                                                 * @example
+                                                 * "third_roof"
+                                                 *
+                                                 * @example
+                                                 * "tower_base"
+                                                 *
+                                                 * @example
+                                                 * "tower_piece"
+                                                 *
+                                                 * @example
+                                                 * "bridge_end"
+                                                 *
+                                                 * @example
+                                                 * "bridge_piece"
+                                                 *
+                                                 * @example
+                                                 * "bridge_steep_stairs"
+                                                 *
+                                                 * @example
+                                                 * "base_roof"
+                                                 *
+                                                 * @example
+                                                 * "bridge_gentle_stairs"
+                                                 *
+                                                 * @example
+                                                 * "second_floor_2"
+                                                 *
+                                                 * @example
+                                                 * "third_floor_c"
+                                                 *
+                                                 * @example
+                                                 * "fat_tower_base"
+                                                 *
+                                                 * @example
+                                                 * "fat_tower_middle"
+                                                 *
+                                                 * @example
+                                                 * "ship"
+                                                 *
+                                                 * @example
+                                                 * "fat_tower_top"
+                                                 *
+                                                 * @example
+                                                 * "tower_top"
+                                                 *
+                                                 * @example
+                                                 * "second_roof"
+                                                 */
+                                                Template: { type: "string"; value: string };
+                                                /**
+                                                 * Template Position
+                                                 *
+                                                 * UNDOCUMENTED. A Vector3.
+                                                 */
+                                                TemplatePosition: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                                /**
+                                                 * UNTITLED.
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                gendepth: { type: "int"; value: number };
+                                                /**
+                                                 * Orientation
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                orientation: { type: "int"; value: number };
+                                            }[];
+                                        };
+                                    };
+                                    /**
+                                     * Chunk X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * ID
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ID: { type: "int"; value: number };
+                                }[];
+                            };
+                        };
+                    };
+                };
             };
         };
 
@@ -14051,7 +18827,12 @@ however when the corresponding block in the block layer is broken, this block ge
                  *
                  * The current tick.
                  */
-                currentTick: { type: "int"; value: number };
+                currentTick?: { type: "int"; value: number };
+                /**
+                 * Tick List
+                 *
+                 * The list of pending ticks.
+                 */
                 tickList: {
                     type: "list";
                     value: {
@@ -14064,29 +18845,35 @@ however when the corresponding block in the block layer is broken, this block ge
                              */
                             blockState?: Block;
                             /**
+                             * Tile ID
+                             *
+                             * The tile ID of this block. This was used in older versions of Minecraft.
+                             */
+                            tileID?: { type: "int"; value: number };
+                            /**
                              * Time
                              *
                              * The tick that this block should be ticked.
                              */
-                            time?: { type: "long"; value: [high: number, low: number] };
+                            time: { type: "long"; value: [high: number, low: number] };
                             /**
                              * X
                              *
                              * The world x-position of the block.
                              */
-                            x?: { type: "int"; value: number };
+                            x: { type: "int"; value: number };
                             /**
                              * Y
                              *
                              * The world y-position of the block.
                              */
-                            y?: { type: "int"; value: number };
+                            y: { type: "int"; value: number };
                             /**
                              * Z
                              *
                              * The world z-position of the block.
                              */
-                            z?: { type: "int"; value: number };
+                            z: { type: "int"; value: number };
                         }[];
                     };
                 };
@@ -14143,6 +18930,93 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The PositionTrackingLastId schema.
+         *
+         * The last ID for the lodestone compass position tracking database.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.PositionTrackingLastId}
+         */
+        export type PositionTrackingLastId = {
+            type: "compound";
+            value: {
+                /**
+                 * ID
+                 *
+                 * The last ID for the lodestone compass position tracking database. It is stored in hex format. ex. 0x00000002
+                 *
+                 * @default "0x00000000"
+                 */
+                id?: { type: "string"; value: string };
+                /**
+                 * Version
+                 *
+                 * The version of the lodestone compass position tracking database, currently 1.
+                 *
+                 * @default 1
+                 */
+                version?: { type: "byte"; value: number };
+            };
+        };
+
+        /**
+         * The PositionTrackingDB schema.
+         *
+         * An entry in the lodestone compass position tracking database.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.PositionTrackingDB}
+         */
+        export type PositionTrackingDB = {
+            type: "compound";
+            value: {
+                /**
+                 * Dimension
+                 *
+                 * The dimension of the lodestone the associated lodestone compass points to.
+                 *
+                 * @enum 0 | 1 | 2
+                 *
+                 * @enumDescriptions
+                 * - `0`: Overworld
+                 * - `1`: Nether
+                 * - `2`: The End
+                 */
+                dim?: { type: "int"; value: 0 | 1 | 2 };
+                /**
+                 * ID
+                 *
+                 * The last ID for the lodestone compass position tracking database. It is stored in hex format. ex. 0x00000002
+                 *
+                 * @example
+                 * "0x00000001"
+                 *
+                 * @example
+                 * "0x00000002"
+                 */
+                id?: { type: "string"; value: string };
+                /**
+                 * Position
+                 *
+                 * The location of the lodestone the associated lodestone compass points to. A Vector3.
+                 */
+                pos?: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                /**
+                 * Status
+                 *
+                 * UNDOCUMENTED. Currently observed value is 0, but there could be other possible values.
+                 */
+                status?: { type: "byte"; value: number };
+                /**
+                 * Version
+                 *
+                 * The version of the lodestone compass position tracking database that this entry was saved in, currently 1.
+                 *
+                 * @default 1
+                 */
+                version?: { type: "byte"; value: number };
+            };
+        };
+
+        /**
          * The RandomTicks schema.
          *
          * The list of random ticks for a chunk.
@@ -14158,6 +19032,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  * The current tick.
                  */
                 currentTick: { type: "int"; value: number };
+                /**
+                 * Tick List
+                 *
+                 * The list of random ticks.
+                 */
                 tickList: {
                     type: "list";
                     value: {
@@ -14168,31 +19047,31 @@ however when the corresponding block in the block layer is broken, this block ge
                              *
                              * The block type and block states of this block.
                              */
-                            blockState?: Block;
+                            blockState: Block;
                             /**
                              * Time
                              *
                              * The tick that this block should be ticked.
                              */
-                            time?: { type: "long"; value: [high: number, low: number] };
+                            time: { type: "long"; value: [high: number, low: number] };
                             /**
                              * X
                              *
                              * The world x-position of the block.
                              */
-                            x?: { type: "int"; value: number };
+                            x: { type: "int"; value: number };
                             /**
                              * Y
                              *
                              * The world y-position of the block.
                              */
-                            y?: { type: "int"; value: number };
+                            y: { type: "int"; value: number };
                             /**
                              * Z
                              *
                              * The world z-position of the block.
                              */
-                            z?: { type: "int"; value: number };
+                            z: { type: "int"; value: number };
                         }[];
                     };
                 };
@@ -19647,13 +24526,481 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The Data2DLegacy schema.
+         *
+         * The NBT structure of the parsed data of the Data2DLegacy content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Data2DLegacy}
+         */
+        export type Data2DLegacy = {
+            type: "compound";
+            value: {
+                /**
+                 * The height map data.
+                 *
+                 * In it is stored as a 2D matrix with [x][z] height values.
+                 *
+                 * @minItems 16
+                 *
+                 * @maxItems 16
+                 */
+                heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                /**
+                 * The biome data.
+                 *
+                 * In it is stored as a 2D matrix with [x][z] tuples of a biome numeric ID followed by red, green and blue values.
+                 *
+                 * @minItems 16
+                 *
+                 * @maxItems 16
+                 */
+                biomeData: {
+                    type: "list";
+                    value: { type: "list"; value: { type: "list"; value: { type: "byte"; value: [number, number, number, number] }[] }[] };
+                };
+            };
+        };
+
+        /**
+         * The Data2D schema.
+         *
+         * The NBT structure of the parsed data of the Data2D content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Data2D}
+         */
+        export type Data2D = {
+            type: "compound";
+            value: {
+                /**
+                 * The height map data.
+                 *
+                 * In it is stored as a 2D matrix with [x][z] height values.
+                 *
+                 * @minItems 16
+                 *
+                 * @maxItems 16
+                 */
+                heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                /**
+                 * The biome data.
+                 *
+                 * In it is stored as a 2D matrix with [x][z] biome numeric ID values.
+                 *
+                 * @minItems 16
+                 *
+                 * @maxItems 16
+                 */
+                biomeData: { type: "list"; value: { type: "list"; value: { type: "byte"; value: number[] }[] } };
+            };
+        };
+
+        /**
+         * The Data3D schema.
+         *
+         * The NBT structure of the parsed data of the Data3D content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Data3D}
+         */
+        export type Data3D = {
+            type: "compound";
+            value: {
+                /**
+                 * The height map data.
+                 *
+                 * In it is stored as a 2D matrix with [x][z] height values.
+                 *
+                 * @minItems 16
+                 *
+                 * @maxItems 16
+                 */
+                heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                /**
+                 * The biome data.
+                 */
+                biomes: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * The biome values.
+                             *
+                             * This is an array of indices in the biome palette, one for each block.
+                             *
+                             * @minItems 4096
+                             *
+                             * @maxItems 4096
+                             */
+                            values: { type: "list"; value: { type: "int"; value: number[] } };
+                            /**
+                             * The biome palette.
+                             *
+                             * This is an array of the biome numeric IDs.
+                             *
+                             * @minItems 4096
+                             *
+                             * @maxItems 4096
+                             */
+                            palette: { type: "list"; value: { type: "int"; value: number[] } };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The Digest schema.
+         *
+         * The NBT structure of the parsed data of the Digest content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Digest}
+         */
+        export type Digest = {
+            type: "compound";
+            value: {
+                /**
+                 * Entity IDs
+                 *
+                 * The UUIDs of all of the entities in the associated chunk.
+                 */
+                entityIds: { type: "list"; value: { type: "long"; value: [high: number, low: number][] } };
+            };
+        };
+
+        /**
+         * The LegacyTerrain schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the LegacyTerrain content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LegacyTerrain}
+         */
+        export type LegacyTerrain = {
+            type: "compound";
+            value: {
+                /**
+                 * Block IDs
+                 *
+                 * 32768 block IDs representing a 16x16x128 chunk.
+                 *
+                 * @minItems 32768
+                 *
+                 * @maxItems 32768
+                 */
+                block_ids: { type: "list"; value: { type: "byte"; value: number[] } };
+                /**
+                 * Block Data
+                 *
+                 * Metadata nibble for each block (0-15).
+                 *
+                 * @minItems 32768
+                 *
+                 * @maxItems 32768
+                 */
+                block_data: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                /**
+                 * Sky Light
+                 *
+                 * Sky light nibble for each block (0-15).
+                 *
+                 * @minItems 32768
+                 *
+                 * @maxItems 32768
+                 */
+                sky_light: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                /**
+                 * Block Light
+                 *
+                 * Block light nibble for each block (0-15).
+                 *
+                 * @minItems 32768
+                 *
+                 * @maxItems 32768
+                 */
+                block_light: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                /**
+                 * Dirty Columns
+                 *
+                 * 256 bytes representing a 16x16 grid of dirty column flags.
+                 *
+                 * @minItems 256
+                 *
+                 * @maxItems 256
+                 */
+                dirty_columns: { type: "list"; value: { type: "byte"; value: number[] } };
+                /**
+                 * Grass Color
+                 *
+                 * 1024 bytes representing a 16x16x4 array of grass color data.
+                 *
+                 * @minItems 1024
+                 *
+                 * @maxItems 1024
+                 */
+                grass_color: { type: "list"; value: { type: "byte"; value: number[] } };
+            };
+        };
+
+        /**
+         * The LevelChunkMetaDataDictionary schema.
+         *
+         * Stores the NBT metadata of all chunks. Maps the xxHash64 hash of NBT data to that NBT data, so that each chunk need only store 8 bytes instead of the entire NBT; most chunks have the same metadata.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LevelChunkMetaDataDictionary}
+         */
+        export type LevelChunkMetaDataDictionary = {
+            type: "compound";
+            value: {
+                [key: string]: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * Biome Base Game Version
+                         *
+                         * UNDOCUMENTED. Currently observed value is "1.18.0".
+                         *
+                         * @example
+                         * "1.18.0"
+                         */
+                        BiomeBaseGameVersion: { type: "string"; value: string };
+                        /**
+                         * Dimension Name
+                         *
+                         * The name of the dimension the chunk is in.
+                         *
+                         * @enum "Overworld" | "Nether" | "TheEnd"
+                         *
+                         * @enumDescriptions
+                         * - `Overworld`: The Overworld dimension
+                         * - `Nether`: The Nether dimension
+                         * - `TheEnd`: The End dimension
+                         */
+                        DimensionName: { type: "string"; value: "Overworld" | "Nether" | "TheEnd" };
+                        /**
+                         * Generation Seed
+                         *
+                         * The seed used to generate the chunk. This is whatever the seed of the world was when the chunk was generated.
+                         */
+                        GenerationSeed: { type: "long"; value: [high: number, low: number] };
+                        /**
+                         * Generator Type
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        GeneratorType: { type: "int"; value: number };
+                        /**
+                         * Last Saved Base Game Version
+                         *
+                         * The base game version of the world when the chunk was last saved. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.
+                         */
+                        LastSavedBaseGameVersion?: { type: "string"; value: string };
+                        /**
+                         * Last Saved Dimension Height Range
+                         *
+                         * The height range of the chunk's dimension when the chunk was last saved.
+                         */
+                        LastSavedDimensionHeightRange?: {
+                            type: "compound";
+                            value: {
+                                /**
+                                 * Max
+                                 *
+                                 * The maximum height limit of the chunk's dimension when the chunk was last saved.
+                                 */
+                                max: { type: "short"; value: number };
+                                /**
+                                 * Min
+                                 *
+                                 * The minimum height limit of the chunk's dimension when the chunk was last saved.
+                                 */
+                                min: { type: "short"; value: number };
+                            };
+                        };
+                        /**
+                         * Neighbor Aware Block Upgrade Version
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        NeighborAwareBlockUpgradeVersion?: { type: "int"; value: number };
+                        /**
+                         * Original Base Game Version
+                         *
+                         * The base game version of the world when the chunk was originally generated. If no base game version was set at the time, then this is the Minecraft version that was running the world at the time.
+                         */
+                        OriginalBaseGameVersion: { type: "string"; value: string };
+                        /**
+                         * Original Dimension Height Range
+                         *
+                         * The height range of the chunk's dimension when the chunk was originally generated.
+                         */
+                        OriginalDimensionHeightRange: {
+                            type: "compound";
+                            value: {
+                                /**
+                                 * Max
+                                 *
+                                 * The maximum height limit of the chunk's dimension when the chunk was originally generated.
+                                 */
+                                max: { type: "short"; value: number };
+                                /**
+                                 * Min
+                                 *
+                                 * The minimum height limit of the chunk's dimension when the chunk was originally generated.
+                                 */
+                                min: { type: "short"; value: number };
+                            };
+                        };
+                        /**
+                         * Overworld 1.18 Height Extended
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        Overworld1_18HeightExtended?: { type: "short"; value: number };
+                        /**
+                         * Skull Flattening Performed
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        SkullFlatteningPerformed: { type: "short"; value: number };
+                        /**
+                         * Underwater Lava Lake Fixed
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        UnderwaterLavaLakeFixed?: { type: "short"; value: number };
+                        /**
+                         * World Gen Below Zero Fixed
+                         *
+                         * UNDOCUMENTED. Currently observed value is 1.
+                         *
+                         * @example 1
+                         */
+                        WorldGenBelowZeroFixed?: { type: "short"; value: number };
+                    } & {
+                        [key: string]: { type: any; value: any };
+                    };
+                };
+            };
+        };
+
+        /**
          * The SubChunkPrefix schema.
          *
          * A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.
          *
          * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefix}
          */
-        export type SubChunkPrefix = {
+        export type SubChunkPrefix = { type: "compound"; value: object } & (SubChunkPrefix_v0 | SubChunkPrefix_v1 | SubChunkPrefix_v8);
+
+        /**
+         * The SubChunkPrefix schema for versions 0, 2, 3, 4, 5, 6, and 7.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefix_v0}
+         */
+        export type SubChunkPrefix_v0 = {
+            type: "compound";
+            value: {
+                /**
+                 * @enum 0 | 2 | 3 | 4 | 5 | 6 | 7
+                 */
+                version: { type: "byte"; value: 0 | 2 | 3 | 4 | 5 | 6 | 7 };
+                /**
+                 * Block IDs
+                 *
+                 * The block IDs representing each block in the subchunk.
+                 *
+                 * @minItems 4096
+                 *
+                 * @maxItems 4096
+                 */
+                block_ids: { type: "list"; value: { type: "byte"; value: number[] } };
+                /**
+                 * Block Data
+                 *
+                 * The data values for each block in the subchunk.
+                 *
+                 * @minItems 4096
+                 *
+                 * @maxItems 4096
+                 */
+                block_data: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                /**
+                 * Sky Light
+                 *
+                 * The sky light values for each block in the subchunk. Only written in older versions, and is ignored in newer versions.
+                 *
+                 * @minItems 4096
+                 *
+                 * @maxItems 4096
+                 */
+                sky_light?: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                /**
+                 * Block Light
+                 *
+                 * The block light values for each block in the subchunk. Only written in older versions, and is ignored in newer versions.
+                 *
+                 * @minItems 4096
+                 *
+                 * @maxItems 4096
+                 */
+                block_light?: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+            };
+        };
+
+        /**
+         * The SubChunkPrefix schema for version 1.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefix_v1}
+         */
+        export type SubChunkPrefix_v1 = {
+            type: "compound";
+            value: {
+                /**
+                 * @enum 1
+                 */
+                version: { type: "byte"; value: 1 };
+                /**
+                 * @enum 1
+                 */
+                layerCount: { type: "byte"; value: 1 };
+                layers: { type: "list"; value: { type: "compound"; value: [SubChunkPrefixLayer["value"]] } };
+            };
+        };
+
+        /**
+         * The SubChunkPrefix schema for versions 8 and 9.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefix_v8}
+         */
+        export type SubChunkPrefix_v8 = {
             type: "compound";
             value: {
                 /**
@@ -19676,13 +25023,21 @@ however when the corresponding block in the block layer is broken, this block ge
         export type SubChunkPrefixLayer = {
             type: "compound";
             value: {
-                storageVersion: { type: "byte"; value: number };
+                /**
+                 * @enum 1 | 2 | 3 | 4 | 5 | 6 | 8 | 16
+                 */
+                storageVersion: { type: "byte"; value: 1 | 2 | 3 | 4 | 5 | 6 | 8 | 16 };
                 palette: {
                     type: "compound";
                     value: {
                         [key: string]: Block;
                     };
                 };
+                /**
+                 * @minItems 4096
+                 *
+                 * @maxItems 4096
+                 */
                 block_indices: { type: "list"; value: { type: "int"; value: number[] } };
             };
         };

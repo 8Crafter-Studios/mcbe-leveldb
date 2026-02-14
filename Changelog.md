@@ -1,3 +1,54 @@
+# v1.10.0
+
+## Breaking Changes
+
+-   The `Dimension` content type and corresponding NBT schema have been split up into three new content types and NBT schemas:
+    -   `Overworld`
+    -   `Nether`
+    -   `TheEnd`
+-   The `LegacyDimension` content type has been split up into three new content types:
+    -   `LegacyOverworld`
+    -   `LegacyNether`
+    -   `LegacyTheEnd`
+-   All NBT schemas have been updated to have descriptions specified on the `markdownDescription` property instead of the `description` property.
+-   All NBT schemas have been updated to have enum descriptions specified on the `markdownEnumDescriptions` property instead of the `enumDescriptions` property.
+
+## Additions
+
+-   Added a custom serializer and parser for the `LegacyTerrain` content type.
+-   Added the `LegacyTerrain` NBT schema.
+-   Added a custom serializer and parser for the `Data2D` content type.
+-   Added the `Data2D` NBT schema.
+-   Added a custom serializer and parser for the `Data2DLegacy` content type.
+-   Added the `Data2DLegacy` NBT schema.
+-   Added support for `SubChunkPrefix` versions `0x00`, `0x01`, `0x02`, `0x03`, `0x04`, `0x05`, `0x06`, and `0x07`.
+-   Split the `SubChunkPrefix` NBT schema into three versioned schemas, the `SubChunkPrefix` NBT schema now is a union of the three versioned schemas:
+    -   `SubChunkPrefix_v0` (versions 0, 2, 3, 4, 5, 6, and 7)
+    -   `SubChunkPrefix_v1` (version 1)
+    -   `SubChunkPrefix_v8` (versions 8 and 9, the same as the previous `SubChunkPrefix` NBT schema)
+-   Added the `LegacyOverworld` NBT schema.
+-   Added the `LegacyNether` NBT schema.
+-   Added the `LegacyTheEnd` NBT schema.
+-   Added the `PositionTrackingLastId` NBT schema.
+-   Added the `PositionTrackingDB` NBT schema.
+-   Added examples for the `InventoryVersion` property of the `LevelDat` NBT schema.
+-   Added the `DBEntryContentTypesGrouping` constant.
+-   Added the `DBEntryContentTypeGroup` type.
+-   Added the `tileID` property to the `PendingTicks` NBT schema.
+-   Added default values for the following content types:
+    -   `PendingTicks`
+    -   `RandomTicks`
+-   Added an enum to the `storageVersion` property of the `SubChunkPrefixLayer` NBT schema.
+-   Added min and max item count values to several properties of various NBT schemas.
+-   Added the `package.json` file to the `package.json` file's `exports` field.
+
+## Fixes
+
+-   The `currentTick` property of the `PendingTicks` NBT schema is now marked as optional as in older versions it doesn't exist.
+-   The `time`, `x`, `y`, and `z` properties of the `PendingTicks` and `RandomTicks` NBT schemas are now marked as required.
+-   The `blockState` property of the `RandomTicks` NBT schema is now marked as required.
+-   Fixed over 100 markdown links in the NBT schemas that were missing a `https://minecraft.wiki/w/` prefix.
+
 # v1.9.1
 
 ## Critical Fixes
@@ -22,7 +73,7 @@
 
 ## Fixes
 
--   `prettyPrintSNBT` no longer inserts newlines when the `indent` option is set to `0`. 
+-   `prettyPrintSNBT` no longer inserts newlines when the `indent` option is set to `0`.
 
 # v1.8.0
 

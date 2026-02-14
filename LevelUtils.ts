@@ -3,6 +3,8 @@ import NBT from "prismarine-nbt";
 import BiomeData from "./__biome_data__.ts";
 import type { LevelDB } from "@8crafter/leveldb-zlib";
 import type { NBTSchemas } from "./nbtSchemas.ts";
+import type { Range } from "./types.js";
+import { toLongParts } from "./SNBTUtils.ts";
 
 //#region Local Constants
 
@@ -443,6 +445,11 @@ function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer<
     return Buffer.concat([header, packed]);
 }
 
+function fakeAssertType<T>(value: unknown): asserts value is T {
+    void value;
+    return;
+}
+
 //#endregion
 
 // --------------------------------------------------------------------------------
@@ -509,14 +516,18 @@ export const DBEntryContentTypes = [
     "StructureTemplate",
     "TickingArea",
     "FlatWorldLayers",
-    "LegacyDimension",
+    "LegacyOverworld",
+    "LegacyNether",
+    "LegacyTheEnd",
     "MVillages",
     "Villages",
     "LevelSpawnWasFixed",
     "PositionTrackingDB",
     "PositionTrackingLastId",
     "Scoreboard",
-    "Dimension",
+    "Overworld",
+    "Nether",
+    "TheEnd",
     "AutonomousEntities",
     "BiomeData",
     "BiomeIdsTable",
@@ -530,6 +541,82 @@ export const DBEntryContentTypes = [
     // Misc.
     "Unknown",
 ] as const;
+
+/**
+ * Maps content types to grouping labels.
+ *
+ * Most content types are not grouped, only a few are.
+ */
+export const DBEntryContentTypesGrouping = {
+    // Biome Linked
+    Data3D: "Data3D",
+    Version: "Version",
+    Data2D: "Data2D",
+    Data2DLegacy: "Data2DLegacy",
+    SubChunkPrefix: "SubChunkPrefix",
+    LegacyTerrain: "LegacyTerrain",
+    BlockEntity: "BlockEntity",
+    Entity: "Entity",
+    PendingTicks: "PendingTicks",
+    LegacyBlockExtraData: "LegacyBlockExtraData",
+    BiomeState: "BiomeState",
+    FinalizedState: "FinalizedState",
+    ConversionData: "ConversionData",
+    BorderBlocks: "BorderBlocks",
+    HardcodedSpawners: "HardcodedSpawners",
+    RandomTicks: "RandomTicks",
+    Checksums: "Checksums",
+    GenerationSeed: "GenerationSeed",
+    GeneratedPreCavesAndCliffsBlending: "GeneratedPreCavesAndCliffsBlending",
+    BlendingBiomeHeight: "BlendingBiomeHeight",
+    MetaDataHash: "MetaDataHash",
+    BlendingData: "BlendingData",
+    ActorDigestVersion: "ActorDigestVersion",
+    LegacyVersion: "LegacyVersion",
+    AABBVolumes: "AABBVolumes",
+    // Village
+    VillageDwellers: "VillageDwellers",
+    VillageInfo: "VillageInfo",
+    VillagePOI: "VillagePOI",
+    VillagePlayers: "VillagePlayers",
+    VillageRaid: "VillageRaid",
+    // Standalone
+    Player: "Player",
+    PlayerClient: "PlayerClient",
+    ActorPrefix: "ActorPrefix",
+    ChunkLoadedRequest: "ChunkLoadedRequest",
+    Digest: "Digest",
+    Map: "Map",
+    Portals: "Portals",
+    SchedulerWT: "SchedulerWT",
+    StructureTemplate: "StructureTemplate",
+    TickingArea: "TickingArea",
+    FlatWorldLayers: "FlatWorldLayers",
+    LegacyOverworld: "LegacyDimension",
+    LegacyNether: "LegacyDimension",
+    LegacyTheEnd: "LegacyDimension",
+    MVillages: "MVillages",
+    Villages: "Villages",
+    LevelSpawnWasFixed: "LevelSpawnWasFixed",
+    PositionTrackingDB: "PositionTrackingDB",
+    PositionTrackingLastId: "PositionTrackingLastId",
+    Scoreboard: "Scoreboard",
+    Overworld: "Dimension",
+    Nether: "Dimension",
+    TheEnd: "Dimension",
+    AutonomousEntities: "AutonomousEntities",
+    BiomeData: "BiomeData",
+    BiomeIdsTable: "BiomeIdsTable",
+    MobEvents: "MobEvents",
+    DynamicProperties: "DynamicProperties",
+    LevelChunkMetaDataDictionary: "LevelChunkMetaDataDictionary",
+    RealmsStoriesData: "RealmsStoriesData",
+    LevelDat: "LevelDat",
+    // Dev Version
+    ForcedWorldCorruption: "ForcedWorldCorruption",
+    // Misc.
+    Unknown: "Unknown",
+} as const satisfies Record<DBEntryContentType, string>;
 
 // TODO: Look into the supposed `idcounts` LevelDB key that was supposedly in MCPE v0.13.0.
 // TODO: Add support for the LegacyPlayer content type which is based on a number stored in `cilentid.txt`.
@@ -667,31 +754,236 @@ export const entryContentTypeToFormatMap = {
         defaultValue: Buffer.from([41]),
     },
     /**
-     * @deprecated Only used in versions < 1.18.0.
+     * The Data2D content type contains heightmap and biome data for 16x128x16 chunks of the world.
      *
-     * @todo Make a parser for this so that versions < 1.18.0 can be supported.
-     * @todo Add a description for this.
+     * Unlike {@link entryContentTypeToFormatMap.Data3D | Data3D}, this only stores biome data for xz coordinates, so in this format all y coordinates have the same biome.
+     *
+     * @deprecated Only used in versions < 1.18.0.
      */
     Data2D: {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.Data2D.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.Data2D {
+            const heightMap: TupleOfLength16<TupleOfLength16<number>> = Array.from(
+                { length: 16 },
+                (): TupleOfLength16<number> => Array(16).fill(0) as TupleOfLength16<number>
+            ) as TupleOfLength16<TupleOfLength16<number>>;
+
+            for (let i = 0; i < 256; i++) {
+                const val: number = readInt16LE(data, i * 2);
+                const x: number = i % 16;
+                const z: number = Math.floor(i / 16);
+                heightMap[x]![z] = val;
+            }
+
+            const biomeData: TupleOfLength16<TupleOfLength16<number>> = Array.from(
+                { length: 16 },
+                (): TupleOfLength16<number> => Array(16).fill(0) as TupleOfLength16<number>
+            ) as TupleOfLength16<TupleOfLength16<number>>;
+
+            for (let i = 0; i < 256; i++) {
+                const val: number = data.readUInt8(512 + i);
+                const x: number = i % 16;
+                const z: number = Math.floor(i / 16);
+                biomeData[x]![z] = val;
+            }
+
+            return {
+                type: "compound",
+                value: {
+                    heightMap: {
+                        type: "list",
+                        value: {
+                            type: "list",
+                            value: heightMap.map((row: TupleOfLength16<number>) => ({
+                                type: "short",
+                                value: row,
+                            })),
+                        },
+                    },
+                    biomeData: {
+                        type: "list",
+                        value: {
+                            type: "list",
+                            value: biomeData.map((row: TupleOfLength16<number>) => ({
+                                type: "byte",
+                                value: row,
+                            })),
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.Data2D): Buffer<ArrayBuffer> {
+            const heightMap = data.value.heightMap.value.value;
+            const biomeData = data.value.biomeData.value.value;
+
+            const buffer: Buffer<ArrayBuffer> = Buffer.alloc(512 + 256);
+
+            for (let z = 0; z < 16; z++) {
+                for (let x: number = 0; x < 16; x++) {
+                    const i: number = z * 16 + x;
+                    const val: number = heightMap[x]!.value[z]!;
+                    buffer.writeInt16LE(val, i * 2);
+                }
+            }
+
+            for (let z = 0; z < 16; z++) {
+                for (let x: number = 0; x < 16; x++) {
+                    const i: number = z * 16 + x;
+                    const val: number = biomeData[x]!.value[z]!;
+                    buffer.writeUInt8(val, 512 + i);
+                }
+            }
+
+            return buffer;
+        },
     },
     /**
-     * @deprecated Only used in versions < 1.0.0.
+     * The Data2D content type contains heightmap and biome data for 16x128x16 chunks of the world.
      *
-     * @todo Make a parser for this so that versions < 1.0.0 can be supported.
-     * @todo Add a description for this.
+     * Unlike {@link entryContentTypeToFormatMap.Data3D | Data3D}, this only stores biome data for xz coordinates, so in this format all y coordinates have the same biome.
+     *
+     * Unlike both {@link entryContentTypeToFormatMap.Data3D | Data3D} and {@link entryContentTypeToFormatMap.Data2D | Data2D}, this also stores biome color data.
+     *
+     * @deprecated Only used in versions < 1.0.0.
      */
     Data2DLegacy: {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.Data2DLegacy.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.Data2DLegacy {
+            const heightMap: TupleOfLength16<TupleOfLength16<number>> = Array.from(
+                { length: 16 },
+                (): TupleOfLength16<number> => Array(16).fill(0) as TupleOfLength16<number>
+            ) as TupleOfLength16<TupleOfLength16<number>>;
+
+            for (let i = 0; i < 256; i++) {
+                const val: number = readInt16LE(data, i * 2);
+                const x: number = i % 16;
+                const z: number = Math.floor(i / 16);
+                heightMap[x]![z] = val;
+            }
+
+            const biomeData: TupleOfLength16<TupleOfLength16<[biomeId: number, red: number, green: number, blue: number]>> = Array.from(
+                { length: 16 },
+                (): TupleOfLength16<[biomeId: number, red: number, green: number, blue: number]> =>
+                    Array(16).fill(0) as TupleOfLength16<[biomeId: number, red: number, green: number, blue: number]>
+            ) as TupleOfLength16<TupleOfLength16<[biomeId: number, red: number, green: number, blue: number]>>;
+
+            for (let i = 0; i < 256; i++) {
+                const vals: [biomeId: number, red: number, green: number, blue: number] = [
+                    data.readUInt8(512 + i * 4),
+                    data.readUInt8(512 + i * 4 + 1),
+                    data.readUInt8(512 + i * 4 + 2),
+                    data.readUInt8(512 + i * 4 + 3),
+                ];
+                const x: number = i % 16;
+                const z: number = Math.floor(i / 16);
+                biomeData[x]![z] = vals;
+            }
+
+            return {
+                type: "compound",
+                value: {
+                    heightMap: {
+                        type: "list",
+                        value: {
+                            type: "list",
+                            value: heightMap.map((row: TupleOfLength16<number>) => ({
+                                type: "short",
+                                value: row,
+                            })),
+                        },
+                    },
+                    biomeData: {
+                        type: "list",
+                        value: {
+                            type: "list",
+                            value: biomeData.map((row: TupleOfLength16<[biomeId: number, red: number, green: number, blue: number]>) => ({
+                                type: "list",
+                                value: row.map((val: [biomeId: number, red: number, green: number, blue: number]) => ({
+                                    type: "byte",
+                                    value: val,
+                                })),
+                            })),
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.Data2DLegacy): Buffer<ArrayBuffer> {
+            const heightMap = data.value.heightMap.value.value;
+            const biomeData = data.value.biomeData.value.value;
+
+            const buffer: Buffer<ArrayBuffer> = Buffer.alloc(512 + 1024);
+
+            for (let z = 0; z < 16; z++) {
+                for (let x: number = 0; x < 16; x++) {
+                    const i: number = z * 16 + x;
+                    const val: number = heightMap[x]!.value[z]!;
+                    buffer.writeInt16LE(val, i * 2);
+                }
+            }
+
+            for (let z = 0; z < 16; z++) {
+                for (let x: number = 0; x < 16; x++) {
+                    const i: number = z * 16 + x;
+                    const vals: [biomeId: number, red: number, green: number, blue: number] = biomeData[x]!.value[z]!.value;
+                    vals.forEach((val: number, index: number): void => void buffer.writeUInt8(val, 512 + i * 4 + index));
+                }
+            }
+
+            return buffer;
+        },
     },
     /**
-     * The SubChunkPrefix content type contains block data for 16x16x16 chunks of the world.
+     * The SubChunkPrefix content type contains block data for 16x16x16 subchunks of the world.
+     *
+     * In older versions, it may also contain sky and block light data.
      *
      * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefix}
      */
@@ -713,26 +1005,62 @@ export const entryContentTypeToFormatMap = {
          * @returns A promise that resolves with the parsed data.
          *
          * @throws {Error} If the SubChunkPrefix version is unknown.
+         * @throws {Error} If the storage version is unknown.
          */
         async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.SubChunkPrefix> {
             let currentOffset: number = 0;
-            const layers: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"][] = [];
             /**
              * The version of the SubChunkPrefix.
              *
-             * Should be `0x08` (1.2.13 <= x < 1.18.0) or `0x09` (1.18.0 <= x).
+             * Should be `0x00`/`0x02`/`0x03`/`0x04`/`0x05`/`0x06`/`0x07` (1.0.0 <= x < 1.2.13), `0x01` (beta 1.2.13.5), `0x08` (1.2.13 <= x < 1.18.0),  or `0x09` (1.18.0 <= x).
              *
-             * @todo Add handling for `0x00` (found in a Windows 10 Edition Beta v0.15.0 world).
+             * @todo Add handling for `0x00`, `0x02`, `0x03`, `0x04`, `0x05`, `0x06`, and `0x07`.
              */
-            const version: 0x08 | 0x09 = data[currentOffset++]! as any;
-            if (![0x08, 0x09].includes(version)) throw new Error(`Unknown SubChunkPrefix version: ${version}`);
+            const version: 0x00 | 0x01 | 0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 | 0x08 | 0x09 = data[currentOffset++]! as any;
+            if (![0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09].includes(version)) throw new Error(`Unknown SubChunkPrefix version: ${version}`);
+            if (version === 0x00 || version === 0x02 || version === 0x03 || version === 0x04 || version === 0x05 || version === 0x06 || version === 0x07) {
+                const block_ids: number[] = [...data.subarray(currentOffset, currentOffset + 4096)];
+                currentOffset += 4096;
+
+                function unpackNibbleArray(byteCount: number): Range<0, 15>[] {
+                    const slice = data.subarray(currentOffset, currentOffset + byteCount);
+                    currentOffset += byteCount;
+
+                    return [...slice].flatMap((n: number): number[] => [n >> 4, n & 0x0f]) as Range<0, 15>[];
+                }
+
+                const block_data: Range<0, 15>[] = unpackNibbleArray(2048);
+                const sky_light: Range<0, 15>[] | undefined = data.length - currentOffset > 0 ? unpackNibbleArray(2048) : undefined;
+                const block_light: Range<0, 15>[] | undefined = data.length - currentOffset > 0 ? unpackNibbleArray(2048) : undefined;
+                return NBT.comp({
+                    version: NBT.byte<0x00 | 0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07>(version),
+                    block_data: { type: "list", value: { type: "byte", value: block_data } },
+                    block_ids: { type: "list", value: { type: "byte", value: block_ids } },
+                    ...(sky_light ? { sky_light: { type: "list", value: { type: "byte", value: sky_light } } } : {}),
+                    ...(block_light ? { block_light: { type: "list", value: { type: "byte", value: block_light } } } : {}),
+                } as const satisfies NBTSchemas.NBTSchemaTypes.SubChunkPrefix_v0["value"]);
+            }
+            const layers: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"][] = [];
             /**
              * How many blocks are in each location (ex. 2 might mean here is a waterlog layer).
              */
-            let numStorageBlocks: number = data[currentOffset++]!;
+            let numStorageBlocks: number = version === 0x01 ? 1 : data[currentOffset++]!;
             const subChunkIndex: number | undefined = version >= 0x09 ? data[currentOffset++] : undefined;
             for (let blockIndex: number = 0; blockIndex < numStorageBlocks; blockIndex++) {
                 const storageVersion: number = data[currentOffset]!;
+                if (
+                    !(
+                        storageVersion === 1 ||
+                        storageVersion === 2 ||
+                        storageVersion === 3 ||
+                        storageVersion === 4 ||
+                        storageVersion === 5 ||
+                        storageVersion === 6 ||
+                        storageVersion === 8 ||
+                        storageVersion === 16
+                    )
+                )
+                    throw new Error(`Unknown storage version: ${storageVersion}`);
                 currentOffset++;
                 const bitsPerBlock: number = storageVersion >> 1;
                 const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
@@ -790,6 +1118,13 @@ export const entryContentTypeToFormatMap = {
                     block_indices: { type: "list", value: { type: "int", value: block_indices } },
                 });
             }
+            if (version === 0x01) {
+                return NBT.comp({
+                    version: NBT.byte<0x01>(version),
+                    layerCount: NBT.byte<1>(numStorageBlocks as 1),
+                    layers: { type: "list", value: NBT.comp(layers as [(typeof layers)[0]]) },
+                } as const satisfies NBTSchemas.NBTSchemaTypes.SubChunkPrefix_v1["value"]);
+            }
             return NBT.comp({
                 version: NBT.byte<0x08 | 0x09>(version),
                 layerCount: NBT.byte(numStorageBlocks),
@@ -799,7 +1134,7 @@ export const entryContentTypeToFormatMap = {
                         subChunkIndex: NBT.byte(subChunkIndex!),
                     }
                 :   {}),
-            } as const satisfies NBTSchemas.NBTSchemaTypes.SubChunkPrefix["value"]);
+            } as const satisfies NBTSchemas.NBTSchemaTypes.SubChunkPrefix_v8["value"]);
         },
         /**
          * The function to serialize the data.
@@ -810,48 +1145,155 @@ export const entryContentTypeToFormatMap = {
          * @returns The serialized data, as a buffer.
          */
         serialize(data: NBTSchemas.NBTSchemaTypes.SubChunkPrefix): Buffer<ArrayBuffer> {
-            const buffer: Buffer<ArrayBuffer> = Buffer.from([
-                data.value.version.value,
-                data.value.layerCount.value,
-                ...(data.value.version.value >= 0x09 ? [data.value.subChunkIndex!.value] : []),
-            ]);
-            const layerBuffers: Buffer<ArrayBuffer>[] = data.value.layers.value.value.map(
-                (layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer<ArrayBuffer> => {
-                    const bitsPerBlock: number = layer.storageVersion.value >> 1;
-                    const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
-                    const numints: number = Math.ceil(4096 / blocksPerWord);
-                    const bytes: number[] = [layer.storageVersion.value];
-                    const blockIndicesBuffer: Buffer<ArrayBuffer> = Buffer.alloc(Math.ceil(numints * 4));
-                    writeBlockIndices(blockIndicesBuffer, 0, layer.block_indices.value.value, bitsPerBlock, blocksPerWord);
-                    bytes.push(...blockIndicesBuffer);
-                    const paletteLengthBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
-                    setInt32Val(paletteLengthBuffer, 0, Object.keys(layer.palette.value).length);
-                    bytes.push(...paletteLengthBuffer);
-                    const paletteKeys: `${bigint}`[] = (Object.keys(layer.palette.value) as `${bigint}`[]).sort(
-                        (a: `${bigint}`, b: `${bigint}`): number => Number(a) - Number(b)
-                    );
-                    for (let paletteIndex: number = 0; paletteIndex < paletteKeys.length; paletteIndex++) {
-                        const block: NBTSchemas.NBTSchemaTypes.Block = layer.palette.value[paletteKeys[paletteIndex]!]!;
-                        bytes.push(...NBT.writeUncompressed({ name: "", ...block }, "little"));
+            if (![0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09].includes(data.value.version.value))
+                throw new Error(`Unsupported subchunk prefix version: ${data.value.version.value}`);
+            switch (data.value.version.value) {
+                case 0x00:
+                case 0x02:
+                case 0x03:
+                case 0x04:
+                case 0x05:
+                case 0x06:
+                case 0x07: {
+                    fakeAssertType<NBTSchemas.NBTSchemaTypes.SubChunkPrefix_v0>(data);
+                    function packNibbles(arr: number[]): number[] {
+                        return arr.reduce(
+                            (p: number[], v: number, i: number): number[] =>
+                                i % 2 === 0 ? [...p, v & 0x0f] : [...p.slice(0, -1), (p.at(-1)! << 4) | (v & 0x0f)],
+                            []
+                        );
                     }
-                    return Buffer.from(bytes);
+
+                    const buffer: Buffer<ArrayBuffer> = Buffer.from([data.value.version.value]);
+                    return Buffer.concat([
+                        buffer,
+                        Buffer.from(data.value.block_ids.value.value),
+                        Buffer.from(packNibbles(data.value.block_data.value.value)),
+                        ...(data.value.sky_light ? [Buffer.from(packNibbles(data.value.sky_light.value.value))] : []),
+                        ...(data.value.block_light ? [Buffer.from(packNibbles(data.value.block_light.value.value))] : []),
+                    ]);
                 }
-            );
-            return Buffer.concat([buffer, ...layerBuffers]);
+                case 0x01:
+                case 0x08:
+                case 0x09: {
+                    fakeAssertType<NBTSchemas.NBTSchemaTypes.SubChunkPrefix_v1 | NBTSchemas.NBTSchemaTypes.SubChunkPrefix_v8>(data);
+                    const buffer: Buffer<ArrayBuffer> = Buffer.from([
+                        data.value.version.value,
+                        ...(data.value.version.value >= 0x08 ? [data.value.layerCount.value] : []),
+                        ...(data.value.version.value >= 0x09 ? [(data as NBTSchemas.NBTSchemaTypes.SubChunkPrefix_v8).value.subChunkIndex!.value] : []),
+                    ]);
+                    const layerBuffers: Buffer<ArrayBuffer>[] = data.value.layers.value.value.map(
+                        (layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer<ArrayBuffer> => {
+                            const bitsPerBlock: number = layer.storageVersion.value >> 1;
+                            const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
+                            const numints: number = Math.ceil(4096 / blocksPerWord);
+                            const bytes: number[] = [layer.storageVersion.value];
+                            const blockIndicesBuffer: Buffer<ArrayBuffer> = Buffer.alloc(Math.ceil(numints * 4));
+                            writeBlockIndices(blockIndicesBuffer, 0, layer.block_indices.value.value, bitsPerBlock, blocksPerWord);
+                            bytes.push(...blockIndicesBuffer);
+                            const paletteLengthBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
+                            setInt32Val(paletteLengthBuffer, 0, Object.keys(layer.palette.value).length);
+                            bytes.push(...paletteLengthBuffer);
+                            const paletteKeys: `${bigint}`[] = (Object.keys(layer.palette.value) as `${bigint}`[]).sort(
+                                (a: `${bigint}`, b: `${bigint}`): number => Number(a) - Number(b)
+                            );
+                            for (let paletteIndex: number = 0; paletteIndex < paletteKeys.length; paletteIndex++) {
+                                const block: NBTSchemas.NBTSchemaTypes.Block = layer.palette.value[paletteKeys[paletteIndex]!]!;
+                                bytes.push(...NBT.writeUncompressed({ name: "", ...block }, "little"));
+                            }
+                            return Buffer.from(bytes);
+                        }
+                    );
+                    return Buffer.concat([buffer, ...layerBuffers]);
+                }
+            }
         },
         // TO-DO: Add a default value for this.
     },
     /**
+     * The LegacyTerrain content type contains block, sky light, block light, dirty columns, and grass color data for 16x16x128 chunks of the world.
+     *
      * @deprecated Only used in versions < 1.0.0.
      *
-     * @todo Make a parser for this so that versions < 1.0.0 can be supported.
-     * @todo Add a description for this.
+     * @see {@link NBTSchemas.nbtSchemas.LegacyTerrain}
      */
     LegacyTerrain: {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.LegacyTerrain.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.LegacyTerrain {
+            let currentOffset = 0;
+
+            const block_ids: number[] = [...data.subarray(currentOffset, currentOffset + 32768)];
+            currentOffset += 32768;
+
+            function unpackNibbleArray(byteCount: number): Range<0, 15>[] {
+                const slice = data.subarray(currentOffset, currentOffset + byteCount);
+                currentOffset += byteCount;
+
+                return [...slice].flatMap((n: number): number[] => [n >> 4, n & 0x0f]) as Range<0, 15>[];
+            }
+
+            const block_data: Range<0, 15>[] = unpackNibbleArray(16384);
+
+            const sky_light: Range<0, 15>[] = unpackNibbleArray(16384);
+
+            const block_light: Range<0, 15>[] = unpackNibbleArray(16384);
+
+            const dirty_columns: number[] = [...data.subarray(currentOffset, currentOffset + 256)];
+            currentOffset += 256;
+
+            const grass_color: number[] = [...data.subarray(currentOffset, currentOffset + 1024)];
+            currentOffset += 1024;
+
+            return NBT.comp({
+                block_ids: { type: "list", value: { type: "byte", value: block_ids } },
+                block_data: { type: "list", value: { type: "byte", value: block_data } },
+                sky_light: { type: "list", value: { type: "byte", value: sky_light } },
+                block_light: { type: "list", value: { type: "byte", value: block_light } },
+                dirty_columns: { type: "list", value: { type: "byte", value: dirty_columns } },
+                grass_color: { type: "list", value: { type: "byte", value: grass_color } },
+            } as const satisfies NBTSchemas.NBTSchemaTypes.LegacyTerrain["value"]);
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.LegacyTerrain): Buffer<ArrayBuffer> {
+            function packNibbles(arr: number[]): number[] {
+                return arr.reduce(
+                    (p: number[], v: number, i: number): number[] => (i % 2 === 0 ? [...p, v & 0x0f] : [...p.slice(0, -1), (p.at(-1)! << 4) | (v & 0x0f)]),
+                    []
+                );
+            }
+
+            return Buffer.concat([
+                Buffer.from(data.value.block_ids.value.value),
+                Buffer.from(packNibbles(data.value.block_data.value.value)),
+                Buffer.from(packNibbles(data.value.sky_light.value.value)),
+                Buffer.from(packNibbles(data.value.block_light.value.value)),
+                Buffer.from(data.value.dirty_columns.value.value),
+                Buffer.from(data.value.grass_color.value.value),
+            ]);
+        },
+        // TO-DO: Add a default value for this.
     },
     /**
      * A list of block entities associated with a chunk.
@@ -931,10 +1373,11 @@ export const entryContentTypeToFormatMap = {
         },
     },
     /**
+     * A list of entities associated with a chunk.
+     *
      * @deprecated No longer used.
      *
      * @todo Figure out what version this was deprecated in (it exists in v1.16.40 but not in 1.21.51).
-     * @todo Add a description for this.
      */
     Entity: {
         /**
@@ -1018,7 +1461,77 @@ export const entryContentTypeToFormatMap = {
          * The format type of the data.
          */
         type: "NBT",
-        // TO-DO: Add a default value for this.
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * @todo Add a link to the object with the default value once it is made.
+         */
+        get defaultValue(): Buffer<ArrayBuffer> {
+            const result: Buffer<ArrayBuffer> = Buffer.from(
+                NBT.writeUncompressed(
+                    {
+                        name: "",
+                        type: "compound",
+                        value: {
+                            currentTick: {
+                                type: "int",
+                                value: 0,
+                            },
+                            tickList: {
+                                type: "list",
+                                value: {
+                                    type: "compound",
+                                    value: [
+                                        {
+                                            tileID: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                            blockState: {
+                                                type: "compound",
+                                                value: {
+                                                    name: {
+                                                        type: "string",
+                                                        value: "minecraft:air",
+                                                    },
+                                                    states: {
+                                                        type: "compound",
+                                                        value: {},
+                                                    },
+                                                    version: {
+                                                        type: "int",
+                                                        value: 0,
+                                                    },
+                                                },
+                                            },
+                                            time: {
+                                                type: "long",
+                                                value: toLongParts(0n),
+                                            },
+                                            x: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                            y: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                            z: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    } satisfies NBTSchemas.NBTSchemaTypes.PendingTicks & NBT.NBT,
+                    "little"
+                )
+            );
+            Object.defineProperty(this, "defaultValue", { value: result, configurable: true, enumerable: true, writable: false });
+            return result;
+        },
     },
     /**
      * @deprecated Only used in versions < 1.2.3.
@@ -1049,6 +1562,8 @@ export const entryContentTypeToFormatMap = {
      * - `0`: Unknown
      * - `1`: Unknown
      * - `2`: Unknown
+     *
+     * @todo Figure out the meanings of the values.
      */
     FinalizedState: {
         /**
@@ -1122,7 +1637,73 @@ export const entryContentTypeToFormatMap = {
          * The format type of the data.
          */
         type: "NBT",
-        // TO-DO: Add a default value for this.
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * @todo Add a link to the object with the default value once it is made.
+         */
+        get defaultValue(): Buffer<ArrayBuffer> {
+            const result: Buffer<ArrayBuffer> = Buffer.from(
+                NBT.writeUncompressed(
+                    {
+                        name: "",
+                        type: "compound",
+                        value: {
+                            currentTick: {
+                                type: "int",
+                                value: 0,
+                            },
+                            tickList: {
+                                type: "list",
+                                value: {
+                                    type: "compound",
+                                    value: [
+                                        {
+                                            blockState: {
+                                                type: "compound",
+                                                value: {
+                                                    name: {
+                                                        type: "string",
+                                                        value: "minecraft:air",
+                                                    },
+                                                    states: {
+                                                        type: "compound",
+                                                        value: {},
+                                                    },
+                                                    version: {
+                                                        type: "int",
+                                                        value: 0,
+                                                    },
+                                                },
+                                            },
+                                            time: {
+                                                type: "long",
+                                                value: toLongParts(0n),
+                                            },
+                                            x: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                            y: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                            z: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    } satisfies NBTSchemas.NBTSchemaTypes.RandomTicks & NBT.NBT,
+                    "little"
+                )
+            );
+            Object.defineProperty(this, "defaultValue", { value: result, configurable: true, enumerable: true, writable: false });
+            return result;
+        },
     },
     /**
      * The low segment of the 4 byte halves of the seed value used to generate the chunk.
@@ -1150,7 +1731,7 @@ export const entryContentTypeToFormatMap = {
         signed: true,
     },
     /**
-     * xxHash64 checksums of `SubchunkBlocks`, `BlockEntities`, `Entities`, and `Data2D` values.
+     * xxHash64 checksums of `SubChunkPrefix`, `BlockEntity`, `Entity`, and `Data2D` values.
      *
      * @deprecated Only used in versions < 1.18.0.
      *
@@ -1546,22 +2127,78 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
+     * The structure data of the Overworld dimension.
+     *
+     * This content type coexists with the {@link entryContentTypeToFormatMap.Overworld | Overworld} content type in some versions (such as v1.0.0.16 and v1.1.5.0).
+     *
      * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
      *
-     * @todo Add a schema for this.
-     * @todo Add a description for this.
+     * @see {@link NBTSchemas.nbtSchemas.LegacyOverworld}
      */
-    LegacyDimension: {
+    LegacyOverworld: {
         /**
          * The format type of the data.
          */
         type: "NBT",
     },
     /**
-     * @todo Add a schema for this.
-     * @todo Add a description for this.
+     * The structure data of the Nether dimension.
+     *
+     * This content type coexists with the {@link entryContentTypeToFormatMap.Nether | Nether} content type in some versions (such as v1.0.0.16 and v1.1.5.0).
+     *
+     * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.LegacyNether}
      */
-    Dimension: {
+    LegacyNether: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The structure data of the End dimension.
+     *
+     * This content type coexists with the {@link entryContentTypeToFormatMap.TheEnd | TheEnd} content type in some versions (such as v1.0.0.16 and v1.1.5.0).
+     *
+     * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.LegacyTheEnd}
+     */
+    LegacyTheEnd: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The data of the Overworld dimension.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.Overworld}
+     */
+    Overworld: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The data of the Nether dimension.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.Nether}
+     */
+    Nether: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The data of the End dimension.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.TheEnd}
+     */
+    TheEnd: {
         /**
          * The format type of the data.
          */
@@ -2195,6 +2832,11 @@ export type DBChunkKeyEntryContentType =
     | "LegacyVersion"
     | "AABBVolumes";
 
+/**
+ * The a grouping type of LevelDB entry content types.
+ */
+export type DBEntryContentTypeGroup = (typeof DBEntryContentTypesGrouping)[DBEntryContentType];
+
 //#endregion
 
 // --------------------------------------------------------------------------------
@@ -2601,11 +3243,15 @@ export function getKeyDisplayName(key: Buffer): string {
         case "BiomeData":
         case "BiomeIdsTable":
         case "ChunkLoadedRequest":
-        case "Dimension":
+        case "Overworld":
+        case "Nether":
+        case "TheEnd":
         case "DynamicProperties":
         case "FlatWorldLayers":
         case "ForcedWorldCorruption":
-        case "LegacyDimension":
+        case "LegacyOverworld":
+        case "LegacyNether":
+        case "LegacyTheEnd":
         case "LevelChunkMetaDataDictionary":
         case "LevelDat":
         case "LevelSpawnWasFixed":
@@ -2702,9 +3348,11 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
         case "game_flatworldlayers":
             return "FlatWorldLayers";
         case "Overworld":
+            return "Overworld";
         case "Nether":
+            return "Nether";
         case "TheEnd":
-            return "Dimension";
+            return "TheEnd";
         case "mobevents":
             return "MobEvents";
         case "BiomeData":
@@ -2731,9 +3379,11 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
         case "DedicatedServerForcedCorruption":
             return "ForcedWorldCorruption";
         case "dimension0":
+            return "LegacyOverworld";
         case "dimension1":
+            return "LegacyNether";
         case "dimension2":
-            return "LegacyDimension";
+            return "LegacyTheEnd";
         case "mVillages":
             return "MVillages";
         case "villages":
