@@ -1,3 +1,9 @@
+# v1.10.2
+
+## Fixes
+
+-   Fixed many markdown links in the NBT schemas that had spaces instead of underscores.
+
 # v1.10.1
 
 ## Additions

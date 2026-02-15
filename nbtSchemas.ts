@@ -442,7 +442,7 @@ export namespace NBTSchemas {
                     },
                     Persistent: {
                         markdownDescription:
-                            "1 or 0 (true/false) - true if an entity should be [persistent](https://minecraft.wiki/w/Mob spawning#Despawning) in the world.",
+                            "1 or 0 (true/false) - true if an entity should be [persistent](https://minecraft.wiki/w/Mob_spawning#Despawning) in the world.",
                         type: "byte",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
@@ -1293,7 +1293,7 @@ export namespace NBTSchemas {
                     // REVIEW: Check if this property actually ever exists.
                     allowdestructiveobjects: {
                         type: "byte",
-                        markdownDescription: "The `allowdestructiveobjects` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `allowdestructiveobjects` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1303,7 +1303,7 @@ export namespace NBTSchemas {
                     // REVIEW: Check if this property actually ever exists.
                     allowmobs: {
                         type: "byte",
-                        markdownDescription: "The `allowmobs` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `allowmobs` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1322,7 +1322,7 @@ export namespace NBTSchemas {
                     BiomeOverride: {
                         type: "string",
                         markdownDescription:
-                            "Makes the world into a [single biome](https://minecraft.wiki/w/single biome) world and the biome set here is the biome of this single biome world.",
+                            "Makes the world into a [single biome](https://minecraft.wiki/w/single_biome) world and the biome set here is the biome of this single biome world.",
                     },
                     bonusChestEnabled: {
                         type: "byte",
@@ -1355,7 +1355,7 @@ export namespace NBTSchemas {
                     },
                     commandblockoutput: {
                         type: "byte",
-                        markdownDescription: "The `commandblockoutput` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `commandblockoutput` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1374,7 +1374,7 @@ export namespace NBTSchemas {
                     },
                     commandblocksenabled: {
                         type: "byte",
-                        markdownDescription: "The `commandblocksenabled` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `commandblocksenabled` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1428,7 +1428,7 @@ export namespace NBTSchemas {
                     },
                     dodaylightcycle: {
                         type: "byte",
-                        markdownDescription: "The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1437,7 +1437,7 @@ export namespace NBTSchemas {
                     },
                     doentitiydrops: {
                         type: "byte",
-                        markdownDescription: "The `doentitiydrops` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `doentitiydrops` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1446,7 +1446,7 @@ export namespace NBTSchemas {
                     },
                     dofiretick: {
                         type: "byte",
-                        markdownDescription: "The `dofiretick` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `dofiretick` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1455,7 +1455,7 @@ export namespace NBTSchemas {
                     },
                     doimmediaterespawn: {
                         type: "byte",
-                        markdownDescription: "The `doimmediaterespawn` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `doimmediaterespawn` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1464,7 +1464,7 @@ export namespace NBTSchemas {
                     },
                     doinsomnia: {
                         type: "byte",
-                        markdownDescription: "The `doinsomnia` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `doinsomnia` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1473,7 +1473,7 @@ export namespace NBTSchemas {
                     },
                     dolimitedcrafting: {
                         type: "byte",
-                        markdownDescription: "The `dolimitedcrafting` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `dolimitedcrafting` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1482,7 +1482,7 @@ export namespace NBTSchemas {
                     },
                     domobloot: {
                         type: "byte",
-                        markdownDescription: "The `domobloot` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `domobloot` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1491,7 +1491,7 @@ export namespace NBTSchemas {
                     },
                     domobspawning: {
                         type: "byte",
-                        markdownDescription: "The `domobspawning` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `domobspawning` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1500,7 +1500,7 @@ export namespace NBTSchemas {
                     },
                     dotiledrops: {
                         type: "byte",
-                        markdownDescription: "The `dotiledrops` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `dotiledrops` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1509,7 +1509,7 @@ export namespace NBTSchemas {
                     },
                     doweathercycle: {
                         type: "byte",
-                        markdownDescription: "The `doweathercycle` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `doweathercycle` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1518,7 +1518,7 @@ export namespace NBTSchemas {
                     },
                     drowningdamage: {
                         type: "byte",
-                        markdownDescription: "The `drowningdamage` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `drowningdamage` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1538,7 +1538,7 @@ export namespace NBTSchemas {
                     editorWorldType: {
                         type: "int",
                         markdownDescription:
-                            "Marks a world as a [bedrock editor](https://minecraft.wiki/w/Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).",
+                            "Marks a world as a [bedrock editor](https://minecraft.wiki/w/Bedrock_Editor) world (worlds with this set to 1 only show up when in editor mode).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "int", value: 0 },
@@ -1591,7 +1591,7 @@ export namespace NBTSchemas {
                             experiments_ever_used: {
                                 type: "byte",
                                 markdownDescription:
-                                    "1 or 0 (true/false) - true if the world is locked on [experimental gameplay](https://minecraft.wiki/w/experimental gameplay).",
+                                    "1 or 0 (true/false) - true if the world is locked on [experimental gameplay](https://minecraft.wiki/w/experimental_gameplay).",
                                 markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
@@ -1718,7 +1718,7 @@ export namespace NBTSchemas {
                     },
                     falldamage: {
                         type: "byte",
-                        markdownDescription: "The `falldamage` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `falldamage` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1727,7 +1727,7 @@ export namespace NBTSchemas {
                     },
                     firedamage: {
                         type: "byte",
-                        markdownDescription: "The `firedamage` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `firedamage` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1745,7 +1745,7 @@ export namespace NBTSchemas {
                     },
                     freezedamage: {
                         type: "byte",
-                        markdownDescription: "The `freezedamage` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `freezedamage` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1754,7 +1754,7 @@ export namespace NBTSchemas {
                     },
                     functioncommandlimit: {
                         type: "int",
-                        markdownDescription: "The `functioncommandlimit` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `functioncommandlimit` [game rule](https://minecraft.wiki/w/game_rule).",
                         default: {
                             type: "int",
                             value: 10_000,
@@ -1763,7 +1763,7 @@ export namespace NBTSchemas {
                     // REVIEW: Check if this property actually ever exists.
                     globalmute: {
                         type: "byte",
-                        markdownDescription: "The `globalmute` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `globalmute` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1897,7 +1897,7 @@ export namespace NBTSchemas {
                     },
                     isCreatedInEditor: {
                         type: "byte",
-                        markdownDescription: "1 or 0 (true/false) - true if it was created from the [bedrock editor](https://minecraft.wiki/w/Bedrock Editor).",
+                        markdownDescription: "1 or 0 (true/false) - true if it was created from the [bedrock editor](https://minecraft.wiki/w/Bedrock_Editor).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1906,7 +1906,7 @@ export namespace NBTSchemas {
                     },
                     isExportedFromEditor: {
                         type: "byte",
-                        markdownDescription: "1 or 0 (true/false) - true if exported from the [bedrock editor](https://minecraft.wiki/w/Bedrock Editor).",
+                        markdownDescription: "1 or 0 (true/false) - true if exported from the [bedrock editor](https://minecraft.wiki/w/Bedrock_Editor).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1972,7 +1972,7 @@ export namespace NBTSchemas {
                     },
                     keepinventory: {
                         type: "byte",
-                        markdownDescription: "The `keepinventory` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `keepinventory` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2000,7 +2000,7 @@ export namespace NBTSchemas {
                     lastOpenedWithVersion: {
                         type: "list",
                         markdownDescription:
-                            "Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock Edition Preview 1.20.30.22) the version is `1 20 30 22 1`.",
+                            "Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock_Edition_Preview_1.20.30.22) the version is `1 20 30 22 1`.",
                         items: [
                             {
                                 title: "Major",
@@ -2091,7 +2091,7 @@ export namespace NBTSchemas {
                     },
                     locatorbar: {
                         type: "byte",
-                        markdownDescription: "The `locatorbar` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `locatorbar` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2100,7 +2100,7 @@ export namespace NBTSchemas {
                     },
                     maxcommandchainlength: {
                         type: "int",
-                        markdownDescription: "The `maxcommandchainlength` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `maxcommandchainlength` [game rule](https://minecraft.wiki/w/game_rule).",
                         default: {
                             type: "int",
                             value: 65_535,
@@ -2109,7 +2109,7 @@ export namespace NBTSchemas {
                     MinimumCompatibleClientVersion: {
                         type: "list",
                         markdownDescription:
-                            "Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock Edition Preview 1.20.30.22) the minimum compatible version is `1 20 30 0 0`.",
+                            "Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock_Edition_Preview_1.20.30.22) the minimum compatible version is `1 20 30 0 0`.",
                         items: [
                             {
                                 title: "Major",
@@ -2167,7 +2167,7 @@ export namespace NBTSchemas {
                     },
                     naturalregeneration: {
                         type: "byte",
-                        markdownDescription: "The `naturalregeneration` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `naturalregeneration` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2210,7 +2210,7 @@ export namespace NBTSchemas {
                     },
                     projectilescanbreakblocks: {
                         type: "byte",
-                        markdownDescription: "The `projectilescanbreakblocks` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `projectilescanbreakblocks` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2219,7 +2219,7 @@ export namespace NBTSchemas {
                     },
                     pvp: {
                         type: "byte",
-                        markdownDescription: "The `pvp` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `pvp` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2240,7 +2240,7 @@ export namespace NBTSchemas {
                     },
                     randomtickspeed: {
                         type: "int",
-                        markdownDescription: "The `randomtickspeed` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `randomtickspeed` [game rule](https://minecraft.wiki/w/game_rule).",
                         default: {
                             type: "int",
                             value: 1,
@@ -2248,7 +2248,7 @@ export namespace NBTSchemas {
                     },
                     recipesunlock: {
                         type: "byte",
-                        markdownDescription: "The `recipesunlock` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `recipesunlock` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2266,7 +2266,7 @@ export namespace NBTSchemas {
                     },
                     respawnblocksexplode: {
                         type: "byte",
-                        markdownDescription: "The `respawnblocksexplode` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `respawnblocksexplode` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2275,7 +2275,7 @@ export namespace NBTSchemas {
                     },
                     sendcommandfeedback: {
                         type: "byte",
-                        markdownDescription: "The `sendcommandfeedback` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `sendcommandfeedback` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2292,7 +2292,7 @@ export namespace NBTSchemas {
                     },
                     showbordereffect: {
                         type: "byte",
-                        markdownDescription: "The `showbordereffect` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `showbordereffect` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2301,7 +2301,7 @@ export namespace NBTSchemas {
                     },
                     showcoordinates: {
                         type: "byte",
-                        markdownDescription: "The `showcoordinates` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `showcoordinates` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2310,7 +2310,7 @@ export namespace NBTSchemas {
                     },
                     showdaysplayed: {
                         type: "byte",
-                        markdownDescription: "The `showdaysplayed` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `showdaysplayed` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2319,7 +2319,7 @@ export namespace NBTSchemas {
                     },
                     showdeathmessages: {
                         type: "byte",
-                        markdownDescription: "The `showdeathmessages` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `showdeathmessages` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2328,7 +2328,7 @@ export namespace NBTSchemas {
                     },
                     showrecipemessages: {
                         type: "byte",
-                        markdownDescription: "The `showrecipemessages` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `showrecipemessages` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2337,7 +2337,7 @@ export namespace NBTSchemas {
                     },
                     showtags: {
                         type: "byte",
-                        markdownDescription: "The `showtags` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `showtags` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2355,7 +2355,7 @@ export namespace NBTSchemas {
                     },
                     spawnradius: {
                         type: "int",
-                        markdownDescription: "The `spawnradius` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `spawnradius` [game rule](https://minecraft.wiki/w/game_rule).",
                     },
                     SpawnV1Villagers: {
                         type: "byte",
@@ -2420,7 +2420,7 @@ export namespace NBTSchemas {
                     Time: {
                         type: "long",
                         markdownDescription:
-                            'Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](https://minecraft.wiki/w/daylight cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](https://minecraft.wiki/w/Daylight cycle#Daytime), 12000 is the start of [sunset](https://minecraft.wiki/w/Daylight cycle#Sunset/dusk), 13800 is the start of [nighttime](https://minecraft.wiki/w/Daylight cycle#Nighttime), 22200 is the start of [sunrise](https://minecraft.wiki/w/Daylight cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.',
+                            'Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](https://minecraft.wiki/w/daylight_cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](https://minecraft.wiki/w/Daylight_cycle#Daytime), 12000 is the start of [sunset](https://minecraft.wiki/w/Daylight_cycle#Sunset/dusk), 13800 is the start of [nighttime](https://minecraft.wiki/w/Daylight_cycle#Nighttime), 22200 is the start of [sunrise](https://minecraft.wiki/w/Daylight_cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.',
                         default: {
                             type: "long",
                             value: 0n,
@@ -2428,7 +2428,7 @@ export namespace NBTSchemas {
                     },
                     tntexplodes: {
                         type: "byte",
-                        markdownDescription: "The `tntexplodes` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `tntexplodes` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2437,7 +2437,7 @@ export namespace NBTSchemas {
                     },
                     tntexplosiondropdecay: {
                         type: "byte",
-                        markdownDescription: "The `tntexplosiondropdecay` [game rule](https://minecraft.wiki/w/game rule).",
+                        markdownDescription: "The `tntexplosiondropdecay` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -3921,7 +3921,7 @@ export namespace NBTSchemas {
                     },
                     dimension: {
                         markdownDescription:
-                            "0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The Nether), 2 = [The End](https://minecraft.wiki/w/The End), any other value = a static image with no player pin.",
+                            "0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The_Nether), 2 = [The End](https://minecraft.wiki/w/The_End), any other value = a static image with no player pin.",
                         type: "byte",
                     },
                     fullyExplored: {
@@ -3929,12 +3929,12 @@ export namespace NBTSchemas {
                         type: "byte",
                     },
                     mapLocked: {
-                        markdownDescription: "1 if the map has been locked in a [cartography table](https://minecraft.wiki/w/cartography table).",
+                        markdownDescription: "1 if the map has been locked in a [cartography table](https://minecraft.wiki/w/cartography_table).",
                         type: "byte",
                     },
                     scale: {
                         markdownDescription:
-                            "How zoomed in the map is, and must be a number between 0 and 4 (inclusive) that represent the level. Default 0. If this is changed in an [anvil](https://minecraft.wiki/w/anvil) or a [cartography table](https://minecraft.wiki/w/cartography table), the Unique ID of the map changes.",
+                            "How zoomed in the map is, and must be a number between 0 and 4 (inclusive) that represent the level. Default 0. If this is changed in an [anvil](https://minecraft.wiki/w/anvil) or a [cartography table](https://minecraft.wiki/w/cartography_table), the Unique ID of the map changes.",
                         type: "byte",
                         default: {
                             type: "byte",
@@ -3982,7 +3982,7 @@ export namespace NBTSchemas {
                                             type: "int",
                                         },
                                         type: {
-                                            markdownDescription: "The ID of the [map icon](https://minecraft.wiki/w/Map icons.png) to display.",
+                                            markdownDescription: "The ID of the [map icon](https://minecraft.wiki/w/Map_icons.png) to display.",
                                             type: "int",
                                         },
                                         x: {
@@ -4071,7 +4071,7 @@ export namespace NBTSchemas {
                         ],
                     },
                     "minecraft:ender_dragon_event": {
-                        markdownDescription: "1 or 0 (true/false) - true if the [ender dragon](https://minecraft.wiki/w/ender dragon) can spawn.",
+                        markdownDescription: "1 or 0 (true/false) - true if the [ender dragon](https://minecraft.wiki/w/ender_dragon) can spawn.",
                         type: "byte",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
@@ -4080,7 +4080,7 @@ export namespace NBTSchemas {
                         ],
                     },
                     "minecraft:pillager_patrols_event": {
-                        markdownDescription: "1 or 0 (true/false) - true if the [illager patrol](https://minecraft.wiki/w/illager patrol) can spawn.",
+                        markdownDescription: "1 or 0 (true/false) - true if the [illager patrol](https://minecraft.wiki/w/illager_patrol) can spawn.",
                         type: "byte",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
@@ -4089,7 +4089,7 @@ export namespace NBTSchemas {
                         ],
                     },
                     "minecraft:wandering_trader_event": {
-                        markdownDescription: "1 or 0 (true/false) - true if the [wandering trader](https://minecraft.wiki/w/wandering trader) can spawn.",
+                        markdownDescription: "1 or 0 (true/false) - true if the [wandering trader](https://minecraft.wiki/w/wandering_trader) can spawn.",
                         type: "byte",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
@@ -5396,7 +5396,7 @@ however when the corresponding block in the block layer is broken, this block ge
             CommandBlock: {
                 id: "CommandBlock",
                 markdownDescription:
-                    "NBT structure of [command block](https://minecraft.wiki/w/command block) and [minecart with command block](https://minecraft.wiki/w/minecart with command block).",
+                    "NBT structure of [command block](https://minecraft.wiki/w/command_block) and [minecart with command block](https://minecraft.wiki/w/minecart_with_command_block).",
                 type: "compound",
                 required: [
                     "Command",
@@ -5463,7 +5463,7 @@ however when the corresponding block in the block layer is broken, this block ge
             FireworkExplosion: {
                 id: "FireworkExplosion",
                 markdownDescription:
-                    "NBT structure of [firework](https://minecraft.wiki/w/firework) and [firework star](https://minecraft.wiki/w/firework star).",
+                    "NBT structure of [firework](https://minecraft.wiki/w/firework) and [firework star](https://minecraft.wiki/w/firework_star).",
                 type: "compound",
                 required: ["FireworkColor", "FireworkFade", "FireworkFlicker", "FireworkTrail", "FireworkType"],
                 properties: {
@@ -5493,7 +5493,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             MobEffect: {
                 id: "MobEffect",
-                markdownDescription: "NBT structure of a [status effect](https://minecraft.wiki/w/status effect).",
+                markdownDescription: "NBT structure of a [status effect](https://minecraft.wiki/w/status_effect).",
                 type: "compound",
                 required: [
                     "Ambient",
@@ -5578,7 +5578,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             MonsterSpawner: {
                 id: "MonsterSpawner",
-                markdownDescription: "NBT structure of a [monster spawner](https://minecraft.wiki/w/monster spawner).",
+                markdownDescription: "NBT structure of a [monster spawner](https://minecraft.wiki/w/monster_spawner).",
                 type: "compound",
                 required: [
                     "Delay",
@@ -5882,7 +5882,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     limitedLife: {
                         markdownDescription:
-                            "The left time in ticks until this entity disapears. Only *needs testing* effects [Evoker Fang](https://minecraft.wiki/w/Evoker Fang)s. For other entities, it is set to 0.",
+                            "The left time in ticks until this entity disapears. Only *needs testing* effects [Evoker Fang](https://minecraft.wiki/w/Evoker_Fang)s. For other entities, it is set to 0.",
                         type: "long",
                     },
                     Mainhand: {
@@ -6058,7 +6058,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_AreaEffectCloud: {
                 id: "Entity_AreaEffectCloud",
-                markdownDescription: "Additional fields for [area effect cloud](https://minecraft.wiki/w/area effect cloud).",
+                markdownDescription: "Additional fields for [area effect cloud](https://minecraft.wiki/w/area_effect_cloud).",
                 type: "compound",
                 required: [
                     "Duration",
@@ -6110,12 +6110,12 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                     PickupCount: {
-                        markdownDescription: "How many [dragon's breath](https://minecraft.wiki/w/dragon's breath) can be picked up.",
+                        markdownDescription: "How many [dragon's breath](https://minecraft.wiki/w/dragon's_breath) can be picked up.",
                         type: "int",
                     },
                     PotionId: {
                         markdownDescription:
-                            "The name of the default potion effect. See [potion data values](https://minecraft.wiki/w/potion#Item data) for valid IDs.",
+                            "The name of the default potion effect. See [potion data values](https://minecraft.wiki/w/potion#Item_data) for valid IDs.",
                         type: "short",
                     },
                     Radius: {
@@ -6182,7 +6182,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ArmorStand: {
                 id: "Entity_ArmorStand",
-                markdownDescription: "Additional fields for [armor stand](https://minecraft.wiki/w/armor stand).",
+                markdownDescription: "Additional fields for [armor stand](https://minecraft.wiki/w/armor_stand).",
                 type: "compound",
                 required: ["Pose"],
                 properties: {
@@ -6319,7 +6319,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_BoatWithChest: {
                 id: "Entity_BoatWithChest",
-                markdownDescription: "Additional fields for [boat with chest](https://minecraft.wiki/w/boat with chest).",
+                markdownDescription: "Additional fields for [boat with chest](https://minecraft.wiki/w/boat_with_chest).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
                 $ref: "ActorPrefix",
@@ -6468,7 +6468,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_EnderCrystal: {
                 id: "Entity_EnderCrystal",
-                markdownDescription: "Additional fields for [ender crystal](https://minecraft.wiki/w/ender crystal).",
+                markdownDescription: "Additional fields for [ender crystal](https://minecraft.wiki/w/ender_crystal).",
                 type: "compound",
                 properties: {
                     BlockTargetX: {
@@ -6531,7 +6531,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ExperienceOrb: {
                 id: "Entity_ExperienceOrb",
-                markdownDescription: "Additional fields for [experience orb](https://minecraft.wiki/w/experience orb).",
+                markdownDescription: "Additional fields for [experience orb](https://minecraft.wiki/w/experience_orb).",
                 type: "compound",
                 required: ["Age", "experience value"],
                 properties: {
@@ -6550,7 +6550,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ExperiencePotion: {
                 id: "Entity_ExperiencePotion",
-                markdownDescription: "Additional fields for [experience potion](https://minecraft.wiki/w/experience potion).",
+                markdownDescription: "Additional fields for [experience potion](https://minecraft.wiki/w/experience_potion).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -6558,7 +6558,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_FallingBlock: {
                 id: "Entity_FallingBlock",
-                markdownDescription: "Additional fields for [falling block](https://minecraft.wiki/w/falling block).",
+                markdownDescription: "Additional fields for [falling block](https://minecraft.wiki/w/falling_block).",
                 type: "compound",
                 required: ["Time"],
                 properties: {
@@ -6651,7 +6651,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_FishingBobber: {
                 id: "Entity_FishingBobber",
-                markdownDescription: "Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing bobber).",
+                markdownDescription: "Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing_bobber).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -6712,7 +6712,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Entity_GuardianAndElderGuardian: {
                 id: "Entity_GuardianAndElderGuardian",
                 markdownDescription:
-                    "Additional fields for [guardian](https://minecraft.wiki/w/guardian) and [elder guardian](https://minecraft.wiki/w/elder guardian).",
+                    "Additional fields for [guardian](https://minecraft.wiki/w/guardian) and [elder guardian](https://minecraft.wiki/w/elder_guardian).",
                 type: "compound",
                 required: ["Elder"],
                 properties: {
@@ -6767,7 +6767,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_IronGolem: {
                 id: "Entity_IronGolem",
-                markdownDescription: "Additional fields for [iron golem](https://minecraft.wiki/w/iron golem).",
+                markdownDescription: "Additional fields for [iron golem](https://minecraft.wiki/w/iron_golem).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
                 $ref: "ActorPrefix",
@@ -6775,7 +6775,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ItemEntity: {
                 id: "Entity_ItemEntity",
-                markdownDescription: "Additional fields for [item entity](https://minecraft.wiki/w/Item (entity)).",
+                markdownDescription: "Additional fields for [item entity](https://minecraft.wiki/w/Item_(entity)).",
                 type: "compound",
                 required: ["Age", "Health", "Item", "OwnerID"],
                 properties: {
@@ -6835,7 +6835,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_MinecartWithChest: {
                 id: "Entity_MinecartWithChest",
-                markdownDescription: "Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart with chest).",
+                markdownDescription: "Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart_with_chest).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
                 $ref: "ActorPrefix",
@@ -6843,7 +6843,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_MinecartWithCommandBlock: {
                 id: "Entity_MinecartWithCommandBlock",
-                markdownDescription: "Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart with command block).",
+                markdownDescription: "Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart_with_command_block).",
                 type: "compound",
                 required: ["CurrentTickCount", "Ticking"],
                 properties: {
@@ -6861,7 +6861,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_MinecartWithHopper: {
                 id: "Entity_MinecartWithHopper",
-                markdownDescription: "Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart with hopper).",
+                markdownDescription: "Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart_with_hopper).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
                 $ref: "ActorPrefix",
@@ -6869,7 +6869,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_MinecartWithTNT: {
                 id: "Entity_MinecartWithTNT",
-                markdownDescription: "Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart with tnt).",
+                markdownDescription: "Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart_with_tnt).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
                 $ref: "ActorPrefix",
@@ -6999,7 +6999,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_PiglinBrute: {
                 id: "Entity_PiglinBrute",
-                markdownDescription: "Additional fields for [piglin brute](https://minecraft.wiki/w/piglin brute).",
+                markdownDescription: "Additional fields for [piglin brute](https://minecraft.wiki/w/piglin_brute).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Home" }],
                 $ref: "ActorPrefix",
@@ -7062,7 +7062,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                     EnchantmentSeed: {
-                        markdownDescription: "The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment table)s.",
+                        markdownDescription: "The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment_table)s.",
                         type: "int",
                     },
                     EnderChestInventory: {
@@ -7094,7 +7094,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                     HasSeenCredits: {
                         markdownDescription:
-                            "1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End portal).",
+                            "1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End_portal).",
                         type: "byte",
                     },
                     Inventory: {
@@ -7252,7 +7252,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_PolarBear: {
                 id: "Entity_PolarBear",
-                markdownDescription: "Additional fields for [polar bear](https://minecraft.wiki/w/polar bear).",
+                markdownDescription: "Additional fields for [polar bear](https://minecraft.wiki/w/polar_bear).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -7307,7 +7307,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ShulkerBullet: {
                 id: "Entity_ShulkerBullet",
-                markdownDescription: "Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker bullet).",
+                markdownDescription: "Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker_bullet).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -7335,7 +7335,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_SkeletonHorse: {
                 id: "Entity_SkeletonHorse",
-                markdownDescription: "Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton horse).",
+                markdownDescription: "Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton_horse).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -7390,7 +7390,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ThrownEnderPearl: {
                 id: "Entity_ThrownEnderPearl",
-                markdownDescription: "Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender pearl).",
+                markdownDescription: "Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender_pearl).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -7403,7 +7403,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["PotionId"],
                 properties: {
                     PotionId: {
-                        markdownDescription: "The [ID of the potion effect](https://minecraft.wiki/w/Potion#Item data).",
+                        markdownDescription: "The [ID of the potion effect](https://minecraft.wiki/w/Potion#Item_data).",
                         type: "short",
                     },
                 },
@@ -7519,7 +7519,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_WanderingTrader: {
                 id: "Entity_WanderingTrader",
-                markdownDescription: "Additional fields for [wandering trader](https://minecraft.wiki/w/wandering trader).",
+                markdownDescription: "Additional fields for [wandering trader](https://minecraft.wiki/w/wandering_trader).",
                 type: "compound",
                 properties: {
                     entries: {
@@ -7634,7 +7634,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_WindChargeProjectile: {
                 id: "Entity_WindChargeProjectile",
-                markdownDescription: "Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind charge projectile).",
+                markdownDescription: "Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind_charge_projectile).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
                 $ref: "ActorPrefix",
@@ -7744,7 +7744,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["minecraft:has_armor", "minecraft:has_increased_max_health", "minecraft:is_armorable"],
                         properties: {
                             "minecraft:has_armor": {
-                                markdownDescription: "1 or 0 (true/false) - true if the wolf has [wolf armor](https://minecraft.wiki/w/wolf armor).",
+                                markdownDescription: "1 or 0 (true/false) - true if the wolf has [wolf armor](https://minecraft.wiki/w/wolf_armor).",
                                 type: "byte",
                             },
                             "minecraft:has_increased_max_health": {
@@ -7753,7 +7753,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             },
                             "minecraft:is_armorable": {
                                 markdownDescription:
-                                    "1 or 0 (true/false) - true if the wolf can be equipped with [wolf armor](https://minecraft.wiki/w/wolf armor).",
+                                    "1 or 0 (true/false) - true if the wolf can be equipped with [wolf armor](https://minecraft.wiki/w/wolf_armor).",
                                 type: "byte",
                             },
                         },
@@ -7777,7 +7777,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ZombieHorse: {
                 id: "Entity_ZombieHorse",
-                markdownDescription: "Additional fields for [zombie horse](https://minecraft.wiki/w/zombie horse).",
+                markdownDescription: "Additional fields for [zombie horse](https://minecraft.wiki/w/zombie_horse).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
                 $ref: "ActorPrefix",
@@ -7785,7 +7785,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ZombieVillager: {
                 id: "Entity_ZombieVillager",
-                markdownDescription: "Additional fields for [zombie villager](https://minecraft.wiki/w/zombie villager).",
+                markdownDescription: "Additional fields for [zombie villager](https://minecraft.wiki/w/zombie_villager).",
                 type: "compound",
                 required: ["SpawnedFromVillage"],
                 properties: {
@@ -7799,7 +7799,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Entity_ZombifiedPiglin: {
                 id: "Entity_ZombifiedPiglin",
-                markdownDescription: "Additional fields for [zombified piglin](https://minecraft.wiki/w/zombified piglin).",
+                markdownDescription: "Additional fields for [zombified piglin](https://minecraft.wiki/w/zombified_piglin).",
                 type: "compound",
                 required: ["Anger"],
                 properties: {
@@ -7942,7 +7942,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_BrewingStand: {
                 id: "Block_BrewingStand",
-                markdownDescription: "Additional fields for [brewing stand](https://minecraft.wiki/w/brewing stand).",
+                markdownDescription: "Additional fields for [brewing stand](https://minecraft.wiki/w/brewing_stand).",
                 type: "compound",
                 required: ["CookTime", "FuelAmount", "FuelTotal", "Items"],
                 properties: {
@@ -7979,7 +7979,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Block_CampfireAndSoulCampfire: {
                 id: "Block_CampfireAndSoulCampfire",
                 markdownDescription:
-                    "Additional fields for [campfire](https://minecraft.wiki/w/campfire) and [soul campfire](https://minecraft.wiki/w/soul campfire).",
+                    "Additional fields for [campfire](https://minecraft.wiki/w/campfire) and [soul campfire](https://minecraft.wiki/w/soul_campfire).",
                 type: "compound",
                 required: ["ItemTime[0-9]+"],
                 patternProperties: {
@@ -8077,7 +8077,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Block_ChemistryTables: {
                 id: "Block_ChemistryTables",
                 markdownDescription:
-                    "Additional fields for chemistry tables ([compound creator](https://minecraft.wiki/w/compound creator), [element constructor](https://minecraft.wiki/w/element constructor), [lab table](https://minecraft.wiki/w/lab table), [material reducer](https://minecraft.wiki/w/material reducer)).",
+                    "Additional fields for chemistry tables ([compound creator](https://minecraft.wiki/w/compound_creator), [element constructor](https://minecraft.wiki/w/element_constructor), [lab table](https://minecraft.wiki/w/lab_table), [material reducer](https://minecraft.wiki/w/material_reducer)).",
                 type: "compound",
                 required: ["itemAux", "itemId", "itemStack"],
                 properties: {
@@ -8099,7 +8099,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Block_Chests: {
                 id: "Block_Chests",
                 markdownDescription:
-                    "Additional fields for [chest](https://minecraft.wiki/w/chest), [trapped chest](https://minecraft.wiki/w/trapped chest), [barrel](https://minecraft.wiki/w/barrel), and [ender chest](https://minecraft.wiki/w/ender chest).",
+                    "Additional fields for [chest](https://minecraft.wiki/w/chest), [trapped chest](https://minecraft.wiki/w/trapped_chest), [barrel](https://minecraft.wiki/w/barrel), and [ender chest](https://minecraft.wiki/w/ender_chest).",
                 type: "compound",
                 required: ["Findable", "forceunpair", "Items"],
                 properties: {
@@ -8152,7 +8152,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_ChiseledBookshelf: {
                 id: "Block_ChiseledBookshelf",
-                markdownDescription: "Additional fields for [chiseled bookshelf](https://minecraft.wiki/w/chiseled bookshelf).",
+                markdownDescription: "Additional fields for [chiseled bookshelf](https://minecraft.wiki/w/chiseled_bookshelf).",
                 type: "compound",
                 required: ["Items", "LastInteractedSlot"],
                 properties: {
@@ -8174,7 +8174,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_CommandBlock: {
                 id: "Block_CommandBlock",
-                markdownDescription: "Additional fields for [command block](https://minecraft.wiki/w/command block).",
+                markdownDescription: "Additional fields for [command block](https://minecraft.wiki/w/command_block).",
                 type: "compound",
                 required: ["auto", "conditionMet", "LPCondionalMode", "LPRedstoneMode", "LPCommandMode", "powered"],
                 properties: {
@@ -8276,7 +8276,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_DecoratedPot: {
                 id: "Block_DecoratedPot",
-                markdownDescription: "Additional fields for [decorated pot](https://minecraft.wiki/w/decorated pot).",
+                markdownDescription: "Additional fields for [decorated pot](https://minecraft.wiki/w/decorated_pot).",
                 type: "compound",
                 required: ["item", "sherds"],
                 properties: {
@@ -8289,7 +8289,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         markdownDescription: "List of sherds on this decorated pot.",
                         type: "list",
                         items: {
-                            markdownDescription: "[Item ID](https://minecraft.wiki/w/Bedrock Edition data values) of this face. Defaults to `minecraft:brick`.",
+                            markdownDescription: "[Item ID](https://minecraft.wiki/w/Bedrock_Edition_data_values) of this face. Defaults to `minecraft:brick`.",
                             type: "string",
                         },
                     },
@@ -8331,7 +8331,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_EnchantmentTable: {
                 id: "Block_EnchantmentTable",
-                markdownDescription: "Additional fields for [Enchantment table](https://minecraft.wiki/w/Enchantment table).",
+                markdownDescription: "Additional fields for [Enchantment table](https://minecraft.wiki/w/Enchantment_table).",
                 type: "compound",
                 required: ["rott"],
                 properties: {
@@ -8348,7 +8348,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_EndGateway: {
                 id: "Block_EndGateway",
-                markdownDescription: "Additional fields for [end gateway](https://minecraft.wiki/w/end gateway).",
+                markdownDescription: "Additional fields for [end gateway](https://minecraft.wiki/w/end_gateway).",
                 type: "compound",
                 required: ["Age", "ExitPortal"],
                 properties: {
@@ -8379,7 +8379,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_FlowerPot: {
                 id: "Block_FlowerPot",
-                markdownDescription: "Additional fields for [flower pot](https://minecraft.wiki/w/flower pot).",
+                markdownDescription: "Additional fields for [flower pot](https://minecraft.wiki/w/flower_pot).",
                 type: "compound",
                 properties: {
                     PlantBlock: {
@@ -8393,7 +8393,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Block_Furnace: {
                 id: "Block_Furnace",
                 markdownDescription:
-                    "Additional fields for [furnace](https://minecraft.wiki/w/furnace), [smoker](https://minecraft.wiki/w/smoker), and [blast furnace](https://minecraft.wiki/w/blast furnace).",
+                    "Additional fields for [furnace](https://minecraft.wiki/w/furnace), [smoker](https://minecraft.wiki/w/smoker), and [blast furnace](https://minecraft.wiki/w/blast_furnace).",
                 type: "compound",
                 required: ["BurnDuration", "BurnTime", "CookTime", "Items", "StoredXPInt"],
                 properties: {
@@ -8462,7 +8462,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_ItemFrame: {
                 id: "Block_ItemFrame",
-                markdownDescription: "Additional fields for [item frame](https://minecraft.wiki/w/item frame).",
+                markdownDescription: "Additional fields for [item frame](https://minecraft.wiki/w/item_frame).",
                 type: "compound",
                 required: ["Item"],
                 properties: {
@@ -8566,14 +8566,14 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_MonsterSpawner: {
                 id: "Block_MonsterSpawner",
-                markdownDescription: "Additional fields for [monster spawner](https://minecraft.wiki/w/monster spawner).",
+                markdownDescription: "Additional fields for [monster spawner](https://minecraft.wiki/w/monster_spawner).",
                 type: "compound",
                 $ref: "MonsterSpawner",
                 $fragment: false,
             },
             Block_MovingBlock: {
                 id: "Block_MovingBlock",
-                markdownDescription: "Additional fields for [moving block](https://minecraft.wiki/w/moving block).",
+                markdownDescription: "Additional fields for [moving block](https://minecraft.wiki/w/moving_block).",
                 type: "compound",
                 required: ["movingBlock", "movingBlockExtra", "pistonPosX", "pistonPosY", "pistonPosZ"],
                 properties: {
@@ -8609,7 +8609,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_NoteBlock: {
                 id: "Block_NoteBlock",
-                markdownDescription: "Additional fields for [note block](https://minecraft.wiki/w/note block).",
+                markdownDescription: "Additional fields for [note block](https://minecraft.wiki/w/note_block).",
                 type: "compound",
                 required: ["note"],
                 properties: {
@@ -8622,7 +8622,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_NetherReactor: {
                 id: "Block_NetherReactor",
-                markdownDescription: "Additional fields for [nether reactor](https://minecraft.wiki/w/nether reactor).",
+                markdownDescription: "Additional fields for [nether reactor](https://minecraft.wiki/w/nether_reactor).",
                 type: "compound",
                 required: ["HasFinished", "IsInitialized", "Progress"],
                 properties: {
@@ -8747,7 +8747,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_SculkCatalyst: {
                 id: "Block_SculkCatalyst",
-                markdownDescription: "Additional fields for [sculk catalyst](https://minecraft.wiki/w/sculk catalyst).",
+                markdownDescription: "Additional fields for [sculk catalyst](https://minecraft.wiki/w/sculk_catalyst).",
                 type: "compound",
                 required: ["cursors"],
                 properties: {
@@ -8797,7 +8797,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Block_SculkShrieker_SculkSensor_AndCalibratedSculkSensor: {
                 id: "Block_SculkShrieker_SculkSensor_AndCalibratedSculkSensor",
                 markdownDescription:
-                    "Additional fields for [sculk shrieker](https://minecraft.wiki/w/sculk shrieker), [sculk sensor](https://minecraft.wiki/w/sculk sensor), and [calibrated sculk sensor](https://minecraft.wiki/w/calibrated sculk sensor).",
+                    "Additional fields for [sculk shrieker](https://minecraft.wiki/w/sculk_shrieker), [sculk sensor](https://minecraft.wiki/w/sculk_sensor), and [calibrated sculk sensor](https://minecraft.wiki/w/calibrated_sculk_sensor).",
                 type: "compound",
                 required: ["VibrationListener"],
                 properties: {
@@ -8856,7 +8856,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_ShulkerBox: {
                 id: "Block_ShulkerBox",
-                markdownDescription: "Additional fields for [shulker box](https://minecraft.wiki/w/shulker box).",
+                markdownDescription: "Additional fields for [shulker box](https://minecraft.wiki/w/shulker_box).",
                 type: "compound",
                 required: ["facing"],
                 properties: {
@@ -8889,7 +8889,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             },
                             IgnoreLighting: {
                                 markdownDescription:
-                                    "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow ink sac).",
+                                    "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow_ink_sac).",
                                 type: "byte",
                             },
                             PersistFormatting: {
@@ -8922,7 +8922,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             },
                             IgnoreLighting: {
                                 markdownDescription:
-                                    "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow ink sac).",
+                                    "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow_ink_sac).",
                                 type: "byte",
                             },
                             PersistFormatting: {
@@ -8974,7 +8974,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Block_StructureBlock: {
                 id: "Block_StructureBlock",
-                markdownDescription: "Additional fields for [structure block](https://minecraft.wiki/w/structure block).",
+                markdownDescription: "Additional fields for [structure block](https://minecraft.wiki/w/structure_block).",
                 type: "compound",
                 required: [
                     "animationMode",
@@ -9086,7 +9086,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Block_SuspiciousBlock: {
                 id: "Block_SuspiciousBlock",
                 markdownDescription:
-                    "Additional fields for [suspicious sand](https://minecraft.wiki/w/suspicious sand) and [suspicious gravel](https://minecraft.wiki/w/suspicious gravel).",
+                    "Additional fields for [suspicious sand](https://minecraft.wiki/w/suspicious_sand) and [suspicious gravel](https://minecraft.wiki/w/suspicious_gravel).",
                 type: "compound",
                 required: ["brush_count", "brush_direction", "type"],
                 properties: {
@@ -9123,7 +9123,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Block_TrialSpawner: {
                 id: "Block_TrialSpawner",
                 markdownDescription:
-                    "Additional fields for [trial spawner](https://minecraft.wiki/w/trial spawner) and [ominous trial spawner](https://minecraft.wiki/w/ominous trial spawner).",
+                    "Additional fields for [trial spawner](https://minecraft.wiki/w/trial_spawner) and [ominous trial spawner](https://minecraft.wiki/w/ominous_trial_spawner).",
                 type: "compound",
                 required: [
                     "required_player_range",
@@ -9207,7 +9207,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                         },
                                         equipment_loot_table: {
                                             markdownDescription:
-                                                "Optional path to a [loot table](https://minecraft.wiki/w/loot table). Determines the equipment the entity will wear.",
+                                                "Optional path to a [loot table](https://minecraft.wiki/w/loot_table). Determines the equipment the entity will wear.",
                                             type: "string",
                                         },
                                     },
@@ -9227,7 +9227,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                             type: "int",
                                         },
                                         data: {
-                                            markdownDescription: "A path to a [loot table](https://minecraft.wiki/w/loot table).",
+                                            markdownDescription: "A path to a [loot table](https://minecraft.wiki/w/loot_table).",
                                             type: "string",
                                         },
                                     },
@@ -9235,7 +9235,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             },
                             items_to_drop_when_ominous: {
                                 markdownDescription:
-                                    "Defaults to `loot_tables/spawners/trial_chamber/items_to_drop_when_ominous.json` &mdash; A path to a [loot table](https://minecraft.wiki/w/loot table). Determines the items used by [ominous item spawner](https://minecraft.wiki/w/ominous item spawner)s spawned during the active phase when ominous. Ignored in normal mode.",
+                                    "Defaults to `loot_tables/spawners/trial_chamber/items_to_drop_when_ominous.json` &mdash; A path to a [loot table](https://minecraft.wiki/w/loot_table). Determines the items used by [ominous item spawner](https://minecraft.wiki/w/ominous_item_spawner)s spawned during the active phase when ominous. Ignored in normal mode.",
                                 type: "string",
                             },
                         },
@@ -9300,14 +9300,14 @@ however when the corresponding block in the block layer is broken, this block ge
                             },
                             equipment_loot_table: {
                                 markdownDescription:
-                                    "Optional path to a [loot table](https://minecraft.wiki/w/loot table). Determines the equipment the entity will wear.",
+                                    "Optional path to a [loot table](https://minecraft.wiki/w/loot_table). Determines the equipment the entity will wear.",
                                 type: "string",
                             },
                         },
                     },
                     selected_loot_table: {
                         markdownDescription:
-                            "A path to the [loot table](https://minecraft.wiki/w/loot table) that is given as reward. Unset if not currently giving rewards. Selected from loot_tables_to_eject after all mobs are defeated.",
+                            "A path to the [loot table](https://minecraft.wiki/w/loot_table) that is given as reward. Unset if not currently giving rewards. Selected from loot_tables_to_eject after all mobs are defeated.",
                         type: "string",
                     },
                 },
@@ -9316,7 +9316,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Block_Vault: {
                 id: "Block_Vault",
                 markdownDescription:
-                    "Additional fields for [vault](https://minecraft.wiki/w/vault) and [ominous vault](https://minecraft.wiki/w/ominous vault).",
+                    "Additional fields for [vault](https://minecraft.wiki/w/vault) and [ominous vault](https://minecraft.wiki/w/ominous_vault).",
                 type: "compound",
                 required: ["config", "data"],
                 properties: {
@@ -9335,7 +9335,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             },
                             loot_table: {
                                 markdownDescription:
-                                    "A path to the [loot table](https://minecraft.wiki/w/loot table) that is ejected when unlocking the vault. Defaults to `loot_tables/chests/trial_chambers/reward.json` for _normal_ vaults and `loot_tables/chests/trial_chambers/reward_ominous.json` for _ominous_ vaults.",
+                                    "A path to the [loot table](https://minecraft.wiki/w/loot_table) that is ejected when unlocking the vault. Defaults to `loot_tables/chests/trial_chambers/reward.json` for _normal_ vaults and `loot_tables/chests/trial_chambers/reward_ominous.json` for _ominous_ vaults.",
                                 type: "string",
                             },
                             override_loot_table_to_display: {
@@ -9447,7 +9447,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Item_ArmorTrim: {
                 id: "Item_ArmorTrim",
                 markdownDescription:
-                    "Additional fields when an [armor](https://minecraft.wiki/w/armor) is [trimmed](https://minecraft.wiki/w/Smithing Template).",
+                    "Additional fields when an [armor](https://minecraft.wiki/w/armor) is [trimmed](https://minecraft.wiki/w/Smithing_Template).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -9477,7 +9477,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_BookAndQuills: {
                 id: "Item_BookAndQuills",
-                markdownDescription: "Additional fields for [book and quill](https://minecraft.wiki/w/book and quill)s.",
+                markdownDescription: "Additional fields for [book and quill](https://minecraft.wiki/w/book_and_quill)s.",
                 type: "compound",
                 properties: {
                     tag: {
@@ -9575,7 +9575,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_FilledMap: {
                 id: "Item_FilledMap",
-                markdownDescription: "Additional fields for [filled map](https://minecraft.wiki/w/filled map).",
+                markdownDescription: "Additional fields for [filled map](https://minecraft.wiki/w/filled_map).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -9614,7 +9614,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_FireworkRocket: {
                 id: "Item_FireworkRocket",
-                markdownDescription: "Additional fields for [firework rocket](https://minecraft.wiki/w/firework rocket).",
+                markdownDescription: "Additional fields for [firework rocket](https://minecraft.wiki/w/firework_rocket).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -9648,7 +9648,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_FireworkStar: {
                 id: "Item_FireworkStar",
-                markdownDescription: "Additional fields for [firework star](https://minecraft.wiki/w/firework star).",
+                markdownDescription: "Additional fields for [firework star](https://minecraft.wiki/w/firework_star).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -9672,7 +9672,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_GlowStick: {
                 id: "Item_GlowStick",
-                markdownDescription: "Additional fields for [glow stick](https://minecraft.wiki/w/glow stick).",
+                markdownDescription: "Additional fields for [glow stick](https://minecraft.wiki/w/glow_stick).",
                 type: "compound",
                 properties: {
                     active_time: {
@@ -9685,7 +9685,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_HorseArmor: {
                 id: "Item_HorseArmor",
-                markdownDescription: "Additional fields for [horse armor](https://minecraft.wiki/w/horse armor).",
+                markdownDescription: "Additional fields for [horse armor](https://minecraft.wiki/w/horse_armor).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -9703,7 +9703,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_LodestoneCompass: {
                 id: "Item_LodestoneCompass",
-                markdownDescription: "Additional fields for [lodestone compass](https://minecraft.wiki/w/lodestone compass).",
+                markdownDescription: "Additional fields for [lodestone compass](https://minecraft.wiki/w/lodestone_compass).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -9781,7 +9781,7 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             Item_WrittenBook: {
                 id: "Item_WrittenBook",
-                markdownDescription: "Additional fields for [written book](https://minecraft.wiki/w/written book).",
+                markdownDescription: "Additional fields for [written book](https://minecraft.wiki/w/written_book).",
                 type: "compound",
                 properties: {
                     tag: {
@@ -10457,7 +10457,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Component_CommandBlockComponent: {
                 id: "Component_CommandBlockComponent",
                 markdownDescription:
-                    "This component may be not accessable with [Behavior Pack](https://minecraft.wiki/w/Add-on). But it is used by activated [Minecart with Command Block](https://minecraft.wiki/w/Minecart with Command Block)",
+                    "This component may be not accessable with [Behavior Pack](https://minecraft.wiki/w/Add-on). But it is used by activated [Minecart with Command Block](https://minecraft.wiki/w/Minecart_with_Command_Block)",
                 type: "compound",
                 required: ["Ticking", "CurrentTickCount"],
                 properties: {
@@ -15318,7 +15318,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 OwnerNew: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * 1 or 0 (true/false) - true if an entity should be [persistent](https://minecraft.wiki/w/Mob spawning#Despawning) in the world.
+                 * 1 or 0 (true/false) - true if an entity should be [persistent](https://minecraft.wiki/w/Mob_spawning#Despawning) in the world.
                  *
                  * @enum 0 | 1
                  *
@@ -16135,7 +16135,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * The `allowdestructiveobjects` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `allowdestructiveobjects` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16145,7 +16145,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 allowdestructiveobjects?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `allowmobs` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `allowmobs` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16162,7 +16162,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 baseGameVersion?: { type: "string"; value: string };
                 /**
-                 * Makes the world into a [single biome](https://minecraft.wiki/w/single biome) world and the biome set here is the biome of this single biome world.
+                 * Makes the world into a [single biome](https://minecraft.wiki/w/single_biome) world and the biome set here is the biome of this single biome world.
                  */
                 BiomeOverride?: { type: "string"; value: string };
                 /**
@@ -16196,7 +16196,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 codebuilder?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `commandblockoutput` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `commandblockoutput` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16216,7 +16216,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 CenterMapsToOrigin?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `commandblocksenabled` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `commandblocksenabled` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16273,7 +16273,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 Dimension?: { type: "int"; value: 0 | 1 | 2 };
                 /**
-                 * The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16283,7 +16283,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 dodaylightcycle?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doentitiydrops` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `doentitiydrops` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16293,7 +16293,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 doentitiydrops?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `dofiretick` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `dofiretick` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16303,7 +16303,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 dofiretick?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doimmediaterespawn` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `doimmediaterespawn` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16313,7 +16313,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 doimmediaterespawn?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doinsomnia` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `doinsomnia` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16323,7 +16323,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 doinsomnia?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `dolimitedcrafting` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `dolimitedcrafting` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16333,7 +16333,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 dolimitedcrafting?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `domobloot` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `domobloot` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16343,7 +16343,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 domobloot?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `domobspawning` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `domobspawning` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16353,7 +16353,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 domobspawning?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `dotiledrops` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `dotiledrops` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16363,7 +16363,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 dotiledrops?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doweathercycle` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `doweathercycle` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16373,7 +16373,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 doweathercycle?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `drowningdamage` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `drowningdamage` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16393,7 +16393,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 educationFeaturesEnabled?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * Marks a world as a [bedrock editor](https://minecraft.wiki/w/Bedrock Editor) world (worlds with this set to 1 only show up when in editor mode).
+                 * Marks a world as a [bedrock editor](https://minecraft.wiki/w/Bedrock_Editor) world (worlds with this set to 1 only show up when in editor mode).
                  *
                  * @enum 0 | 1
                  *
@@ -16442,7 +16442,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * 1 or 0 (true/false) - true if the world is locked on [experimental gameplay](https://minecraft.wiki/w/experimental gameplay).
+                         * 1 or 0 (true/false) - true if the world is locked on [experimental gameplay](https://minecraft.wiki/w/experimental_gameplay).
                          *
                          * @enum 0 | 1
                          *
@@ -16576,7 +16576,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     };
                 };
                 /**
-                 * The `falldamage` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `falldamage` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16586,7 +16586,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 falldamage?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `firedamage` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `firedamage` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16603,7 +16603,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 FlatWorldLayers?: { type: "string"; value: string };
                 /**
-                 * The `freezedamage` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `freezedamage` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16613,13 +16613,13 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 freezedamage?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `functioncommandlimit` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `functioncommandlimit` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @default 10000
                  */
                 functioncommandlimit?: { type: "int"; value: number };
                 /**
-                 * The `globalmute` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `globalmute` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16707,7 +16707,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 InventoryVersion?: { type: "string"; value: string };
                 /**
-                 * 1 or 0 (true/false) - true if it was created from the [bedrock editor](https://minecraft.wiki/w/Bedrock Editor).
+                 * 1 or 0 (true/false) - true if it was created from the [bedrock editor](https://minecraft.wiki/w/Bedrock_Editor).
                  *
                  * @enum 0 | 1
                  *
@@ -16717,7 +16717,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 isCreatedInEditor?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * 1 or 0 (true/false) - true if exported from the [bedrock editor](https://minecraft.wiki/w/Bedrock Editor).
+                 * 1 or 0 (true/false) - true if exported from the [bedrock editor](https://minecraft.wiki/w/Bedrock_Editor).
                  *
                  * @enum 0 | 1
                  *
@@ -16787,7 +16787,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 isWorldTemplateOptionLocked?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `keepinventory` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `keepinventory` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16817,7 +16817,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LANBroadcastIntent?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock Edition Preview 1.20.30.22) the version is `1 20 30 22 1`.
+                 * Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock_Edition_Preview_1.20.30.22) the version is `1 20 30 22 1`.
                  */
                 lastOpenedWithVersion?: { type: "list"; value: { type: "int"; value: [number, number, number, number, 0 | 1] } };
                 /**
@@ -16869,7 +16869,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 limitedWorldWidth?: { type: "int"; value: number };
                 /**
-                 * The `locatorbar` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `locatorbar` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16879,13 +16879,13 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 locatorbar?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `maxcommandchainlength` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `maxcommandchainlength` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @default 65535
                  */
                 maxcommandchainlength?: { type: "int"; value: number };
                 /**
-                 * Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock Edition Preview 1.20.30.22) the minimum compatible version is `1 20 30 0 0`.
+                 * Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock_Edition_Preview_1.20.30.22) the minimum compatible version is `1 20 30 0 0`.
                  */
                 MinimumCompatibleClientVersion?: { type: "list"; value: { type: "int"; value: [number, number, number, number, 0 | 1] } };
                 /**
@@ -16919,7 +16919,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 MultiplayerGameIntent?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `naturalregeneration` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `naturalregeneration` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16956,7 +16956,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 prid?: { type: "string"; value: string };
                 /**
-                 * The `projectilescanbreakblocks` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `projectilescanbreakblocks` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16966,7 +16966,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 projectilescanbreakblocks?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `pvp` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `pvp` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -16988,13 +16988,13 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 RandomSeed?: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * The `randomtickspeed` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `randomtickspeed` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @default 1
                  */
                 randomtickspeed?: { type: "int"; value: number };
                 /**
-                 * The `recipesunlock` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `recipesunlock` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17014,7 +17014,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 requiresCopiedPackRemovalCheck?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `respawnblocksexplode` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `respawnblocksexplode` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17024,7 +17024,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 respawnblocksexplode?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `sendcommandfeedback` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `sendcommandfeedback` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17040,7 +17040,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 serverChunkTickRange?: { type: "int"; value: number };
                 /**
-                 * The `showbordereffect` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `showbordereffect` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17050,7 +17050,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showbordereffect?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showcoordinates` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `showcoordinates` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17060,7 +17060,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showcoordinates?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showdaysplayed` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `showdaysplayed` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17070,7 +17070,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showdaysplayed?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showdeathmessages` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `showdeathmessages` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17080,7 +17080,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showdeathmessages?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showrecipemessages` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `showrecipemessages` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17090,7 +17090,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 showrecipemessages?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `showtags` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `showtags` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17110,7 +17110,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 spawnMobs?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `spawnradius` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `spawnradius` [game rule](https://minecraft.wiki/w/game_rule).
                  */
                 spawnradius?: { type: "int"; value: number };
                 /**
@@ -17168,14 +17168,14 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 texturePacksRequired?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](https://minecraft.wiki/w/daylight cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](https://minecraft.wiki/w/Daylight cycle#Daytime), 12000 is the start of [sunset](https://minecraft.wiki/w/Daylight cycle#Sunset/dusk), 13800 is the start of [nighttime](https://minecraft.wiki/w/Daylight cycle#Nighttime), 22200 is the start of [sunrise](https://minecraft.wiki/w/Daylight cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.
+                 * Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](https://minecraft.wiki/w/daylight_cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](https://minecraft.wiki/w/Daylight_cycle#Daytime), 12000 is the start of [sunset](https://minecraft.wiki/w/Daylight_cycle#Sunset/dusk), 13800 is the start of [nighttime](https://minecraft.wiki/w/Daylight_cycle#Nighttime), 22200 is the start of [sunrise](https://minecraft.wiki/w/Daylight_cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.
                  *
                  * @default
                  * [high: 0, low: 0]
                  */
                 Time?: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * The `tntexplodes` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `tntexplodes` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17185,7 +17185,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 tntexplodes?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `tntexplosiondropdecay` [game rule](https://minecraft.wiki/w/game rule).
+                 * The `tntexplosiondropdecay` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -18678,7 +18678,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 parentMapId: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * 0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The Nether), 2 = [The End](https://minecraft.wiki/w/The End), any other value = a static image with no player pin.
+                 * 0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The_Nether), 2 = [The End](https://minecraft.wiki/w/The_End), any other value = a static image with no player pin.
                  */
                 dimension: { type: "byte"; value: number };
                 /**
@@ -18686,11 +18686,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 fullyExplored: { type: "byte"; value: number };
                 /**
-                 * 1 if the map has been locked in a [cartography table](https://minecraft.wiki/w/cartography table).
+                 * 1 if the map has been locked in a [cartography table](https://minecraft.wiki/w/cartography_table).
                  */
                 mapLocked: { type: "byte"; value: number };
                 /**
-                 * How zoomed in the map is, and must be a number between 0 and 4 (inclusive) that represent the level. Default 0. If this is changed in an [anvil](https://minecraft.wiki/w/anvil) or a [cartography table](https://minecraft.wiki/w/cartography table), the Unique ID of the map changes.
+                 * How zoomed in the map is, and must be a number between 0 and 4 (inclusive) that represent the level. Default 0. If this is changed in an [anvil](https://minecraft.wiki/w/anvil) or a [cartography table](https://minecraft.wiki/w/cartography_table), the Unique ID of the map changes.
                  *
                  * @default 0
                  */
@@ -18736,7 +18736,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                      */
                                     rot: { type: "int"; value: number };
                                     /**
-                                     * The ID of the [map icon](https://minecraft.wiki/w/Map icons.png) to display.
+                                     * The ID of the [map icon](https://minecraft.wiki/w/Map_icons.png) to display.
                                      */
                                     type: { type: "int"; value: number };
                                     /**
@@ -18799,7 +18799,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 events_enabled: { type: "byte"; value: 0 | 1 };
                 /**
-                 * 1 or 0 (true/false) - true if the [ender dragon](https://minecraft.wiki/w/ender dragon) can spawn.
+                 * 1 or 0 (true/false) - true if the [ender dragon](https://minecraft.wiki/w/ender_dragon) can spawn.
                  *
                  * @enum 0 | 1
                  *
@@ -18809,7 +18809,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 "minecraft:ender_dragon_event": { type: "byte"; value: 0 | 1 };
                 /**
-                 * 1 or 0 (true/false) - true if the [illager patrol](https://minecraft.wiki/w/illager patrol) can spawn.
+                 * 1 or 0 (true/false) - true if the [illager patrol](https://minecraft.wiki/w/illager_patrol) can spawn.
                  *
                  * @enum 0 | 1
                  *
@@ -18819,7 +18819,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 "minecraft:pillager_patrols_event": { type: "byte"; value: 0 | 1 };
                 /**
-                 * 1 or 0 (true/false) - true if the [wandering trader](https://minecraft.wiki/w/wandering trader) can spawn.
+                 * 1 or 0 (true/false) - true if the [wandering trader](https://minecraft.wiki/w/wandering_trader) can spawn.
                  *
                  * @enum 0 | 1
                  *
@@ -19924,7 +19924,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * NBT structure of [command block](https://minecraft.wiki/w/command block) and [minecart with command block](https://minecraft.wiki/w/minecart with command block).
+         * NBT structure of [command block](https://minecraft.wiki/w/command_block) and [minecart with command block](https://minecraft.wiki/w/minecart_with_command_block).
          *
          * @see {@link NBTSchemas.nbtSchemas.CommandBlock}
          */
@@ -19975,7 +19975,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * NBT structure of [firework](https://minecraft.wiki/w/firework) and [firework star](https://minecraft.wiki/w/firework star).
+         * NBT structure of [firework](https://minecraft.wiki/w/firework) and [firework star](https://minecraft.wiki/w/firework_star).
          *
          * @see {@link NBTSchemas.nbtSchemas.FireworkExplosion}
          */
@@ -20006,7 +20006,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * NBT structure of a [status effect](https://minecraft.wiki/w/status effect).
+         * NBT structure of a [status effect](https://minecraft.wiki/w/status_effect).
          *
          * @see {@link NBTSchemas.nbtSchemas.MobEffect}
          */
@@ -20066,7 +20066,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * NBT structure of a [monster spawner](https://minecraft.wiki/w/monster spawner).
+         * NBT structure of a [monster spawner](https://minecraft.wiki/w/monster_spawner).
          *
          * @see {@link NBTSchemas.nbtSchemas.MonsterSpawner}
          */
@@ -20307,7 +20307,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 LeasherID: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * The left time in ticks until this entity disapears. Only *needs testing* effects [Evoker Fang](https://minecraft.wiki/w/Evoker Fang)s. For other entities, it is set to 0.
+                 * The left time in ticks until this entity disapears. Only *needs testing* effects [Evoker Fang](https://minecraft.wiki/w/Evoker_Fang)s. For other entities, it is set to 0.
                  */
                 limitedLife: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -20472,7 +20472,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Component_Inventory;
 
         /**
-         * Additional fields for [area effect cloud](https://minecraft.wiki/w/area effect cloud).
+         * Additional fields for [area effect cloud](https://minecraft.wiki/w/area_effect_cloud).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_AreaEffectCloud}
          */
@@ -20508,11 +20508,11 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 ParticleId: { type: "int"; value: number };
                 /**
-                 * How many [dragon's breath](https://minecraft.wiki/w/dragon's breath) can be picked up.
+                 * How many [dragon's breath](https://minecraft.wiki/w/dragon's_breath) can be picked up.
                  */
                 PickupCount: { type: "int"; value: number };
                 /**
-                 * The name of the default potion effect. See [potion data values](https://minecraft.wiki/w/potion#Item data) for valid IDs.
+                 * The name of the default potion effect. See [potion data values](https://minecraft.wiki/w/potion#Item_data) for valid IDs.
                  */
                 PotionId: { type: "short"; value: number };
                 /**
@@ -20575,7 +20575,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Component_Ageable;
 
         /**
-         * Additional fields for [armor stand](https://minecraft.wiki/w/armor stand).
+         * Additional fields for [armor stand](https://minecraft.wiki/w/armor_stand).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ArmorStand}
          */
@@ -20697,7 +20697,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Component_Ageable;
 
         /**
-         * Additional fields for [boat with chest](https://minecraft.wiki/w/boat with chest).
+         * Additional fields for [boat with chest](https://minecraft.wiki/w/boat_with_chest).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_BoatWithChest}
          */
@@ -20830,7 +20830,7 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_Egg = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
-         * Additional fields for [ender crystal](https://minecraft.wiki/w/ender crystal).
+         * Additional fields for [ender crystal](https://minecraft.wiki/w/ender_crystal).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_EnderCrystal}
          */
@@ -20891,7 +20891,7 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_Evoker = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
-         * Additional fields for [experience orb](https://minecraft.wiki/w/experience orb).
+         * Additional fields for [experience orb](https://minecraft.wiki/w/experience_orb).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ExperienceOrb}
          */
@@ -20910,14 +20910,14 @@ however when the corresponding block in the block layer is broken, this block ge
         } & ActorPrefix;
 
         /**
-         * Additional fields for [experience potion](https://minecraft.wiki/w/experience potion).
+         * Additional fields for [experience potion](https://minecraft.wiki/w/experience_potion).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ExperiencePotion}
          */
         export type Entity_ExperiencePotion = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
-         * Additional fields for [falling block](https://minecraft.wiki/w/falling block).
+         * Additional fields for [falling block](https://minecraft.wiki/w/falling_block).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_FallingBlock}
          */
@@ -20976,7 +20976,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & ActorPrefix;
 
         /**
-         * Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing bobber).
+         * Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing_bobber).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_FishingBobber}
          */
@@ -21024,7 +21024,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Component_Ageable;
 
         /**
-         * Additional fields for [guardian](https://minecraft.wiki/w/guardian) and [elder guardian](https://minecraft.wiki/w/elder guardian).
+         * Additional fields for [guardian](https://minecraft.wiki/w/guardian) and [elder guardian](https://minecraft.wiki/w/elder_guardian).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_GuardianAndElderGuardian}
          */
@@ -21070,14 +21070,14 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_Husk = { type: "compound"; value: object } & ActorPrefix & Component_Timer;
 
         /**
-         * Additional fields for [iron golem](https://minecraft.wiki/w/iron golem).
+         * Additional fields for [iron golem](https://minecraft.wiki/w/iron_golem).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_IronGolem}
          */
         export type Entity_IronGolem = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
-         * Additional fields for [item entity](https://minecraft.wiki/w/Item (entity)).
+         * Additional fields for [item entity](https://minecraft.wiki/w/Item_(entity)).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ItemEntity}
          */
@@ -21130,14 +21130,14 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_LlamaSpit = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
 
         /**
-         * Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart with chest).
+         * Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart_with_chest).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithChest}
          */
         export type Entity_MinecartWithChest = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
 
         /**
-         * Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart with command block).
+         * Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart_with_command_block).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithCommandBlock}
          */
@@ -21156,14 +21156,14 @@ however when the corresponding block in the block layer is broken, this block ge
         } & ActorPrefix;
 
         /**
-         * Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart with hopper).
+         * Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart_with_hopper).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithHopper}
          */
         export type Entity_MinecartWithHopper = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
 
         /**
-         * Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart with tnt).
+         * Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart_with_tnt).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithTNT}
          */
@@ -21286,7 +21286,7 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_Piglin = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
 
         /**
-         * Additional fields for [piglin brute](https://minecraft.wiki/w/piglin brute).
+         * Additional fields for [piglin brute](https://minecraft.wiki/w/piglin_brute).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_PiglinBrute}
          */
@@ -21316,7 +21316,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 DimensionId: { type: "int"; value: number };
                 /**
-                 * The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment table)s.
+                 * The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment_table)s.
                  */
                 EnchantmentSeed: { type: "int"; value: number };
                 /**
@@ -21343,7 +21343,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 format_version: { type: "string"; value: string };
                 /**
-                 * 1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End portal).
+                 * 1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End_portal).
                  */
                 HasSeenCredits: { type: "byte"; value: number };
                 /**
@@ -21489,7 +21489,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Abilities;
 
         /**
-         * Additional fields for [polar bear](https://minecraft.wiki/w/polar bear).
+         * Additional fields for [polar bear](https://minecraft.wiki/w/polar_bear).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_PolarBear}
          */
@@ -21537,7 +21537,7 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_Sheep = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
-         * Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker bullet).
+         * Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker_bullet).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ShulkerBullet}
          */
@@ -21560,7 +21560,7 @@ however when the corresponding block in the block layer is broken, this block ge
             Component_Timer;
 
         /**
-         * Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton horse).
+         * Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton_horse).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_SkeletonHorse}
          */
@@ -21610,7 +21610,7 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_Tadpole = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
-         * Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender pearl).
+         * Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender_pearl).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ThrownEnderPearl}
          */
@@ -21625,7 +21625,7 @@ however when the corresponding block in the block layer is broken, this block ge
             type: "compound";
             value: {
                 /**
-                 * The [ID of the potion effect](https://minecraft.wiki/w/Potion#Item data).
+                 * The [ID of the potion effect](https://minecraft.wiki/w/Potion#Item_data).
                  */
                 PotionId: { type: "short"; value: number };
             };
@@ -21722,7 +21722,7 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_Vindicator = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
 
         /**
-         * Additional fields for [wandering trader](https://minecraft.wiki/w/wandering trader).
+         * Additional fields for [wandering trader](https://minecraft.wiki/w/wandering_trader).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_WanderingTrader}
          */
@@ -21836,7 +21836,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & ActorPrefix;
 
         /**
-         * Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind charge projectile).
+         * Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind_charge_projectile).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_WindChargeProjectile}
          */
@@ -21930,7 +21930,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     type: "compound";
                     value: {
                         /**
-                         * 1 or 0 (true/false) - true if the wolf has [wolf armor](https://minecraft.wiki/w/wolf armor).
+                         * 1 or 0 (true/false) - true if the wolf has [wolf armor](https://minecraft.wiki/w/wolf_armor).
                          */
                         "minecraft:has_armor": { type: "byte"; value: number };
                         /**
@@ -21938,7 +21938,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         "minecraft:has_increased_max_health": { type: "byte"; value: number };
                         /**
-                         * 1 or 0 (true/false) - true if the wolf can be equipped with [wolf armor](https://minecraft.wiki/w/wolf armor).
+                         * 1 or 0 (true/false) - true if the wolf can be equipped with [wolf armor](https://minecraft.wiki/w/wolf_armor).
                          */
                         "minecraft:is_armorable": { type: "byte"; value: number };
                     };
@@ -21955,14 +21955,14 @@ however when the corresponding block in the block layer is broken, this block ge
         export type Entity_Zombie = { type: "compound"; value: object } & ActorPrefix & Component_Timer;
 
         /**
-         * Additional fields for [zombie horse](https://minecraft.wiki/w/zombie horse).
+         * Additional fields for [zombie horse](https://minecraft.wiki/w/zombie_horse).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ZombieHorse}
          */
         export type Entity_ZombieHorse = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
 
         /**
-         * Additional fields for [zombie villager](https://minecraft.wiki/w/zombie villager).
+         * Additional fields for [zombie villager](https://minecraft.wiki/w/zombie_villager).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ZombieVillager}
          */
@@ -21977,7 +21977,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & ActorPrefix;
 
         /**
-         * Additional fields for [zombified piglin](https://minecraft.wiki/w/zombified piglin).
+         * Additional fields for [zombified piglin](https://minecraft.wiki/w/zombified_piglin).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ZombifiedPiglin}
          */
@@ -22125,7 +22125,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [brewing stand](https://minecraft.wiki/w/brewing stand).
+         * Additional fields for [brewing stand](https://minecraft.wiki/w/brewing_stand).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_BrewingStand}
          */
@@ -22163,7 +22163,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [campfire](https://minecraft.wiki/w/campfire) and [soul campfire](https://minecraft.wiki/w/soul campfire).
+         * Additional fields for [campfire](https://minecraft.wiki/w/campfire) and [soul campfire](https://minecraft.wiki/w/soul_campfire).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_CampfireAndSoulCampfire}
          */
@@ -22257,7 +22257,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for chemistry tables ([compound creator](https://minecraft.wiki/w/compound creator), [element constructor](https://minecraft.wiki/w/element constructor), [lab table](https://minecraft.wiki/w/lab table), [material reducer](https://minecraft.wiki/w/material reducer)).
+         * Additional fields for chemistry tables ([compound creator](https://minecraft.wiki/w/compound_creator), [element constructor](https://minecraft.wiki/w/element_constructor), [lab table](https://minecraft.wiki/w/lab_table), [material reducer](https://minecraft.wiki/w/material_reducer)).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_ChemistryTables}
          */
@@ -22280,7 +22280,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [chest](https://minecraft.wiki/w/chest), [trapped chest](https://minecraft.wiki/w/trapped chest), [barrel](https://minecraft.wiki/w/barrel), and [ender chest](https://minecraft.wiki/w/ender chest).
+         * Additional fields for [chest](https://minecraft.wiki/w/chest), [trapped chest](https://minecraft.wiki/w/trapped_chest), [barrel](https://minecraft.wiki/w/barrel), and [ender chest](https://minecraft.wiki/w/ender_chest).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_Chests}
          */
@@ -22334,7 +22334,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [chiseled bookshelf](https://minecraft.wiki/w/chiseled bookshelf).
+         * Additional fields for [chiseled bookshelf](https://minecraft.wiki/w/chiseled_bookshelf).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_ChiseledBookshelf}
          */
@@ -22353,7 +22353,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [command block](https://minecraft.wiki/w/command block).
+         * Additional fields for [command block](https://minecraft.wiki/w/command_block).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_CommandBlock}
          */
@@ -22456,7 +22456,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [decorated pot](https://minecraft.wiki/w/decorated pot).
+         * Additional fields for [decorated pot](https://minecraft.wiki/w/decorated_pot).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_DecoratedPot}
          */
@@ -22509,7 +22509,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [Enchantment table](https://minecraft.wiki/w/Enchantment table).
+         * Additional fields for [Enchantment table](https://minecraft.wiki/w/Enchantment_table).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_EnchantmentTable}
          */
@@ -22528,7 +22528,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [end gateway](https://minecraft.wiki/w/end gateway).
+         * Additional fields for [end gateway](https://minecraft.wiki/w/end_gateway).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_EndGateway}
          */
@@ -22547,7 +22547,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [flower pot](https://minecraft.wiki/w/flower pot).
+         * Additional fields for [flower pot](https://minecraft.wiki/w/flower_pot).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_FlowerPot}
          */
@@ -22562,7 +22562,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [furnace](https://minecraft.wiki/w/furnace), [smoker](https://minecraft.wiki/w/smoker), and [blast furnace](https://minecraft.wiki/w/blast furnace).
+         * Additional fields for [furnace](https://minecraft.wiki/w/furnace), [smoker](https://minecraft.wiki/w/smoker), and [blast furnace](https://minecraft.wiki/w/blast_furnace).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_Furnace}
          */
@@ -22634,7 +22634,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [item frame](https://minecraft.wiki/w/item frame).
+         * Additional fields for [item frame](https://minecraft.wiki/w/item_frame).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_ItemFrame}
          */
@@ -22745,14 +22745,14 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [monster spawner](https://minecraft.wiki/w/monster spawner).
+         * Additional fields for [monster spawner](https://minecraft.wiki/w/monster_spawner).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_MonsterSpawner}
          */
         export type Block_MonsterSpawner = { type: "compound"; value: object } & MonsterSpawner;
 
         /**
-         * Additional fields for [moving block](https://minecraft.wiki/w/moving block).
+         * Additional fields for [moving block](https://minecraft.wiki/w/moving_block).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_MovingBlock}
          */
@@ -22787,7 +22787,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [note block](https://minecraft.wiki/w/note block).
+         * Additional fields for [note block](https://minecraft.wiki/w/note_block).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_NoteBlock}
          */
@@ -22802,7 +22802,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [nether reactor](https://minecraft.wiki/w/nether reactor).
+         * Additional fields for [nether reactor](https://minecraft.wiki/w/nether_reactor).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_NetherReactor}
          */
@@ -22872,7 +22872,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [sculk catalyst](https://minecraft.wiki/w/sculk catalyst).
+         * Additional fields for [sculk catalyst](https://minecraft.wiki/w/sculk_catalyst).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_SculkCatalyst}
          */
@@ -22922,7 +22922,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [sculk shrieker](https://minecraft.wiki/w/sculk shrieker), [sculk sensor](https://minecraft.wiki/w/sculk sensor), and [calibrated sculk sensor](https://minecraft.wiki/w/calibrated sculk sensor).
+         * Additional fields for [sculk shrieker](https://minecraft.wiki/w/sculk_shrieker), [sculk sensor](https://minecraft.wiki/w/sculk_sensor), and [calibrated sculk sensor](https://minecraft.wiki/w/calibrated_sculk_sensor).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_SculkShrieker_SculkSensor_AndCalibratedSculkSensor}
          */
@@ -22985,7 +22985,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [shulker box](https://minecraft.wiki/w/shulker box).
+         * Additional fields for [shulker box](https://minecraft.wiki/w/shulker_box).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_ShulkerBox}
          */
@@ -23018,7 +23018,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         HideGlowOutline: { type: "byte"; value: number };
                         /**
-                         * 1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow ink sac).
+                         * 1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow_ink_sac).
                          */
                         IgnoreLighting: { type: "byte"; value: number };
                         /**
@@ -23050,7 +23050,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         HideGlowOutline: { type: "byte"; value: number };
                         /**
-                         * 1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow ink sac).
+                         * 1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow_ink_sac).
                          */
                         IgnoreLighting: { type: "byte"; value: number };
                         /**
@@ -23102,7 +23102,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [structure block](https://minecraft.wiki/w/structure block).
+         * Additional fields for [structure block](https://minecraft.wiki/w/structure_block).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_StructureBlock}
          */
@@ -23193,7 +23193,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [suspicious sand](https://minecraft.wiki/w/suspicious sand) and [suspicious gravel](https://minecraft.wiki/w/suspicious gravel).
+         * Additional fields for [suspicious sand](https://minecraft.wiki/w/suspicious_sand) and [suspicious gravel](https://minecraft.wiki/w/suspicious_gravel).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_SuspiciousBlock}
          */
@@ -23228,7 +23228,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields for [trial spawner](https://minecraft.wiki/w/trial spawner) and [ominous trial spawner](https://minecraft.wiki/w/ominous trial spawner).
+         * Additional fields for [trial spawner](https://minecraft.wiki/w/trial_spawner) and [ominous trial spawner](https://minecraft.wiki/w/ominous_trial_spawner).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_TrialSpawner}
          */
@@ -23290,7 +23290,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                      */
                                     TypeID: { type: "string"; value: string };
                                     /**
-                                     * Optional path to a [loot table](https://minecraft.wiki/w/loot table). Determines the equipment the entity will wear.
+                                     * Optional path to a [loot table](https://minecraft.wiki/w/loot_table). Determines the equipment the entity will wear.
                                      */
                                     equipment_loot_table: { type: "string"; value: string };
                                 }[];
@@ -23309,14 +23309,14 @@ however when the corresponding block in the block layer is broken, this block ge
                                      */
                                     weight: { type: "int"; value: number };
                                     /**
-                                     * A path to a [loot table](https://minecraft.wiki/w/loot table).
+                                     * A path to a [loot table](https://minecraft.wiki/w/loot_table).
                                      */
                                     data: { type: "string"; value: string };
                                 }[];
                             };
                         };
                         /**
-                         * Defaults to `loot_tables/spawners/trial_chamber/items_to_drop_when_ominous.json` &mdash; A path to a [loot table](https://minecraft.wiki/w/loot table). Determines the items used by [ominous item spawner](https://minecraft.wiki/w/ominous item spawner)s spawned during the active phase when ominous. Ignored in normal mode.
+                         * Defaults to `loot_tables/spawners/trial_chamber/items_to_drop_when_ominous.json` &mdash; A path to a [loot table](https://minecraft.wiki/w/loot_table). Determines the items used by [ominous item spawner](https://minecraft.wiki/w/ominous_item_spawner)s spawned during the active phase when ominous. Ignored in normal mode.
                          */
                         items_to_drop_when_ominous: { type: "string"; value: string };
                     };
@@ -23378,20 +23378,20 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         TypeID: { type: "string"; value: string };
                         /**
-                         * Optional path to a [loot table](https://minecraft.wiki/w/loot table). Determines the equipment the entity will wear.
+                         * Optional path to a [loot table](https://minecraft.wiki/w/loot_table). Determines the equipment the entity will wear.
                          */
                         equipment_loot_table: { type: "string"; value: string };
                     };
                 };
                 /**
-                 * A path to the [loot table](https://minecraft.wiki/w/loot table) that is given as reward. Unset if not currently giving rewards. Selected from loot_tables_to_eject after all mobs are defeated.
+                 * A path to the [loot table](https://minecraft.wiki/w/loot_table) that is given as reward. Unset if not currently giving rewards. Selected from loot_tables_to_eject after all mobs are defeated.
                  */
                 selected_loot_table: { type: "string"; value: string };
             };
         };
 
         /**
-         * Additional fields for [vault](https://minecraft.wiki/w/vault) and [ominous vault](https://minecraft.wiki/w/ominous vault).
+         * Additional fields for [vault](https://minecraft.wiki/w/vault) and [ominous vault](https://minecraft.wiki/w/ominous_vault).
          *
          * @see {@link NBTSchemas.nbtSchemas.Block_Vault}
          */
@@ -23413,7 +23413,7 @@ however when the corresponding block in the block layer is broken, this block ge
                          */
                         deactivation_range: { type: "float"; value: number };
                         /**
-                         * A path to the [loot table](https://minecraft.wiki/w/loot table) that is ejected when unlocking the vault. Defaults to `loot_tables/chests/trial_chambers/reward.json` for _normal_ vaults and `loot_tables/chests/trial_chambers/reward_ominous.json` for _ominous_ vaults.
+                         * A path to the [loot table](https://minecraft.wiki/w/loot_table) that is ejected when unlocking the vault. Defaults to `loot_tables/chests/trial_chambers/reward.json` for _normal_ vaults and `loot_tables/chests/trial_chambers/reward_ominous.json` for _ominous_ vaults.
                          */
                         loot_table: { type: "string"; value: string };
                         /**
@@ -23501,7 +23501,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * Additional fields when an [armor](https://minecraft.wiki/w/armor) is [trimmed](https://minecraft.wiki/w/Smithing Template).
+         * Additional fields when an [armor](https://minecraft.wiki/w/armor) is [trimmed](https://minecraft.wiki/w/Smithing_Template).
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_ArmorTrim}
          */
@@ -23533,7 +23533,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & Item_ItemStack;
 
         /**
-         * Additional fields for [book and quill](https://minecraft.wiki/w/book and quill)s.
+         * Additional fields for [book and quill](https://minecraft.wiki/w/book_and_quill)s.
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_BookAndQuills}
          */
@@ -23628,7 +23628,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & Item_ItemStack;
 
         /**
-         * Additional fields for [filled map](https://minecraft.wiki/w/filled map).
+         * Additional fields for [filled map](https://minecraft.wiki/w/filled_map).
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_FilledMap}
          */
@@ -23668,7 +23668,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & Item_ItemStack;
 
         /**
-         * Additional fields for [firework rocket](https://minecraft.wiki/w/firework rocket).
+         * Additional fields for [firework rocket](https://minecraft.wiki/w/firework_rocket).
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_FireworkRocket}
          */
@@ -23697,7 +23697,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & Item_ItemStack;
 
         /**
-         * Additional fields for [firework star](https://minecraft.wiki/w/firework star).
+         * Additional fields for [firework star](https://minecraft.wiki/w/firework_star).
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_FireworkStar}
          */
@@ -23721,7 +23721,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & Item_ItemStack;
 
         /**
-         * Additional fields for [glow stick](https://minecraft.wiki/w/glow stick).
+         * Additional fields for [glow stick](https://minecraft.wiki/w/glow_stick).
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_GlowStick}
          */
@@ -23736,7 +23736,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & Item_ItemStack;
 
         /**
-         * Additional fields for [horse armor](https://minecraft.wiki/w/horse armor).
+         * Additional fields for [horse armor](https://minecraft.wiki/w/horse_armor).
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_HorseArmor}
          */
@@ -23756,7 +23756,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & Item_ItemStack;
 
         /**
-         * Additional fields for [lodestone compass](https://minecraft.wiki/w/lodestone compass).
+         * Additional fields for [lodestone compass](https://minecraft.wiki/w/lodestone_compass).
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_LodestoneCompass}
          */
@@ -23835,7 +23835,7 @@ however when the corresponding block in the block layer is broken, this block ge
         } & Item_ItemStack;
 
         /**
-         * Additional fields for [written book](https://minecraft.wiki/w/written book).
+         * Additional fields for [written book](https://minecraft.wiki/w/written_book).
          *
          * @see {@link NBTSchemas.nbtSchemas.Item_WrittenBook}
          */
@@ -24492,7 +24492,7 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
-         * This component may be not accessable with [Behavior Pack](https://minecraft.wiki/w/Add-on). But it is used by activated [Minecart with Command Block](https://minecraft.wiki/w/Minecart with Command Block)
+         * This component may be not accessable with [Behavior Pack](https://minecraft.wiki/w/Add-on). But it is used by activated [Minecart with Command Block](https://minecraft.wiki/w/Minecart_with_Command_Block)
          *
          * @see {@link NBTSchemas.nbtSchemas.Component_CommandBlockComponent}
          */
@@ -25094,7 +25094,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 DimensionId: { type: "int"; value: number };
                 /**
-                 * The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment table)s.
+                 * The seed used for the next enchantment in [enchantment table](https://minecraft.wiki/w/enchantment_table)s.
                  */
                 EnchantmentSeed: { type: "int"; value: number };
                 /**
@@ -25121,7 +25121,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  */
                 format_version: { type: "string"; value: string };
                 /**
-                 * 1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End portal).
+                 * 1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End_portal).
                  */
                 HasSeenCredits: { type: "byte"; value: number };
                 /**
