@@ -1697,6 +1697,15 @@ export namespace NBTSchemas {
                                     { type: "byte", value: 1 },
                                 ],
                             },
+                            y_2026_drop_1: {
+                                type: "byte",
+                                markdownDescription: "1 or 0 (true/false) - true if the y_2026_drop_1 experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
                         },
                         additionalProperties: {
                             type: "byte",
@@ -16552,6 +16561,16 @@ however when the corresponding block in the block layer is broken, this block ge
                          * - `1`: true
                          */
                         y_2025_drop_3?: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * 1 or 0 (true/false) - true if the y_2026_drop_1 experimental toggle is enabled.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        y_2026_drop_1?: { type: "byte"; value: 0 | 1 };
                     } & {
                         [key: string]: { type: "byte"; value: 0 | 1 };
                     };

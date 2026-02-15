@@ -1,3 +1,9 @@
+# v1.10.1
+
+## Additions
+
+-   Added the `y_2026_drop_1` property to the `experiments` property of the `LevelDat` NBT schema.
+
 # v1.10.0
 
 ## Breaking Changes
