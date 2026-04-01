@@ -5134,6 +5134,20 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
                 $fragment: false,
             },
+            // NOTE: Verified.
+            WorldClocks: {
+                id: "WorldClocks",
+                title: "The WorldClocks schema.",
+                markdownDescription: "UNDOCUMENTED.",
+                type: "compound",
+                properties: {
+                    clocks: {
+                        markdownDescription: "UNKNOWN.",
+                        type: "list",
+                        // TODO: Figure out what the structure of this data is.
+                    },
+                },
+            },
             //#endregion
             //#region Schema Fragments
             Abilities: {

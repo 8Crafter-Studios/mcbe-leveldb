@@ -1,3 +1,10 @@
+# v1.12.0
+
+## Additions
+
+-   Added the `WorldClocks` content type.
+-   Added the `WorldClocks` NBT schema.
+
 # v1.11.0
 
 ## Additions

@@ -536,6 +536,7 @@ export const DBEntryContentTypes = [
     "LevelChunkMetaDataDictionary",
     "RealmsStoriesData",
     "LevelDat",
+    "WorldClocks",
     // Dev Version
     "ForcedWorldCorruption",
     // Misc.
@@ -612,6 +613,7 @@ export const DBEntryContentTypesGrouping = {
     LevelChunkMetaDataDictionary: "LevelChunkMetaDataDictionary",
     RealmsStoriesData: "RealmsStoriesData",
     LevelDat: "LevelDat",
+    WorldClocks: "WorldClocks",
     // Dev Version
     ForcedWorldCorruption: "ForcedWorldCorruption",
     // Misc.
@@ -2319,6 +2321,59 @@ export const entryContentTypeToFormatMap = {
         rawFileExtension: "dat",
     },
     /**
+     * The content type of the `WorldClocks` LevelDB key, which serves an unknown purpose.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.WorldClocks}
+     *
+     * @since 1.26.10 (maybe 1.26.0)
+     *
+     * @todo Update the linked NBT schema once it is known the structure of the items of the `clocks` list.
+     * @todo Figure out that this is used for.
+     * @todo Figure out what preview and full release this was actually added in.
+     */
+    WorldClocks: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Value:
+         * ```json
+         * {
+         *     type: "compound",
+         *     name: "",
+         *     value: {
+         *         clocks: {
+         *             type: "list",
+         *             value: {
+         *                 type: "end",
+         *                 value: [],
+         *             },
+         *         },
+         *     },
+         * }
+         * ```
+         */
+        defaultValue: NBT.writeUncompressed(
+            {
+                type: "compound",
+                name: "",
+                value: {
+                    clocks: {
+                        type: "list",
+                        value: {
+                            type: "end" as NBT.TagType,
+                            value: [],
+                        },
+                    },
+                },
+            },
+            "little"
+        ),
+    },
+    /**
      * Bounding boxes for structures, including structure spawns (such as a Pillager Outpost)
      * and volumes where mobs cannot spawn through the normal biome-based means (such as
      * Trial Chambers).
@@ -3274,6 +3329,7 @@ export function getKeyDisplayName(key: Buffer): string {
         case "VillagePlayers":
         case "VillageRaid":
         case "Villages":
+        case "WorldClocks":
         case "Unknown":
         default:
             return key.toString("binary");
@@ -3373,6 +3429,8 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "DynamicProperties";
         case "LevelChunkMetaDataDictionary":
             return "LevelChunkMetaDataDictionary";
+        case "WorldClocks":
+            return "WorldClocks";
         case "SST_SALOG":
         case "SST_WORD":
         case "SST_WORD_":
