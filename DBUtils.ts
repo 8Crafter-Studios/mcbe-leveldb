@@ -94,6 +94,68 @@ export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntry
 }
 
 /**
+ * Gets the keys from the LevelDB with one of the specified content types.
+ *
+ * @template T The content types to look for.
+ * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/@8crafter/leveldb-zlib | @8crafter/leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
+ * @param types The {@link DBEntryContentType | content types} to look for.
+ * @returns An object mapping each of the specified content types to the keys from the LevelDB with that content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
+ */
+export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
+    db: LevelDB,
+    types: T
+): AsyncGenerator<{ count: number; results: { [key in T[number]]: Buffer<ArrayBuffer>[] } }, { [key in T[number]]: Buffer<ArrayBuffer>[] }>;
+/**
+ * Gets the keys from the list of LevelDB keys with one of the specified content types.
+ *
+ * @template T The content types to look for.
+ * @template TArrayBuffer The type of the buffers.
+ * @param dbKeys The LevelDB keys. Should be an array of Buffers.
+ * @param types The {@link DBEntryContentType | content types} to look for.
+ * @returns An object mapping each of the specified content types to the keys from the provided LevelDB keys array with that content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
+ */
+export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[], TArrayBuffer extends ArrayBufferLike>(
+    dbKeys: Buffer<TArrayBuffer>[],
+    types: T
+): Generator<{ count: number; results: { [key in T[number]]: Buffer<TArrayBuffer>[] } }, { [key in T[number]]: Buffer<TArrayBuffer>[] }>;
+export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
+    dbOrDBKeys: LevelDB | Buffer[],
+    types: T
+):
+    | AsyncGenerator<{ count: number; results: { [key in T[number]]: Buffer<ArrayBuffer>[] } }, { [key in T[number]]: Buffer<ArrayBuffer>[] }>
+    | Generator<{ count: number; results: { [key in T[number]]: Buffer<ArrayBuffer>[] } }, { [key in T[number]]: Buffer[] }> {
+    const results = {} as { [key in T[number]]: Buffer<any>[] };
+    var count = 0;
+    types.forEach((contentType: T[number]): void => {
+        results[contentType] = [];
+    });
+    if (Array.isArray(dbOrDBKeys)) {
+        return (function* getKeysOfTypesGInner() {
+            for (const key of dbOrDBKeys) {
+                const contentType: DBEntryContentType = getContentTypeFromDBKey(key);
+                if (types.includes(contentType)) {
+                    results[contentType as T[number]].push(key);
+                    count++;
+                }
+                yield { count, results };
+            }
+            return results;
+        })();
+    }
+    return (async function* getKeysOfTypesGInner() {
+        for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
+            const contentType: DBEntryContentType = getContentTypeFromDBKey(rawKey);
+            if (types.includes(contentType)) {
+                results[contentType as T[number]].push(rawKey);
+                count++;
+            }
+            yield { count, results };
+        }
+        return results;
+    })();
+}
+
+/**
  * Gets a player's name from their UUID.
  *
  * Only works if the player's name was stored in an add-on's dynamic properties with their ID linked to it, and it only works for a hardcoded list of add-ons,

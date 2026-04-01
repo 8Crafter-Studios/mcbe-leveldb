@@ -12,6 +12,7 @@ development_scripts
 node_modules
 package-lock.json
 trialSpawnerLocations.json
+.DS_Store
 
 # JS only version ignores.
 # *.ts

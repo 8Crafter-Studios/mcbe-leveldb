@@ -1,3 +1,9 @@
+# v1.11.0
+
+## Additions
+
+-   Added a generator variant of the `getKeysOfTypes` function: `getKeysOfTypesG`.
+
 # v1.10.2
 
 ## Fixes
