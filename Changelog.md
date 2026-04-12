@@ -1,3 +1,19 @@
+# v1.13.0
+
+## Additions
+
+-   Added the `DimensionNameIdTable` content type.
+-   Added the `DimensionNameIdTable` NBT schema.
+-   Added the `CustomDimension` content type.
+-   Added the `CustomDimension` NBT schema.
+-   Added in the rest of the `WorldClocks` NBT schema.
+-   Added examples to the `BiomeOverride` field of the `LevelDat` NBT schema.
+
+## Changes
+
+-   The `DBEntryContentTypesGrouping` for the `BiomeIdTable` content type as been changed to `IdTable` to group it with the `DimensionNameIdTable` content type.
+-   The boolean properties of the `abilities` field of the `Abilities` NBT schema now have enums.
+
 # v1.12.0
 
 ## Additions

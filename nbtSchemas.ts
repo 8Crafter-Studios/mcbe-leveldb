@@ -1,7 +1,8 @@
-import type { DBEntryContentType } from "./LevelUtils.ts";
+import { dimensions, type DBEntryContentType } from "./LevelUtils.ts";
 import * as NBT from "prismarine-nbt";
 import { toLongParts } from "./SNBTUtils.ts";
 import type { Full, LooseAutocomplete } from "./types.js";
+import __biome_data__ from "./__biome_data__.ts";
 
 /**
  * Types, constants, and functions related to NBT schemas.
@@ -857,6 +858,32 @@ export namespace NBTSchemas {
                 },
             },
             // NOTE: Verified.
+            DimensionNameIdTable: {
+                id: "DimensionNameIdTable",
+                title: "The DimensionNameIdTable schema.",
+                markdownDescription: "Dimension numeric ID mappings for custom dimensions.",
+                type: "compound",
+                required: ["list"],
+                properties: {
+                    entries: {
+                        title: "Entries",
+                        markdownDescription: "A mapping of custom dimension namespaced IDs to numeric IDs, starting at 1,000.",
+                        type: "compound",
+                        patternProperties: {
+                            "^[\\u0001-\\u0008\\u000b-\\u000c\\u000e-\\u001f\\u0021-\\u0039\\u003b-\\uffff]+:[\\u0001-\\u0008\\u000b-\\u000c\\u000e-\\u001f\\u0021-\\u0039\\u003b-\\uffff]+$":
+                                {
+                                    title: "Custom Dimension",
+                                    markdownDescription:
+                                        "The numerical [dimension ID](https://minecraft.wiki/w/Dimension) for this custom dimension. Starts at 1,000.",
+                                    type: "int",
+                                    minimum: 1_000,
+                                },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
             Overworld: {
                 id: "Overworld",
                 title: "The Overworld schema.",
@@ -1033,6 +1060,15 @@ export namespace NBTSchemas {
                 },
                 allOf: [{ $ref: "LimboEntities" }],
                 additionalProperties: false,
+            },
+            // NOTE: Verified.
+            CustomDimension: {
+                id: "CustomDimension",
+                title: "The CustomDimension schema.",
+                markdownDescription: "The data of a custom dimension, seems to currently just include the LimboEntities data.",
+                type: "compound",
+                properties: {},
+                $ref: "LimboEntities",
             },
             // NOTE: Verified.
             DynamicProperties: {
@@ -1323,6 +1359,12 @@ export namespace NBTSchemas {
                         type: "string",
                         markdownDescription:
                             "Makes the world into a [single biome](https://minecraft.wiki/w/single_biome) world and the biome set here is the biome of this single biome world.",
+                        examples: (Object.keys(__biome_data__.int_map) as (keyof typeof __biome_data__.int_map)[]).map(
+                            (biome: keyof typeof __biome_data__.int_map): { type: "string"; value: keyof typeof __biome_data__.int_map } => ({
+                                type: "string",
+                                value: biome,
+                            })
+                        ),
                     },
                     bonusChestEnabled: {
                         type: "byte",
@@ -5140,11 +5182,41 @@ however when the corresponding block in the block layer is broken, this block ge
                 title: "The WorldClocks schema.",
                 markdownDescription: "UNDOCUMENTED.",
                 type: "compound",
+                required: ["clocks"],
                 properties: {
                     clocks: {
-                        markdownDescription: "UNKNOWN.",
+                        title: "Clocks",
+                        markdownDescription: "UNDOCMENTED.",
                         type: "list",
-                        // TODO: Figure out what the structure of this data is.
+                        items: {
+                            title: "Clock",
+                            markdownDescription: "UNDOCUMENTED.",
+                            type: "compound",
+                            required: ["IsPaused", "Name", "Time"],
+                            properties: {
+                                IsPaused: {
+                                    title: "Is Paused",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "byte",
+                                    markdownEnumDescriptions: ["false", "true"],
+                                    enum: [
+                                        { type: "byte", value: 0 },
+                                        { type: "byte", value: 1 },
+                                    ],
+                                },
+                                Name: {
+                                    title: "Name",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "string",
+                                    examples: dimensions.map((v) => ({ type: "string", value: `minecraft:${v}` as const })),
+                                },
+                                Time: {
+                                    title: "Time",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "int",
+                                },
+                            },
+                        },
                     },
                 },
             },
@@ -5185,22 +5257,47 @@ however when the corresponding block in the block layer is broken, this block ge
                             attackmobs: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player can attack mobs.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             attackplayers: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player can attack other players.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             build: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player can place blocks.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             doorsandswitches: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player is able to interact with redstone components.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             flying: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player is currently flying.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             flySpeed: {
                                 markdownDescription: "The flying speed, always 0.05.",
@@ -5209,38 +5306,83 @@ however when the corresponding block in the block layer is broken, this block ge
                             instabuild: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player can instantly destroy blocks.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             invulnerable: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             lightning: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player was struck by lightning.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             mayfly: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player can fly.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             mine: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player can destroy blocks.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             mute: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player messages cannot be seen by other players.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             noclip: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player can phase through blocks.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             op: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player has operator commands.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             opencontainers: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player is able to open containers.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             permissionsLevel: {
                                 markdownDescription: "What permissions a player will default to, when joining a world.",
@@ -5253,6 +5395,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             teleport: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player is allowed to teleport.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             walkSpeed: {
                                 markdownDescription: "The walking speed, always 0.1.",
@@ -5261,6 +5408,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             worldbuilder: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player is a world builder.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                         },
                     },
@@ -15782,6 +15934,30 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The DimensionNameIdTable schema.
+         *
+         * Dimension numeric ID mappings for custom dimensions.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.DimensionNameIdTable}
+         */
+        export type DimensionNameIdTable = {
+            type: "compound";
+            value: {
+                /**
+                 * Entries
+                 *
+                 * A mapping of custom dimension namespaced IDs to numeric IDs, starting at 1,000.
+                 */
+                entries?: {
+                    type: "compound";
+                    value: {
+                        [key: string]: { type: "int"; value: number };
+                    };
+                };
+            };
+        };
+
+        /**
          * The Overworld schema.
          *
          * The data of the overworld dimension, seems to currently just include the LimboEntities data.
@@ -15920,6 +16096,15 @@ however when the corresponding block in the block layer is broken, this block ge
                 };
             };
         } & LimboEntities;
+
+        /**
+         * The CustomDimension schema.
+         *
+         * The data of a custom dimension, seems to currently just include the LimboEntities data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.CustomDimension}
+         */
+        export type CustomDimension = { type: "compound"; value: object } & LimboEntities;
 
         /**
          * The DynamicProperties schema.
@@ -16177,6 +16362,267 @@ however when the corresponding block in the block layer is broken, this block ge
                 baseGameVersion?: { type: "string"; value: string };
                 /**
                  * Makes the world into a [single biome](https://minecraft.wiki/w/single_biome) world and the biome set here is the biome of this single biome world.
+                 *
+                 * @example
+                 * "minecraft:ocean"
+                 *
+                 * @example
+                 * "minecraft:plains"
+                 *
+                 * @example
+                 * "minecraft:desert"
+                 *
+                 * @example
+                 * "minecraft:extreme_hills"
+                 *
+                 * @example
+                 * "minecraft:forest"
+                 *
+                 * @example
+                 * "minecraft:taiga"
+                 *
+                 * @example
+                 * "minecraft:swampland"
+                 *
+                 * @example
+                 * "minecraft:river"
+                 *
+                 * @example
+                 * "minecraft:hell"
+                 *
+                 * @example
+                 * "minecraft:the_end"
+                 *
+                 * @example
+                 * "minecraft:legacy_frozen_ocean"
+                 *
+                 * @example
+                 * "minecraft:frozen_river"
+                 *
+                 * @example
+                 * "minecraft:ice_plains"
+                 *
+                 * @example
+                 * "minecraft:ice_mountains"
+                 *
+                 * @example
+                 * "minecraft:mushroom_island"
+                 *
+                 * @example
+                 * "minecraft:mushroom_island_shore"
+                 *
+                 * @example
+                 * "minecraft:beach"
+                 *
+                 * @example
+                 * "minecraft:desert_hills"
+                 *
+                 * @example
+                 * "minecraft:forest_hills"
+                 *
+                 * @example
+                 * "minecraft:taiga_hills"
+                 *
+                 * @example
+                 * "minecraft:extreme_hills_edge"
+                 *
+                 * @example
+                 * "minecraft:jungle"
+                 *
+                 * @example
+                 * "minecraft:jungle_hills"
+                 *
+                 * @example
+                 * "minecraft:jungle_edge"
+                 *
+                 * @example
+                 * "minecraft:deep_ocean"
+                 *
+                 * @example
+                 * "minecraft:stone_beach"
+                 *
+                 * @example
+                 * "minecraft:cold_beach"
+                 *
+                 * @example
+                 * "minecraft:birch_forest"
+                 *
+                 * @example
+                 * "minecraft:birch_forest_hills"
+                 *
+                 * @example
+                 * "minecraft:roofed_forest"
+                 *
+                 * @example
+                 * "minecraft:cold_taiga"
+                 *
+                 * @example
+                 * "minecraft:cold_taiga_hills"
+                 *
+                 * @example
+                 * "minecraft:mega_taiga"
+                 *
+                 * @example
+                 * "minecraft:mega_taiga_hills"
+                 *
+                 * @example
+                 * "minecraft:extreme_hills_plus_trees"
+                 *
+                 * @example
+                 * "minecraft:savanna"
+                 *
+                 * @example
+                 * "minecraft:savanna_plateau"
+                 *
+                 * @example
+                 * "minecraft:mesa"
+                 *
+                 * @example
+                 * "minecraft:mesa_plateau_stone"
+                 *
+                 * @example
+                 * "minecraft:mesa_plateau"
+                 *
+                 * @example
+                 * "minecraft:warm_ocean"
+                 *
+                 * @example
+                 * "minecraft:deep_warm_ocean"
+                 *
+                 * @example
+                 * "minecraft:lukewarm_ocean"
+                 *
+                 * @example
+                 * "minecraft:deep_lukewarm_ocean"
+                 *
+                 * @example
+                 * "minecraft:cold_ocean"
+                 *
+                 * @example
+                 * "minecraft:deep_cold_ocean"
+                 *
+                 * @example
+                 * "minecraft:frozen_ocean"
+                 *
+                 * @example
+                 * "minecraft:deep_frozen_ocean"
+                 *
+                 * @example
+                 * "minecraft:sunflower_plains"
+                 *
+                 * @example
+                 * "minecraft:desert_mutated"
+                 *
+                 * @example
+                 * "minecraft:extreme_hills_mutated"
+                 *
+                 * @example
+                 * "minecraft:flower_forest"
+                 *
+                 * @example
+                 * "minecraft:taiga_mutated"
+                 *
+                 * @example
+                 * "minecraft:swampland_mutated"
+                 *
+                 * @example
+                 * "minecraft:ice_plains_spikes"
+                 *
+                 * @example
+                 * "minecraft:jungle_mutated"
+                 *
+                 * @example
+                 * "minecraft:jungle_edge_mutated"
+                 *
+                 * @example
+                 * "minecraft:birch_forest_mutated"
+                 *
+                 * @example
+                 * "minecraft:birch_forest_hills_mutated"
+                 *
+                 * @example
+                 * "minecraft:roofed_forest_mutated"
+                 *
+                 * @example
+                 * "minecraft:cold_taiga_mutated"
+                 *
+                 * @example
+                 * "minecraft:redwood_taiga_mutated"
+                 *
+                 * @example
+                 * "minecraft:redwood_taiga_hills_mutated"
+                 *
+                 * @example
+                 * "minecraft:extreme_hills_plus_trees_mutated"
+                 *
+                 * @example
+                 * "minecraft:savanna_mutated"
+                 *
+                 * @example
+                 * "minecraft:savanna_plateau_mutated"
+                 *
+                 * @example
+                 * "minecraft:mesa_bryce"
+                 *
+                 * @example
+                 * "minecraft:mesa_plateau_stone_mutated"
+                 *
+                 * @example
+                 * "minecraft:mesa_plateau_mutated"
+                 *
+                 * @example
+                 * "minecraft:bamboo_jungle"
+                 *
+                 * @example
+                 * "minecraft:bamboo_jungle_hills"
+                 *
+                 * @example
+                 * "minecraft:soulsand_valley"
+                 *
+                 * @example
+                 * "minecraft:crimson_forest"
+                 *
+                 * @example
+                 * "minecraft:warped_forest"
+                 *
+                 * @example
+                 * "minecraft:basalt_deltas"
+                 *
+                 * @example
+                 * "minecraft:jagged_peaks"
+                 *
+                 * @example
+                 * "minecraft:frozen_peaks"
+                 *
+                 * @example
+                 * "minecraft:snowy_slopes"
+                 *
+                 * @example
+                 * "minecraft:grove"
+                 *
+                 * @example
+                 * "minecraft:meadow"
+                 *
+                 * @example
+                 * "minecraft:lush_caves"
+                 *
+                 * @example
+                 * "minecraft:dripstone_caves"
+                 *
+                 * @example
+                 * "minecraft:stony_peaks"
+                 *
+                 * @example
+                 * "minecraft:deep_dark"
+                 *
+                 * @example
+                 * "minecraft:mangrove_swamp"
+                 *
+                 * @example
+                 * "minecraft:cherry_grove"
+                 *
+                 * @example
+                 * "minecraft:pale_garden"
                  */
                 BiomeOverride?: { type: "string"; value: string };
                 /**
@@ -19716,6 +20162,65 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The WorldClocks schema.
+         *
+         * UNDOCUMENTED.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.WorldClocks}
+         */
+        export type WorldClocks = {
+            type: "compound";
+            value: {
+                /**
+                 * Clocks
+                 *
+                 * UNDOCMENTED.
+                 */
+                clocks: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Is Paused
+                             *
+                             * UNDOCUMENTED.
+                             *
+                             * @enum 0 | 1
+                             *
+                             * @enumDescriptions
+                             * - `0`: false
+                             * - `1`: true
+                             */
+                            IsPaused: { type: "byte"; value: 0 | 1 };
+                            /**
+                             * Name
+                             *
+                             * UNDOCUMENTED.
+                             *
+                             * @example
+                             * "minecraft:overworld"
+                             *
+                             * @example
+                             * "minecraft:nether"
+                             *
+                             * @example
+                             * "minecraft:the_end"
+                             */
+                            Name: { type: "string"; value: string };
+                            /**
+                             * Time
+                             *
+                             * UNDOCUMENTED.
+                             */
+                            Time: { type: "int"; value: number };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
          * NBT structure of players' ability info.
          *
          * @see {@link NBTSchemas.nbtSchemas.Abilities}
@@ -19731,64 +20236,148 @@ however when the corresponding block in the block layer is broken, this block ge
                     value: {
                         /**
                          * 1 or 0 (true/false) - true if the player can attack mobs.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        attackmobs: { type: "byte"; value: number };
+                        attackmobs: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can attack other players.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        attackplayers: { type: "byte"; value: number };
+                        attackplayers: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can place blocks.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        build: { type: "byte"; value: number };
+                        build: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player is able to interact with redstone components.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        doorsandswitches: { type: "byte"; value: number };
+                        doorsandswitches: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player is currently flying.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        flying: { type: "byte"; value: number };
+                        flying: { type: "byte"; value: 0 | 1 };
                         /**
                          * The flying speed, always 0.05.
                          */
                         flySpeed: { type: "float"; value: number };
                         /**
                          * 1 or 0 (true/false) - true if the player can instantly destroy blocks.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        instabuild: { type: "byte"; value: number };
+                        instabuild: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        invulnerable: { type: "byte"; value: number };
+                        invulnerable: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player was struck by lightning.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        lightning: { type: "byte"; value: number };
+                        lightning: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can fly.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        mayfly: { type: "byte"; value: number };
+                        mayfly: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can destroy blocks.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        mine: { type: "byte"; value: number };
+                        mine: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player messages cannot be seen by other players.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        mute: { type: "byte"; value: number };
+                        mute: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can phase through blocks.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        noclip: { type: "byte"; value: number };
+                        noclip: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player has operator commands.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        op: { type: "byte"; value: number };
+                        op: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player is able to open containers.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        opencontainers: { type: "byte"; value: number };
+                        opencontainers: { type: "byte"; value: 0 | 1 };
                         /**
                          * What permissions a player will default to, when joining a world.
                          */
@@ -19799,16 +20388,28 @@ however when the corresponding block in the block layer is broken, this block ge
                         playerPermissionsLevel: { type: "int"; value: number };
                         /**
                          * 1 or 0 (true/false) - true if the player is allowed to teleport.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        teleport: { type: "byte"; value: number };
+                        teleport: { type: "byte"; value: 0 | 1 };
                         /**
                          * The walking speed, always 0.1.
                          */
                         walkSpeed: { type: "float"; value: number };
                         /**
                          * 1 or 0 (true/false) - true if the player is a world builder.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        worldbuilder: { type: "byte"; value: number };
+                        worldbuilder: { type: "byte"; value: 0 | 1 };
                     };
                 };
             };

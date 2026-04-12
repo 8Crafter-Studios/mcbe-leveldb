@@ -528,9 +528,11 @@ export const DBEntryContentTypes = [
     "Overworld",
     "Nether",
     "TheEnd",
+    "CustomDimension",
     "AutonomousEntities",
     "BiomeData",
     "BiomeIdsTable",
+    "DimensionNameIdTable",
     "MobEvents",
     "DynamicProperties",
     "LevelChunkMetaDataDictionary",
@@ -605,9 +607,11 @@ export const DBEntryContentTypesGrouping = {
     Overworld: "Dimension",
     Nether: "Dimension",
     TheEnd: "Dimension",
+    CustomDimension: "Dimension",
     AutonomousEntities: "AutonomousEntities",
     BiomeData: "BiomeData",
-    BiomeIdsTable: "BiomeIdsTable",
+    BiomeIdsTable: "IdsTable",
+    DimensionNameIdTable: "IdsTable",
     MobEvents: "MobEvents",
     DynamicProperties: "DynamicProperties",
     LevelChunkMetaDataDictionary: "LevelChunkMetaDataDictionary",
@@ -2207,6 +2211,17 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
+     * The data of a custom dimension.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.CustomDimension}
+     */
+    CustomDimension: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
      * The content type of the `AutonomousEntities` LevelDB key, which stores a list of autonomous entities.
      *
      * @see {@link NBTSchemas.nbtSchemas.AutonomousEntities}
@@ -2236,6 +2251,17 @@ export const entryContentTypeToFormatMap = {
      * @see {@link NBTSchemas.nbtSchemas.BiomeIdsTable}
      */
     BiomeIdsTable: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The content type of the `DimensionNameIdTable` LevelDB key, which stores the numeric ID mappings for custom biomes.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.DimensionNameIdTable}
+     */
+    DimensionNameIdTable: {
         /**
          * The format type of the data.
          */
@@ -3301,6 +3327,7 @@ export function getKeyDisplayName(key: Buffer): string {
         case "Overworld":
         case "Nether":
         case "TheEnd":
+        case "CustomDimension":
         case "DynamicProperties":
         case "FlatWorldLayers":
         case "ForcedWorldCorruption":
@@ -3454,7 +3481,7 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "PositionTrackingDB";
         case stringKey.startsWith("actorprefix"):
             return "ActorPrefix";
-        case stringKey.startsWith("structuretemplate"):
+        case stringKey.startsWith("structuretemplate_"):
             return "StructureTemplate";
         case stringKey.startsWith("tickingarea"):
             return "TickingArea";
@@ -3482,6 +3509,10 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "VillagePlayers";
         case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_RAID$/.test(stringKey):
             return "VillageRaid";
+        case /^[\u0001-\u0008\u000b-\u000c\u000e-\u001f\u0021-\u0039\u003b-\uffff]+:[\u0001-\u0008\u000b-\u000c\u000e-\u001f\u0021-\u0039\u003b-\uffff]+$/.test(
+            stringKey
+        ):
+            return "CustomDimension";
     }
     return "Unknown";
 }
