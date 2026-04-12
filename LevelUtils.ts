@@ -3324,6 +3324,7 @@ export function getKeyDisplayName(key: Buffer): string {
         case "BiomeData":
         case "BiomeIdsTable":
         case "ChunkLoadedRequest":
+        case "DimensionNameIdTable":
         case "Overworld":
         case "Nether":
         case "TheEnd":
@@ -3442,6 +3443,8 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "BiomeData";
         case "BiomeIdsTable":
             return "BiomeIdsTable";
+        case "DimensionNameIdTable":
+            return "DimensionNameIdTable";
         case "AutonomousEntities":
             return "AutonomousEntities";
         case "PositionTrackDB-LastId":

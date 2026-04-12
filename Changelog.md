@@ -1,3 +1,9 @@
+# v1.13.1
+
+## Fixes
+
+-   Fixed a bug where the mapping in the `getContentTypeFromDBKey` function for the `DimensionNameIdTable` content type was missing.
+
 # v1.13.0
 
 ## Additions
