@@ -41,6 +41,70 @@
         "no-sparse-arrays": "off",
         // Unnecessary as it is built in to TypeScript.
         "no-fallthrough": "off"
-    }
+    },
+    "overrides": [
+        {
+            "files": ["./*.ts", "./utils/**/*.ts"],
+            "rules": {
+                "@typescript-eslint/no-restricted-imports": [
+                    "error",
+                    {
+                        "patterns": [
+                            {
+                                "group": [
+                                    "node:*",
+                                    "assert",
+                                    "async_hooks",
+                                    "buffer",
+                                    "child_process",
+                                    "cluster",
+                                    "console",
+                                    "constants",
+                                    "crypto",
+                                    "dgram",
+                                    "diagnostics_channel",
+                                    "dns",
+                                    "domain",
+                                    "events",
+                                    "fs",
+                                    "http",
+                                    "http2",
+                                    "https",
+                                    "inspector",
+                                    "module",
+                                    "net",
+                                    "os",
+                                    "path",
+                                    "perf_hooks",
+                                    "process",
+                                    "punycode",
+                                    "querystring",
+                                    "readline",
+                                    "repl",
+                                    "sea",
+                                    "sqlite",
+                                    "stream",
+                                    "string_decoder",
+                                    "test",
+                                    "timers",
+                                    "tls",
+                                    "trace_events",
+                                    "tty",
+                                    "url",
+                                    "util",
+                                    "v8",
+                                    "vm",
+                                    "wasi",
+                                    "worker_threads",
+                                    "zlib"
+                                ],
+                                "message": "Please do not use built-in Node.js modules. This is for compatibility reasons."
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
 }
 

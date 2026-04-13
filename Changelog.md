@@ -1,3 +1,13 @@
+# v1.14.2
+
+## Critical Fixes
+
+-   Fixed a bug where the serializer for the `Data3D` content type deleted all empty sub-chunks, resulting in sub-chunks that were supposed to have empty sub-chunks in between them all being moved to the bottom of the world without any empty gaps in between them, and also resulting in chunks with larger sub-chunk counts having their sub-chunk counts culled. This fix is backwards compatible, older versions of the module can read the serialized data as it is in the same format as Minecraft puts it.
+
+## Fixes
+
+-   Removed an unused `node:fs` `appendFileSync` import from `LevelUtils.ts` (the module now correctly no longer imports any built-in Node.js modules (for compatibility reasons)).
+
 # v1.14.1
 
 ## Fixes
@@ -133,7 +143,7 @@
 
 ## Critical Fixes
 
--   Fixed an issue where the Data3D serializer could corrupt the data by serializing it with a number of bits per block that 32 was not divisible by (also made the parser able to parse those corrupted subchunks, though the referenced palette indices in the values arrays will likely be incorrect for those corrupted subchunks).
+-   Fixed an issue where the Data3D serializer could corrupt the data by serializing it with a number of bits per block that 32 was not divisible by (also made the parser able to parse those corrupted sub-chunks, though the referenced palette indices in the values arrays will likely be incorrect for those corrupted sub-chunks).
 
 ## Additions
 

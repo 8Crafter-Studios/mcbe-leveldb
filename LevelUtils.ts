@@ -1,4 +1,3 @@
-import { appendFileSync } from "node:fs";
 import NBT from "prismarine-nbt";
 import BiomeData from "./__biome_data__.ts";
 import type { LevelDB } from "@8crafter/leveldb-zlib";
@@ -269,11 +268,17 @@ function writeChunkBiomes(biomes: BiomePalette[]): Buffer<ArrayBuffer> {
     const buffers: Buffer<ArrayBuffer>[] = [];
 
     for (const bb of biomes) {
-        if (!bb || bb.values === null || bb.values.length === 0) continue; // NULL case in R
+        if (!bb || bb.values === null /* || bb.values.length === 0 */) continue; // NULL case in R
         const { values, palette } = bb;
 
         // --- Write subchunk palette ids (bitpacked) ---
         const idsBuf: Buffer<ArrayBuffer> = writeSubchunkPaletteIds(values!, palette.length);
+
+        // --- Don't write palette length if the palette is empty ---
+        if (!palette.length) {
+            buffers.push(idsBuf);
+            continue;
+        }
 
         // --- Write palette size ---
         const paletteSizeBuf: Buffer<ArrayBuffer> = writeInt32LE(palette.length);
@@ -397,11 +402,11 @@ function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer<
     const bitsPerBlockOriginal: number = Math.max(1, Math.ceil(Math.log2(paletteSize)));
     const bitsPerBlockDivisors: number[] = [1, 2, 4, 8, 16, 32];
 
-    const bitsPerBlock: number = bitsPerBlockDivisors.find((d: number): boolean => d >= bitsPerBlockOriginal) ?? 32;
+    const bitsPerBlock: number = paletteSize === 0 ? 127 : bitsPerBlockDivisors.find((d: number): boolean => d >= bitsPerBlockOriginal) ?? 32;
 
     // console.log(bitsPerBlock);
 
-    const wordsPerBlock: number = Math.ceil((blockCount * bitsPerBlock) / 32);
+    const wordsPerBlock: number = paletteSize === 0 ? 0 : Math.ceil((blockCount * bitsPerBlock) / 32);
     const words = new Uint32Array(wordsPerBlock);
 
     // let bitIndex: number = 0;
@@ -718,7 +723,7 @@ export const entryContentTypeToFormatMap = {
                 data.value.biomes.value.value.map(
                     (subchunk: NBTSchemas.NBTSchemaTypes.Data3D["value"]["biomes"]["value"]["value"][number]): BiomePalette => ({
                         palette: subchunk.palette.value.value,
-                        values: !subchunk.values.value.value?.length ? null : subchunk.values.value.value,
+                        values: !subchunk.values.value.value ? null : subchunk.values.value.value,
                     })
                 )
             );
@@ -2867,13 +2872,13 @@ export interface StructureSectionData extends NBT.Compound {
  */
 export interface BiomePalette {
     /**
-     * The data for the individual blocks, or `null` if this sub-chunk has no biome data.
+     * The data for the individual blocks, `null` if this sub-chunk has no biome data and should not be written, or an empty array if this sub-chunk has no biome data and should be written.
      *
      * The values of this map to the index of the biome in the palette.
      */
     values: number[] | null;
     /**
-     * The palette of biomes as a list of biome numeric IDs.
+     * The palette of biomes as a list of biome numeric IDs, or an empty array if this sub-chunk has no biome data.
      */
     palette: number[];
 }
