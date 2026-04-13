@@ -5,7 +5,6 @@ import type { LevelDB } from "@8crafter/leveldb-zlib";
 import type { NBTSchemas } from "./nbtSchemas.ts";
 import type { LooseAutocomplete, Range } from "./types.js";
 import { toLongParts } from "./SNBTUtils.ts";
-import type { DimensionNameIdTable } from "./test/nbtSchemaTypeScriptInterfaces.js";
 
 //#region Local Constants
 
@@ -3201,10 +3200,10 @@ export async function dimensionVectorDimensionToId(dimension: Dimension | number
     if (typeof dimension === "string") return dimension;
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
-    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+    const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
         rawDimensionNameIdTable,
         "little"
-    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    ) as NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name">;
     const dimensionNamespacedId: string | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
         ([_namespacedId, numericId]) => numericId.value === dimension
     )?.[0];
@@ -3223,7 +3222,10 @@ export async function dimensionVectorDimensionToId(dimension: Dimension | number
  *
  * @throws {ReferenceError} If the dimension is not found in the DimensionNameIdTable.
  */
-export function dimensionVectorDimensionToIdSync(dimension: Dimension | number, dimensionNameIdTable: DimensionNameIdTable): LooseAutocomplete<Dimension> {
+export function dimensionVectorDimensionToIdSync(
+    dimension: Dimension | number,
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable
+): LooseAutocomplete<Dimension> {
     if (typeof dimension === "string") return dimension;
     const dimensionNamespacedId: string | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
         ([_namespacedId, numericId]) => numericId.value === dimension
@@ -3248,10 +3250,10 @@ export async function dimensionIdToDimensionVectorDimension(dimension: LooseAuto
     if (dimensions.includes(dimension.replace(/^minecraft:/, "") as Dimension)) return dimension.replace(/^minecraft:/, "") as Dimension;
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
-    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+    const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
         rawDimensionNameIdTable,
         "little"
-    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    ) as NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name">;
     const dimensionNumericId: number | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
         ([namespacedId, _numericId]) => namespacedId === dimension
     )?.[1].value;
@@ -3272,7 +3274,7 @@ export async function dimensionIdToDimensionVectorDimension(dimension: LooseAuto
  */
 export function dimensionIdToDimensionVectorDimensionSync(
     dimension: LooseAutocomplete<Dimension>,
-    dimensionNameIdTable: DimensionNameIdTable
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable
 ): Dimension | number {
     if (dimensions.includes(dimension.replace(/^minecraft:/, "") as Dimension)) return dimension.replace(/^minecraft:/, "") as Dimension;
     const dimensionNumericId: number | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
@@ -3303,10 +3305,10 @@ export function intToDimensionVectorDimension(dimension: number): Dimension | nu
 export async function getDimensionTypes(db: LevelDB): Promise<Record<Dimension | `${string}:${string}`, number>> {
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
-    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+    const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
         rawDimensionNameIdTable,
         "little"
-    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    ) as NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name">;
     return getDimensionTypesSync(dimensionNameIdTable);
 }
 
@@ -3316,7 +3318,7 @@ export async function getDimensionTypes(db: LevelDB): Promise<Record<Dimension |
  * @param dimensionNameIdTable The DimensionNameIdTable to use.
  * @returns The dimension types.
  */
-export function getDimensionTypesSync(dimensionNameIdTable: DimensionNameIdTable): Record<Dimension | `${string}:${string}`, number> {
+export function getDimensionTypesSync(dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable): Record<Dimension | `${string}:${string}`, number> {
     return {
         ...(Object.fromEntries(dimensions.map((dimension: Dimension, i: number) => [dimension, i])) as Record<Dimension, number>),
         ...(Object.fromEntries(
@@ -3336,10 +3338,10 @@ export function getDimensionTypesSync(dimensionNameIdTable: DimensionNameIdTable
 export async function getDimensionIds(db: LevelDB): Promise<(Dimension | `${string}:${string}`)[]> {
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
-    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+    const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
         rawDimensionNameIdTable,
         "little"
-    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    ) as NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name">;
     return getDimensionIdsSync(dimensionNameIdTable);
 }
 
@@ -3349,7 +3351,7 @@ export async function getDimensionIds(db: LevelDB): Promise<(Dimension | `${stri
  * @param dimensionNameIdTable The DimensionNameIdTable to use.
  * @returns The dimension IDs.
  */
-export function getDimensionIdsSync(dimensionNameIdTable: DimensionNameIdTable): (Dimension | `${string}:${string}`)[] {
+export function getDimensionIdsSync(dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable): (Dimension | `${string}:${string}`)[] {
     return [...new Set([...dimensions, ...(Object.keys(dimensionNameIdTable.value.entries.value) as `${string}:${string}`[])])];
 }
 
@@ -3364,10 +3366,10 @@ export function getDimensionIdsSync(dimensionNameIdTable: DimensionNameIdTable):
 export async function getDimensionNumericIds(db: LevelDB): Promise<number[]> {
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
-    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+    const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
         rawDimensionNameIdTable,
         "little"
-    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    ) as NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name">;
     return getDimensionNumericIdsSync(dimensionNameIdTable);
 }
 
@@ -3377,7 +3379,7 @@ export async function getDimensionNumericIds(db: LevelDB): Promise<number[]> {
  * @param dimensionNameIdTable The DimensionNameIdTable to use.
  * @returns The dimension numeric IDs.
  */
-export function getDimensionNumericIdsSync(dimensionNameIdTable: DimensionNameIdTable): number[] {
+export function getDimensionNumericIdsSync(dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable): number[] {
     return [
         ...new Set([
             ...dimensions.map((_dimension: Dimension, i: number): number => i),

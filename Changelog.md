@@ -1,3 +1,9 @@
+# v1.14.1
+
+## Fixes
+
+-   Fixed an invalid import.
+
 # v1.14.0
 
 ## Additions
