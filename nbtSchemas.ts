@@ -863,7 +863,7 @@ export namespace NBTSchemas {
                 title: "The DimensionNameIdTable schema.",
                 markdownDescription: "Dimension numeric ID mappings for custom dimensions.",
                 type: "compound",
-                required: ["list"],
+                required: ["entries"],
                 properties: {
                     entries: {
                         title: "Entries",
@@ -15948,7 +15948,7 @@ however when the corresponding block in the block layer is broken, this block ge
                  *
                  * A mapping of custom dimension namespaced IDs to numeric IDs, starting at 1,000.
                  */
-                entries?: {
+                entries: {
                     type: "compound";
                     value: {
                         [key: string]: { type: "int"; value: number };

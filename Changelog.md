@@ -1,3 +1,30 @@
+# v1.14.0
+
+## Additions
+
+-   Added custom dimension support for chunk keys, and the `getChunkKeyIndices` and `generateChunkKeyFromIndices` functions.
+-   Added the following functions:
+    -   `dimensionVectorDimensionToInt`
+    -   `dimensionVectorDimensionToId`
+    -   `dimensionVectorDimensionToIdSync`
+    -   `dimensionIdToDimensionVectorDimension`
+    -   `dimensionIdToDimensionVectorDimensionSync`
+    -   `intToDimensionVectorDimension`
+    -   `getDimensionTypes`
+    -   `getDimensionTypesSync`
+    -   `getDimensionIds`
+    -   `getDimensionIdsSync`
+    -   `getDimensionNumericIds`
+    -   `getDimensionNumericIdsSync`
+
+## Changes
+
+-   The `dimension` field of dimension vectors is now a union of `Dimension` and `number` instead of just `Dimension`.
+
+## Fixes
+
+-   Fixed a bug where the `entries` field of the `DimensionNameIdTable` NBT schema was marked as optional.
+
 # v1.13.1
 
 ## Fixes

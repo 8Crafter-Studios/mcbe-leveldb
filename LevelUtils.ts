@@ -3,8 +3,9 @@ import NBT from "prismarine-nbt";
 import BiomeData from "./__biome_data__.ts";
 import type { LevelDB } from "@8crafter/leveldb-zlib";
 import type { NBTSchemas } from "./nbtSchemas.ts";
-import type { Range } from "./types.js";
+import type { LooseAutocomplete, Range } from "./types.js";
 import { toLongParts } from "./SNBTUtils.ts";
+import type { DimensionNameIdTable } from "./test/nbtSchemaTypeScriptInterfaces.js";
 
 //#region Local Constants
 
@@ -2780,7 +2781,7 @@ export interface DimensionLocation extends Vector3 {
     /**
      * Dimension that this coordinate is associated with.
      */
-    dimension: Dimension;
+    dimension: Dimension | number;
 }
 
 /**
@@ -2790,7 +2791,7 @@ export interface DimensionVector2 extends Vector2 {
     /**
      * Dimension that this coordinate is associated with.
      */
-    dimension: Dimension;
+    dimension: Dimension | number;
 }
 
 /**
@@ -2800,7 +2801,7 @@ export interface DimensionVectorXZ extends VectorXZ {
     /**
      * Dimension that this coordinate is associated with.
      */
-    dimension: Dimension;
+    dimension: Dimension | number;
 }
 
 /**
@@ -3175,6 +3176,217 @@ export function writeBlockIndices(buffer: Buffer, blockDataOffset: number, block
 }
 
 /**
+ * Converts the dimension of a dimension vector to a numeric ID.
+ *
+ * @param dimension The dimension to convert.
+ * @returns The numeric ID of the dimension.
+ */
+export function dimensionVectorDimensionToInt(dimension: Dimension | number): number {
+    return typeof dimension === "string" ? dimensions.indexOf(dimension) : dimension;
+}
+
+/**
+ * Converts the dimension of a dimension vector to a ID.
+ *
+ * Vanilla dimensions will not include a namespace.
+ *
+ * @param dimension The dimension to convert.
+ * @param db The LevelDB to use.
+ * @returns The ID of the dimension.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ * @throws {ReferenceError} If the dimension is not found in the DimensionNameIdTable.
+ */
+export async function dimensionVectorDimensionToId(dimension: Dimension | number, db: LevelDB): Promise<LooseAutocomplete<Dimension>> {
+    if (typeof dimension === "string") return dimension;
+    const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
+    if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
+    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+        rawDimensionNameIdTable,
+        "little"
+    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    const dimensionNamespacedId: string | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
+        ([_namespacedId, numericId]) => numericId.value === dimension
+    )?.[0];
+    if (dimensionNamespacedId === undefined) throw new ReferenceError(`Dimension ${dimension} not found in DimensionNameIdTable.`);
+    return dimensionNamespacedId;
+}
+
+/**
+ * Converts the dimension of a dimension vector to a ID synchronously.
+ *
+ * Vanilla dimensions will not include a namespace.
+ *
+ * @param dimension The dimension to convert.
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @returns The ID of the dimension.
+ *
+ * @throws {ReferenceError} If the dimension is not found in the DimensionNameIdTable.
+ */
+export function dimensionVectorDimensionToIdSync(dimension: Dimension | number, dimensionNameIdTable: DimensionNameIdTable): LooseAutocomplete<Dimension> {
+    if (typeof dimension === "string") return dimension;
+    const dimensionNamespacedId: string | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
+        ([_namespacedId, numericId]) => numericId.value === dimension
+    )?.[0];
+    if (dimensionNamespacedId === undefined) throw new ReferenceError(`Dimension ${dimension} not found in DimensionNameIdTable.`);
+    return dimensionNamespacedId;
+}
+
+/**
+ * Converts the ID of a dimension of a dimension vector.
+ *
+ * Vanilla dimensions do not require a namespace.
+ *
+ * @param dimension The dimension to convert. Case-sensitive.
+ * @param db The LevelDB to use.
+ * @returns The ID of the dimension.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ * @throws {ReferenceError} If the dimension is not found in the DimensionNameIdTable.
+ */
+export async function dimensionIdToDimensionVectorDimension(dimension: LooseAutocomplete<Dimension>, db: LevelDB): Promise<Dimension | number> {
+    if (dimensions.includes(dimension.replace(/^minecraft:/, "") as Dimension)) return dimension.replace(/^minecraft:/, "") as Dimension;
+    const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
+    if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
+    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+        rawDimensionNameIdTable,
+        "little"
+    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    const dimensionNumericId: number | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
+        ([namespacedId, _numericId]) => namespacedId === dimension
+    )?.[1].value;
+    if (dimensionNumericId === undefined) throw new ReferenceError(`Dimension ${dimension} not found in DimensionNameIdTable.`);
+    return dimensionNumericId;
+}
+
+/**
+ * Converts the ID of a dimension of a dimension vector synchronously.
+ *
+ * Vanilla dimensions do not require a namespace.
+ *
+ * @param dimension The dimension to convert. Case-sensitive.
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @returns The ID of the dimension.
+ *
+ * @throws {ReferenceError} If the dimension is not found in the DimensionNameIdTable.
+ */
+export function dimensionIdToDimensionVectorDimensionSync(
+    dimension: LooseAutocomplete<Dimension>,
+    dimensionNameIdTable: DimensionNameIdTable
+): Dimension | number {
+    if (dimensions.includes(dimension.replace(/^minecraft:/, "") as Dimension)) return dimension.replace(/^minecraft:/, "") as Dimension;
+    const dimensionNumericId: number | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
+        ([namespacedId, _numericId]) => namespacedId === dimension
+    )?.[1].value;
+    if (dimensionNumericId === undefined) throw new ReferenceError(`Dimension ${dimension} not found in DimensionNameIdTable.`);
+    return dimensionNumericId;
+}
+
+/**
+ * Converts a dimension's numeric ID to a dimension vector dimension.
+ *
+ * @param dimension The numeric ID of the dimension.
+ * @returns The dimension vector dimension.
+ */
+export function intToDimensionVectorDimension(dimension: number): Dimension | number {
+    return dimensions[dimension] ?? dimension;
+}
+
+/**
+ * Gets the dimension types from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @returns The dimension types.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionTypes(db: LevelDB): Promise<Record<Dimension | `${string}:${string}`, number>> {
+    const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
+    if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
+    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+        rawDimensionNameIdTable,
+        "little"
+    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    return getDimensionTypesSync(dimensionNameIdTable);
+}
+
+/**
+ * Gets the dimension types from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @returns The dimension types.
+ */
+export function getDimensionTypesSync(dimensionNameIdTable: DimensionNameIdTable): Record<Dimension | `${string}:${string}`, number> {
+    return {
+        ...(Object.fromEntries(dimensions.map((dimension: Dimension, i: number) => [dimension, i])) as Record<Dimension, number>),
+        ...(Object.fromEntries(
+            Object.entries(dimensionNameIdTable.value.entries.value).map(([namespacedId, numericId]) => [namespacedId, numericId.value])
+        ) as Record<`${string}:${string}` | Dimension, number>),
+    };
+}
+
+/**
+ * Gets the dimension IDs from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @returns The dimension IDs.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionIds(db: LevelDB): Promise<(Dimension | `${string}:${string}`)[]> {
+    const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
+    if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
+    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+        rawDimensionNameIdTable,
+        "little"
+    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    return getDimensionIdsSync(dimensionNameIdTable);
+}
+
+/**
+ * Gets the dimension IDs from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @returns The dimension IDs.
+ */
+export function getDimensionIdsSync(dimensionNameIdTable: DimensionNameIdTable): (Dimension | `${string}:${string}`)[] {
+    return [...new Set([...dimensions, ...(Object.keys(dimensionNameIdTable.value.entries.value) as `${string}:${string}`[])])];
+}
+
+/**
+ * Gets the dimension numeric IDs from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @returns The dimension numeric IDs.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionNumericIds(db: LevelDB): Promise<number[]> {
+    const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
+    if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
+    const dimensionNameIdTable: DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
+        rawDimensionNameIdTable,
+        "little"
+    ) as DimensionNameIdTable & Pick<NBT.NBT, "name">;
+    return getDimensionNumericIdsSync(dimensionNameIdTable);
+}
+
+/**
+ * Gets the dimension numeric IDs from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @returns The dimension numeric IDs.
+ */
+export function getDimensionNumericIdsSync(dimensionNameIdTable: DimensionNameIdTable): number[] {
+    return [
+        ...new Set([
+            ...dimensions.map((_dimension: Dimension, i: number): number => i),
+            ...Object.values(dimensionNameIdTable.value.entries.value).map((numericId): number => numericId.value),
+        ]),
+    ];
+}
+
+/**
  * Gets the chunk indices from a LevelDB key.
  *
  * The key must be a [chunk key](https://minecraft.wiki/w/Bedrock_Edition_level_format#Chunk_key_format).
@@ -3186,7 +3398,7 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
     return {
         x: getInt32Val(key, 0),
         z: getInt32Val(key, 4),
-        dimension: [13, 14].includes(key.length) ? (dimensions[getInt32Val(key, 8)] ?? "overworld") : "overworld",
+        dimension: [13, 14].includes(key.length) ? (dimensions[getInt32Val(key, 8)] ?? getInt32Val(key, 8)) : "overworld",
         ...([10, 14].includes(key.length) ? { subChunkIndex: (key.at(-1)! << 24) >> 24 } : undefined),
     };
 }
@@ -3202,12 +3414,15 @@ export function generateChunkKeyFromIndices(
     indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ,
     chunkKeyType: DBChunkKeyEntryContentType
 ): Buffer<ArrayBuffer> {
+    if (typeof indices.dimension === "string" && dimensions.indexOf(indices.dimension) === -1)
+        throw new TypeError(`Invalid dimension: ${indices.dimension}. For custom dimensions please provide the numeric ID instead.`);
     const buffer: Buffer<ArrayBuffer> = Buffer.alloc(
         (indices.dimension === "overworld" ? 9 : 13) + +("subChunkIndex" in indices && indices.subChunkIndex !== undefined)
     );
     setInt32Val(buffer, 0, indices.x);
     setInt32Val(buffer, 4, indices.z);
-    if (indices.dimension !== "overworld") setInt32Val(buffer, 8, dimensions.indexOf(indices.dimension) ?? 0);
+    if (indices.dimension !== "overworld")
+        setInt32Val(buffer, 8, typeof indices.dimension === "string" ? dimensions.indexOf(indices.dimension) : indices.dimension);
     buffer[8 + +(indices.dimension !== "overworld") * 4] = getIntFromChunkKeyType(chunkKeyType);
     if ("subChunkIndex" in indices && indices.subChunkIndex !== undefined) buffer[9 + +(indices.dimension !== "overworld") * 4] = indices.subChunkIndex;
     return buffer;
