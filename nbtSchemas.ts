@@ -10826,12 +10826,34 @@ however when the corresponding block in the block layer is broken, this block ge
                                     },
                                 },
                                 palette: {
-                                    markdownDescription: "The biome palette.\n\nThis is an array of the biome numeric IDs.",
+                                    markdownDescription:
+                                        "The biome palette.\n\nThis is an array of the biome numeric IDs.\n\nThe IDs should either be valid vanilla biome IDs or be at least 10000 if it is a custom biome ID.",
                                     type: "list",
                                     minItems: 4096,
                                     maxItems: 4096,
                                     items: {
+                                        markdownDescription: "A biome numeric ID.",
                                         type: "int",
+                                        oneOf: [
+                                            {
+                                                markdownDescription: "A vanilla biome numeric ID.",
+                                                type: "int",
+                                                markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
+                                                    .sort((a, b) => a[1] - b[1])
+                                                    .map(([biome, id]) => `${biome} (${id})`),
+                                                enum: Object.values(__biome_data__.int_map)
+                                                    .sort((a, b) => a - b)
+                                                    // HACK: This is a temporary workaround the to bug mentioned inside of the nbtSchemaToJsonSchema function, it should be making NBT.Int objects but due to the bug the raw numeric value is being entered instead.
+                                                    .map((v) => v as unknown as NBT.Int),
+                                                errorMessage:
+                                                    "Unknown vanilla biome numeric ID. If you meant to enter the ID of a custom biome, it should be at least 10000.",
+                                            },
+                                            {
+                                                markdownDescription: "A custom biome numeric ID.",
+                                                type: "int",
+                                                minimum: 10000,
+                                            },
+                                        ],
                                     },
                                 },
                             },
@@ -12073,6 +12095,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     if (!("description" in schema)) delete jsonSchema.description;
                     if (!("markdownDescription" in schema)) delete jsonSchema.markdownDescription;
 
+                    // FIXME: List int value enum entries inside of a oneOf in the int value seem to only work when the enum array is just the numbers and not the full NBT.Int objects, fix this.
                     for (const key of ["oneOf", "anyOf", "allOf"] as const) {
                         if (!(key in schema) || !schema[key]) continue;
                         jsonSchema[key] = schema[key].map((s: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(s, allSchemas, options, isRoot));
@@ -12093,7 +12116,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 Object.assign(jsonSchema, { ...data, ...(data.properties!.value as JSONSchema) });
                             } else  */ {
                                 Object.assign(jsonSchema, tagTypeToSchema(schema.type, schema, allSchemas, options, isRoot));
-                                if ((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && !isRoot) {
+                                if ((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot) { // REVIEW: I removed an ! before isRoot, make sure this wasn't a mistake.
                                     valueSchema = jsonSchema.properties?.value ?? jsonSchema;
                                 }
                             }
@@ -12144,7 +12167,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         if (typeof schema.additionalProperties === "boolean") {
                             valueSchema.additionalProperties = schema.additionalProperties;
                         } else {
-                            valueSchema.additionalProperties = nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options, isRoot);
+                            valueSchema.additionalProperties = nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options, false);
                         }
                     }
 
@@ -12730,6 +12753,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                                         :   [schema.items.type].flat()
                                                         ).filter((v) => v !== undefined)
                                                     ),
+                                                    ...(!schema.minItems ? ["end"] : []),
                                                 ],
                                             },
                                     value: {
@@ -12871,7 +12895,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                         )
                                     :   {},
                                 required: schema.required,
-                                additionalProperties: schema.additionalProperties ?? true,
+                                additionalProperties: typeof schema.additionalProperties === "object" ? nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options, false) : true,
                             };
                             if (
                                 (schema.description === undefined && schema.markdownDescription === undefined) ||
@@ -14250,7 +14274,15 @@ however when the corresponding block in the block layer is broken, this block ge
                     return `{ type: ${builtType.type}, value: ${builtType.value} }`;
                 }
 
-                function resolveSchemaRefName(
+                /**
+                 * Resolves a schema ref name.
+                 *
+                 * @param ref The schema ref to resolve.
+                 * @param resolveSymbolName Whether to resolve the symbol name of the resulting TypeScript type. Defaults to `true`.
+                 * @param opts Options for the conversion.
+                 * @returns The resolved schema ref name.
+                 */
+                export function resolveSchemaRefName(
                     ref: string,
                     resolveSymbolName: boolean = true,
                     opts: NBTSchemaToTypeScriptInterfaceConversionOptions = {}

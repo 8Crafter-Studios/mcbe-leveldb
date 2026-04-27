@@ -1,3 +1,17 @@
+# v1.15.0
+
+## Additions
+
+-   Added autocomplete and validation for vanilla biome IDs in the `Data3D` NBT schema.
+
+## Changes
+
+-   The `Utils.Conversion.ToJSONSchema.ConvertOptions.resolveSchemaRefName` function is now exported.
+
+## Fixes
+
+-   Many fixes for the NBT schema to JSON schema converter.
+
 # v1.14.2
 
 ## Critical Fixes

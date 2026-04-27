@@ -853,7 +853,11 @@ function parseTypedArray(
     items: string[],
     options: ParseSNBTBaseOptions & { keepGoingAfterError: true }
 ): { value: TypedArray; errors: SNBTParseError[] };
-function parseTypedArray(type: "B" | "S" | "I" | "L", items: string[], options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false | undefined }): TypedArray;
+function parseTypedArray(
+    type: "B" | "S" | "I" | "L",
+    items: string[],
+    options?: ParseSNBTBaseOptions & { keepGoingAfterError?: false | undefined }
+): TypedArray;
 function parseTypedArray(
     type: "B" | "S" | "I" | "L",
     items: string[],
