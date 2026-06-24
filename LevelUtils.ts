@@ -402,7 +402,7 @@ function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer<
     const bitsPerBlockOriginal: number = Math.max(1, Math.ceil(Math.log2(paletteSize)));
     const bitsPerBlockDivisors: number[] = [1, 2, 4, 8, 16, 32];
 
-    const bitsPerBlock: number = paletteSize === 0 ? 127 : bitsPerBlockDivisors.find((d: number): boolean => d >= bitsPerBlockOriginal) ?? 32;
+    const bitsPerBlock: number = paletteSize === 0 ? 127 : (bitsPerBlockDivisors.find((d: number): boolean => d >= bitsPerBlockOriginal) ?? 32);
 
     // console.log(bitsPerBlock);
 
@@ -733,11 +733,40 @@ export const entryContentTypeToFormatMap = {
     /**
      * The version of a chunk.
      *
-     * The current chunk version as of `v1.21.111` is `41` (`0x29`).
-     *
      * Deleting think key causes the game to completely regenerate the corresponding chunk.
+     *
+     * Possible values:
+     * - `20`: v1.16.100.52
+     * - `21`: v1.16.100.57
+     * - `22`: v1.16.210
+     * - `23`: v1.16.220.50 (+Caves & Cliffs Experimental Toggle)
+     * - `24`: v1.16.220.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     * - `25`: v1.16.230.50 (+Caves & Cliffs Experimental Toggle)
+     * - `26`: v1.16.230.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     * - `27`: v1.17.30.23 (+Caves & Cliffs Experimental Toggle)
+     * - `28`: v1.17.30.23 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     * - `29`: v1.17.30.25 (+Caves & Cliffs Experimental Toggle)
+     * - `30`: v1.17.30.25 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     * - `31`: v1.17.40.20 (+Caves & Cliffs Experimental Toggle)
+     * - `32`: v1.17.40.20 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     * - `33`: v1.18.0.20
+     * - `34`: v1.18.0.20 (internal/developer builds)
+     * - `35`: v1.18.0.22
+     * - `36`: v1.18.0.22 (internal/developer builds)
+     * - `37`: v1.18.0.24
+     * - `38`: v1.18.0.24 (internal/developer builds)
+     * - `39`: v1.18.0.25
+     * - `40`: v1.18.30 after upgrading entities to independent storage
+     * - `41`: v1.21.40
+     * - `42`: v1.21.120
+     *
+     * @since v1.16.100
      */
     Version: {
+        // https://github.com/reedacartwright/rbedrock/blob/c9040e803c4172a19507bc8f1278802ad0e6170a/R/chunk_version.R
+        // https://github.com/robofinch/Prismarine-Anchor/blob/6ce90fa2a27c5d81e6cc1cc376e91c757a80e321/crates/bedrock/bedrock-entries/src/enum_types/chunk_version.rs#L24
+        // https://github.com/reedacartwright/rbedrock/blob/c9040e803c4172a19507bc8f1278802ad0e6170a/man/ChunkVersion.Rd
+        // Value list: https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L98
         /**
          * The format type of the data.
          */
@@ -1549,6 +1578,10 @@ export const entryContentTypeToFormatMap = {
      *
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
+     *
+     * @see https://github.com/yechentide/core-bedrock/blob/77d815439da14b3d0b7d0335b80deb1860aee42a/Analysis/chunk-0x34-legacy-block-extra-data.md
+     * @see https://github.com/robofinch/Prismarine-Anchor/blob/main/crates/bedrock/leveldb-entries/src/entries/legacy_extra_block_data.rs
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L331
      */
     LegacyBlockExtraData: {
         /**
@@ -1557,26 +1590,199 @@ export const entryContentTypeToFormatMap = {
         type: "unknown",
     },
     /**
-     * @todo Figure out how to parse this.
+     * @todo Figure out what this is used for.
      * @todo Add a description for this.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.BiomeState}
+     *
+     * @description
+     * https://github.com/robofinch/Prismarine-Anchor/blob/6ce90fa2a27c5d81e6cc1cc376e91c757a80e321/crates/bedrock/leveldb-entries/src/entries/biome_state.rs#L103C1-L109C41
+     *
+     * The above source says the following:
+     *
+     * > These state values seem to have something to do with snow accumulation level.
+     * Maybe the maximum level that snow can accumulate to naturally.
+     *
+     * > TODO: determine this
+     *
+     * > Also, note that these could be backed by HashMaps,
+     *
+     * > but the order of real game data is inconsistent, and have very, very few values.
+     *
+     * > This makes things easier for testing to be able to round-trip,
+     * and is probably more performant, too.
      */
     BiomeState: {
+        // https://github.com/yechentide/core-bedrock/blob/77d815439da14b3d0b7d0335b80deb1860aee42a/Analysis/chunk-0x35-biome-state.md
+        //
+        // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L344C5-L344C15
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.BiomeState.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        // TODO: Figure out what each of the state values mean.
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {RangeError} If the buffer is empty.
+         * @throws {RangeError} If the number of BiomeState entries does is less than the number indicated in buffer.
+         * @throws {RangeError} If one of the BiomeState entries does not contain enough bytes.
+         * @throws {TypeError} If the BiomeState format is unknown.
+         */
+        // OPTIMIZE: This parse method can be optimized.
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.BiomeState {
+            if (data.length < 1) throw new RangeError("BiomeState Buffer must be at least 1 byte long");
+            let biomeStateFormat: 1 | 2;
+            let count: number;
+            formatDetection: {
+                count = data[0]!;
+                if (data.length === 1 + count * 2) {
+                    biomeStateFormat = 1;
+                    break formatDetection;
+                }
+                if (data.length < 2) throw new TypeError("Unknown BiomeState format");
+                count = data[0]! | (data[1]! << 8);
+                if (data.length === 2 + count * 3) {
+                    biomeStateFormat = 2;
+                    break formatDetection;
+                }
+                throw new TypeError("Unknown BiomeState format");
+            }
+            switch (biomeStateFormat) {
+                case 1: {
+                    const entries: { biome_id: number; state: number }[] = [];
+                    for (let i = 0; i < count; i++) {
+                        const entryData: Buffer = data.subarray(1 + i * 2, 3 + i * 2);
+                        if (entryData.length !== 2) throw new RangeError("BiomeState entry data must be 2 bytes long");
+                        const [biome_id, state] = entryData as Buffer & [number, number];
+                        entries.push({ biome_id, state });
+                    }
+                    return {
+                        type: "compound",
+                        value: {
+                            format: {
+                                type: "byte",
+                                value: biomeStateFormat,
+                            },
+                            entries: {
+                                type: "list",
+                                value: {
+                                    type: "compound",
+                                    value: entries.map((entry) => ({
+                                        biome_id: {
+                                            type: "byte",
+                                            value: entry.biome_id as Extract<
+                                                NBTSchemas.NBTSchemaTypes.BiomeState["value"],
+                                                { format: { value: 1 } }
+                                            >["entries"]["value"]["value"][number]["biome_id"]["value"],
+                                        },
+                                        state: { type: "byte", value: entry.state },
+                                    })),
+                                },
+                            },
+                        },
+                    };
+                }
+                case 2: {
+                    const entries: { biome_id: number; state: number }[] = [];
+                    for (let i = 0; i < count; i++) {
+                        const entryData: Buffer = data.subarray(2 + i * 3, 5 + i * 3);
+                        if (entryData.length !== 3) throw new RangeError("BiomeState entry data must be 3 bytes long");
+                        const biome_id: number = entryData.readUInt16LE(0);
+                        const state: number = entryData[2]!;
+                        entries.push({ biome_id, state });
+                    }
+                    return {
+                        type: "compound",
+                        value: {
+                            format: {
+                                type: "byte",
+                                value: biomeStateFormat,
+                            },
+                            entries: {
+                                type: "list",
+                                value: {
+                                    type: "compound",
+                                    value: entries.map(
+                                        (entry: {
+                                            biome_id: number;
+                                            state: number;
+                                        }): { biome_id: { type: "short"; value: number }; state: { type: "byte"; value: number } } => ({
+                                            biome_id: { type: "short", value: entry.biome_id },
+                                            state: { type: "byte", value: entry.state },
+                                        })
+                                    ),
+                                },
+                            },
+                        },
+                    };
+                }
+            }
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If one of the BiomeState entries are undefined.
+         * @throws {TypeError} If the BiomeState format is unknown.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.BiomeState): Buffer<ArrayBuffer> {
+            const entries: typeof data.value.entries.value.value = data.value.entries.value.value;
+            const count: number = entries.length;
+            switch (data.value.format.value) {
+                case 1: {
+                    const serializedData: Buffer<ArrayBuffer> = Buffer.alloc(1 + count * 2);
+                    serializedData.writeUInt8(count, 0);
+                    for (let i = 0; i < count; i++) {
+                        const entry: (typeof entries)[number] | undefined = entries[i];
+                        if (!entry) throw new TypeError(`BiomeState entry is undefined at index ${i}`);
+                        const offset: number = 1 + i * 2;
+                        serializedData[offset] = entry.biome_id.value;
+                        serializedData[offset + 1] = entry.state.value;
+                    }
+                    return serializedData;
+                }
+                case 2: {
+                    const serializedData: Buffer<ArrayBuffer> = Buffer.alloc(2 + count * 3);
+                    serializedData.writeUInt16LE(count, 0);
+                    for (let i = 0; i < count; i++) {
+                        const entry: (typeof data.value.entries.value.value)[number] | undefined = entries[i];
+                        if (!entry) throw new TypeError(`BiomeState entry is undefined at index ${i}`);
+                        const offset: number = 2 + i * 3;
+                        serializedData[offset] = entry.biome_id.value & 0xff;
+                        serializedData[offset + 1] = entry.biome_id.value >>> 8;
+                        serializedData[offset + 2] = entry.state.value;
+                    }
+                    return serializedData;
+                }
+                default:
+                    throw new TypeError(`Unknown BiomeState format: ${(data.value.format as { type: "byte"; value: number }).value}`);
+            }
+        },
     },
     /**
      * A value that indicates the finalization state of a chunk's data.
      *
      * Possible values:
-     * - `0`: Unknown
-     * - `1`: Unknown
-     * - `2`: Unknown
-     *
-     * @todo Figure out the meanings of the values.
+     * - `0`: NeedsInstaticking - Chunk needs to be ticked
+     * - `1`: NeedsPopulation - Chunk needs to be populated with mobs
+     * - `2`: Done - Chunk generation is fully complete
      */
     FinalizedState: {
+        // https://github.com/reedacartwright/rbedrock/blob/c9040e803c4172a19507bc8f1278802ad0e6170a/R/finalized_state.R#L4
         /**
          * The format type of the data.
          */
@@ -1608,6 +1814,9 @@ export const entryContentTypeToFormatMap = {
      *
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
+     *
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L382
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L1445
      */
     ConversionData: {
         /**
@@ -1616,27 +1825,200 @@ export const entryContentTypeToFormatMap = {
         type: "unknown",
     },
     /**
-     * @todo Figure out how to parse this.
-     * @todo Add a description for this.
+     * The border block data for the chunk.
+     *
+     * @todo Add a better description for this.
      */
     BorderBlocks: {
+        // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext?plain=1#L397
+        // https://github.com/robofinch/Prismarine-Anchor/blob/main/crates/bedrock/leveldb-entries/src/entries/border_blocks.rs
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.BorderBlocks.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {RangeError} If the buffer is empty.
+         * @throws {RangeError} If the length of the buffer is not equal to the expected length based on the first byte.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.BorderBlocks {
+            if (data.length < 1) throw new RangeError("BorderBlocks buffer must be at least 1 byte long");
+
+            const count: number = data[0]!;
+
+            if (data.length !== 1 + count) throw new RangeError(`BorderBlocks length mismatch, expected ${1 + count}, got ${data.length}`);
+
+            const blocks: {
+                x: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 };
+                z: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 };
+            }[] = new Array(count);
+
+            for (let i = 0; i < count; i++) {
+                const encoded: number = data[1 + i]!;
+                const x: number = encoded >>> 4;
+                const z: number = encoded & 0x0f;
+
+                blocks[i] = {
+                    x: { type: "byte", value: x as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 },
+                    z: { type: "byte", value: z as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 },
+                };
+            }
+
+            return {
+                type: "compound",
+                value: {
+                    BorderBlocks: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: blocks,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If one of the BorderBlocks entries are undefined.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.BorderBlocks): Buffer<ArrayBuffer> {
+            const blocks: typeof data.value.BorderBlocks.value.value = data.value.BorderBlocks.value.value;
+            const count: number = blocks.length;
+
+            const serializedData: Buffer<ArrayBuffer> = Buffer.alloc(1 + count);
+
+            serializedData[0] = count;
+
+            for (let i = 0; i < count; i++) {
+                const entry: (typeof blocks)[number] | undefined = blocks[i];
+                if (!entry) throw new TypeError(`BorderBlocks entry is undefined at index ${i}`);
+
+                const x: number = entry.x.value;
+                const z: number = entry.z.value;
+
+                serializedData[1 + i] = (x << 4) | (z & 0x0f);
+            }
+
+            return serializedData;
+        },
     },
     /**
      * Bounding boxes for structure spawns, such as a Nether Fortress or Pillager Outpost.
      *
-     * @deprecated Replaced with {@link AABBVolumes} in either 1.21.120 or one of the 1.21.120 previews.
-     *
-     * @todo Figure out how to parse this.
+     * @deprecated Replaced with {@link entryContentTypeToFormatMap.AABBVolumes | AABBVolumes} in either 1.21.10 or one of the 1.21.10 previews.
      */
     HardcodedSpawners: {
+        // https://github.com/reedacartwright/rbedrock/blob/c9040e803c4172a19507bc8f1278802ad0e6170a/man/HardcodedSpawnArea.Rd#L4
+        // https://github.com/reedacartwright/rbedrock/blob/c9040e803c4172a19507bc8f1278802ad0e6170a/R/legacy-hsa.R#L44
+        // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L405C5-L405C22
+        //
+        // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L1481
+        // One of the sources seem to indicate this was removed in 1.21.10.
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.HardcodedSpawners.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {RangeError} If the buffer is less than 4 bytes.
+         * @throws {RangeError} If the length of the buffer is not equal to the expected length based on the first four bytes.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.HardcodedSpawners {
+            if (data.length < 4) throw new RangeError("HardcodedSpawners buffer must be at least 4 bytes long");
+
+            const count: number = data.readUInt32LE(0);
+
+            if (data.length !== 4 + count * 25) throw new RangeError(`HardcodedSpawners length mismatch, expected ${4 + count * 25}, got ${data.length}`);
+
+            const entries: NBTSchemas.NBTSchemaTypes.HardcodedSpawners["value"]["HardcodedSpawningAreas"]["value"]["value"] = new Array(count);
+
+            let offset = 4;
+            for (let i = 0; i < count; i++, offset += 25) {
+                entries[i] = {
+                    AABBMinX: { type: "int", value: data.readInt32LE(offset) },
+                    AABBMinY: { type: "int", value: data.readInt32LE(offset + 4) },
+                    AABBMinZ: { type: "int", value: data.readInt32LE(offset + 8) },
+                    AABBMaxX: { type: "int", value: data.readInt32LE(offset + 12) },
+                    AABBMaxY: { type: "int", value: data.readInt32LE(offset + 16) },
+                    AABBMaxZ: { type: "int", value: data.readInt32LE(offset + 20) },
+                    Type: { type: "byte", value: data[offset + 24]! as (typeof entries)[number]["Type"]["value"] },
+                };
+            }
+
+            return {
+                type: "compound",
+                value: {
+                    HardcodedSpawningAreas: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: entries,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If one of the HardcodedSpawners entries are undefined.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.HardcodedSpawners): Buffer<ArrayBuffer> {
+            const count: number = data.value.HardcodedSpawningAreas.value.value.length;
+            const serializedData: Buffer<ArrayBuffer> = Buffer.alloc(4 + count * 25);
+
+            serializedData.writeUInt32LE(count, 0);
+
+            const entries: NBTSchemas.NBTSchemaTypes.HardcodedSpawners["value"]["HardcodedSpawningAreas"]["value"]["value"] =
+                data.value.HardcodedSpawningAreas.value.value;
+
+            let offset = 4;
+            for (let i = 0; i < count; i++, offset += 25) {
+                const entry: (typeof entries)[number] | undefined = entries[i];
+                if (!entry) throw new TypeError(`HardcodedSpawners entry is undefined at index ${i}`);
+
+                serializedData.writeInt32LE(entry.AABBMinX.value, offset);
+                serializedData.writeInt32LE(entry.AABBMinY.value, offset + 4);
+                serializedData.writeInt32LE(entry.AABBMinZ.value, offset + 8);
+                serializedData.writeInt32LE(entry.AABBMaxX.value, offset + 12);
+                serializedData.writeInt32LE(entry.AABBMaxY.value, offset + 16);
+                serializedData.writeInt32LE(entry.AABBMaxZ.value, offset + 20);
+                serializedData[offset + 24] = entry.Type.value;
+            }
+
+            return serializedData;
+        },
     },
     /**
      * @see {@link NBTSchemas.nbtSchemas.RandomTicks}
@@ -1755,20 +2137,53 @@ export const entryContentTypeToFormatMap = {
         type: "unknown",
     },
     /**
-     * @deprecated Unused.
+     * UNDOCUMENTED.
      *
-     * @todo Figure out how to parse this.
+     * Possible values:
+     * - `0`: False
+     * - `1`: True
+     *
+     * @todo Try to get a world with this to see how it works.
      * @todo Add a description for this.
+     *
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext?plain=1#L481
+     *
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L1470
+     * One of the sources seem to indicate this was added in 1.17.30.25. (Verify this, then add the \@since tag.)
      */
     GeneratedPreCavesAndCliffsBlending: {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "int",
+        /**
+         * How many bytes this integer is.
+         */
+        bytes: 1,
+        /**
+         * The endianness of the data.
+         */
+        format: "LE",
+        /**
+         * The signedness of the data.
+         */
+        signed: false,
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Bytes:
+         * ```json
+         * [0]
+         * ```
+         */
+        defaultValue: Buffer.from([0]),
     },
     /**
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
+     *
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L1471
+     * One of the sources seem to indicate this was added in 1.17.30.25.
      */
     BlendingBiomeHeight: {
         /**
@@ -1781,17 +2196,40 @@ export const entryContentTypeToFormatMap = {
      * for the NBT metadata of this chunk. Seems like it might default to something dependent
      * on the current game or chunk version.
      *
-     * @todo Figure out how to parse this.
+     * This is an unsigned 64-bit hex value (16 digits, 8 bytes).
      */
     MetaDataHash: {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "hex",
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Bytes:
+         * ```json
+         * [0, 0, 0, 0, 0, 0, 0, 0]
+         * ```
+         */
+        defaultValue: Buffer.from([0, 0, 0, 0, 0, 0, 0, 0]),
+        /**
+         * The minimum length of the data in bytes (if the hex data is a string of hexadecimal characters, two characters is one byte).
+         */
+        minLength: 8,
+        /**
+         * The maximum length of the data in bytes (if the hex data is a string of hexadecimal characters, two characters is one byte).
+         */
+        maxLength: 8,
     },
     /**
      * @todo Figure out how to parse this.
      * @todo Add a description for this.
+     *
+     * @see https://github.com/robofinch/Prismarine-Anchor/blob/main/crates/bedrock/leveldb-entries/src/entries/blending_data.rs#L10
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L526
+     *
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L1475
+     * One of the sources seem to indicate this was added in 1.17.30.
      */
     BlendingData: {
         /**
@@ -1800,23 +2238,72 @@ export const entryContentTypeToFormatMap = {
         type: "unknown",
     },
     /**
-     * @todo Figure out how to parse this.
-     * @todo Add a description for this.
+     * The version of the actor digest data.
      *
-     * Seems to always be one byte with a value of `0x00`.
+     * Current known versions:
+     * - `0`: 1.18.30 Format
      */
     ActorDigestVersion: {
+        // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L526
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "int",
+        /**
+         * How many bytes this integer is.
+         */
+        bytes: 1,
+        /**
+         * The endianness of the data.
+         */
+        format: "LE",
+        /**
+         * The signedness of the data.
+         */
+        signed: false,
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Bytes:
+         * ```json
+         * [0]
+         * ```
+         */
+        defaultValue: Buffer.from([0]),
     },
     /**
-     * @deprecated Only used in versions < 1.16.100. Later versions use {@link entryContentTypeToFormatMap.Version}
+     * The version of a chunk for versions < 1.16.100.
      *
-     * @todo Add a description for this.
+     * Possible values:
+     * - `0`: v0.9.0
+     * - `1`: v0.9.2
+     * - `2`: v0.9.5
+     * - `3`: v0.17.0.1
+     * - `4`: v1.1.0
+     * - `5`: Converted from console to v1.1.0
+     * - `6`: v1.2.0.2
+     * - `7`: v1.2.0
+     * - `8`: v1.2.13
+     * - `9`: v1.8.0
+     * - `10`: v1.9.0
+     * - `11`: v1.11.0.1
+     * - `12`: v1.11.0.3
+     * - `13`: v1.11.0.4
+     * - `14`: v1.11.1
+     * - `15`: v1.12.0.4
+     * - `16`: v1.14.0
+     * - `17`: v1.15.0
+     * - `18`: v1.16.0.51
+     * - `19`: v1.16.0
+     *
+     * @deprecated Only used in versions < 1.16.100. Later versions use {@link entryContentTypeToFormatMap.Version | Version}
      */
     LegacyVersion: {
+        // https://github.com/reedacartwright/rbedrock/blob/c9040e803c4172a19507bc8f1278802ad0e6170a/R/legacy-chunk_version.R
+        // https://github.com/robofinch/Prismarine-Anchor/blob/6ce90fa2a27c5d81e6cc1cc376e91c757a80e321/crates/bedrock/bedrock-entries/src/enum_types/chunk_version.rs
+        // https://github.com/reedacartwright/rbedrock/blob/c9040e803c4172a19507bc8f1278802ad0e6170a/man/LegacyChunkVersion.Rd
+        // Value list: https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L98
+        // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L602
         /**
          * The format type of the data.
          */
@@ -2077,6 +2564,8 @@ export const entryContentTypeToFormatMap = {
      * @deprecated Only used in versions < 1.5.0.
      *
      * @todo Add a description for this.
+     *
+     * @see https://github.com/robofinch/Prismarine-Anchor/blob/main/crates/bedrock/leveldb-entries/src/entries/flat_world_layers.rs
      */
     FlatWorldLayers: {
         /**
@@ -2088,6 +2577,8 @@ export const entryContentTypeToFormatMap = {
      * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
      *
      * @todo Add a description for this.
+     *
+     * @see https://github.com/robofinch/Prismarine-Anchor/blob/main/crates/bedrock/leveldb-entries/src/entries/level_spawn_was_fixed.rs
      */
     LevelSpawnWasFixed: {
         /**
@@ -2107,7 +2598,7 @@ export const entryContentTypeToFormatMap = {
     /**
      * Stores the location of a lodestone compass.
      *
-     * @todo Add a schema for this.
+     * @see {@link NBTSchemas.nbtSchemas.PositionTrackingDB}
      */
     PositionTrackingDB: {
         /**
@@ -2118,7 +2609,7 @@ export const entryContentTypeToFormatMap = {
     /**
      * The last ID used for a lodestone compass.
      *
-     * @todo Add a schema for this.
+     * @see {@link NBTSchemas.nbtSchemas.PositionTrackingLastId}
      */
     PositionTrackingLastId: {
         /**
@@ -2358,7 +2849,6 @@ export const entryContentTypeToFormatMap = {
      *
      * @since 1.26.10 (maybe 1.26.0)
      *
-     * @todo Update the linked NBT schema once it is known the structure of the items of the `clocks` list.
      * @todo Figure out that this is used for.
      * @todo Figure out what preview and full release this was actually added in.
      */
@@ -2409,13 +2899,227 @@ export const entryContentTypeToFormatMap = {
      * and volumes where mobs cannot spawn through the normal biome-based means (such as
      * Trial Chambers).
      *
-     * @todo Figure out how to parse this.
+     * @see {@link NBTSchemas.nbtSchemas.AABBVolumes}
+     *
+     * @since 1.21.20 (or some 1.21.20 preview)
      */
     AABBVolumes: {
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.AABBVolumes.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {RangeError} If the buffer is less than 4 bytes.
+         * @throws {unknown} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.AABBVolumes {
+            if (data.length < 4) throw new RangeError("AABBVolumes buffer must be at least 4 bytes long");
+
+            const version: number = data.readUInt32LE(0);
+
+            if (version !== 1) throw new Error(`Unsupported AABBVolumes version: ${version}`);
+
+            let offset = 4;
+
+            const structureTypeCount: number = data.readUInt32LE(offset);
+            const structureTypes: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StructureTypes"]["value"]["value"] = new Array(structureTypeCount);
+            offset += 4;
+
+            for (let i = 0; i < structureTypeCount; i++) {
+                const structureTypeLength: number = data.readUInt16LE(offset + 4);
+                const structureType: string = data.toString("utf-8", offset + 6, offset + 6 + structureTypeLength);
+                structureTypes[i] = {
+                    Id: { type: "int", value: data.readUInt32LE(offset) },
+                    Type: { type: "string", value: structureType as (typeof structureTypes)[number]["Type"]["value"] },
+                };
+                offset += 6 + structureTypeLength;
+            }
+
+            const chunkBoundingBoxCount: number = data.readUInt32LE(offset);
+            const chunkBoundingBoxes: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["ChunkBoundingBoxes"]["value"]["value"] = new Array(chunkBoundingBoxCount);
+            offset += 4;
+
+            for (let i = 0; i < chunkBoundingBoxCount; i++, offset += 28) {
+                chunkBoundingBoxes[i] = {
+                    Id: { type: "int", value: data.readInt32LE(offset) },
+                    AABBMinX: { type: "int", value: data.readInt32LE(offset + 4) },
+                    AABBMinY: { type: "int", value: data.readInt32LE(offset + 8) },
+                    AABBMinZ: { type: "int", value: data.readInt32LE(offset + 12) },
+                    AABBMaxX: { type: "int", value: data.readInt32LE(offset + 16) },
+                    AABBMaxY: { type: "int", value: data.readInt32LE(offset + 20) },
+                    AABBMaxZ: { type: "int", value: data.readInt32LE(offset + 24) },
+                };
+            }
+
+            const dynamicSpawnAreaCount: number = data.readUInt32LE(offset);
+            const dynamicSpawnAreas: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["DynamicSpawnAreas"]["value"]["value"] = new Array(dynamicSpawnAreaCount);
+            offset += 4;
+
+            for (let i = 0; i < dynamicSpawnAreaCount; i++, offset += 12) {
+                dynamicSpawnAreas[i] = {
+                    BoundingBoxId: { type: "int", value: data.readUInt32LE(offset) },
+                    StructureId: { type: "int", value: data.readUInt32LE(offset + 4) },
+                    FullBoundingBox: { type: "int", value: data.readUInt32LE(offset + 8) as 0 | 1 },
+                };
+            }
+
+            const staticSpawnAreaCount: number = data.readUInt32LE(offset);
+            const staticSpawnAreas: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StaticSpawnAreas"]["value"]["value"] = new Array(staticSpawnAreaCount);
+            offset += 4;
+
+            for (let i = 0; i < staticSpawnAreaCount; i++, offset += 16) {
+                staticSpawnAreas[i] = {
+                    BoundingBoxId: { type: "int", value: data.readUInt32LE(offset) },
+                    StructureId: { type: "int", value: data.readUInt32LE(offset + 4) },
+                    HeightDifference: { type: "int", value: data.readInt32LE(offset + 8) },
+                    FullBoundingBox: { type: "int", value: data.readUInt32LE(offset + 12) as 0 | 1 },
+                };
+            }
+
+            return {
+                type: "compound",
+                value: {
+                    version: { type: "int", value: version },
+                    StructureTypes: { type: "list", value: { type: "compound", value: structureTypes } },
+                    ChunkBoundingBoxes: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: chunkBoundingBoxes,
+                        },
+                    },
+                    DynamicSpawnAreas: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: dynamicSpawnAreas,
+                        },
+                    },
+                    StaticSpawnAreas: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: staticSpawnAreas,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If one of the StructureTypes entries are undefined.
+         * @throws {TypeError} If one of the ChunkBoundingBoxes entries are undefined.
+         * @throws {TypeError} If one of the DynamicSpawnAreas entries are undefined.
+         * @throws {TypeError} If one of the StaticSpawnAreas entries are undefined.
+         * @throws {unknown} If an error occurs while serializing the data.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.AABBVolumes): Buffer<ArrayBuffer> {
+            const structureTypeCount: number = data.value.StructureTypes.value.value.length;
+            const chunkBoundingBoxCount: number = data.value.ChunkBoundingBoxes.value.value.length;
+            const dynamicSpawnAreaCount: number = data.value.DynamicSpawnAreas.value.value.length;
+            const staticSpawnAreaCount: number = data.value.StaticSpawnAreas.value.value.length;
+            const serializedData: Buffer<ArrayBuffer> = Buffer.alloc(
+                20 +
+                    structureTypeCount * 6 +
+                    data.value.StructureTypes.value.value.reduce(
+                        (a: number, b: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StructureTypes"]["value"]["value"][number]): number =>
+                            a + b.Type.value.length,
+                        0
+                    ) +
+                    chunkBoundingBoxCount * 28 +
+                    dynamicSpawnAreaCount * 12 +
+                    staticSpawnAreaCount * 16
+            );
+
+            serializedData.writeUInt32LE(data.value.version.value, 0);
+
+            const structureTypes: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StructureTypes"]["value"]["value"] = data.value.StructureTypes.value.value;
+
+            let offset = 4;
+
+            serializedData.writeUInt32LE(structureTypeCount, offset);
+            offset += 4;
+
+            for (let i = 0; i < structureTypeCount; i++) {
+                const entry: (typeof structureTypes)[number] | undefined = structureTypes[i];
+                if (entry === undefined) throw new TypeError(`StructureTypes entry is undefined at index ${i}`);
+
+                const value: string = entry.Type.value;
+                serializedData.writeUInt32LE(entry.Id.value, offset);
+                const stringByteLength: number = serializedData.write(value, offset + 6, "utf-8");
+                serializedData.writeUInt16LE(stringByteLength, offset + 4);
+                offset += 6 + stringByteLength;
+            }
+
+            const chunkBoundingBoxes: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["ChunkBoundingBoxes"]["value"]["value"] =
+                data.value.ChunkBoundingBoxes.value.value;
+
+            serializedData.writeUInt32LE(chunkBoundingBoxCount, offset);
+            offset += 4;
+
+            for (let i = 0; i < chunkBoundingBoxCount; i++, offset += 28) {
+                const entry: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["ChunkBoundingBoxes"]["value"]["value"][number] | undefined = chunkBoundingBoxes[i];
+                if (!entry) throw new TypeError(`ChunkBoundingBoxes entry is undefined at index ${i}`);
+
+                serializedData.writeUInt32LE(entry.Id.value, offset);
+                serializedData.writeInt32LE(entry.AABBMinX.value, offset + 4);
+                serializedData.writeInt32LE(entry.AABBMinY.value, offset + 8);
+                serializedData.writeInt32LE(entry.AABBMinZ.value, offset + 12);
+                serializedData.writeInt32LE(entry.AABBMaxX.value, offset + 16);
+                serializedData.writeInt32LE(entry.AABBMaxY.value, offset + 20);
+                serializedData.writeInt32LE(entry.AABBMaxZ.value, offset + 24);
+            }
+
+            const dynamicSpawnAreas: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["DynamicSpawnAreas"]["value"]["value"] =
+                data.value.DynamicSpawnAreas.value.value;
+
+            serializedData.writeUInt32LE(dynamicSpawnAreaCount, offset);
+            offset += 4;
+
+            for (let i = 0; i < dynamicSpawnAreaCount; i++, offset += 12) {
+                const entry: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["DynamicSpawnAreas"]["value"]["value"][number] | undefined = dynamicSpawnAreas[i];
+                if (!entry) throw new TypeError(`DynamicSpawnAreas entry is undefined at index ${i}`);
+
+                serializedData.writeUInt32LE(entry.BoundingBoxId.value, offset);
+                serializedData.writeUInt32LE(entry.StructureId.value, offset + 4);
+                serializedData.writeUInt32LE(entry.FullBoundingBox.value, offset + 8);
+            }
+
+            const staticSpawnAreas: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StaticSpawnAreas"]["value"]["value"] =
+                data.value.StaticSpawnAreas.value.value;
+
+            serializedData.writeUInt32LE(staticSpawnAreaCount, offset);
+            offset += 4;
+
+            for (let i = 0; i < staticSpawnAreaCount; i++, offset += 16) {
+                const entry: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StaticSpawnAreas"]["value"]["value"][number] | undefined = staticSpawnAreas[i];
+                if (!entry) throw new TypeError(`StaticSpawnAreas entry is undefined at index ${i}`);
+
+                serializedData.writeUInt32LE(entry.BoundingBoxId.value, offset);
+                serializedData.writeUInt32LE(entry.StructureId.value, offset + 4);
+                serializedData.writeInt32LE(entry.HeightDifference.value, offset + 8);
+                serializedData.writeUInt32LE(entry.FullBoundingBox.value, offset + 12);
+            }
+
+            return serializedData;
+        },
     },
     /**
      * The content type of the `DynamicProperties` LevelDB key, which stores dynamic properties data for add-ons.
@@ -2449,8 +3153,11 @@ export const entryContentTypeToFormatMap = {
      * ```
      * {BYTEx4}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}{BYTEx8}{NBTCompound}
      * ```
+     *
+     * @see {@link NBTSchemas.nbtSchemas.LevelChunkMetaDataDictionary}
      */
     LevelChunkMetaDataDictionary: {
+        // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L501
         /**
          * The format type of the data.
          */
@@ -2517,8 +3224,11 @@ export const entryContentTypeToFormatMap = {
         defaultValue: Buffer.from("true", "utf-8"),
     },
     /**
-     * @todo Add a schema for this.
      * @todo Add a description for this.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.ChunkLoadedRequest}
+     *
+     * @see https://github.com/MiemieMethod/bedrock-docs/blob/main/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L1175
      */
     ChunkLoadedRequest: {
         /**
@@ -2552,7 +3262,53 @@ export type EntryContentTypeFormatData = (
           /**
            * The format type of the data.
            */
-          readonly type: "JSON" | "SNBT" | "ASCII" | "binary" | "binaryPlainText" | "hex" | "UTF-8" | "unknown";
+          readonly type: "JSON" | "SNBT" | "unknown";
+      }
+    | {
+          /**
+           * The format type of the data.
+           */
+          readonly type: "ASCII" | "binary" | "binaryPlainText" | "UTF-8";
+          /**
+           * The minimum length of the data.
+           *
+           * If not present, `0` should be assumed.
+           *
+           * @default 0
+           */
+          readonly minLength?: number;
+          /**
+           * The maximum length of the data.
+           *
+           * If not present, `Infinity` should be assumed.
+           *
+           * @default Infinity
+           */
+          readonly maxLength?: number;
+          // IDEA: Add a validation function.
+      }
+    | {
+          /**
+           * The format type of the data.
+           */
+          readonly type: "hex";
+          /**
+           * The minimum length of the data in bytes (if the hex data is a string of hexadecimal characters, two characters is one byte).
+           *
+           * If not present, `0` should be assumed.
+           *
+           * @default 0
+           */
+          readonly minLength?: number;
+          /**
+           * The maximum length of the data in bytes (if the hex data is a string of hexadecimal characters, two characters is one byte).
+           *
+           * If not present, `Infinity` should be assumed.
+           *
+           * @default Infinity
+           */
+          readonly maxLength?: number;
+          // IDEA: Add a validation function.
       }
     | {
           /**

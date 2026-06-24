@@ -1,3 +1,55 @@
+# v1.16.0
+
+## Additions
+
+-   Added a custom serializer and parser for the `BiomeState` content type.
+-   Added the `BiomeState` NBT schema.
+-   Added a custom serializer and parser for the `BorderBlocks` content type.
+-   Added the `BorderBlocks` NBT schema.
+-   Added a custom serializer and parser for the `HardcodedSpawners` content type.
+-   Added the `HardcodedSpawners` NBT schema.
+-   Added a custom serializer and parser for the `AABBVolumes` content type.
+-   Added the `AABBVolumes` NBT schema.
+-   Added the format type for the following content types:
+    -   `GeneratedPreCavesAndCliffsBlending`
+    -   `MetaDataHash`
+    -   `ActorDigestVersion`
+-   Added default values for the following content types:
+    -   `GeneratedPreCavesAndCliffsBlending`
+    -   `MetaDataHash`
+    -   `ActorDigestVersion`
+-   Documented the possible values for the following content types:
+    -   `Version`
+    -   `LegacyVersion`
+    -   `FinalizedState`
+    -   `GeneratedPreCavesAndCliffsBlending`
+    -   `ActorDigestVersion`
+-   Added/Updated documentation for several content types.
+-   Added enum descriptions to the `version` fields of the versioned `SubChunkPrefix` NBT schemas.
+-   Added the following properties to the `experiments` property of the `LevelDat` NBT schema:
+    -   `data_driven_items`
+    -   `data_driven_vanilla_blocks_and_items`
+    -   `experimental_molang_features`
+    -   `next_major_update`
+    -   `vanilla_experiments`
+-   Added the following properties to the `LevelDat` NBT schema:
+    -   `allowAnonymousBlockDropsInEditorWorlds`
+    -   `cheatsEnabled`
+    -   `daylightCycle`
+    -   `PlayerHasDied`
+    -   `permissionsLevel`
+    -   `playerPermissionsLevel`
+    -   `playerssleepingpercentage`
+    -   `playerwaypoints`
+    -   `serverEditorConnectionPolicy`
+    -   `WorldVersion`
+
+## Fixes
+
+-   Fixed a typo where the `doentitydrops` property of the `LevelDat` NBT schema was incorrectly named `doentitiydrops`.
+-   Many fixes for the NBT schema to JSON schema converter.
+-   Fixes for the NBT schema to TypeScript interface converter.
+
 # v1.15.0
 
 ## Additions

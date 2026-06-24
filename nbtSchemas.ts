@@ -1326,6 +1326,15 @@ export namespace NBTSchemas {
                         },
                         markdownDescription: "The default permissions for players in the world.",
                     },
+                    allowAnonymousBlockDropsInEditorWorlds: {
+                        type: "byte",
+                        markdownDescription: "UNDOCUMENTED.",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
                     // REVIEW: Check if this property actually ever exists.
                     allowdestructiveobjects: {
                         type: "byte",
@@ -1379,6 +1388,15 @@ export namespace NBTSchemas {
                         type: "byte",
                         markdownDescription:
                             "1 or 0 (true/false) - true if the bonus chest has been placed in the world. Turning this to false spawns another bonus chest near the spawn coordinates.",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                    cheatsEnabled: {
+                        type: "byte",
+                        markdownDescription: "UNDOCUMENTED.",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1468,6 +1486,10 @@ export namespace NBTSchemas {
                             { type: "int", value: 2 },
                         ],
                     },
+                    daylightCycle: {
+                        type: "int",
+                        markdownDescription: "UNDOCUMENTED.",
+                    },
                     dodaylightcycle: {
                         type: "byte",
                         markdownDescription: "The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game_rule).",
@@ -1477,9 +1499,9 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
-                    doentitiydrops: {
+                    doentitydrops: {
                         type: "byte",
-                        markdownDescription: "The `doentitiydrops` [game rule](https://minecraft.wiki/w/game_rule).",
+                        markdownDescription: "The `doentitydrops` [game rule](https://minecraft.wiki/w/game_rule).",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -1676,9 +1698,36 @@ export namespace NBTSchemas {
                                     { type: "byte", value: 1 },
                                 ],
                             },
+                            data_driven_items: {
+                                type: "byte",
+                                markdownDescription: "1 or 0 (true/false) - UNDOCUMENTED.",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+                            data_driven_vanilla_blocks_and_items: {
+                                type: "byte",
+                                markdownDescription: "1 or 0 (true/false) - UNDOCUMENTED.",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
                             experimental_creator_cameras: {
                                 type: "byte",
                                 markdownDescription: "1 or 0 (true/false) - true if the experimental creator cameras experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+                            experimental_molang_features: {
+                                type: "byte",
+                                markdownDescription: "1 or 0 (true/false) - UNDOCUMENTED.",
                                 markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
@@ -1703,9 +1752,27 @@ export namespace NBTSchemas {
                                     { type: "byte", value: 1 },
                                 ],
                             },
+                            next_major_update: {
+                                type: "byte",
+                                markdownDescription: "1 or 0 (true/false) - UNDOCUMENTED.",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
                             upcoming_creator_features: {
                                 type: "byte",
                                 markdownDescription: "1 or 0 (true/false) - true if the upcoming creator features experimental toggle is enabled.",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+                            vanilla_experiments: {
+                                type: "byte",
+                                markdownDescription: "1 or 0 (true/false) - UNDOCUMENTED.",
                                 markdownEnumDescriptions: ["false", "true"],
                                 enum: [
                                     { type: "byte", value: 0 },
@@ -2241,6 +2308,36 @@ export namespace NBTSchemas {
                         type: "int",
                         markdownDescription: "UNDOCUMENTED.",
                     },
+                    PlayerHasDied: {
+                        type: "byte",
+                        // TODO: Figure out if this is for is any player died, only the host, any player dying in hardcore mode, or the host dying in hardcore mode.
+                        markdownDescription: "Whether a player has died in this world (may refer to the host specifically or may refer to any player).",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                    permissionsLevel: {
+                        type: "int",
+                        markdownDescription: "UNDOCUMENTED.",
+                    },
+                    playerPermissionsLevel: {
+                        type: "int",
+                        markdownDescription: "UNDOCUMENTED.",
+                    },
+                    playerssleepingpercentage: {
+                        type: "int",
+                        markdownDescription: "The `playerssleepingpercentage` [game rule](https://minecraft.wiki/w/game_rule).",
+                        default: {
+                            type: "int",
+                            value: 100,
+                        },
+                    },
+                    playerwaypoints: {
+                        type: "int",
+                        markdownDescription: "UNDOCUMENTED.",
+                    },
                     prid: {
                         type: "string",
                         markdownDescription:
@@ -2331,6 +2428,10 @@ export namespace NBTSchemas {
                             type: "int",
                             value: 4,
                         },
+                    },
+                    serverEditorConnectionPolicy: {
+                        type: "int",
+                        markdownDescription: "UNDOCUMENTED.",
                     },
                     showbordereffect: {
                         type: "byte",
@@ -2466,6 +2567,14 @@ export namespace NBTSchemas {
                         default: {
                             type: "long",
                             value: 0n,
+                        },
+                    },
+                    WorldVersion: {
+                        type: "int",
+                        markdownDescription: "UNDOCMENTED.",
+                        default: {
+                            type: "int",
+                            value: 1,
                         },
                     },
                     tntexplodes: {
@@ -10676,6 +10785,409 @@ however when the corresponding block in the block layer is broken, this block ge
             //#endregion
             //#region Custom NBT Schemas
             // NOTE: Verified.
+            AABBVolumes: {
+                id: "AABBVolumes",
+                title: "The AABBVolumes schema.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the AABBVolumes content type.",
+                type: "compound",
+                required: ["version", "StructureTypes", "ChunkBoundingBoxes", "DynamicSpawnAreas", "StaticSpawnAreas"],
+                properties: {
+                    version: {
+                        title: "Format Version",
+                        markdownDescription: "The format version of the AABBVolumes data.",
+                        type: "int",
+                        enum: [{ type: "int", value: 1 }],
+                    },
+                    StructureTypes: {
+                        title: "Structure Types",
+                        markdownDescription: "The list of structure types in the associated chunk.",
+                        type: "list",
+                        items: {
+                            title: "Structure Type",
+                            markdownDescription: "A structure type.",
+                            type: "compound",
+                            required: ["Id", "Type"],
+                            properties: {
+                                Id: {
+                                    title: "ID",
+                                    markdownDescription:
+                                        "The ID of the structure type. This is used to reference this structure type in DynamicSpawnAreas and StaticSpawnAreas.",
+                                    type: "int",
+                                },
+                                Type: {
+                                    type: "string",
+                                    // Enum source: https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext?plain=1#L644
+                                    enum: [
+                                        { type: "string", value: "minecraft:ancient_city" },
+                                        { type: "string", value: "minecraft:bastion_remnant" },
+                                        { type: "string", value: "minecraft:buried_treasure" },
+                                        { type: "string", value: "minecraft:end_city" },
+                                        { type: "string", value: "minecraft:mineshaft" },
+                                        { type: "string", value: "minecraft:fortress" },
+                                        { type: "string", value: "minecraft:monument" },
+                                        { type: "string", value: "minecraft:ocean_ruin" },
+                                        { type: "string", value: "minecraft:pillager_outpost" },
+                                        { type: "string", value: "minecraft:jungle_pyramid" },
+                                        { type: "string", value: "minecraft:swamp_hut" },
+                                        { type: "string", value: "minecraft:desert_pyramid" },
+                                        { type: "string", value: "minecraft:igloo" },
+                                        { type: "string", value: "minecraft:ruined_portal" },
+                                        { type: "string", value: "minecraft:shipwreck" },
+                                        { type: "string", value: "minecraft:stronghold" },
+                                        { type: "string", value: "minecraft:village" },
+                                        { type: "string", value: "minecraft:mansion" },
+                                        { type: "string", value: "minecraft:trail_ruins" },
+                                        { type: "string", value: "minecraft:trial_chambers" },
+                                    ],
+                                    markdownEnumDescriptions: [
+                                        "Ancient City",
+                                        "Bastion Remnant",
+                                        "Buried Treasure",
+                                        "End City",
+                                        "Mineshaft",
+                                        "Nether Fortress",
+                                        "Ocean Monument",
+                                        "Ocean Ruin",
+                                        "Pillager Outpost",
+                                        "Jungle Pyramid",
+                                        "Swamp Hut",
+                                        "Desert Pyramid",
+                                        "Igloo",
+                                        "Ruined Portal",
+                                        "Shipwreck",
+                                        "Stronghold",
+                                        "Village",
+                                        "Woodland Mansion",
+                                        "Trail Ruins",
+                                        "Trial Chambers",
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                    ChunkBoundingBoxes: {
+                        title: "Chunk Bounding Boxes",
+                        markdownDescription: "The list of bounding boxes of the structures in the associated chunk.",
+                        type: "list",
+                        items: {
+                            title: "Chunk Bounding Box",
+                            markdownDescription: "A chunk bounding box.",
+                            type: "compound",
+                            required: ["Id", "AABBMinX", "AABBMinY", "AABBMinZ", "AABBMaxX", "AABBMaxY", "AABBMaxZ"],
+                            properties: {
+                                Id: {
+                                    title: "ID",
+                                    markdownDescription:
+                                        "The ID of the bounding box. This is used to reference this bounding box in DynamicSpawnAreas and StaticSpawnAreas.",
+                                    type: "int",
+                                },
+                                AABBMinX: {
+                                    title: "Min X",
+                                    markdownDescription: "The minimum X coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMinY: {
+                                    title: "Min Y",
+                                    markdownDescription: "The minimum Y coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMinZ: {
+                                    title: "Min Z",
+                                    markdownDescription: "The minimum Z coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMaxX: {
+                                    title: "Max X",
+                                    markdownDescription: "The maximum X coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMaxY: {
+                                    title: "Max Y",
+                                    markdownDescription: "The maximum Y coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMaxZ: {
+                                    title: "Max Z",
+                                    markdownDescription: "The maximum Z coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                            },
+                        },
+                    },
+                    DynamicSpawnAreas: {
+                        title: "Dynamic Spawn Areas",
+                        markdownDescription: "The list of dynamic spawn areas in the associated chunk.",
+                        type: "list",
+                        items: {
+                            title: "Dynamic Spawn Area",
+                            markdownDescription: "A dynamic spawn area.",
+                            type: "compound",
+                            required: ["BoundingBoxId", "StructureId", "FullBoundingBox"],
+                            properties: {
+                                BoundingBoxId: {
+                                    title: "Bounding Box ID",
+                                    markdownDescription: "The ID of the bounding box (in ChunkBoundingBoxes) corresponding to this dynamic spawn area.",
+                                    type: "int",
+                                },
+                                StructureId: {
+                                    title: "Structure ID",
+                                    markdownDescription: "The ID of the structure type (in StructureTypes) corresponding to this dynamic spawn area.",
+                                    type: "int",
+                                },
+                                FullBoundingBox: {
+                                    title: "Full Bounding Box",
+                                    markdownDescription:
+                                        "Whether the structure bounding box is the full bounding box of the structure in the chunk (as opposed to being a piece of it).",
+                                    type: "int",
+                                    markdownEnumDescriptions: ["false", "true"],
+                                    enum: [
+                                        { type: "int", value: 0 },
+                                        { type: "int", value: 1 },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                    StaticSpawnAreas: {
+                        title: "Static Spawn Areas",
+                        markdownDescription: "The list of static spawn areas in the associated chunk.",
+                        type: "list",
+                        items: {
+                            title: "Static Spawn Area",
+                            markdownDescription: "A static spawn area.",
+                            type: "compound",
+                            required: ["BoundingBoxId", "StructureId", "HeightDifference", "FullBoundingBox"],
+                            properties: {
+                                BoundingBoxId: {
+                                    title: "Bounding Box ID",
+                                    markdownDescription: "The ID of the bounding box (in ChunkBoundingBoxes) corresponding to this dynamic spawn area.",
+                                    type: "int",
+                                },
+                                StructureId: {
+                                    title: "Structure ID",
+                                    markdownDescription: "The ID of the structure type (in StructureTypes) corresponding to this dynamic spawn area.",
+                                    type: "int",
+                                },
+                                HeightDifference: {
+                                    title: "Height Difference",
+                                    markdownDescription: `The bounding box where spawns can occur may be slightly different from the corresponding
+bounding box of the structure; in particular, the static spawn area may have a different
+height. This value is the spawn area's height minus the structure bounding box's height
+(so, if it is negative, the static spawn area is shorter than the full structure).
+
+The value \`-3\` is used to prevent pillagers and witches from spawning on the roof of a
+pillager outpost or witch hut; for most structures, this is \`0\`.`,
+                                    type: "int",
+                                },
+                                FullBoundingBox: {
+                                    title: "Full Bounding Box",
+                                    markdownDescription:
+                                        "Whether the structure bounding box is the full bounding box of the structure in the chunk (as opposed to being a piece of it).",
+                                    type: "int",
+                                    markdownEnumDescriptions: ["false", "true"],
+                                    enum: [
+                                        { type: "int", value: 0 },
+                                        { type: "int", value: 1 },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            BiomeState: {
+                id: "BiomeState",
+                title: "The BiomeState schema.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the BiomeState content type.",
+                type: "compound",
+                oneOf: [
+                    {
+                        title: "Pre-v1.21.4 BiomeState",
+                        markdownDescription: "The BiomeState data before version 1.21.4.",
+                        type: "compound",
+                        required: ["format", "entries"],
+                        properties: {
+                            format: {
+                                title: "Format Version",
+                                markdownDescription: "The format version of the BiomeState data.",
+                                type: "byte",
+                                enum: [{ type: "byte", value: 1 }],
+                                markdownEnumDescriptions: ["Pre-v1.21.4"],
+                            },
+                            entries: {
+                                title: "Structure Types",
+                                markdownDescription: "The list of structure types in the associated chunk.",
+                                type: "list",
+                                items: {
+                                    title: "Structure Type",
+                                    markdownDescription: "A structure type.",
+                                    type: "compound",
+                                    required: ["biome_id", "state"],
+                                    properties: {
+                                        biome_id: {
+                                            title: "Biome ID",
+                                            markdownDescription: "The ID of the biome.",
+                                            type: "byte",
+                                            oneOf: [
+                                                {
+                                                    markdownDescription: "A vanilla biome numeric ID.",
+                                                    type: "byte",
+                                                    markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
+                                                        .sort((a, b) => a[1] - b[1])
+                                                        .map(([biome, id]) => `${biome} (${id})`),
+                                                    enum: Object.values(__biome_data__.int_map)
+                                                        .sort((a, b) => a - b)
+                                                        .map((v): NBT.Byte => ({ type: "byte", value: v })),
+                                                    errorMessage:
+                                                        "Unknown vanilla biome numeric ID. If you meant to enter the ID of a custom biome, it should be at least 10000.",
+                                                },
+                                            ],
+                                        },
+                                        state: {
+                                            title: "State",
+                                            markdownDescription: "The state. This might be the maximum snow level of the biome.",
+                                            type: "byte",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    {
+                        title: "v1.21.4 BiomeState",
+                        markdownDescription: "The BiomeState data for version 1.21.4 and later.",
+                        type: "compound",
+                        required: ["format", "entries"],
+                        properties: {
+                            format: {
+                                title: "Format Version",
+                                markdownDescription: "The format version of the BiomeState data.",
+                                type: "byte",
+                                enum: [{ type: "byte", value: 2 }],
+                                markdownEnumDescriptions: ["v1.21.4"],
+                            },
+                            entries: {
+                                title: "Structure Types",
+                                markdownDescription: "The list of structure types in the associated chunk.",
+                                type: "list",
+                                items: {
+                                    title: "Structure Type",
+                                    markdownDescription: "A structure type.",
+                                    type: "compound",
+                                    required: ["biome_id", "state"],
+                                    properties: {
+                                        biome_id: {
+                                            title: "Biome ID",
+                                            markdownDescription: "The ID of the biome.",
+                                            type: "short",
+                                            oneOf: [
+                                                {
+                                                    markdownDescription: "A vanilla biome numeric ID.",
+                                                    type: "short",
+                                                    markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
+                                                        .sort((a, b) => a[1] - b[1])
+                                                        .map(([biome, id]) => `${biome} (${id})`),
+                                                    enum: Object.values(__biome_data__.int_map)
+                                                        .sort((a, b) => a - b)
+                                                        .map((v): NBT.Short => ({ type: "short", value: v })),
+                                                    errorMessage:
+                                                        "Unknown vanilla biome numeric ID. If you meant to enter the ID of a custom biome, it should be at least 10000.",
+                                                },
+                                                {
+                                                    markdownDescription: "A custom biome numeric ID.",
+                                                    type: "short",
+                                                    minimum: 10000,
+                                                },
+                                            ],
+                                        },
+                                        state: {
+                                            title: "State",
+                                            markdownDescription: "The state. This might be the maximum snow level of the biome.",
+                                            type: "byte",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+            // NOTE: Verified.
+            BorderBlocks: {
+                // Documentation source: https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext?plain=1#L397
+                id: "BorderBlocks",
+                title: "The BorderBlocks schema.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the BorderBlocks content type.",
+                type: "compound",
+                required: ["BorderBlocks"],
+                properties: {
+                    BorderBlocks: {
+                        title: "Border Blocks",
+                        markdownDescription: "The list of boundaries of border blocks in the associated chunk.",
+                        type: "list",
+                        items: {
+                            title: "Border Block",
+                            markdownDescription: "The relative (X, Z) coordinates of the boundary of a border block in the associated chunk.",
+                            type: "compound",
+                            required: ["x", "z"],
+                            properties: {
+                                x: {
+                                    title: "X",
+                                    markdownDescription: "The relative X coordinate of the boundary of this border block in the associated chunk.",
+                                    type: "byte",
+                                    minimum: 0,
+                                    maximum: 15,
+                                    enum: [
+                                        { type: "byte", value: 0x0 },
+                                        { type: "byte", value: 0x1 },
+                                        { type: "byte", value: 0x2 },
+                                        { type: "byte", value: 0x3 },
+                                        { type: "byte", value: 0x4 },
+                                        { type: "byte", value: 0x5 },
+                                        { type: "byte", value: 0x6 },
+                                        { type: "byte", value: 0x7 },
+                                        { type: "byte", value: 0x8 },
+                                        { type: "byte", value: 0x9 },
+                                        { type: "byte", value: 0xa },
+                                        { type: "byte", value: 0xb },
+                                        { type: "byte", value: 0xc },
+                                        { type: "byte", value: 0xd },
+                                        { type: "byte", value: 0xe },
+                                        { type: "byte", value: 0xf },
+                                    ],
+                                },
+                                z: {
+                                    title: "Z",
+                                    markdownDescription: "The relative Z coordinate of the boundary of this border block in the associated chunk.",
+                                    type: "byte",
+                                    minimum: 0,
+                                    maximum: 15,
+                                    enum: [
+                                        { type: "byte", value: 0x0 },
+                                        { type: "byte", value: 0x1 },
+                                        { type: "byte", value: 0x2 },
+                                        { type: "byte", value: 0x3 },
+                                        { type: "byte", value: 0x4 },
+                                        { type: "byte", value: 0x5 },
+                                        { type: "byte", value: 0x6 },
+                                        { type: "byte", value: 0x7 },
+                                        { type: "byte", value: 0x8 },
+                                        { type: "byte", value: 0x9 },
+                                        { type: "byte", value: 0xa },
+                                        { type: "byte", value: 0xb },
+                                        { type: "byte", value: 0xc },
+                                        { type: "byte", value: 0xd },
+                                        { type: "byte", value: 0xe },
+                                        { type: "byte", value: 0xf },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
             Data2DLegacy: {
                 id: "Data2DLegacy",
                 title: "The Data2DLegacy schema.",
@@ -10883,6 +11395,83 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
             },
             // NOTE: Verified.
+            HardcodedSpawners: {
+                id: "HardcodedSpawners",
+                title: "The HardcodedSpawners schema.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the HardcodedSpawners content type.",
+                type: "compound",
+                required: ["HardcodedSpawningAreas"],
+                properties: {
+                    HardcodedSpawningAreas: {
+                        title: "Hardcoded Spawning Areas",
+                        markdownDescription: "The list of hardcoded spawning areas in the associated chunk.",
+                        type: "list",
+                        items: {
+                            title: "Hardcoded Spawning Area",
+                            markdownDescription: "A hardcoded spawning area.",
+                            type: "compound",
+                            required: ["AABBMinX", "AABBMinY", "AABBMinZ", "AABBMaxX", "AABBMaxY", "AABBMaxZ", "Type"],
+                            properties: {
+                                AABBMinX: {
+                                    title: "Min X",
+                                    markdownDescription: "The minimum X coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMinY: {
+                                    title: "Min Y",
+                                    markdownDescription: "The minimum Y coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMinZ: {
+                                    title: "Min Z",
+                                    markdownDescription: "The minimum Z coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMaxX: {
+                                    title: "Max X",
+                                    markdownDescription: "The maximum X coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMaxY: {
+                                    title: "Max Y",
+                                    markdownDescription: "The maximum Y coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                AABBMaxZ: {
+                                    title: "Max Z",
+                                    markdownDescription: "The maximum Z coordinate of the bounds of this hardcoded spawning area.",
+                                    type: "int",
+                                },
+                                Type: {
+                                    title: "Type",
+                                    markdownDescription: "The type of this hardcoded spawning area.",
+                                    type: "byte",
+                                    // Enum source: https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L420
+                                    enum: [
+                                        { type: "byte", value: 0 },
+                                        { type: "byte", value: 1 },
+                                        { type: "byte", value: 2 },
+                                        { type: "byte", value: 3 },
+                                        { type: "byte", value: 4 },
+                                        { type: "byte", value: 5 },
+                                        { type: "byte", value: 6 },
+                                    ],
+                                    markdownEnumDescriptions: [
+                                        "None",
+                                        "Nether Fortress",
+                                        "Witch Hut",
+                                        "Ocean Monument",
+                                        "Deprecated Village",
+                                        "Pillager Outpost",
+                                        "Deprecated New Village",
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
             LegacyTerrain: {
                 id: "LegacyTerrain",
                 title: "The LegacyTerrain schema.",
@@ -10998,6 +11587,7 @@ however when the corresponding block in the block layer is broken, this block ge
                             ],
                         },
                     },
+                    // REVIEW: This may actually just be a height map.
                     dirty_columns: {
                         title: "Dirty Columns",
                         markdownDescription: "256 bytes representing a 16x16 grid of dirty column flags.",
@@ -11018,7 +11608,10 @@ however when the corresponding block in the block layer is broken, this block ge
                         maxItems: 1024,
                         items: {
                             title: "Grass Color Component",
-                            markdownDescription: "A byte representing one of four color components for a column.",
+                            // REVIEW: Maybe this should be changed to be a list of tuples or compounds.
+                            // REVIEW: Figure out if these are BiomeID,R,G,B or R,G,B,A.
+                            markdownDescription:
+                                "A byte representing one of four color components for a column. (NOTE: This may actually be [BiomeID,R,G,B] rather than [R,G,B,A].)",
                             type: "byte",
                         },
                     },
@@ -11026,6 +11619,8 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             // NOTE: Verified.
             LevelChunkMetaDataDictionary: {
+                // TODO: Use the below source to get documentation/descriptions of each field.
+                // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L501
                 id: "LevelChunkMetaDataDictionary",
                 title: "The LevelChunkMetaDataDictionary schema.",
                 markdownDescription:
@@ -11214,6 +11809,15 @@ however when the corresponding block in the block layer is broken, this block ge
                                 value: 0x07,
                             },
                         ],
+                        markdownEnumDescriptions: [
+                            "v0.17.0.1 Format",
+                            "Badly Converted v0.17.0.1 Format 1",
+                            "Badly Converted v0.17.0.1 Format 2",
+                            "Badly Converted v0.17.0.1 Format 3",
+                            "Badly Converted v0.17.0.1 Format 4",
+                            "Badly Converted v0.17.0.1 Format 5",
+                            "Badly Converted v0.17.0.1 Format 6",
+                        ],
                     },
                     block_ids: {
                         title: "Block IDs",
@@ -11343,6 +11947,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 value: 0x01,
                             },
                         ],
+                        markdownEnumDescriptions: ["v1.2.13 Format"],
                     },
                     layerCount: {
                         type: "byte",
@@ -11383,6 +11988,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 value: 0x09,
                             },
                         ],
+                        markdownEnumDescriptions: ["v1.2.14.2 Format", "v1.18.0.20 Format & v1.16.230.50 (+Caves & Cliffs Experimental Toggle) Format"],
                     },
                     layerCount: {
                         type: "byte",
@@ -12107,16 +12713,20 @@ however when the corresponding block in the block layer is broken, this block ge
 
                     let valueSchema: JSONSchemaRef = jsonSchema;
 
+                    let skipExtraPropertyDefs = false;
+
                     if (schema.type) {
                         if (Array.isArray(schema.type)) {
                             jsonSchema.oneOf = schema.type.map((t) => tagTypeToSchema(t, schema, allSchemas, options, isRoot));
                         } else {
+                            skipExtraPropertyDefs = true;
                             /* if (schema.type === "compound" && schema.id && !schema.properties) {
                                 const data: JSONSchema = tagTypeToSchema(schema.type, schema, allSchemas, options);
                                 Object.assign(jsonSchema, { ...data, ...(data.properties!.value as JSONSchema) });
                             } else  */ {
                                 Object.assign(jsonSchema, tagTypeToSchema(schema.type, schema, allSchemas, options, isRoot));
-                                if ((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot) { // REVIEW: I removed an ! before isRoot, make sure this wasn't a mistake.
+                                if ((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot) {
+                                    // REVIEW: I removed an ! before isRoot, make sure this wasn't a mistake.
                                     valueSchema = jsonSchema.properties?.value ?? jsonSchema;
                                 }
                             }
@@ -12148,7 +12758,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         valueSchema.required = schema.required;
                     }
 
-                    if (schema.properties) {
+                    if (schema.properties && !skipExtraPropertyDefs) {
                         valueSchema.type = "object";
                         valueSchema.properties = {};
                         for (const [k, v] of Object.entries(schema.properties)) {
@@ -12156,14 +12766,14 @@ however when the corresponding block in the block layer is broken, this block ge
                         }
                     }
 
-                    if (schema.patternProperties) {
+                    if (schema.patternProperties && !skipExtraPropertyDefs) {
                         valueSchema.patternProperties = {};
                         for (const [k, v] of Object.entries(schema.patternProperties)) {
                             valueSchema.patternProperties[k] = nbtSchemaToJsonSchema(v, allSchemas, options, false);
                         }
                     }
 
-                    if (schema.additionalProperties !== undefined) {
+                    if (schema.additionalProperties !== undefined && !skipExtraPropertyDefs) {
                         if (typeof schema.additionalProperties === "boolean") {
                             valueSchema.additionalProperties = schema.additionalProperties;
                         } else {
@@ -12895,7 +13505,10 @@ however when the corresponding block in the block layer is broken, this block ge
                                         )
                                     :   {},
                                 required: schema.required,
-                                additionalProperties: typeof schema.additionalProperties === "object" ? nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options, false) : true,
+                                additionalProperties:
+                                    typeof schema.additionalProperties === "object" ?
+                                        nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options, false)
+                                    :   true,
                             };
                             if (
                                 (schema.description === undefined && schema.markdownDescription === undefined) ||
@@ -14152,7 +14765,10 @@ however when the corresponding block in the block layer is broken, this block ge
                             const child = refToType(items, indent + "    ", opts, ctx, { isListChild: true });
                             function builtTypeValueToUnionList(value: BuiltType["value"]): string {
                                 return (
-                                    typeof value === "string" ? value
+                                    typeof value === "string" ?
+                                        value.includes(" & ") ?
+                                            `(${value})`
+                                        :   value
                                     : Array.isArray(value) ? "(" + value.map(builtTypeValueToUnionList).join(" | ") + ")"
                                     : builtTypeValueToUnionList(value.value)
                                 );
@@ -18024,7 +18640,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                         type: "list";
                                         value: {
                                             type: "compound";
-                                            value: {
+                                            value: ({
                                                 /**
                                                  * Bounding Box
                                                  *
@@ -18127,7 +18743,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                                        */
                                                       sc: { type: "byte"; value: 0 | 1 };
                                                   }
-                                            )[];
+                                            ))[];
                                         };
                                     };
                                     /**
@@ -18284,7 +18900,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                         type: "list";
                                         value: {
                                             type: "compound";
-                                            value: {
+                                            value: ({
                                                 /**
                                                  * Bounding Box
                                                  *
@@ -18453,7 +19069,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                                        */
                                                       hasPlacedTrap1: { type: "byte"; value: 0 | 1 };
                                                   }
-                                            )[];
+                                            ))[];
                                         };
                                     };
                                     /**
@@ -25192,6 +25808,561 @@ however when the corresponding block in the block layer is broken, this block ge
         };
 
         /**
+         * The AABBVolumes schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the AABBVolumes content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.AABBVolumes}
+         */
+        export type AABBVolumes = {
+            type: "compound";
+            value: {
+                /**
+                 * Format Version
+                 *
+                 * The format version of the AABBVolumes data.
+                 *
+                 * @enum 1
+                 */
+                version: { type: "int"; value: 1 };
+                /**
+                 * Structure Types
+                 *
+                 * The list of structure types in the associated chunk.
+                 */
+                StructureTypes: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * ID
+                             *
+                             * The ID of the structure type. This is used to reference this structure type in DynamicSpawnAreas and StaticSpawnAreas.
+                             */
+                            Id: { type: "int"; value: number };
+                            /**
+                             * @enum "minecraft:ancient_city" | "minecraft:bastion_remnant" | "minecraft:buried_treasure" | "minecraft:end_city" | "minecraft:mineshaft" | "minecraft:fortress" | "minecraft:monument" | "minecraft:ocean_ruin" | "minecraft:pillager_outpost" | "minecraft:jungle_pyramid" | "minecraft:swamp_hut" | "minecraft:desert_pyramid" | "minecraft:igloo" | "minecraft:ruined_portal" | "minecraft:shipwreck" | "minecraft:stronghold" | "minecraft:village" | "minecraft:mansion" | "minecraft:trail_ruins" | "minecraft:trial_chambers"
+                             *
+                             * @enumDescriptions
+                             * - `minecraft:ancient_city`: Ancient City
+                             * - `minecraft:bastion_remnant`: Bastion Remnant
+                             * - `minecraft:buried_treasure`: Buried Treasure
+                             * - `minecraft:end_city`: End City
+                             * - `minecraft:mineshaft`: Mineshaft
+                             * - `minecraft:fortress`: Nether Fortress
+                             * - `minecraft:monument`: Ocean Monument
+                             * - `minecraft:ocean_ruin`: Ocean Ruin
+                             * - `minecraft:pillager_outpost`: Pillager Outpost
+                             * - `minecraft:jungle_pyramid`: Jungle Pyramid
+                             * - `minecraft:swamp_hut`: Swamp Hut
+                             * - `minecraft:desert_pyramid`: Desert Pyramid
+                             * - `minecraft:igloo`: Igloo
+                             * - `minecraft:ruined_portal`: Ruined Portal
+                             * - `minecraft:shipwreck`: Shipwreck
+                             * - `minecraft:stronghold`: Stronghold
+                             * - `minecraft:village`: Village
+                             * - `minecraft:mansion`: Woodland Mansion
+                             * - `minecraft:trail_ruins`: Trail Ruins
+                             * - `minecraft:trial_chambers`: Trial Chambers
+                             */
+                            Type: {
+                                type: "string";
+                                value:
+                                    | "minecraft:ancient_city"
+                                    | "minecraft:bastion_remnant"
+                                    | "minecraft:buried_treasure"
+                                    | "minecraft:end_city"
+                                    | "minecraft:mineshaft"
+                                    | "minecraft:fortress"
+                                    | "minecraft:monument"
+                                    | "minecraft:ocean_ruin"
+                                    | "minecraft:pillager_outpost"
+                                    | "minecraft:jungle_pyramid"
+                                    | "minecraft:swamp_hut"
+                                    | "minecraft:desert_pyramid"
+                                    | "minecraft:igloo"
+                                    | "minecraft:ruined_portal"
+                                    | "minecraft:shipwreck"
+                                    | "minecraft:stronghold"
+                                    | "minecraft:village"
+                                    | "minecraft:mansion"
+                                    | "minecraft:trail_ruins"
+                                    | "minecraft:trial_chambers";
+                            };
+                        }[];
+                    };
+                };
+                /**
+                 * Chunk Bounding Boxes
+                 *
+                 * The list of bounding boxes of the structures in the associated chunk.
+                 */
+                ChunkBoundingBoxes: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * ID
+                             *
+                             * The ID of the bounding box. This is used to reference this bounding box in DynamicSpawnAreas and StaticSpawnAreas.
+                             */
+                            Id: { type: "int"; value: number };
+                            /**
+                             * Min X
+                             *
+                             * The minimum X coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMinX: { type: "int"; value: number };
+                            /**
+                             * Min Y
+                             *
+                             * The minimum Y coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMinY: { type: "int"; value: number };
+                            /**
+                             * Min Z
+                             *
+                             * The minimum Z coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMinZ: { type: "int"; value: number };
+                            /**
+                             * Max X
+                             *
+                             * The maximum X coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMaxX: { type: "int"; value: number };
+                            /**
+                             * Max Y
+                             *
+                             * The maximum Y coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMaxY: { type: "int"; value: number };
+                            /**
+                             * Max Z
+                             *
+                             * The maximum Z coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMaxZ: { type: "int"; value: number };
+                        }[];
+                    };
+                };
+                /**
+                 * Dynamic Spawn Areas
+                 *
+                 * The list of dynamic spawn areas in the associated chunk.
+                 */
+                DynamicSpawnAreas: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Bounding Box ID
+                             *
+                             * The ID of the bounding box (in ChunkBoundingBoxes) corresponding to this dynamic spawn area.
+                             */
+                            BoundingBoxId: { type: "int"; value: number };
+                            /**
+                             * Structure ID
+                             *
+                             * The ID of the structure type (in StructureTypes) corresponding to this dynamic spawn area.
+                             */
+                            StructureId: { type: "int"; value: number };
+                            /**
+                             * Full Bounding Box
+                             *
+                             * Whether the structure bounding box is the full bounding box of the structure in the chunk (as opposed to being a piece of it).
+                             *
+                             * @enum 0 | 1
+                             *
+                             * @enumDescriptions
+                             * - `0`: false
+                             * - `1`: true
+                             */
+                            FullBoundingBox: { type: "int"; value: 0 | 1 };
+                        }[];
+                    };
+                };
+                /**
+                 * Static Spawn Areas
+                 *
+                 * The list of static spawn areas in the associated chunk.
+                 */
+                StaticSpawnAreas: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Bounding Box ID
+                             *
+                             * The ID of the bounding box (in ChunkBoundingBoxes) corresponding to this dynamic spawn area.
+                             */
+                            BoundingBoxId: { type: "int"; value: number };
+                            /**
+                             * Structure ID
+                             *
+                             * The ID of the structure type (in StructureTypes) corresponding to this dynamic spawn area.
+                             */
+                            StructureId: { type: "int"; value: number };
+                            /**
+                             * Height Difference
+                             *
+                             * The bounding box where spawns can occur may be slightly different from the corresponding
+                             * bounding box of the structure; in particular, the static spawn area may have a different
+                             * height. This value is the spawn area's height minus the structure bounding box's height
+                             * (so, if it is negative, the static spawn area is shorter than the full structure).
+                             *
+                             * The value `-3` is used to prevent pillagers and witches from spawning on the roof of a
+                             * pillager outpost or witch hut; for most structures, this is `0`.
+                             */
+                            HeightDifference: { type: "int"; value: number };
+                            /**
+                             * Full Bounding Box
+                             *
+                             * Whether the structure bounding box is the full bounding box of the structure in the chunk (as opposed to being a piece of it).
+                             *
+                             * @enum 0 | 1
+                             *
+                             * @enumDescriptions
+                             * - `0`: false
+                             * - `1`: true
+                             */
+                            FullBoundingBox: { type: "int"; value: 0 | 1 };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The BiomeState schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the BiomeState content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.BiomeState}
+         */
+        export type BiomeState = { type: "compound"; value: object } & (
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Format Version
+                       *
+                       * The format version of the BiomeState data.
+                       *
+                       * @enum 1
+                       *
+                       * @enumDescriptions
+                       * - `1`: Pre-v1.21.4
+                       */
+                      format: { type: "byte"; value: 1 };
+                      /**
+                       * Structure Types
+                       *
+                       * The list of structure types in the associated chunk.
+                       */
+                      entries: {
+                          type: "list";
+                          value: {
+                              type: "compound";
+                              value: {
+                                  /**
+                                   * Biome ID
+                                   *
+                                   * The ID of the biome.
+                                   */
+                                  biome_id: { type: "byte"; value: number } & {
+                                      type: "byte";
+                                      value:
+                                          | 0
+                                          | 1
+                                          | 2
+                                          | 3
+                                          | 4
+                                          | 5
+                                          | 6
+                                          | 7
+                                          | 8
+                                          | 9
+                                          | 10
+                                          | 11
+                                          | 12
+                                          | 13
+                                          | 14
+                                          | 15
+                                          | 16
+                                          | 17
+                                          | 18
+                                          | 19
+                                          | 20
+                                          | 21
+                                          | 22
+                                          | 23
+                                          | 24
+                                          | 25
+                                          | 26
+                                          | 27
+                                          | 28
+                                          | 29
+                                          | 30
+                                          | 31
+                                          | 32
+                                          | 33
+                                          | 34
+                                          | 35
+                                          | 36
+                                          | 37
+                                          | 38
+                                          | 39
+                                          | 40
+                                          | 41
+                                          | 42
+                                          | 43
+                                          | 44
+                                          | 45
+                                          | 46
+                                          | 47
+                                          | 48
+                                          | 49
+                                          | 129
+                                          | 130
+                                          | 131
+                                          | 132
+                                          | 133
+                                          | 134
+                                          | 140
+                                          | 149
+                                          | 151
+                                          | 155
+                                          | 156
+                                          | 157
+                                          | 158
+                                          | 160
+                                          | 161
+                                          | 162
+                                          | 163
+                                          | 164
+                                          | 165
+                                          | 166
+                                          | 167
+                                          | 178
+                                          | 179
+                                          | 180
+                                          | 181
+                                          | 182
+                                          | 183
+                                          | 184
+                                          | 185
+                                          | 186
+                                          | 187
+                                          | 188
+                                          | 189
+                                          | 190
+                                          | 191
+                                          | 192
+                                          | 193;
+                                  };
+                                  /**
+                                   * State
+                                   *
+                                   * The state. This might be the maximum snow level of the biome.
+                                   */
+                                  state: { type: "byte"; value: number };
+                              }[];
+                          };
+                      };
+                  };
+              }
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Format Version
+                       *
+                       * The format version of the BiomeState data.
+                       *
+                       * @enum 2
+                       *
+                       * @enumDescriptions
+                       * - `2`: v1.21.4
+                       */
+                      format: { type: "byte"; value: 2 };
+                      /**
+                       * Structure Types
+                       *
+                       * The list of structure types in the associated chunk.
+                       */
+                      entries: {
+                          type: "list";
+                          value: {
+                              type: "compound";
+                              value: {
+                                  /**
+                                   * Biome ID
+                                   *
+                                   * The ID of the biome.
+                                   */
+                                  biome_id: { type: "short"; value: number } & (
+                                      | {
+                                            type: "short";
+                                            value:
+                                                | 0
+                                                | 1
+                                                | 2
+                                                | 3
+                                                | 4
+                                                | 5
+                                                | 6
+                                                | 7
+                                                | 8
+                                                | 9
+                                                | 10
+                                                | 11
+                                                | 12
+                                                | 13
+                                                | 14
+                                                | 15
+                                                | 16
+                                                | 17
+                                                | 18
+                                                | 19
+                                                | 20
+                                                | 21
+                                                | 22
+                                                | 23
+                                                | 24
+                                                | 25
+                                                | 26
+                                                | 27
+                                                | 28
+                                                | 29
+                                                | 30
+                                                | 31
+                                                | 32
+                                                | 33
+                                                | 34
+                                                | 35
+                                                | 36
+                                                | 37
+                                                | 38
+                                                | 39
+                                                | 40
+                                                | 41
+                                                | 42
+                                                | 43
+                                                | 44
+                                                | 45
+                                                | 46
+                                                | 47
+                                                | 48
+                                                | 49
+                                                | 129
+                                                | 130
+                                                | 131
+                                                | 132
+                                                | 133
+                                                | 134
+                                                | 140
+                                                | 149
+                                                | 151
+                                                | 155
+                                                | 156
+                                                | 157
+                                                | 158
+                                                | 160
+                                                | 161
+                                                | 162
+                                                | 163
+                                                | 164
+                                                | 165
+                                                | 166
+                                                | 167
+                                                | 178
+                                                | 179
+                                                | 180
+                                                | 181
+                                                | 182
+                                                | 183
+                                                | 184
+                                                | 185
+                                                | 186
+                                                | 187
+                                                | 188
+                                                | 189
+                                                | 190
+                                                | 191
+                                                | 192
+                                                | 193;
+                                        }
+                                      | { type: "short"; value: number }
+                                  );
+                                  /**
+                                   * State
+                                   *
+                                   * The state. This might be the maximum snow level of the biome.
+                                   */
+                                  state: { type: "byte"; value: number };
+                              }[];
+                          };
+                      };
+                  };
+              }
+        );
+
+        /**
+         * The BorderBlocks schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the BorderBlocks content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.BorderBlocks}
+         */
+        export type BorderBlocks = {
+            type: "compound";
+            value: {
+                /**
+                 * Border Blocks
+                 *
+                 * The list of boundaries of border blocks in the associated chunk.
+                 */
+                BorderBlocks: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * X
+                             *
+                             * The relative X coordinate of the boundary of this border block in the associated chunk.
+                             *
+                             * @minimum 0
+                             *
+                             * @maximum 15
+                             *
+                             * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                             */
+                            x: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 };
+                            /**
+                             * Z
+                             *
+                             * The relative Z coordinate of the boundary of this border block in the associated chunk.
+                             *
+                             * @minimum 0
+                             *
+                             * @maximum 15
+                             *
+                             * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                             */
+                            z: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
          * The Data2DLegacy schema.
          *
          * The NBT structure of the parsed data of the Data2DLegacy content type.
@@ -25312,11 +26483,109 @@ however when the corresponding block in the block layer is broken, this block ge
                              *
                              * This is an array of the biome numeric IDs.
                              *
+                             * The IDs should either be valid vanilla biome IDs or be at least 10000 if it is a custom biome ID.
+                             *
                              * @minItems 4096
                              *
                              * @maxItems 4096
                              */
-                            palette: { type: "list"; value: { type: "int"; value: number[] } };
+                            palette: {
+                                type: "list";
+                                value: {
+                                    type: "int";
+                                    value: (number &
+                                        (
+                                            | 0
+                                            | 1
+                                            | 2
+                                            | 3
+                                            | 4
+                                            | 5
+                                            | 6
+                                            | 7
+                                            | 8
+                                            | 9
+                                            | 10
+                                            | 11
+                                            | 12
+                                            | 13
+                                            | 14
+                                            | 15
+                                            | 16
+                                            | 17
+                                            | 18
+                                            | 19
+                                            | 20
+                                            | 21
+                                            | 22
+                                            | 23
+                                            | 24
+                                            | 25
+                                            | 26
+                                            | 27
+                                            | 28
+                                            | 29
+                                            | 30
+                                            | 31
+                                            | 32
+                                            | 33
+                                            | 34
+                                            | 35
+                                            | 36
+                                            | 37
+                                            | 38
+                                            | 39
+                                            | 40
+                                            | 41
+                                            | 42
+                                            | 43
+                                            | 44
+                                            | 45
+                                            | 46
+                                            | 47
+                                            | 48
+                                            | 49
+                                            | 129
+                                            | 130
+                                            | 131
+                                            | 132
+                                            | 133
+                                            | 134
+                                            | 140
+                                            | 149
+                                            | 151
+                                            | 155
+                                            | 156
+                                            | 157
+                                            | 158
+                                            | 160
+                                            | 161
+                                            | 162
+                                            | 163
+                                            | 164
+                                            | 165
+                                            | 166
+                                            | 167
+                                            | 178
+                                            | 179
+                                            | 180
+                                            | 181
+                                            | 182
+                                            | 183
+                                            | 184
+                                            | 185
+                                            | 186
+                                            | 187
+                                            | 188
+                                            | 189
+                                            | 190
+                                            | 191
+                                            | 192
+                                            | 193
+                                            | number
+                                        ))[];
+                                };
+                            };
                         }[];
                     };
                 };
@@ -25342,6 +26611,85 @@ however when the corresponding block in the block layer is broken, this block ge
                  * The UUIDs of all of the entities in the associated chunk.
                  */
                 entityIds: { type: "list"; value: { type: "long"; value: [high: number, low: number][] } };
+            };
+        };
+
+        /**
+         * The HardcodedSpawners schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the HardcodedSpawners content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.HardcodedSpawners}
+         */
+        export type HardcodedSpawners = {
+            type: "compound";
+            value: {
+                /**
+                 * Hardcoded Spawning Areas
+                 *
+                 * The list of hardcoded spawning areas in the associated chunk.
+                 */
+                HardcodedSpawningAreas: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Min X
+                             *
+                             * The minimum X coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMinX: { type: "int"; value: number };
+                            /**
+                             * Min Y
+                             *
+                             * The minimum Y coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMinY: { type: "int"; value: number };
+                            /**
+                             * Min Z
+                             *
+                             * The minimum Z coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMinZ: { type: "int"; value: number };
+                            /**
+                             * Max X
+                             *
+                             * The maximum X coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMaxX: { type: "int"; value: number };
+                            /**
+                             * Max Y
+                             *
+                             * The maximum Y coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMaxY: { type: "int"; value: number };
+                            /**
+                             * Max Z
+                             *
+                             * The maximum Z coordinate of the bounds of this hardcoded spawning area.
+                             */
+                            AABBMaxZ: { type: "int"; value: number };
+                            /**
+                             * Type
+                             *
+                             * The type of this hardcoded spawning area.
+                             *
+                             * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6
+                             *
+                             * @enumDescriptions
+                             * - `0`: None
+                             * - `1`: Nether Fortress
+                             * - `2`: Witch Hut
+                             * - `3`: Ocean Monument
+                             * - `4`: Deprecated Village
+                             * - `5`: Pillager Outpost
+                             * - `6`: Deprecated New Village
+                             */
+                            Type: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 };
+                        }[];
+                    };
+                };
             };
         };
 
@@ -25592,6 +26940,15 @@ however when the corresponding block in the block layer is broken, this block ge
             value: {
                 /**
                  * @enum 0 | 2 | 3 | 4 | 5 | 6 | 7
+                 *
+                 * @enumDescriptions
+                 * - `0`: v0.17.0.1 Format
+                 * - `2`: Badly Converted v0.17.0.1 Format 1
+                 * - `3`: Badly Converted v0.17.0.1 Format 2
+                 * - `4`: Badly Converted v0.17.0.1 Format 3
+                 * - `5`: Badly Converted v0.17.0.1 Format 4
+                 * - `6`: Badly Converted v0.17.0.1 Format 5
+                 * - `7`: Badly Converted v0.17.0.1 Format 6
                  */
                 version: { type: "byte"; value: 0 | 2 | 3 | 4 | 5 | 6 | 7 };
                 /**
@@ -25649,6 +27006,9 @@ however when the corresponding block in the block layer is broken, this block ge
             value: {
                 /**
                  * @enum 1
+                 *
+                 * @enumDescriptions
+                 * - `1`: v1.2.13 Format
                  */
                 version: { type: "byte"; value: 1 };
                 /**
@@ -25671,6 +27031,10 @@ however when the corresponding block in the block layer is broken, this block ge
             value: {
                 /**
                  * @enum 8 | 9
+                 *
+                 * @enumDescriptions
+                 * - `8`: v1.2.14.2 Format
+                 * - `9`: v1.18.0.20 Format & v1.16.230.50 (+Caves & Cliffs Experimental Toggle) Format
                  */
                 version: { type: "byte"; value: 8 | 9 };
                 layerCount: { type: "byte"; value: number };
