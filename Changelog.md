@@ -1,3 +1,21 @@
+# v1.17.0
+
+## Additions
+
+-   Added support for the "Bedrock World Editor - Player Name Saver" behavior pack for getting player's names from their UUIDs from the dynamic properties.
+
+## Changes
+
+-   The `playerUUIDToNameDynamicPropertyParsers` constant is now exported.
+
+## Fixes
+
+-   Fixed a bug where the TypeScript type version of the `LevelDat` NBT schema was missing many of the properties added in v1.16.0.
+-   Fixed a bug where the following fields of the `PlayerClient` NBT schema were marked as optional:
+    -   `MsaId`
+    -   `SelfSignedId`
+    -   `ServerId`
+
 # v1.16.0
 
 ## Additions

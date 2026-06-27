@@ -217,7 +217,22 @@ interface PlayerUUIDToNameDynamicPropertyParser {
  *
  * These will be called in order until one of them returns a non-null value.
  */
-const playerUUIDToNameDynamicPropertyParsers: PlayerUUIDToNameDynamicPropertyParser[] = [
+export const playerUUIDToNameDynamicPropertyParsers: PlayerUUIDToNameDynamicPropertyParser[] = [
+    function parseBWEPlayerNameSaver(dynamicProperties: NBT.NBT, uuid: string): string | null {
+        const addOnUUIDs: string[] = ["9736e748-93a5-4306-ba68-ac6af30c44b2"];
+        for (const addOnUUID of addOnUUIDs) {
+            const addonDynamicProperties: NBT.Compound["value"] | null =
+                dynamicProperties.value[addOnUUID]?.type === "compound" ? dynamicProperties.value[addOnUUID].value : null;
+            if (!addonDynamicProperties) continue;
+            for (const key in addonDynamicProperties) {
+                if (key !== `playerName:${uuid}`) continue;
+                const dynamicPropertyValue: NBT.Byte | NBT.Double | NBT.String | NBT.List<NBT.TagType.Float> = addonDynamicProperties[key]! as any;
+                if (dynamicPropertyValue.type !== "string") continue;
+                return dynamicPropertyValue.value;
+            }
+        }
+        return null;
+    },
     function parse8CraftersServerUtilities(dynamicProperties: NBT.NBT, uuid: string): string | null {
         const addOnUUIDs: string[] = [
             // Internal development version

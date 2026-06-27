@@ -179,10 +179,29 @@ export type Join<T extends string[], J extends string = ""> =
  *
  * @example
  * ```ts
- * type Original = CutFirstChars<"abcdef", 2>; // "cdef"
+ * type Original = CutFirstChars<"abcdef", 2>; // "abcd"
  * ```
  */
 export type CutFirstChars<S extends string, N extends number, SArray = TakeFirstNElements<Split<S>, N>> = Join<SArray extends string[] ? SArray : never>;
+
+/**
+ * Slices a string.
+ *
+ * @template S The string to slice.
+ * @template N The start index.
+ *
+ * @example
+ * ```ts
+ * type Original = SliceString<"abcdef", 2>; // "cdef"
+ * ```
+ *
+ * @see https://stackoverflow.com/a/79693198/16872762
+ * @author Eric B <https://stackoverflow.com/users/8594404/eric-b>
+ */
+export type SliceString<Input extends string, Start extends number, Counter extends any[] = []> =
+    Counter["length"] extends Start ? Input
+    : Input extends `${infer _}${infer Rest}` ? SliceString<Rest, Start, [...Counter, any]>
+    : never;
 
 /**
  * Mutates the type by removing the optional modifier (`?`) from all properties.

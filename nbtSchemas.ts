@@ -4314,6 +4314,7 @@ export namespace NBTSchemas {
                 title: "The PlayerClient schema.",
                 markdownDescription: "The player client data.",
                 type: "compound",
+                required: ["MsaId", "SelfSignedId", "ServerId"],
                 properties: {
                     MsaId: {
                         type: "string",
@@ -16982,6 +16983,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     };
                 };
                 /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                allowAnonymousBlockDropsInEditorWorlds?: { type: "byte"; value: 0 | 1 };
+                /**
                  * The `allowdestructiveobjects` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
@@ -17302,6 +17313,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * - `0`: false
                  * - `1`: true
                  */
+                cheatsEnabled?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
                 codebuilder?: { type: "byte"; value: 0 | 1 };
                 /**
                  * The `commandblockoutput` [game rule](https://minecraft.wiki/w/game_rule).
@@ -17381,6 +17402,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Dimension?: { type: "int"; value: 0 | 1 | 2 };
                 /**
+                 * UNDOCUMENTED.
+                 */
+                daylightCycle?: { type: "int"; value: number };
+                /**
                  * The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
@@ -17391,7 +17416,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 dodaylightcycle?: { type: "byte"; value: 0 | 1 };
                 /**
-                 * The `doentitiydrops` [game rule](https://minecraft.wiki/w/game_rule).
+                 * The `doentitydrops` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @enum 0 | 1
                  *
@@ -17399,7 +17424,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * - `0`: false
                  * - `1`: true
                  */
-                doentitiydrops?: { type: "byte"; value: 0 | 1 };
+                doentitydrops?: { type: "byte"; value: 0 | 1 };
                 /**
                  * The `dofiretick` [game rule](https://minecraft.wiki/w/game_rule).
                  *
@@ -17600,6 +17625,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          */
                         data_driven_biomes?: { type: "byte"; value: 0 | 1 };
                         /**
+                         * 1 or 0 (true/false) - UNDOCUMENTED.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        data_driven_items?: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * 1 or 0 (true/false) - UNDOCUMENTED.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        data_driven_vanilla_blocks_and_items?: { type: "byte"; value: 0 | 1 };
+                        /**
                          * 1 or 0 (true/false) - true if the experimental creator cameras experimental toggle is enabled.
                          *
                          * @enum 0 | 1
@@ -17609,6 +17654,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `1`: true
                          */
                         experimental_creator_cameras?: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * 1 or 0 (true/false) - UNDOCUMENTED.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        experimental_molang_features?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the jigsaw structures experimental toggle is enabled.
                          *
@@ -17630,6 +17685,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          */
                         locator_bar?: { type: "byte"; value: 0 | 1 };
                         /**
+                         * 1 or 0 (true/false) - UNDOCUMENTED.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        next_major_update?: { type: "byte"; value: 0 | 1 };
+                        /**
                          * 1 or 0 (true/false) - true if the upcoming creator features experimental toggle is enabled.
                          *
                          * @enum 0 | 1
@@ -17639,6 +17704,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `1`: true
                          */
                         upcoming_creator_features?: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * 1 or 0 (true/false) - UNDOCUMENTED.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        vanilla_experiments?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the y_2025_drop_1 experimental toggle is enabled.
                          *
@@ -18057,6 +18132,34 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 PlatformBroadcastIntent?: { type: "int"; value: number };
                 /**
+                 * Whether a player has died in this world (may refer to the host specifically or may refer to any player).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                PlayerHasDied?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                permissionsLevel?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                playerPermissionsLevel?: { type: "int"; value: number };
+                /**
+                 * The `playerssleepingpercentage` [game rule](https://minecraft.wiki/w/game_rule).
+                 *
+                 * @default 100
+                 */
+                playerssleepingpercentage?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                playerwaypoints?: { type: "int"; value: number };
+                /**
                  * The UUID of the premium world template this world was created with. Used for [Marketplace worlds](https://minecraft.wiki/w/Marketplace#Worlds). *info needed*
                  *
                  * @default
@@ -18147,6 +18250,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * @default 4
                  */
                 serverChunkTickRange?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                serverEditorConnectionPolicy?: { type: "int"; value: number };
                 /**
                  * The `showbordereffect` [game rule](https://minecraft.wiki/w/game_rule).
                  *
@@ -18282,6 +18389,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * [high: 0, low: 0]
                  */
                 Time?: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * UNDOCMENTED.
+                 *
+                 * @default 1
+                 */
+                WorldVersion?: { type: "int"; value: number };
                 /**
                  * The `tntexplodes` [game rule](https://minecraft.wiki/w/game_rule).
                  *
@@ -20017,9 +20130,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         export type PlayerClient = {
             type: "compound";
             value: {
-                MsaId?: { type: "string"; value: string };
-                SelfSignedId?: { type: "string"; value: string };
-                ServerId?: { type: "string"; value: string };
+                MsaId: { type: "string"; value: string };
+                SelfSignedId: { type: "string"; value: string };
+                ServerId: { type: "string"; value: string };
             };
         };
 
@@ -27082,9 +27195,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         export type Players = {
             type: "compound";
             value: {
-                MsaId?: { type: "string"; value: string };
-                SelfSignedId?: { type: "string"; value: string };
-                ServerId?: { type: "string"; value: string };
+                MsaId: { type: "string"; value: string };
+                SelfSignedId: { type: "string"; value: string };
+                ServerId: { type: "string"; value: string };
             };
         };
 
