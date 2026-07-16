@@ -5,7 +5,10 @@ import path from "node:path";
 // console.log(JSON.stringify(convertAllSchemas(nbtSchemas)));
 writeFileSync(
     path.join(import.meta.dirname, "./nbtJSONSchemas.json"),
-    JSON.stringify(NBTSchemas.Utils.Conversion.ToJSONSchema.convertAllSchemas(NBTSchemas.nbtSchemas), null, 4).replaceAll(/(?<!\r)\n/g, "\r\n")
+    JSON.stringify(NBTSchemas.Utils.Conversion.ToJSONSchema.convertAllSchemas(NBTSchemas.nbtSchemas /* , { inlineRefs: false } */), null, 4).replaceAll(
+        /(?<!\r)\n/g,
+        "\r\n"
+    )
 );
 // writeFileSync(
 //     path.join(import.meta.dirname, "./nbtSchemaTypeScriptInterfaces.d.ts"),
@@ -23,7 +26,7 @@ writeFileSync(
 
 writeFileSync(
     path.join(import.meta.dirname, "./nbtSchemaTypeScriptInterfaces.d.ts"),
-    Object.entries(NBTSchemas.nbtSchemas)
+    `import type { ExclusifyUnion } from "type-fest";\n\n${Object.entries(NBTSchemas.nbtSchemas)
         .map(([name, schema]) =>
             NBTSchemas.Utils.Conversion.ToTypeScriptType.nbtSchemaToTypeScriptType(schema, name, {
                 schemaIDToSymbolNameResolver(schemaID: string): string {
@@ -32,5 +35,5 @@ writeFileSync(
                 originalSymbolReference: `NBTSchemas.nbtSchemas.${name}`, // This makes the generated types have a clickable link to go to the original NBT schema.
             })
         )
-        .join("\n\n").replaceAll(/(?<!\r)\n/g, "\r\n")
+        .join("\n\n")}`.replaceAll(/(?<!\r)\n/g, "\r\n")
 );

@@ -3,6 +3,7 @@ import * as NBT from "prismarine-nbt";
 import { toLongParts } from "./SNBTUtils.ts";
 import type { Full, LooseAutocomplete } from "./types.js";
 import __biome_data__ from "./__biome_data__.ts";
+import type { ExclusifyUnion } from "type-fest";
 
 /**
  * Types, constants, and functions related to NBT schemas.
@@ -7354,6 +7355,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                     type: "byte",
                                 },
                             },
+                            allOf: [{ $ref: "Item_ItemStack" }],
                         },
                     },
                     fogCommandStack: {
@@ -7386,6 +7388,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                     type: "byte",
                                 },
                             },
+                            allOf: [{ $ref: "Item_ItemStack" }],
                         },
                     },
                     LeftShoulderRiderID: {
@@ -8247,6 +8250,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                     type: "byte",
                                 },
                             },
+                            allOf: [{ $ref: "Item_ItemStack" }],
                         },
                     },
                 },
@@ -9670,8 +9674,8 @@ however when the corresponding block in the block layer is broken, this block ge
             },
             //#endregion
             //#region Item NBT Schemas
-            Item_ItemStack: {
-                id: "Item_ItemStack",
+            Item_ItemStackBase: {
+                id: "Item_ItemStackBase",
                 markdownDescription: "All items share this base.",
                 type: "compound",
                 required: ["Count", "Damage", "Name", "WasPickedUp"],
@@ -9719,6 +9723,228 @@ however when the corresponding block in the block layer is broken, this block ge
                     },
                 },
                 $fragment: true,
+            },
+            Item_ItemStack: {
+                id: "Item_ItemStack",
+                markdownDescription: "All items share this base.",
+                type: "compound",
+                anyOf: [
+                    { $ref: "Item_GeneralTags" },
+                    { $ref: "Item_EnchantmentTags" },
+                    // { $ref: "Item_ArmorTrim" },
+                    // { $ref: "Item_BookAndQuills" },
+                    // { $ref: "Item_BucketOfAquaticMob" },
+                    // { $ref: "Item_Crossbow" },
+                    // { $ref: "Item_FilledMap" },
+                    // { $ref: "Item_FireworkRocket" },
+                    // { $ref: "Item_FireworkStar" },
+                    // { $ref: "Item_GlowStick" },
+                    // { $ref: "Item_HorseArmor" },
+                    // { $ref: "Item_LodestoneCompass" },
+                    // { $ref: "Item_Potion" },
+                    // { $ref: "Item_Shield" },
+                    // { $ref: "Item_WrittenBook" },
+                ],
+                allOf: [{ $ref: "Item_ItemStackBase" }],
+                $fragment: true,
+            },
+            Item_GeneralTags: {
+                id: "Item_GeneralTags",
+                type: "compound",
+                properties: {
+                    tag: {
+                        type: "compound",
+                        properties: {
+                            Damage: {
+                                markdownDescription: "(May not exist) The damage value for this item. Defaults to 0.",
+                                type: "int",
+                                default: { type: "int", value: 0 },
+                            },
+                            display: {
+                                description: "(May not exist) Display properties.",
+                                type: "compound",
+                                properties: {
+                                    Lore: {
+                                        description: "(May not exist) List of strings to display as lore for the item.",
+                                        type: "list",
+                                        items: {
+                                            markdownDescription: "(May not exist) A line of text for the lore of an item.",
+                                            type: "string",
+                                        },
+                                    },
+                                    Name: {
+                                        markdownDescription: "(May not exist) The JSON text component to use to display the item name.",
+                                        type: "string",
+                                    },
+                                },
+                            },
+                            "minecraft:item_lock": {
+                                markdownDescription: '1 for "lock in slot". 2 for "lock in inventory".',
+                                type: "byte",
+                                default: { type: "byte", value: 0 },
+                                markdownEnumDescriptions: ["none", "lock in slot", "lock in inventory"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                    { type: "byte", value: 2 },
+                                ],
+                            },
+                            "minecraft:keep_on_death": {
+                                markdownDescription: "1 if keeping on death.*needs testing*",
+                                type: "byte",
+                                default: { type: "byte", value: 0 },
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+                            RepairCost: {
+                                markdownDescription:
+                                    "(May not exist) Number of experience levels to add to the base level cost when repairing, combining, or renaming this item with an [Anvil](https://minecraft.wiki/w/Anvil).",
+                                type: "int",
+                                default: { type: "int", value: 0 },
+                            },
+                            Unbreakable: {
+                                markdownDescription: "1 or 0 (true/false) - (may not exist) if this item's durability is allowed to take damage.",
+                                type: "byte",
+                                default: { type: "byte", value: 0 },
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+                        },
+                    },
+                },
+                $fragment: true,
+                markdownDescription:
+                    "Items with durability store their damage value in NBT. Additionally, items can have custom display names and lore. There is also the **RepairCost** tag which tracks anvil usage for items, making them more costly with every use of the anvil.",
+            },
+            Item_EnchantmentTags: {
+                id: "Item_EnchantmentTags",
+                type: "compound",
+                properties: {
+                    tag: {
+                        type: "compound",
+                        required: ["ench"],
+                        properties: {
+                            ench: {
+                                description: "Contains enchantments on this item.",
+                                type: "list",
+                                items: {
+                                    description: "A single enchantment.",
+                                    type: "compound",
+                                    required: ["id", "lvl"],
+                                    properties: {
+                                        id: {
+                                            markdownDescription:
+                                                "The ID of the enchantment. See [Bedrock Edition data values#Enchantment IDs](https://minecraft.wiki/w/Bedrock_Edition_data_values#Enchantment_IDs).",
+                                            type: "short",
+                                            markdownEnumDescriptions: [
+                                                "Protection (protection)",
+                                                "Fire Protection (fire_protection)",
+                                                "Feather Falling (feather_falling)",
+                                                "Blast Protection (blast_protection)",
+                                                "Projectile Protection (projectile_protection)",
+                                                "Thorns (thorns)",
+                                                "Respiration (respiration)",
+                                                "Depth Strider (depth_strider)",
+                                                "Aqua Affinity (aqua_affinity)",
+                                                "Sharpness (sharpness)",
+                                                "Smite (smite)",
+                                                "Bane of Arthropods (bane_of_arthropods)",
+                                                "Knockback (knockback)",
+                                                "Fire Aspect (fire_aspect)",
+                                                "Looting (looting)",
+                                                "Efficiency (efficiency)",
+                                                "Silk Touch (silk_touch)",
+                                                "Unbreaking (unbreaking)",
+                                                "Fortune (fortune)",
+                                                "Power (power)",
+                                                "Punch (punch)",
+                                                "Flame (flame)",
+                                                "Infinity (infinity)",
+                                                "Luck of the Sea (luck_of_the_sea)",
+                                                "Lure (lure)",
+                                                "Frost Walker (frost_walker)",
+                                                "Mending (mending)",
+                                                "Curse of Binding (binding)",
+                                                "Curse of Vanishing (vanishing)",
+                                                "Impaling (impaling)",
+                                                "Riptide (riptide)",
+                                                "Loyalty (loyalty)",
+                                                "Channeling (channeling)",
+                                                "Multishot (multishot)",
+                                                "Piercing (piercing)",
+                                                "Quick Charge (quick_charge)",
+                                                "Soul Speed (soul_speed)",
+                                                "Swift Sneak (swift_sneak)",
+                                                "Wind Burst (wind_burst)",
+                                                "Density (density)",
+                                                "Breach (breach)",
+                                                "Lunge (lunge)",
+                                            ],
+                                            enum: [
+                                                { type: "byte", value: 0 },
+                                                { type: "byte", value: 1 },
+                                                { type: "byte", value: 2 },
+                                                { type: "byte", value: 3 },
+                                                { type: "byte", value: 4 },
+                                                { type: "byte", value: 5 },
+                                                { type: "byte", value: 6 },
+                                                { type: "byte", value: 7 },
+                                                { type: "byte", value: 8 },
+                                                { type: "byte", value: 9 },
+                                                { type: "byte", value: 10 },
+                                                { type: "byte", value: 11 },
+                                                { type: "byte", value: 12 },
+                                                { type: "byte", value: 13 },
+                                                { type: "byte", value: 14 },
+                                                { type: "byte", value: 15 },
+                                                { type: "byte", value: 16 },
+                                                { type: "byte", value: 17 },
+                                                { type: "byte", value: 18 },
+                                                { type: "byte", value: 19 },
+                                                { type: "byte", value: 20 },
+                                                { type: "byte", value: 21 },
+                                                { type: "byte", value: 22 },
+                                                { type: "byte", value: 23 },
+                                                { type: "byte", value: 24 },
+                                                { type: "byte", value: 25 },
+                                                { type: "byte", value: 26 },
+                                                { type: "byte", value: 27 },
+                                                { type: "byte", value: 28 },
+                                                { type: "byte", value: 29 },
+                                                { type: "byte", value: 30 },
+                                                { type: "byte", value: 31 },
+                                                { type: "byte", value: 32 },
+                                                { type: "byte", value: 33 },
+                                                { type: "byte", value: 34 },
+                                                { type: "byte", value: 35 },
+                                                { type: "byte", value: 36 },
+                                                { type: "byte", value: 37 },
+                                                { type: "byte", value: 38 },
+                                                { type: "byte", value: 39 },
+                                                { type: "byte", value: 40 },
+                                                { type: "byte", value: 41 },
+                                            ],
+                                        },
+                                        lvl: {
+                                            markdownDescription:
+                                                "The level of the enchantment, where 1 is level 1. Values are clamped between -32768 and 32767 when reading.",
+                                            type: "short",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                $fragment: true,
+                markdownDescription:
+                    "In [Bedrock Edition](https://minecraft.wiki/w/Bedrock_Edition), there's only one way to store enchantment NBTs: both enchanted items and [Enchanted Book](https://minecraft.wiki/w/Enchanted_Book) share the ench tag.",
             },
             Item_ArmorTrim: {
                 id: "Item_ArmorTrim",
@@ -10356,6 +10582,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                     type: "byte",
                                 },
                             },
+                            allOf: [{ $ref: "Item_ItemStack" }],
                         },
                     },
                     InventoryVersion: {
@@ -11261,41 +11488,100 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 markdownDescription:
                     "The NBT structure of the parsed data of the Data2D content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
                 type: "compound",
-                required: ["heightMap", "biomeData"],
-                properties: {
-                    heightMap: {
-                        markdownDescription: "The height map data.\n\nIn it is stored as a 2D matrix with [x][z] height values.",
-                        type: "list",
-                        minItems: 16,
-                        maxItems: 16,
-                        items: {
-                            markdownDescription: "A height map row. Its index corresponds to the offset on the x axis.",
-                            type: "list",
-                            minItems: 16,
-                            maxItems: 16,
-                            items: {
-                                markdownDescription: "A height value. Its index corresponds to the offset on the z axis.",
-                                type: `${NBT.TagType.Short}`,
+                oneOf: [
+                    {
+                        type: "compound",
+                        required: ["version", "heightMap", "biomeData"],
+                        properties: {
+                            version: {
+                                title: "Format Version",
+                                markdownDescription:
+                                    "The format version of the Data2D data. For versions before v1.18.0, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
+                                type: "byte",
+                                enumDescriptions: ["Pre-v1.18.0"],
+                                enum: [{ type: "byte", value: 1 }],
+                            },
+                            heightMap: {
+                                markdownDescription: "The height map data.\n\nIn it is stored as a 2D matrix with [x][z] height values.",
+                                type: "list",
+                                minItems: 16,
+                                maxItems: 16,
+                                items: {
+                                    markdownDescription: "A height map row. Its index corresponds to the offset on the x axis.",
+                                    type: "list",
+                                    minItems: 16,
+                                    maxItems: 16,
+                                    items: {
+                                        markdownDescription: "A height value. Its index corresponds to the offset on the z axis.",
+                                        type: `${NBT.TagType.Short}`,
+                                    },
+                                },
+                            },
+                            biomeData: {
+                                markdownDescription: "The biome data.\n\nIn it is stored as a 2D matrix with [x][z] biome numeric ID values.",
+                                type: "list",
+                                minItems: 16,
+                                maxItems: 16,
+                                items: {
+                                    markdownDescription: "A biome data row. Its index corresponds to the offset on the x axis.",
+                                    type: "list",
+                                    minItems: 16,
+                                    maxItems: 16,
+                                    items: {
+                                        markdownDescription: "A biome numeric ID value. Its index corresponds to the offset on the z axis.",
+                                        type: `${NBT.TagType.Byte}`,
+                                    },
+                                },
                             },
                         },
                     },
-                    biomeData: {
-                        markdownDescription: "The biome data.\n\nIn it is stored as a 2D matrix with [x][z] biome numeric ID values.",
-                        type: "list",
-                        minItems: 16,
-                        maxItems: 16,
-                        items: {
-                            markdownDescription: "A biome data row. Its index corresponds to the offset on the x axis.",
-                            type: "list",
-                            minItems: 16,
-                            maxItems: 16,
-                            items: {
-                                markdownDescription: "A biome numeric ID value. Its index corresponds to the offset on the z axis.",
-                                type: `${NBT.TagType.Byte}`,
+                    {
+                        type: "compound",
+                        required: ["version", "heightMap", "biomeData"],
+                        properties: {
+                            version: {
+                                title: "Format Version",
+                                markdownDescription:
+                                    "The format version of the Data2D data. For versions before v1.18.0, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
+                                type: "byte",
+                                enumDescriptions: ["Post-v1.18.0"],
+                                enum: [{ type: "byte", value: 2 }],
+                            },
+                            heightMap: {
+                                markdownDescription: "The height map data.\n\nIn it is stored as a 2D matrix with [x][z] height values.",
+                                type: "list",
+                                minItems: 16,
+                                maxItems: 16,
+                                items: {
+                                    markdownDescription: "A height map row. Its index corresponds to the offset on the x axis.",
+                                    type: "list",
+                                    minItems: 16,
+                                    maxItems: 16,
+                                    items: {
+                                        markdownDescription: "A height value. Its index corresponds to the offset on the z axis.",
+                                        type: `${NBT.TagType.Short}`,
+                                    },
+                                },
+                            },
+                            biomeData: {
+                                markdownDescription: "The biome data.\n\nIn it is stored as a 2D matrix with [x][z] biome numeric ID values.",
+                                type: "list",
+                                minItems: 16,
+                                maxItems: 16,
+                                items: {
+                                    markdownDescription: "A biome data row. Its index corresponds to the offset on the x axis.",
+                                    type: "list",
+                                    minItems: 16,
+                                    maxItems: 16,
+                                    items: {
+                                        markdownDescription: "A biome numeric ID value. Its index corresponds to the offset on the z axis.",
+                                        type: `${NBT.TagType.Short}`,
+                                    },
+                                },
                             },
                         },
                     },
-                },
+                ],
             },
             // NOTE: Verified.
             Data3D: {
@@ -11588,16 +11874,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             ],
                         },
                     },
-                    // REVIEW: This may actually just be a height map.
-                    dirty_columns: {
-                        title: "Dirty Columns",
-                        markdownDescription: "256 bytes representing a 16x16 grid of dirty column flags.",
+                    height_map: {
+                        title: "Height Map",
+                        markdownDescription: "256 bytes representing a 16x16 grid of height map data.",
                         type: "list",
                         minItems: 256,
                         maxItems: 256,
                         items: {
-                            title: "Dirty Column Flag",
-                            markdownDescription: "A byte representing whether a vertical column is dirty.",
+                            title: "Height",
+                            markdownDescription: "A byte representing the height value.",
                             type: "byte",
                         },
                     },
@@ -11610,9 +11895,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         items: {
                             title: "Grass Color Component",
                             // REVIEW: Maybe this should be changed to be a list of tuples or compounds.
-                            // REVIEW: Figure out if these are BiomeID,R,G,B or R,G,B,A.
-                            markdownDescription:
-                                "A byte representing one of four color components for a column. (NOTE: This may actually be [BiomeID,R,G,B] rather than [R,G,B,A].)",
+                            markdownDescription: "A byte representing one of four components for a column. The components are: BiomeID,R,G,B",
                             type: "byte",
                         },
                     },
@@ -12649,9 +12932,39 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                      * @default false
                      */
                     makeValueSchema?: boolean | undefined;
+                    /**
+                     * A callback function to determine whether a ref should be inlined or not.
+                     *
+                     * If {@link refNameResolver} is provided, then this will only be called if {@link refNameResolver} returns a string, this will be called
+                     * with the new name returned by {@link refNameResolver}.
+                     *
+                     * @param ref The name of the ref.
+                     * @param schema The current schema.
+                     * @param allSchemas The NBT schemas to use for resolving `$ref`s. Defaults to {@link nbtSchemas}.
+                     * @returns Whether the ref should be inlined.
+                     *
+                     * @todo Not implemented yet.
+                     */
+                    shouldInlineRef?(ref: string, schema: NBTSchema | NBTSchemaFragment, allSchemas: Record<string, NBTSchema | NBTSchemaFragment>): boolean;
+                    /**
+                     * A callback function that allows you to rename refs, so if you have the ref registered under a different name, that name will be used
+                     * instead, or if you want to replace a referenced schema with a different one, this can do that as well.
+                     *
+                     * @param ref The name of the ref.
+                     * @param schema The current schema.
+                     * @param allSchemas The NBT schemas to use for resolving `$ref`s. Defaults to {@link nbtSchemas}.
+                     * @returns The new name of the ref, or an object containing the new name and an `inline` property that controls whether the new ref name should be resolved and inlined.
+                     *
+                     * @todo Not implemented yet.
+                     */
+                    refNameResolver?(
+                        ref: string,
+                        schema: NBTSchema | NBTSchemaFragment,
+                        allSchemas: Record<string, NBTSchema | NBTSchemaFragment>
+                    ): string | { inline: boolean; name: string };
                 }
 
-                export const defaultConvertOptions: Full<ConvertOptions> = {
+                export const defaultConvertOptions: Omit<Full<ConvertOptions>, "shouldInlineRef" | "refNameResolver"> = {
                     inlineRefs: true,
                     makeValueSchema: false,
                 };
@@ -12675,17 +12988,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     }
 
                     if (!schema) throw new TypeError("schema is required, recieved " + schema);
-                    if (schema.$ref) {
-                        if (options.inlineRefs ?? defaultConvertOptions.inlineRefs) {
-                            const refTarget: NBTSchema | NBTSchemaFragment | undefined = allSchemas[schema.$ref];
-                            if (!refTarget) {
-                                throw new Error(`Unknown $ref: ${schema.$ref}`);
-                            }
-                            return nbtSchemaToJsonSchema(refTarget, allSchemas, options, isRoot);
-                        } else {
-                            return { $ref: schema.$ref }; // preserve the ref
-                        }
-                    }
 
                     const jsonSchema: JSONSchema = {
                         id: schema.id,
@@ -12701,18 +13003,39 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     if (!("title" in schema)) delete jsonSchema.title;
                     if (!("description" in schema)) delete jsonSchema.description;
                     if (!("markdownDescription" in schema)) delete jsonSchema.markdownDescription;
+                    if (schema.$ref) {
+                        if (options.inlineRefs ?? defaultConvertOptions.inlineRefs) {
+                            const refTarget: NBTSchema | NBTSchemaFragment | undefined = allSchemas[schema.$ref];
+                            if (!refTarget) {
+                                throw new Error(`Unknown $ref: ${schema.$ref}`);
+                            }
+                            const schemaRef: JSONSchemaRef = nbtSchemaToJsonSchema(refTarget, allSchemas, options, isRoot);
+                            if (Object.keys(schema).length === 1) return schemaRef;
+                            jsonSchema.allOf = [schemaRef];
+                            // if (typeof schemaRef === "boolean") return schemaRef;
+                            // for (const [k, v] of Object.entries(schemaRef) as [keyof JSONSchema, JSONSchema[keyof JSONSchema]][]) {
+                            //     if ((k in jsonSchema)) continue;
+                            //     jsonSchema[k] = v;
+                            // }
+                        } else {
+                            jsonSchema.$ref = schema.$ref;
+                        }
+                    }
 
                     // FIXME: List int value enum entries inside of a oneOf in the int value seem to only work when the enum array is just the numbers and not the full NBT.Int objects, fix this.
                     for (const key of ["oneOf", "anyOf", "allOf"] as const) {
                         if (!(key in schema) || !schema[key]) continue;
-                        jsonSchema[key] = schema[key].map((s: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(s, allSchemas, options, isRoot));
+                        jsonSchema[key] = [
+                            ...(jsonSchema[key] ?? []),
+                            ...schema[key].map((s: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(s, allSchemas, options, isRoot)),
+                        ];
                     }
                     for (const key of ["not"] as const) {
                         if (!(key in schema) || schema[key] === undefined) continue;
                         jsonSchema[key] = nbtSchemaToJsonSchema(schema[key], allSchemas, options, isRoot);
                     }
 
-                    let valueSchema: JSONSchemaRef = jsonSchema;
+                    let valueSchema: JSONSchemaRef | undefined;
 
                     let skipExtraPropertyDefs = false;
 
@@ -12725,7 +13048,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 const data: JSONSchema = tagTypeToSchema(schema.type, schema, allSchemas, options);
                                 Object.assign(jsonSchema, { ...data, ...(data.properties!.value as JSONSchema) });
                             } else  */ {
-                                Object.assign(jsonSchema, tagTypeToSchema(schema.type, schema, allSchemas, options, isRoot));
+                                Object.assign(jsonSchema, tagTypeToSchema(schema.type, { ...schema, $ref: undefined }, allSchemas, options, isRoot));
                                 if ((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot) {
                                     // REVIEW: I removed an ! before isRoot, make sure this wasn't a mistake.
                                     valueSchema = jsonSchema.properties?.value ?? jsonSchema;
@@ -14516,6 +14839,21 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             }
                         }
                     }
+                    let anyOfRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (!(opts.inlineRefs ?? false) && schema.anyOf !== undefined) {
+                        const refAnyOfs: (NBTSubSchema & { $ref: string })[] = schema.anyOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                        );
+                        if (refAnyOfs.length > 0) {
+                            anyOfRefTypes ??= [] as unknown as [string];
+                            for (const refAnyOf of refAnyOfs) {
+                                anyOfRefTypes.push(
+                                    resolveSchemaRefName(refAnyOf.$ref, !(opts.inlineRefs ?? false), opts) +
+                                        (additionalInformation.isListChild ? '["value"]' : "")
+                                );
+                            }
+                        }
+                    }
                     let allOfNonRefTypes: [string, ...string[]] | undefined = undefined;
                     if (schema.allOf !== undefined) {
                         const nonRefAllOfs: NBTSubSchema[] = schema.allOf.filter(
@@ -14552,9 +14890,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             }
                         }
                     }
+                    let anyOfNonRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (schema.anyOf !== undefined) {
+                        const nonRefAnyOfs: NBTSubSchema[] = schema.anyOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                        );
+                        if (nonRefAnyOfs.length > 0) {
+                            anyOfNonRefTypes ??= [] as unknown as [string];
+                            for (const nonRefAnyOf of nonRefAnyOfs) {
+                                const types = nonRefAnyOf.type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                anyOfNonRefTypes.push(
+                                    Array.isArray(types) ?
+                                        types.map((t: string): string => buildBuiltTypeForTag(t, nonRefAnyOf, indent, opts, ctx).value).join("|")
+                                    :   buildBuiltTypeForTag(types, nonRefAnyOf, indent, opts, ctx).value
+                                );
+                            }
+                        }
+                    }
                     const inlineRefTypes = {
                         allOf: [] as string[],
                         oneOf: [] as string[],
+                        anyOf: [] as string[],
                     };
                     if (opts.inlineRefs ?? false) {
                         if (allOfRefTypes)
@@ -14585,6 +14942,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     :   buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
                                 );
                             }
+                        if (anyOfRefTypes)
+                            for (const refType of anyOfRefTypes) {
+                                const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                inlineRefTypes.anyOf.push(
+                                    Array.isArray(types) ?
+                                        types
+                                            .map((t: string): string =>
+                                                buildTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                            )
+                                            .join("|")
+                                    :   buildTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                );
+                            }
                     }
 
                     if (!st) {
@@ -14594,12 +14965,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 type: '"compound"',
                                 value:
                                     (opts.inlineRefs ?? false) ?
-                                        `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
+                                        `${(allOfRefTypes || oneOfRefTypes || anyOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
                                             inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                                        }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
-                                    :   `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
+                                        }${inlineRefTypes.oneOf ? ` & (ExclusifyUnion<${inlineRefTypes.oneOf.join(" | ")}>)` : ""}${inlineRefTypes.anyOf ? ` & (${inlineRefTypes.anyOf.join(" | ")})` : ""}`
+                                    :   `${(allOfRefTypes || oneOfRefTypes || anyOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
                                             allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
-                                        }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, ""),
+                                        }${oneOfRefTypes ? ` & (ExclusifyUnion<${oneOfRefTypes.join(" | ")}>)` : ""}${anyOfRefTypes ? ` & (${anyOfRefTypes.join(" | ")})` : ""}`.replace(
+                                            /^ & /,
+                                            ""
+                                        ),
                             };
                         }
                         if (!(opts.inlineRefs ?? false) && schema.$ref) {
@@ -14618,20 +14992,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         type: builtType.type,
                         value:
                             (opts.inlineRefs ?? false) ?
-                                `${(allOfRefTypes || oneOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                `${(allOfRefTypes || oneOfRefTypes || anyOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes || anyOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
                                     inlineRefTypes.allOf || allOfNonRefTypes ?
                                         ` & ${[...(inlineRefTypes.allOf ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}`
                                     :   ""
-                                }${inlineRefTypes.oneOf || oneOfNonRefTypes ? ` & (${[...(inlineRefTypes.oneOf ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
-                                    /^ & /,
-                                    ""
-                                )
-                            :   `${(allOfRefTypes || oneOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
+                                }${
+                                    inlineRefTypes.oneOf || oneOfNonRefTypes ?
+                                        ` & (ExclusifyUnion<${[...(inlineRefTypes.oneOf ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")}>)`
+                                    :   ""
+                                }${
+                                    inlineRefTypes.anyOf || anyOfNonRefTypes ?
+                                        ` & (${[...(inlineRefTypes.anyOf ?? []), ...(anyOfNonRefTypes ?? [])].join(" | ")})`
+                                    :   ""
+                                }`.replace(/^ & /, "")
+                            :   `${(allOfRefTypes || oneOfRefTypes || anyOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes || anyOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
                                     allOfRefTypes || allOfNonRefTypes ? ` & ${[...(allOfRefTypes ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}` : ""
-                                }${oneOfRefTypes || oneOfNonRefTypes ? ` & (${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
-                                    /^ & /,
-                                    ""
-                                ),
+                                }${
+                                    oneOfRefTypes || oneOfNonRefTypes ?
+                                        ` & (ExclusifyUnion<${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")}>)`
+                                    :   ""
+                                }${
+                                    anyOfRefTypes || anyOfNonRefTypes ? ` & (${[...(anyOfRefTypes ?? []), ...(anyOfNonRefTypes ?? [])].join(" | ")})` : ""
+                                }`.replace(/^ & /, ""),
                     };
                 }
 
@@ -15005,6 +15387,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             }
                         }
                     }
+                    let anyOfRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (!(opts.inlineRefs ?? false) && schema.anyOf !== undefined) {
+                        const refAnyOfs: (NBTSubSchema & { $ref: string })[] = schema.anyOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                        );
+                        if (refAnyOfs.length > 0) {
+                            anyOfRefTypes ??= [] as unknown as [string];
+                            for (const refAnyOf of refAnyOfs) {
+                                anyOfRefTypes.push(resolveSchemaRefName(refAnyOf.$ref, !(opts.inlineRefs ?? false), opts));
+                            }
+                        }
+                    }
                     let allOfNonRefTypes: [string, ...string[]] | undefined = undefined;
                     if (schema.allOf !== undefined) {
                         const nonRefAllOfs: NBTSubSchema[] = schema.allOf.filter(
@@ -15041,9 +15435,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             }
                         }
                     }
+                    let anyOfNonRefTypes: [string, ...string[]] | undefined = undefined;
+                    if (schema.anyOf !== undefined) {
+                        const nonRefAnyOfs: NBTSubSchema[] = schema.anyOf.filter(
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                        );
+                        if (nonRefAnyOfs.length > 0) {
+                            anyOfNonRefTypes ??= [] as unknown as [string];
+                            for (const nonRefAnyOf of nonRefAnyOfs) {
+                                const types = nonRefAnyOf.type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                anyOfNonRefTypes.push(
+                                    Array.isArray(types) ?
+                                        types.map((t: string): string => buildTypeForTag(t, nonRefAnyOf, indent, opts, ctx)).join("|")
+                                    :   buildTypeForTag(types, nonRefAnyOf, indent, opts, ctx)
+                                );
+                            }
+                        }
+                    }
                     const inlineRefTypes = {
                         allOf: [] as string[],
                         oneOf: [] as string[],
+                        anyOf: [] as string[],
                     };
                     if (opts.inlineRefs ?? false) {
                         if (allOfRefTypes)
@@ -15078,18 +15491,38 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     :   buildBuiltTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx).value
                                 );
                             }
+                        if (anyOfRefTypes)
+                            for (const refType of anyOfRefTypes) {
+                                const types = (refLookup[refType as keyof typeof refLookup] as NBTSubSchema).type ?? resolvedSchema.type;
+                                if (!types) continue;
+                                inlineRefTypes.anyOf.push(
+                                    Array.isArray(types) ?
+                                        types
+                                            .map(
+                                                (t: string): string =>
+                                                    buildBuiltTypeForTag(t, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx)
+                                                        .value
+                                            )
+                                            .join("|")
+                                    :   buildBuiltTypeForTag(types, refLookup[refType as keyof typeof refLookup] as NBTSubSchema, indent, opts, ctx).value
+                                );
+                            }
                     }
 
                     if (!st) {
                         if (resolvedSchema.properties) {
                             const compoundType = buildTypeForTag("compound", resolvedSchema, indent, opts, ctx!);
                             return (opts.inlineRefs ?? false) ?
-                                    `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType) ? "" : `(${compoundType})`}${
+                                    `${(allOfRefTypes || oneOfRefTypes || anyOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType) ? "" : `(${compoundType})`}${
                                         inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                                    }${inlineRefTypes.oneOf ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`
-                                :   `${(allOfRefTypes || oneOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType) ? "" : `(${compoundType})`}${
+                                    }${inlineRefTypes.oneOf ? ` & (ExclusifyUnion<${inlineRefTypes.oneOf.join(" | ")}>)` : ""}${
+                                        inlineRefTypes.anyOf ? ` & (${inlineRefTypes.anyOf.join(" | ")})` : ""
+                                    }`
+                                :   `${(allOfRefTypes || oneOfRefTypes || anyOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType) ? "" : `(${compoundType})`}${
                                         allOfRefTypes ? ` & ${allOfRefTypes.join(" & ")}` : ""
-                                    }${oneOfRefTypes ? ` & (${oneOfRefTypes.join(" | ")})` : ""}`.replace(/^ & /, "");
+                                    }${oneOfRefTypes ? ` & (ExclusifyUnion<${oneOfRefTypes.join(" | ")}>)` : ""}${
+                                        anyOfRefTypes ? ` & (${anyOfRefTypes.join(" | ")})` : ""
+                                    }`.replace(/^ & /, "");
                         }
                         if (!(opts.inlineRefs ?? false) && schema.$ref) {
                             const refType = (refLookup[resolveSchemaRefName(schema.$ref, false, opts) as keyof typeof refLookup] as NBTSubSchema | undefined)
@@ -15103,10 +15536,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     return (opts.inlineRefs ?? false) ?
                             `${(allOfRefTypes || oneOfRefTypes || allOfNonRefTypes || oneOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
                                 inlineRefTypes.allOf || allOfNonRefTypes ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
-                            }${inlineRefTypes.oneOf || oneOfNonRefTypes ? ` & (${inlineRefTypes.oneOf.join(" | ")})` : ""}`.replace(/^ & /, "")
+                            }${inlineRefTypes.oneOf || oneOfNonRefTypes ? ` & (ExclusifyUnion<${inlineRefTypes.oneOf.join(" | ")}>)` : ""}${
+                                inlineRefTypes.anyOf || anyOfNonRefTypes ? ` & (${inlineRefTypes.anyOf.join(" | ")})` : ""
+                            }`.replace(/^ & /, "")
                         :   `${(allOfRefTypes || oneOfRefTypes || allOfNonRefTypes || oneOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
                                 allOfRefTypes || allOfNonRefTypes ? ` & ${[...(allOfRefTypes ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}` : ""
-                            }${oneOfRefTypes || oneOfNonRefTypes ? ` & (${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
+                            }${
+                                oneOfRefTypes || oneOfNonRefTypes ?
+                                    ` & (ExclusifyUnion<${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")}>)`
+                                :   ""
+                            }${anyOfRefTypes || anyOfNonRefTypes ? ` & (${[...(anyOfRefTypes ?? []), ...(anyOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
                                 /^ & /,
                                 ""
                             );
@@ -15330,6 +15769,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             .replace(/\{\{needs testing\}\}/gi, " *needs testing*")
                             // Replace {{code|...}} with `...`
                             .replace(/\{\{code\|([^}]*)\}\}/gi, "`$1`")
+                            // TODO: The below two replacements should replace spaces in the URL with underscores.
                             // Replace [[target|label]] with [label](https://minecraft.wiki/w/target)
                             .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, "[$2](https://minecraft.wiki/w/$1)")
                             // Replace [[target]] with [target](https://minecraft.wiki/w/target)
@@ -15737,6 +16177,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     input: string,
                     options: ExtractNBTSchemasFromFullWikiNBTPageDataOptions = {}
                 ): (NBTSchema | NBTSchemaFragment)[] {
+                    input = input.replaceAll(/^\{\{in\|bedrock\}\}/gm, "In [[Bedrock Edition]]").replaceAll(/\{\{in\|bedrock\}\}/g, "in [[Bedrock Edition]]");
                     const containers: RegExpMatchArray | null = input.match(/(?<=(^|\n)<div class="treeview">\s*).+?\n(?=<\/div>($|\n))/gs);
                     if (!containers) return [];
 
@@ -15745,7 +16186,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     for (const container of containers) {
                         // console.log(1.792, container);
                         if (
-                            !/(?<=(^|\n)===? (?<header>[^\n]+?) ===?\s*?\n(?:(?<description>\w[^\n]*?)\n)?)(?<schema>\*[^\n]+?(?:\n\*[^\n]+?|\n\w[^\n]+?)+?)(?=\n+?(?:===? [^\n]+? ===?\n)*?===? [^\n]+? ===?\s*?\n(?:\w[^\n]*?\n)?|\s*?$)/.test(
+                            !/(?<=(^|\n)===? (?<header>[^\n]+?) ===?\s*?\n(?:(?<description>(?:\w|\[)[^\n]*?)\n{1,2})?)(?<schema>\*[^\n]+?(?:\n\*[^\n]+?|\n\w[^\n]+?)+?)(?=\n+?(?:===? [^\n]+? ===?\n)*?===? [^\n]+? ===?\s*?\n(?:\w[^\n]*?\n)?|\s*?$)/.test(
                                 container
                             )
                         )
@@ -15754,7 +16195,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         // console.log(2.792);
 
                         const schemaSubContainers: RegExpStringIterator<RegExpExecArray> = container.matchAll(
-                            /(?<=(^|\n)===? (?<header>[^\n]+?) ===?\s*?\n(?:(?<description>\w[^\n]*?)\n)?)(?<schema>\*[^\n]+?(?:\n\*[^\n]+?|\n\w[^\n]+?)+?)(?=\n+?(?:===? [^\n]+? ===?\n)*?===? [^\n]+? ===?\s*?\n(?:\w[^\n]*?\n)?|\s*?$)/g
+                            /(?<=(^|\n)===? (?<header>[^\n]+?) ===?\s*?\n(?:(?<description>(?:\w|\[)[^\n]*?)\n{1,2})?)(?<schema>\*[^\n]+?(?:\n\*[^\n]+?|\n\w[^\n]+?)+?)(?=\n+?(?:===? [^\n]+? ===?\n)*?===? [^\n]+? ===?\s*?\n(?:\w[^\n]*?\n)?|\s*?$)/g
                         );
 
                         for (const schemaSubContainer of schemaSubContainers) {
@@ -17282,6 +17723,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @example
                  * "minecraft:pale_garden"
+                 *
+                 * @example
+                 * "minecraft:sulfur_caves"
+                 *
+                 * @example
+                 * "minecraft:dappled_forest"
                  */
                 BiomeOverride?: { type: "string"; value: string };
                 /**
@@ -17824,11 +18271,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The default game mode of the player. 0 is [Survival](https://minecraft.wiki/w/Survival), 1 is [Creative](https://minecraft.wiki/w/Creative), 2 is [Adventure](https://minecraft.wiki/w/Adventure), 5 is [Default](https://minecraft.wiki/w/Game_mode#Default), and 6 is [Spectator](https://minecraft.wiki/w/Spectator).
                  */
-                GameType?: { type: "int"; value: number } & ({ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 5 | 6 });
+                GameType?: { type: "int"; value: number } & ExclusifyUnion<{ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 5 | 6 }>;
                 /**
                  * The world type. 0 is Old, 1 is Infinite, 2 is Flat, and 5 is Void.
                  */
-                Generator?: { type: "int"; value: number } & ({ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 5 });
+                Generator?: { type: "int"; value: number } & ExclusifyUnion<{ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 5 }>;
                 /**
                  * Whether the world has achievements locked. Set to 1 if the default game mode is set to Creative, if [cheats](https://minecraft.wiki/w/Commands#Cheats) have been enabled, or if a [behavior pack](https://minecraft.wiki/w/add-on) has been equipped.
                  *
@@ -18441,7 +18888,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The [multiplayer](https://minecraft.wiki/w/multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."
                  */
-                XBLBroadcastIntent?: { type: "int"; value: number } & ({ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 3 });
+                XBLBroadcastIntent?: { type: "int"; value: number } & ExclusifyUnion<{ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 3 }>;
             };
         };
 
@@ -18782,7 +19229,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                  * UNDOCUMENTED.
                                                  */
                                                 orientation: { type: "int"; value: number };
-                                            } & (
+                                            } & ExclusifyUnion<
                                                 | object
                                                 | {
                                                       /**
@@ -18856,7 +19303,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        */
                                                       sc: { type: "byte"; value: 0 | 1 };
                                                   }
-                                            ))[];
+                                            >)[];
                                         };
                                     };
                                     /**
@@ -19066,7 +19513,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                  * UNDOCUMENTED.
                                                  */
                                                 orientation: { type: "int"; value: number };
-                                            } & (
+                                            } & ExclusifyUnion<
                                                 | object
                                                 | {
                                                       /**
@@ -19182,7 +19629,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        */
                                                       hasPlacedTrap1: { type: "byte"; value: 0 | 1 };
                                                   }
-                                            ))[];
+                                            >)[];
                                         };
                                     };
                                     /**
@@ -22702,12 +23149,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
-                        value: {
+                        value: ({
                             /**
                              * The slot the item is in.
                              */
                             Slot: { type: "byte"; value: number };
-                        }[];
+                        } & Item_ItemStack["value"])[];
                     };
                 };
                 /**
@@ -22729,12 +23176,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
-                        value: {
+                        value: ({
                             /**
                              * The slot the item is in.
                              */
                             Slot: { type: "byte"; value: number };
-                        }[];
+                        } & Item_ItemStack["value"])[];
                     };
                 };
                 /**
@@ -23527,12 +23974,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
-                        value: {
+                        value: ({
                             /**
                              * The slot the item is in.
                              */
                             Slot: { type: "byte"; value: number };
-                        }[];
+                        } & Item_ItemStack["value"])[];
                     };
                 };
             };
@@ -24836,9 +25283,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         /**
          * All items share this base.
          *
-         * @see {@link NBTSchemas.nbtSchemas.Item_ItemStack}
+         * @see {@link NBTSchemas.nbtSchemas.Item_ItemStackBase}
          */
-        export type Item_ItemStack = {
+        export type Item_ItemStackBase = {
             type: "compound";
             value: {
                 /**
@@ -24873,6 +25320,220 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * UNDOCUMENTED.
                  */
                 WasPickedUp: { type: "byte"; value: number };
+            };
+        };
+
+        /**
+         * All items share this base.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Item_ItemStack}
+         */
+        export type Item_ItemStack = { type: "compound"; value: object } & Item_ItemStackBase & (Item_GeneralTags | Item_EnchantmentTags);
+
+        /**
+         * Items with durability store their damage value in NBT. Additionally, items can have custom display names and lore. There is also the **RepairCost** tag which tracks anvil usage for items, making them more costly with every use of the anvil.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Item_GeneralTags}
+         */
+        export type Item_GeneralTags = {
+            type: "compound";
+            value: {
+                tag?: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * (May not exist) The damage value for this item. Defaults to 0.
+                         *
+                         * @default 0
+                         */
+                        Damage?: { type: "int"; value: number };
+                        /**
+                         * (May not exist) Display properties.
+                         */
+                        display?: {
+                            type: "compound";
+                            value: {
+                                /**
+                                 * (May not exist) List of strings to display as lore for the item.
+                                 */
+                                Lore?: { type: "list"; value: { type: "string"; value: string[] } };
+                                /**
+                                 * (May not exist) The JSON text component to use to display the item name.
+                                 */
+                                Name?: { type: "string"; value: string };
+                            };
+                        };
+                        /**
+                         * 1 for "lock in slot". 2 for "lock in inventory".
+                         *
+                         * @default 0
+                         *
+                         * @enum 0 | 1 | 2
+                         *
+                         * @enumDescriptions
+                         * - `0`: none
+                         * - `1`: lock in slot
+                         * - `2`: lock in inventory
+                         */
+                        "minecraft:item_lock"?: { type: "byte"; value: 0 | 1 | 2 };
+                        /**
+                         * 1 if keeping on death.*needs testing*
+                         *
+                         * @default 0
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        "minecraft:keep_on_death"?: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * (May not exist) Number of experience levels to add to the base level cost when repairing, combining, or renaming this item with an [Anvil](https://minecraft.wiki/w/Anvil).
+                         *
+                         * @default 0
+                         */
+                        RepairCost?: { type: "int"; value: number };
+                        /**
+                         * 1 or 0 (true/false) - (may not exist) if this item's durability is allowed to take damage.
+                         *
+                         * @default 0
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        Unbreakable?: { type: "byte"; value: 0 | 1 };
+                    };
+                };
+            };
+        };
+
+        /**
+         * In [Bedrock Edition](https://minecraft.wiki/w/Bedrock_Edition), there's only one way to store enchantment NBTs: both enchanted items and [Enchanted Book](https://minecraft.wiki/w/Enchanted_Book) share the ench tag.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Item_EnchantmentTags}
+         */
+        export type Item_EnchantmentTags = {
+            type: "compound";
+            value: {
+                tag?: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * Contains enchantments on this item.
+                         */
+                        ench: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * The ID of the enchantment. See [Bedrock Edition data values#Enchantment IDs](https://minecraft.wiki/w/Bedrock_Edition_data_values#Enchantment_IDs).
+                                     *
+                                     * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41
+                                     *
+                                     * @enumDescriptions
+                                     * - `0`: Protection (protection)
+                                     * - `1`: Fire Protection (fire_protection)
+                                     * - `2`: Feather Falling (feather_falling)
+                                     * - `3`: Blast Protection (blast_protection)
+                                     * - `4`: Projectile Protection (projectile_protection)
+                                     * - `5`: Thorns (thorns)
+                                     * - `6`: Respiration (respiration)
+                                     * - `7`: Depth Strider (depth_strider)
+                                     * - `8`: Aqua Affinity (aqua_affinity)
+                                     * - `9`: Sharpness (sharpness)
+                                     * - `10`: Smite (smite)
+                                     * - `11`: Bane of Arthropods (bane_of_arthropods)
+                                     * - `12`: Knockback (knockback)
+                                     * - `13`: Fire Aspect (fire_aspect)
+                                     * - `14`: Looting (looting)
+                                     * - `15`: Efficiency (efficiency)
+                                     * - `16`: Silk Touch (silk_touch)
+                                     * - `17`: Unbreaking (unbreaking)
+                                     * - `18`: Fortune (fortune)
+                                     * - `19`: Power (power)
+                                     * - `20`: Punch (punch)
+                                     * - `21`: Flame (flame)
+                                     * - `22`: Infinity (infinity)
+                                     * - `23`: Luck of the Sea (luck_of_the_sea)
+                                     * - `24`: Lure (lure)
+                                     * - `25`: Frost Walker (frost_walker)
+                                     * - `26`: Mending (mending)
+                                     * - `27`: Curse of Binding (binding)
+                                     * - `28`: Curse of Vanishing (vanishing)
+                                     * - `29`: Impaling (impaling)
+                                     * - `30`: Riptide (riptide)
+                                     * - `31`: Loyalty (loyalty)
+                                     * - `32`: Channeling (channeling)
+                                     * - `33`: Multishot (multishot)
+                                     * - `34`: Piercing (piercing)
+                                     * - `35`: Quick Charge (quick_charge)
+                                     * - `36`: Soul Speed (soul_speed)
+                                     * - `37`: Swift Sneak (swift_sneak)
+                                     * - `38`: Wind Burst (wind_burst)
+                                     * - `39`: Density (density)
+                                     * - `40`: Breach (breach)
+                                     * - `41`: Lunge (lunge)
+                                     */
+                                    id: {
+                                        type: "short";
+                                        value:
+                                            | 0
+                                            | 1
+                                            | 2
+                                            | 3
+                                            | 4
+                                            | 5
+                                            | 6
+                                            | 7
+                                            | 8
+                                            | 9
+                                            | 10
+                                            | 11
+                                            | 12
+                                            | 13
+                                            | 14
+                                            | 15
+                                            | 16
+                                            | 17
+                                            | 18
+                                            | 19
+                                            | 20
+                                            | 21
+                                            | 22
+                                            | 23
+                                            | 24
+                                            | 25
+                                            | 26
+                                            | 27
+                                            | 28
+                                            | 29
+                                            | 30
+                                            | 31
+                                            | 32
+                                            | 33
+                                            | 34
+                                            | 35
+                                            | 36
+                                            | 37
+                                            | 38
+                                            | 39
+                                            | 40
+                                            | 41;
+                                    };
+                                    /**
+                                     * The level of the enchantment, where 1 is level 1. Values are clamped between -32768 and 32767 when reading.
+                                     */
+                                    lvl: { type: "short"; value: number };
+                                }[];
+                            };
+                        };
+                    };
+                };
             };
         };
 
@@ -25489,12 +26150,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
-                        value: {
+                        value: ({
                             /**
                              * The slot the item is in.
                              */
                             Slot: { type: "byte"; value: number };
-                        }[];
+                        } & Item_ItemStack["value"])[];
                     };
                 };
                 /**
@@ -26157,7 +26818,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.BiomeState}
          */
-        export type BiomeState = { type: "compound"; value: object } & (
+        export type BiomeState = { type: "compound"; value: object } & ExclusifyUnion<
             | {
                   type: "compound";
                   value: {
@@ -26187,7 +26848,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                    *
                                    * The ID of the biome.
                                    */
-                                  biome_id: { type: "byte"; value: number } & {
+                                  biome_id: { type: "byte"; value: number } & ExclusifyUnion<{
                                       type: "byte";
                                       value:
                                           | 0
@@ -26276,8 +26937,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                           | 190
                                           | 191
                                           | 192
-                                          | 193;
-                                  };
+                                          | 193
+                                          | 194
+                                          | 195;
+                                  }>;
                                   /**
                                    * State
                                    *
@@ -26318,7 +26981,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                    *
                                    * The ID of the biome.
                                    */
-                                  biome_id: { type: "short"; value: number } & (
+                                  biome_id: { type: "short"; value: number } & ExclusifyUnion<
                                       | {
                                             type: "short";
                                             value:
@@ -26408,10 +27071,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                 | 190
                                                 | 191
                                                 | 192
-                                                | 193;
+                                                | 193
+                                                | 194
+                                                | 195;
                                         }
                                       | { type: "short"; value: number }
-                                  );
+                                  >;
                                   /**
                                    * State
                                    *
@@ -26423,7 +27088,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                       };
                   };
               }
-        );
+        >;
 
         /**
          * The BorderBlocks schema.
@@ -26524,31 +27189,80 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Data2D}
          */
-        export type Data2D = {
-            type: "compound";
-            value: {
-                /**
-                 * The height map data.
-                 *
-                 * In it is stored as a 2D matrix with [x][z] height values.
-                 *
-                 * @minItems 16
-                 *
-                 * @maxItems 16
-                 */
-                heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
-                /**
-                 * The biome data.
-                 *
-                 * In it is stored as a 2D matrix with [x][z] biome numeric ID values.
-                 *
-                 * @minItems 16
-                 *
-                 * @maxItems 16
-                 */
-                biomeData: { type: "list"; value: { type: "list"; value: { type: "byte"; value: number[] }[] } };
-            };
-        };
+        export type Data2D = { type: "compound"; value: object } & ExclusifyUnion<
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Format Version
+                       *
+                       * The format version of the Data2D data. For versions before v1.18.0, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
+                       *
+                       * @enum 1
+                       *
+                       * @enumDescriptions
+                       * - `1`: Pre-v1.18.0
+                       */
+                      version: { type: "byte"; value: 1 };
+                      /**
+                       * The height map data.
+                       *
+                       * In it is stored as a 2D matrix with [x][z] height values.
+                       *
+                       * @minItems 16
+                       *
+                       * @maxItems 16
+                       */
+                      heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                      /**
+                       * The biome data.
+                       *
+                       * In it is stored as a 2D matrix with [x][z] biome numeric ID values.
+                       *
+                       * @minItems 16
+                       *
+                       * @maxItems 16
+                       */
+                      biomeData: { type: "list"; value: { type: "list"; value: { type: "byte"; value: number[] }[] } };
+                  };
+              }
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Format Version
+                       *
+                       * The format version of the Data2D data. For versions before v1.18.0, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
+                       *
+                       * @enum 2
+                       *
+                       * @enumDescriptions
+                       * - `2`: Post-v1.18.0
+                       */
+                      version: { type: "byte"; value: 2 };
+                      /**
+                       * The height map data.
+                       *
+                       * In it is stored as a 2D matrix with [x][z] height values.
+                       *
+                       * @minItems 16
+                       *
+                       * @maxItems 16
+                       */
+                      heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                      /**
+                       * The biome data.
+                       *
+                       * In it is stored as a 2D matrix with [x][z] biome numeric ID values.
+                       *
+                       * @minItems 16
+                       *
+                       * @maxItems 16
+                       */
+                      biomeData: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                  };
+              }
+        >;
 
         /**
          * The Data3D schema.
@@ -26607,7 +27321,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 value: {
                                     type: "int";
                                     value: (number &
-                                        (
+                                        ExclusifyUnion<
                                             | 0
                                             | 1
                                             | 2
@@ -26695,8 +27409,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                             | 191
                                             | 192
                                             | 193
+                                            | 194
+                                            | 195
                                             | number
-                                        ))[];
+                                        >)[];
                                 };
                             };
                         }[];
@@ -26857,15 +27573,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 block_light: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
                 /**
-                 * Dirty Columns
+                 * Height Map
                  *
-                 * 256 bytes representing a 16x16 grid of dirty column flags.
+                 * 256 bytes representing a 16x16 grid of height map data.
                  *
                  * @minItems 256
                  *
                  * @maxItems 256
                  */
-                dirty_columns: { type: "list"; value: { type: "byte"; value: number[] } };
+                height_map: { type: "list"; value: { type: "byte"; value: number[] } };
                 /**
                  * Grass Color
                  *
@@ -27039,7 +27755,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.SubChunkPrefix}
          */
-        export type SubChunkPrefix = { type: "compound"; value: object } & (SubChunkPrefix_v0 | SubChunkPrefix_v1 | SubChunkPrefix_v8);
+        export type SubChunkPrefix = { type: "compound"; value: object } & ExclusifyUnion<SubChunkPrefix_v0 | SubChunkPrefix_v1 | SubChunkPrefix_v8>;
 
         /**
          * The SubChunkPrefix schema for versions 0, 2, 3, 4, 5, 6, and 7.
@@ -27228,12 +27944,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
-                        value: {
+                        value: ({
                             /**
                              * The slot the item is in.
                              */
                             Slot: { type: "byte"; value: number };
-                        }[];
+                        } & Item_ItemStack["value"])[];
                     };
                 };
                 /**
@@ -27255,12 +27971,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
-                        value: {
+                        value: ({
                             /**
                              * The slot the item is in.
                              */
                             Slot: { type: "byte"; value: number };
-                        }[];
+                        } & Item_ItemStack["value"])[];
                     };
                 };
                 /**

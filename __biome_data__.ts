@@ -1,12 +1,12 @@
 /**
  * The biome types for Minecraft Bedrock Edition.
  *
- * @version 1.21.110
+ * @version 1.26.30 (Modified to include the dappled forest biome)
  */
 export default {
-    $source: "https://github.com/gentlegiantJGC/PyMCTranslate/blob/main/PyMCTranslate/json/versions/bedrock_1_21_110/__biome_data__.json",
+    $source: "https://github.com/gentlegiantJGC/PyMCTranslate/blob/main/PyMCTranslate/json/versions/bedrock_26_30/__biome_data__.json",
     $source_version_list: "https://api.github.com/repos/gentlegiantJGC/PyMCTranslate/contents/PyMCTranslate/json/versions",
-    $version: "1.21.110",
+    $version: "1.26.30",
     int_map: {
         "minecraft:ocean": 0,
         "minecraft:plains": 1,
@@ -95,6 +95,9 @@ export default {
         "minecraft:mangrove_swamp": 191,
         "minecraft:cherry_grove": 192,
         "minecraft:pale_garden": 193,
+        "minecraft:sulfur_caves": 194,
+        // Manually added.
+        "minecraft:dappled_forest": 195,
     },
     version2universal: {
         "minecraft:ocean": "universal_minecraft:ocean",
@@ -184,6 +187,9 @@ export default {
         "minecraft:mangrove_swamp": "universal_minecraft:mangrove_swamp",
         "minecraft:cherry_grove": "universal_minecraft:cherry_grove",
         "minecraft:pale_garden": "universal_minecraft:pale_garden",
+        "minecraft:sulfur_caves": "universal_minecraft:sulfur_caves",
+        // Manually added.
+        "minecraft:dappled_forest": "universal_minecraft:dappled_forest",
     },
     universal2version: {
         "universal_minecraft:ocean": "minecraft:ocean",
@@ -273,10 +279,13 @@ export default {
         "universal_minecraft:mangrove_swamp": "minecraft:mangrove_swamp",
         "universal_minecraft:cherry_grove": "minecraft:cherry_grove",
         "universal_minecraft:pale_garden": "minecraft:pale_garden",
+        "universal_minecraft:sulfur_caves": "minecraft:sulfur_caves",
         "universal_minecraft:small_end_islands": "minecraft:the_end",
         "universal_minecraft:end_midlands": "minecraft:the_end",
         "universal_minecraft:end_highlands": "minecraft:the_end",
         "universal_minecraft:end_barrens": "minecraft:the_end",
         "universal_minecraft:the_void": "minecraft:plains",
+        // Manually added.
+        "universal_minecraft:dappled_forest": "minecraft:dappled_forest",
     },
 };

@@ -798,7 +798,7 @@ export const entryContentTypeToFormatMap = {
      *
      * Unlike {@link entryContentTypeToFormatMap.Data3D | Data3D}, this only stores biome data for xz coordinates, so in this format all y coordinates have the same biome.
      *
-     * @deprecated Only used in versions < 1.18.0.
+     * Only used in versions < 1.18.0, and for worlds using the Old world type or using an older base game version.
      */
     Data2D: {
         /**
@@ -818,6 +818,12 @@ export const entryContentTypeToFormatMap = {
          * @returns The parsed data.
          */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.Data2D {
+            const formatVersion: NBTSchemas.NBTSchemaTypes.Data2D["value"]["version"]["value"] | -1 =
+                data.length === 768 ? 1
+                : data.length === 1024 ? 2
+                : -1;
+            if (formatVersion === -1) throw new Error(`Unknown Data2D format, expected 768 or 1024 bytes, got ${data.length} bytes`);
+
             const heightMap: TupleOfLength16<TupleOfLength16<number>> = Array.from(
                 { length: 16 },
                 (): TupleOfLength16<number> => Array(16).fill(0) as TupleOfLength16<number>
@@ -835,38 +841,82 @@ export const entryContentTypeToFormatMap = {
                 (): TupleOfLength16<number> => Array(16).fill(0) as TupleOfLength16<number>
             ) as TupleOfLength16<TupleOfLength16<number>>;
 
-            for (let i = 0; i < 256; i++) {
-                const val: number = data.readUInt8(512 + i);
-                const x: number = i % 16;
-                const z: number = Math.floor(i / 16);
-                biomeData[x]![z] = val;
-            }
-
-            return {
-                type: "compound",
-                value: {
-                    heightMap: {
-                        type: "list",
+            switch (formatVersion) {
+                case 1:
+                    for (let i = 0; i < 256; i++) {
+                        const val: number = data.readUInt8(512 + i);
+                        const x: number = i % 16;
+                        const z: number = Math.floor(i / 16);
+                        biomeData[x]![z] = val;
+                    }
+                    return {
+                        type: "compound",
                         value: {
-                            type: "list",
-                            value: heightMap.map((row: TupleOfLength16<number>) => ({
-                                type: "short",
-                                value: row,
-                            })),
-                        },
-                    },
-                    biomeData: {
-                        type: "list",
-                        value: {
-                            type: "list",
-                            value: biomeData.map((row: TupleOfLength16<number>) => ({
+                            version: {
                                 type: "byte",
-                                value: row,
-                            })),
+                                value: formatVersion,
+                            },
+                            heightMap: {
+                                type: "list",
+                                value: {
+                                    type: "list",
+                                    value: heightMap.map((row: TupleOfLength16<number>) => ({
+                                        type: "short",
+                                        value: row,
+                                    })),
+                                },
+                            },
+                            biomeData: {
+                                type: "list",
+                                value: {
+                                    type: "list",
+                                    value: biomeData.map((row: TupleOfLength16<number>) => ({
+                                        type: "byte",
+                                        value: row,
+                                    })),
+                                },
+                            },
                         },
-                    },
-                },
-            };
+                    };
+                case 2:
+                    for (let i = 0; i < 256; i++) {
+                        const val: number = data.readUInt16LE(512 + i * 2);
+                        const x: number = i % 16;
+                        const z: number = Math.floor(i / 16);
+                        biomeData[x]![z] = val;
+                    }
+                    return {
+                        type: "compound",
+                        value: {
+                            version: {
+                                type: "byte",
+                                value: formatVersion,
+                            },
+                            heightMap: {
+                                type: "list",
+                                value: {
+                                    type: "list",
+                                    value: heightMap.map((row: TupleOfLength16<number>) => ({
+                                        type: "short",
+                                        value: row,
+                                    })),
+                                },
+                            },
+                            biomeData: {
+                                type: "list",
+                                value: {
+                                    type: "list",
+                                    value: biomeData.map((row: TupleOfLength16<number>) => ({
+                                        type: "short",
+                                        value: row,
+                                    })),
+                                },
+                            },
+                        },
+                    };
+                default:
+                    throw new Error(`Missing parser for Data2D format: ${formatVersion}`);
+            }
         },
         /**
          * The function to serialize the data.
@@ -877,28 +927,56 @@ export const entryContentTypeToFormatMap = {
          * @returns The serialized data, as a buffer.
          */
         serialize(data: NBTSchemas.NBTSchemaTypes.Data2D): Buffer<ArrayBuffer> {
+            const formatVersion = data.value.version.value;
             const heightMap = data.value.heightMap.value.value;
             const biomeData = data.value.biomeData.value.value;
 
-            const buffer: Buffer<ArrayBuffer> = Buffer.alloc(512 + 256);
+            switch (formatVersion) {
+                case 1: {
+                    const buffer: Buffer<ArrayBuffer> = Buffer.alloc(512 + 256);
 
-            for (let z = 0; z < 16; z++) {
-                for (let x: number = 0; x < 16; x++) {
-                    const i: number = z * 16 + x;
-                    const val: number = heightMap[x]!.value[z]!;
-                    buffer.writeInt16LE(val, i * 2);
+                    for (let z = 0; z < 16; z++) {
+                        for (let x: number = 0; x < 16; x++) {
+                            const i: number = z * 16 + x;
+                            const val: number = heightMap[x]!.value[z]!;
+                            buffer.writeInt16LE(val, i * 2);
+                        }
+                    }
+
+                    for (let z = 0; z < 16; z++) {
+                        for (let x: number = 0; x < 16; x++) {
+                            const i: number = z * 16 + x;
+                            const val: number = biomeData[x]!.value[z]!;
+                            buffer.writeUInt8(val, 512 + i);
+                        }
+                    }
+
+                    return buffer;
                 }
-            }
+                case 2: {
+                    const buffer: Buffer<ArrayBuffer> = Buffer.alloc(512 + 512);
 
-            for (let z = 0; z < 16; z++) {
-                for (let x: number = 0; x < 16; x++) {
-                    const i: number = z * 16 + x;
-                    const val: number = biomeData[x]!.value[z]!;
-                    buffer.writeUInt8(val, 512 + i);
+                    for (let z = 0; z < 16; z++) {
+                        for (let x: number = 0; x < 16; x++) {
+                            const i: number = z * 16 + x;
+                            const val: number = heightMap[x]!.value[z]!;
+                            buffer.writeInt16LE(val, i * 2);
+                        }
+                    }
+
+                    for (let z = 0; z < 16; z++) {
+                        for (let x: number = 0; x < 16; x++) {
+                            const i: number = z * 16 + x;
+                            const val: number = biomeData[x]!.value[z]!;
+                            buffer.writeUInt16LE(val, 512 + i * 2);
+                        }
+                    }
+
+                    return buffer;
                 }
+                default:
+                    throw new TypeError(`Unknown Data2D format: ${formatVersion}`);
             }
-
-            return buffer;
         },
     },
     /**
@@ -1293,7 +1371,7 @@ export const entryContentTypeToFormatMap = {
 
             const block_light: Range<0, 15>[] = unpackNibbleArray(16384);
 
-            const dirty_columns: number[] = [...data.subarray(currentOffset, currentOffset + 256)];
+            const height_map: number[] = [...data.subarray(currentOffset, currentOffset + 256)];
             currentOffset += 256;
 
             const grass_color: number[] = [...data.subarray(currentOffset, currentOffset + 1024)];
@@ -1304,7 +1382,7 @@ export const entryContentTypeToFormatMap = {
                 block_data: { type: "list", value: { type: "byte", value: block_data } },
                 sky_light: { type: "list", value: { type: "byte", value: sky_light } },
                 block_light: { type: "list", value: { type: "byte", value: block_light } },
-                dirty_columns: { type: "list", value: { type: "byte", value: dirty_columns } },
+                height_map: { type: "list", value: { type: "byte", value: height_map } },
                 grass_color: { type: "list", value: { type: "byte", value: grass_color } },
             } as const satisfies NBTSchemas.NBTSchemaTypes.LegacyTerrain["value"]);
         },
@@ -1329,7 +1407,7 @@ export const entryContentTypeToFormatMap = {
                 Buffer.from(packNibbles(data.value.block_data.value.value)),
                 Buffer.from(packNibbles(data.value.sky_light.value.value)),
                 Buffer.from(packNibbles(data.value.block_light.value.value)),
-                Buffer.from(data.value.dirty_columns.value.value),
+                Buffer.from(data.value.height_map.value.value),
                 Buffer.from(data.value.grass_color.value.value),
             ]);
         },

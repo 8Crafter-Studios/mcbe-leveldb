@@ -1,3 +1,31 @@
+# v1.18.0
+
+## Breaking Changes
+
+-   The `dirty_columns` field of the `LegacyTerrain` NBT schema and parser/serializer has been renamed to `height_map`.
+-   The `Data2D` NBT schema and parser/serializer now includes a `version` field.
+
+## Additions
+
+-   Added the `Item_ItemStackBase` NBT schema, which is equivalent to the old `Item_ItemStack` NBT schema.
+-   The `Item_ItemStack` NBT schema now references the `Item_GeneralTags` and `Item_EnchantmentTags` NBT schemas.
+-   Added the `Item_GeneralTags` NBT schema.
+-   Added the `Item_EnchantmentTags` NBT schema, which includes autocomplete and validation for enchantment IDs.
+-   The NBT schema to TypeScript interface converter now supports `anyOf`.
+-   Added support for the newer `Data2D` format version used in `v1.18.0+` which uses 16-bit little-endian integers for biome IDs instead of 8-bit integers.
+-   The package now has the [`type-fest`](https://www.npmjs.com/package/type-fest) package as a dependency.
+
+## Changes
+
+-   Updated the `BiomeData` from `v1.21.110` to `v1.26.30` (also manually added definitions for the dappled forest, since that is not in `v1.26.30` and there is no newer definitions file available).
+-   The NBT schema to TypeScript interface converter now wraps generated `oneOf` types in the `ExclusifyUnion` generic type from the [`type-fest`](https://www.npmjs.com/package/type-fest) package, this makes the typings more accurate.
+-   The `Data2D` content type is no longer marked as deprecated as it is actually still written by the game for worlds using the Old world type or an older base game version.
+
+## Fixes
+
+-   Fixed a bug where many properties of NBT schemas that were items did not have a reference to the `Item_ItemStack` NBT schema.
+-   Many fixes for the NBT schema to JSON schema converter.
+
 # v1.17.0
 
 ## Additions

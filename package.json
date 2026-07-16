@@ -1,11 +1,11 @@
 {
     "name": "mcbe-leveldb",
-    "version": "1.17.0",
+    "version": "1.18.0",
     "main": "index.ts",
     "scripts": {
         "prepublishOnly": "tsc -p ./tsconfig.production.json",
         "postpublish": "node --experimental-transform-types development_scripts/postPublishCleanup.ts",
-        "generateNBTSchemaFromWikiData": "node --experimental-transform-types generation_scripts/generateNBTSchemaFromWikiData.ts",
+        "generateNBTSchemaFromWikiData": "node --experimental-transform-types development_scripts/generateNBTSchemaFromWikiData.ts",
         "schemasTest": "node --experimental-transform-types test/schemas.test.ts",
         "prePublishJSOnlyBuild": "node --experimental-transform-types development_scripts/prePublishJSOnlyBuild.ts",
         "postPublishJSOnlyBuild": "node --experimental-transform-types development_scripts/postPublishJSOnlyBuild.ts",
@@ -33,7 +33,8 @@
     "type": "module",
     "description": "A utility module for easily working with Minecraft Bedrock Edition world data.",
     "dependencies": {
-        "prismarine-nbt": "^2.7.0"
+        "prismarine-nbt": "^2.7.0",
+        "type-fest": "^5.8.0"
     },
     "devDependencies": {
         "@8crafter/leveldb-zlib": "^1.6.0",
