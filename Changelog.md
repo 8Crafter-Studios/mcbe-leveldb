@@ -1,3 +1,24 @@
+# v1.19.0
+
+## Critical Fixes
+
+-   Fixed a bug where the parser for the `Data3D` content type did not work when there were subchunks with storage types of `3`, `5`, or `6`.
+-   Fixed a bug where the serializer for the `Data3D` content type could not write storage types of `3`, `5`, or `6`, and instead rounded them up to the nearest storage type it supported, which may or may not have caused crashes in some Minecraft worlds.
+-   Fixed a bug where `getContentTypeFromDBKey` wouldn't be able to determine the content type for the following content types in some older worlds where the dimension was not part of the key:
+    -   `VillagePOI`
+    -   `VillageInfo`
+    -   `VillageDwellers`
+    -   `VillagePlayers`
+    -   `VillageRaid`
+
+## Additions
+
+-   Added the `DBChunkKeyEntryContentTypes` constant.
+
+## Fixes
+
+-   Fixed some misinformation that said that `Data2D` format version 2 was used in `v1.18.0+`, when it was actually added some time later than that.
+
 # v1.18.0
 
 ## Breaking Changes

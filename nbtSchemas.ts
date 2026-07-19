@@ -11494,11 +11494,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         required: ["version", "heightMap", "biomeData"],
                         properties: {
                             version: {
+                                // TODO: Figure out what version the format version changed in. 1.18.0 uses format version 1.
                                 title: "Format Version",
                                 markdownDescription:
-                                    "The format version of the Data2D data. For versions before v1.18.0, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
+                                    "The format version of the Data2D data. For older Minecraft versions, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
                                 type: "byte",
-                                enumDescriptions: ["Pre-v1.18.0"],
+                                enumDescriptions: ["Pre-?"],
                                 enum: [{ type: "byte", value: 1 }],
                             },
                             heightMap: {
@@ -11540,11 +11541,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         required: ["version", "heightMap", "biomeData"],
                         properties: {
                             version: {
+                                // TODO: Figure out what version the format version changed in. 1.18.0 uses format version 1.
                                 title: "Format Version",
                                 markdownDescription:
-                                    "The format version of the Data2D data. For versions before v1.18.0, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
+                                    "The format version of the Data2D data. For older Minecraft versions, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
                                 type: "byte",
-                                enumDescriptions: ["Post-v1.18.0"],
+                                enumDescriptions: ["Post-?"],
                                 enum: [{ type: "byte", value: 2 }],
                             },
                             heightMap: {

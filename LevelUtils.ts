@@ -280,6 +280,11 @@ function writeChunkBiomes(biomes: BiomePalette[]): Buffer<ArrayBuffer> {
             continue;
         }
 
+        if (palette.length === 1 && palette[0] !== undefined && idsBuf.length === 1 && (idsBuf[0] === 0 || idsBuf[0] === 1)) {
+            buffers.push(idsBuf, writeInt32LE(palette[0]!));
+            continue;
+        }
+
         // --- Write palette size ---
         const paletteSizeBuf: Buffer<ArrayBuffer> = writeInt32LE(palette.length);
 
@@ -320,8 +325,8 @@ function readSubchunkPaletteIds(
     const values = new Array(4096);
 
     if (bitsPerBlock > 0) {
-        const blocksPerWord = 32 / bitsPerBlock;
-        const wordCount = Math.floor(4095 / blocksPerWord) + 1;
+        const blocksPerWord = Math.floor(32 / bitsPerBlock);
+        const wordCount = Math.ceil(4096 / blocksPerWord);
         const mask = (1 << bitsPerBlock) - 1;
 
         // console.warn(
@@ -398,16 +403,18 @@ function readSubchunkPaletteIds(
 }
 
 function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer<ArrayBuffer> {
+    if (paletteSize === 1) return Buffer.from([1]);
+
     const blockCount: number = values.length; // usually 16*16*16 = 4096
     const bitsPerBlockOriginal: number = Math.max(1, Math.ceil(Math.log2(paletteSize)));
-    const bitsPerBlockDivisors: number[] = [1, 2, 4, 8, 16, 32];
+    const bitsPerBlockDivisors: number[] = [1, 2, 3, 4, 5, 6, 8, 16];
 
-    const bitsPerBlock: number = paletteSize === 0 ? 127 : (bitsPerBlockDivisors.find((d: number): boolean => d >= bitsPerBlockOriginal) ?? 32);
+    const bitsPerBlock: number = paletteSize === 0 ? 127 : (bitsPerBlockDivisors.find((d: number): boolean => d >= bitsPerBlockOriginal) ?? 16);
 
     // console.log(bitsPerBlock);
 
-    const wordsPerBlock: number = paletteSize === 0 ? 0 : Math.ceil((blockCount * bitsPerBlock) / 32);
-    const words = new Uint32Array(wordsPerBlock);
+    // const wordsPerBlock: number = paletteSize === 0 ? 0 : Math.ceil(blockCount / Math.floor(32 / bitsPerBlock));
+    // const words = new Uint32Array(wordsPerBlock);
 
     // let bitIndex: number = 0;
     // for (const v of values) {
@@ -421,18 +428,38 @@ function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer<
     //         bitIndex++;
     //     }
     // }
-    let bitIndex = 0;
-    for (let i = 0; i < values.length; i++) {
-        let val = values[i]! & ((1 << bitsPerBlock) - 1); // mask to bpe bits
-        const wordIndex = Math.floor(bitIndex / 32);
-        const bitOffset = bitIndex % 32;
-        words[wordIndex]! |= val << bitOffset;
-        if (bitOffset + bitsPerBlock > 32) {
-            // spill over into next word
-            words[wordIndex + 1]! |= val >>> (32 - bitOffset);
+    // let bitIndex = 0;
+    // for (let i = 0; i < values.length; i++) {
+    //     let val = values[i]! & ((1 << bitsPerBlock) - 1); // mask to bpe bits
+    //     const wordIndex = Math.floor(bitIndex / 32);
+    //     const bitOffset = bitIndex % 32;
+    //     words[wordIndex]! |= val << bitOffset;
+    //     if (bitOffset + bitsPerBlock > 32) {
+    //         // spill over into next word
+    //         words[wordIndex + 1]! |= val >>> (32 - bitOffset);
+    //     }
+    //     bitIndex += bitsPerBlock;
+    // }
+
+    const blocksPerWord = Math.floor(32 / bitsPerBlock);
+    const wordCount = Math.ceil(blockCount / blocksPerWord);
+    const mask = (1 << bitsPerBlock) - 1;
+
+    const words = new Uint32Array(wordCount);
+
+    let u = 0;
+    for (let j = 0; j < wordCount; j++) {
+        let temp = 0;
+
+        for (let k = 0; k < blocksPerWord && u < blockCount; k++) {
+            const val = values[u]! & mask;
+            temp |= val << (k * bitsPerBlock);
+            u++;
         }
-        bitIndex += bitsPerBlock;
+
+        words[j] = temp >>> 0; // ensure unsigned
     }
+
     // words.forEach((val, i) => {
     //     words[i] = (-val - 1) & 0xffffffff;
     // });
@@ -549,6 +576,37 @@ export const DBEntryContentTypes = [
     // Misc.
     "Unknown",
 ] as const;
+
+/**
+ * The content types for LevelDB entries that are associated with a specific chunk.
+ */
+export const DBChunkKeyEntryContentTypes = [
+    "Data3D",
+    "Version",
+    "Data2D",
+    "Data2DLegacy",
+    "SubChunkPrefix",
+    "LegacyTerrain",
+    "BlockEntity",
+    "Entity",
+    "PendingTicks",
+    "LegacyBlockExtraData",
+    "BiomeState",
+    "FinalizedState",
+    "ConversionData",
+    "BorderBlocks",
+    "HardcodedSpawners",
+    "RandomTicks",
+    "Checksums",
+    "GenerationSeed",
+    "GeneratedPreCavesAndCliffsBlending",
+    "BlendingBiomeHeight",
+    "MetaDataHash",
+    "BlendingData",
+    "ActorDigestVersion",
+    "LegacyVersion",
+    "AABBVolumes",
+] as const satisfies DBEntryContentType[];
 
 /**
  * Maps content types to grouping labels.
@@ -3725,32 +3783,7 @@ export type DBEntryContentType = (typeof DBEntryContentTypes)[number];
 /**
  * A content type of a LevelDB chunk key entry.
  */
-export type DBChunkKeyEntryContentType =
-    | "Data3D"
-    | "Version"
-    | "Data2D"
-    | "Data2DLegacy"
-    | "SubChunkPrefix"
-    | "LegacyTerrain"
-    | "BlockEntity"
-    | "Entity"
-    | "PendingTicks"
-    | "LegacyBlockExtraData"
-    | "BiomeState"
-    | "FinalizedState"
-    | "ConversionData"
-    | "BorderBlocks"
-    | "HardcodedSpawners"
-    | "RandomTicks"
-    | "Checksums"
-    | "GenerationSeed"
-    | "GeneratedPreCavesAndCliffsBlending"
-    | "BlendingBiomeHeight"
-    | "MetaDataHash"
-    | "BlendingData"
-    | "ActorDigestVersion"
-    | "LegacyVersion"
-    | "AABBVolumes";
+export type DBChunkKeyEntryContentType = (typeof DBChunkKeyEntryContentTypes)[number];
 
 /**
  * The a grouping type of LevelDB entry content types.
@@ -4550,23 +4583,25 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "Map";
         case stringKey.startsWith("player_server_"):
             return "Player";
+        // FIXME: This does not work properly on really old worlds, where there was no PlayerClient content type, and the Player content type was prefixed with player_ instead of player_server_.
         case stringKey.startsWith("player_"):
             return "PlayerClient";
         case stringKey.startsWith("digp"):
             return "Digest";
+        // REVIEW: The dimension may not be present in this key in older versions (if it was present in those older version), like with the village-related keys.
         case /^chunk_loaded_request_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_\d+$/.test(stringKey):
             return "ChunkLoadedRequest";
         case stringKey.startsWith("RealmsStoriesData_"):
             return "RealmsStoriesData";
-        case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_POI$/.test(stringKey):
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_POI$/.test(stringKey):
             return "VillagePOI";
-        case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_INFO$/.test(stringKey):
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_INFO$/.test(stringKey):
             return "VillageInfo";
-        case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_DWELLERS$/.test(stringKey):
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_DWELLERS$/.test(stringKey):
             return "VillageDwellers";
-        case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_PLAYERS$/.test(stringKey):
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_PLAYERS$/.test(stringKey):
             return "VillagePlayers";
-        case /^VILLAGE_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_[0-9a-f\\-]+_RAID$/.test(stringKey):
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_RAID$/.test(stringKey):
             return "VillageRaid";
         case /^[\u0001-\u0008\u000b-\u000c\u000e-\u001f\u0021-\u0039\u003b-\uffff]+:[\u0001-\u0008\u000b-\u000c\u000e-\u001f\u0021-\u0039\u003b-\uffff]+$/.test(
             stringKey
