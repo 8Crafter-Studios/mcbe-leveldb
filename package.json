@@ -1,6 +1,6 @@
 {
     "name": "mcbe-leveldb",
-    "version": "1.19.0",
+    "version": "1.20.0",
     "main": "index.ts",
     "scripts": {
         "prepublishOnly": "tsc -p ./tsconfig.production.json",
@@ -34,6 +34,7 @@
     "description": "A utility module for easily working with Minecraft Bedrock Edition world data.",
     "dependencies": {
         "prismarine-nbt": "^2.7.0",
+        "protodef": "1.18.x||1.19.x",
         "type-fest": "^5.8.0"
     },
     "devDependencies": {

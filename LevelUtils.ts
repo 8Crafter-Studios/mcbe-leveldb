@@ -3,7 +3,9 @@ import BiomeData from "./__biome_data__.ts";
 import type { LevelDB } from "@8crafter/leveldb-zlib";
 import type { NBTSchemas } from "./nbtSchemas.ts";
 import type { LooseAutocomplete, Range } from "./types.js";
-import { toLongParts } from "./SNBTUtils.ts";
+import { toLong, toLongParts } from "./SNBTUtils.ts";
+import { __NBT_LE_binary_string_encoding_proto_defs__ } from "./__nbt_le_bin_str_proto_defs__.ts";
+import protodef from "protodef";
 
 //#region Local Constants
 
@@ -172,6 +174,7 @@ export function readData3dValue(rawvalue: Uint8Array | null): {
     }
 
     // Enlarge list to length 24 if necessary
+    // REVIEW: Maybe this should be removed.
     if (biomes.length < 24) {
         while (biomes.length < 24) {
             biomes.push({ values: null, palette: [] });
@@ -477,6 +480,71 @@ function writeSubchunkPaletteIds(values: number[], paletteSize: number): Buffer<
     return Buffer.concat([header, packed]);
 }
 
+/**
+ * This is to allow linking of deeply nested properties from JSDoc.
+ *
+ * @internal
+ */
+declare namespace __JSDocTypeAliases {
+    /**
+     * This links to `NBTSchemas.NBTSchemaTypes.ActorPrefix["value"]["internalComponents"]["value"]["EntityStorageKeyComponent"]["value"]`.
+     */
+    export type EntityStorageKeyComponentValue =
+        NBTSchemas.NBTSchemaTypes.ActorPrefix["value"]["internalComponents"]["value"]["EntityStorageKeyComponent"]["value"];
+    /**
+     * This links to `NBTSchemas.NBTSchemaTypes.Digest["value"]`.
+     */
+    export type DigestValue = NBTSchemas.NBTSchemaTypes.Digest["value"];
+}
+
+/**
+ * Parses the storage key of an {@link entryContentTypeToFormatMap.ActorPrefix | ActorPrefix}.
+ *
+ * The storage key is stored as a binary-encoded string in the {@link __JSDocTypeAliases.EntityStorageKeyComponentValue.StorageKey | internalComponents.EntityStorageKeyComponent.StorageKey} property.
+ *
+ * The value returned from this function is the ID that is used in the ActorPrefix's LevelDB key and in the {@link __JSDocTypeAliases.DigestValue.entityIds | entity IDs list} of {@link entryContentTypeToFormatMap.Digest | Digest} LevelDB entries.
+ *
+ * @param data The storage key.
+ * @returns The ID.
+ */
+export function parseActorPrefixStorageKey(data: Buffer | string): bigint {
+    if (typeof data === "string") data = Buffer.from(data, "binary");
+    return toLong([data.readInt32LE(0), data.readInt32LE(4)]);
+}
+
+/**
+ * Parses the storage key of an {@link entryContentTypeToFormatMap.ActorPrefix | ActorPrefix} into high and low parts.
+ *
+ * The storage key is stored as a binary-encoded string in the {@link __JSDocTypeAliases.EntityStorageKeyComponentValue.StorageKey | internalComponents.EntityStorageKeyComponent.StorageKey} property.
+ *
+ * The value returned from this function is the ID that is used in the ActorPrefix's LevelDB key and in the {@link __JSDocTypeAliases.DigestValue.entityIds | entity IDs list} of {@link entryContentTypeToFormatMap.Digest | Digest} LevelDB entries.
+ *
+ * @param data The storage key.
+ * @returns The ID.
+ */
+export function parseActorPrefixStorageKeyToParts(data: Buffer | string): [high: number, low: number] {
+    if (typeof data === "string") data = Buffer.from(data, "binary");
+    return [data.readInt32LE(0), data.readInt32LE(4)];
+}
+
+/**
+ * Serializes the storage key ID of an {@link entryContentTypeToFormatMap.ActorPrefix | ActorPrefix} into a raw binary-encoded storage key string.
+ *
+ * The storage key is stored as a binary-encoded string in the {@link __JSDocTypeAliases.EntityStorageKeyComponentValue.StorageKey | internalComponents.EntityStorageKeyComponent.StorageKey} property.
+ *
+ * The value passed to this function is the ID that is used in the ActorPrefix's LevelDB key and in the {@link __JSDocTypeAliases.DigestValue.entityIds | entity IDs list} of {@link entryContentTypeToFormatMap.Digest | Digest} LevelDB entries.
+ *
+ * @param data The ID.
+ * @returns The storage key.
+ */
+export function serializeActorPrefixStorageKey(data: bigint | [high: number, low: number]): Buffer<ArrayBuffer> {
+    if (typeof data === "bigint") data = toLongParts(data);
+    const buffer: Buffer<ArrayBuffer> = Buffer.alloc(8);
+    buffer.writeInt32LE(data[0], 0);
+    buffer.writeInt32LE(data[1], 4);
+    return buffer;
+}
+
 function fakeAssertType<T>(value: unknown): asserts value is T {
     void value;
     return;
@@ -578,7 +646,7 @@ export const DBEntryContentTypes = [
 ] as const;
 
 /**
- * The content types for LevelDB entries that are associated with a specific chunk.
+ * The content types for LevelDB entries that are associated with a specific chunk and use a single byte at the end of the LevelDB key to denote their content type.
  */
 export const DBChunkKeyEntryContentTypes = [
     "Data3D",
@@ -607,6 +675,40 @@ export const DBChunkKeyEntryContentTypes = [
     "LegacyVersion",
     "AABBVolumes",
 ] as const satisfies DBEntryContentType[];
+
+/**
+ * The content types for LevelDB entries that are associated with a specific chunk, includes both the content types from {@link DBChunkKeyEntryContentTypes} and other keys that are tied to a specific chunk but use a different key format.
+ */
+export const DBChunkLinkedContentTypes = [
+    // Single Appended Byte Format
+    "Data3D",
+    "Version",
+    "Data2D",
+    "Data2DLegacy",
+    "SubChunkPrefix",
+    "LegacyTerrain",
+    "BlockEntity",
+    "Entity",
+    "PendingTicks",
+    "LegacyBlockExtraData",
+    "BiomeState",
+    "FinalizedState",
+    "ConversionData",
+    "BorderBlocks",
+    "HardcodedSpawners",
+    "RandomTicks",
+    "Checksums",
+    "GenerationSeed",
+    "GeneratedPreCavesAndCliffsBlending",
+    "BlendingBiomeHeight",
+    "MetaDataHash",
+    "BlendingData",
+    "ActorDigestVersion",
+    "LegacyVersion",
+    "AABBVolumes",
+    // Other Key Format
+    "Digest",
+] as const satisfies [...typeof DBChunkKeyEntryContentTypes, ...Exclude<DBEntryContentType, DBChunkKeyEntryContentType>[]];
 
 /**
  * Maps content types to grouping labels.
@@ -690,6 +792,71 @@ export const DBEntryContentTypesGrouping = {
 // TODO: Look into the supposed `idcounts` LevelDB key that was supposedly in MCPE v0.13.0.
 // TODO: Add support for the LegacyPlayer content type which is based on a number stored in `cilentid.txt`.
 // TODO: Look into if LegacyVillageManager (may just be another name for MVillages, key is allegedly `VillageManager`) is a real content type.
+
+/**
+ * Maps the chunk versions from the {@link entryContentTypeToFormatMap.LegacyVersion} content type to details of what version they correspond to.
+ */
+export const chunkLegacyVersionDetailsMap = {
+    [0]: "v0.9.0",
+    [1]: "v0.9.2",
+    [2]: "v0.9.5",
+    [3]: "v0.17.0.1",
+    [4]: "v1.1.0",
+    [5]: "Converted from console to v1.1.0",
+    [6]: "v1.2.0.2",
+    [7]: "v1.2.0",
+    [8]: "v1.2.13",
+    [9]: "v1.8.0",
+    [10]: "v1.9.0",
+    [11]: "v1.11.0.1",
+    [12]: "v1.11.0.3",
+    [13]: "v1.11.0.4",
+    [14]: "v1.11.1",
+    [15]: "v1.12.0.4",
+    [16]: "v1.14.0",
+    [17]: "v1.15.0",
+    [18]: "v1.16.0.51",
+    [19]: "v1.16.0",
+} as const;
+
+/**
+ * Maps the chunk versions from the {@link entryContentTypeToFormatMap.Version} content type to details of what version they correspond to.
+ */
+export const chunkVersionDetailsMap = {
+    [20]: "v1.16.100.52",
+    [21]: "v1.16.100.57",
+    [22]: "v1.16.210",
+    [23]: "v1.16.220.50 (+Caves & Cliffs Experimental Toggle)",
+    [24]: "v1.16.220.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    [25]: "v1.16.230.50 (+Caves & Cliffs Experimental Toggle)",
+    [26]: "v1.16.230.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    [27]: "v1.17.30.23 (+Caves & Cliffs Experimental Toggle)",
+    [28]: "v1.17.30.23 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    [29]: "v1.17.30.25 (+Caves & Cliffs Experimental Toggle)",
+    [30]: "v1.17.30.25 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    [31]: "v1.17.40.20 (+Caves & Cliffs Experimental Toggle)",
+    [32]: "v1.17.40.20 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    [33]: "v1.18.0.20",
+    [34]: "v1.18.0.20 (internal/developer builds)",
+    [35]: "v1.18.0.22",
+    [36]: "v1.18.0.22 (internal/developer builds)",
+    [37]: "v1.18.0.24",
+    [38]: "v1.18.0.24 (internal/developer builds)",
+    [39]: "v1.18.0.25",
+    [40]: "v1.18.30 after upgrading entities to independent storage",
+    [41]: "v1.21.40",
+    [42]: "v1.21.120",
+} as const;
+
+/**
+ * This is like {@link NBT.protoLE | protoLE} from the `prismarine-nbt` module, except strings are parsed with a binary encoding instead of UTF-8.
+ */
+export const protoLEBinaryStringEncoding: CompiledProtoDef = ((): CompiledProtoDef => {
+    const compiler = new protodef.Compiler.ProtoDefCompiler();
+    (compiler as ProtodefCompiler & { addTypesToCompile(types: unknown): void }).addTypesToCompile(__NBT_LE_binary_string_encoding_proto_defs__);
+    NBT.addTypesToCompiler("little", compiler as unknown as typeof protodef.Compiler);
+    return compiler.compileProtoDefSync();
+})();
 
 /**
  * The content type to format mapping for LevelDB entries.
@@ -791,7 +958,7 @@ export const entryContentTypeToFormatMap = {
     /**
      * The version of a chunk.
      *
-     * Deleting think key causes the game to completely regenerate the corresponding chunk.
+     * Deleting this key causes the game to completely regenerate the corresponding chunk.
      *
      * Possible values:
      * - `20`: v1.16.100.52
@@ -817,6 +984,8 @@ export const entryContentTypeToFormatMap = {
      * - `40`: v1.18.30 after upgrading entities to independent storage
      * - `41`: v1.21.40
      * - `42`: v1.21.120
+     *
+     * @see {@link chunkVersionDetailsMap}
      *
      * @since v1.16.100
      */
@@ -2410,6 +2579,8 @@ export const entryContentTypeToFormatMap = {
     /**
      * The version of a chunk for versions < 1.16.100.
      *
+     * Deleting this key causes the game to completely regenerate the corresponding chunk.
+     *
      * Possible values:
      * - `0`: v0.9.0
      * - `1`: v0.9.2
@@ -2431,6 +2602,8 @@ export const entryContentTypeToFormatMap = {
      * - `17`: v1.15.0
      * - `18`: v1.16.0.51
      * - `19`: v1.16.0
+     *
+     * @see {@link chunkLegacyVersionDetailsMap}
      *
      * @deprecated Only used in versions < 1.16.100. Later versions use {@link entryContentTypeToFormatMap.Version | Version}
      */
@@ -2565,11 +2738,190 @@ export const entryContentTypeToFormatMap = {
      *
      * @see {@link NBTSchemas.nbtSchemas.ActorPrefix}
      */
+    // IDEA: Maybe make an exported parser and serializer NBT function that just supports strings with both UTF-8 and binary encodings, like with the parser and serializer for the ActorPrefix content type.
     ActorPrefix: {
         /**
          * The format type of the data.
          */
-        type: "NBT",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.ActorPrefix.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.ActorPrefix {
+            function decodeMaybeUtf8(binaryString: string): string {
+                const decoded: string = Buffer.from(binaryString, "binary").toString("utf8");
+                return decoded.includes("\uFFFD") ? binaryString : decoded;
+            }
+            function isStorageKeyPath(path: readonly string[]): boolean {
+                return (
+                    path.length >= 5 &&
+                    path[path.length - 5] === "internalComponents" &&
+                    path[path.length - 4] === "EntityStorageKeyComponent" &&
+                    path[path.length - 3] === "StorageKey"
+                );
+            }
+            function convertParsedStrings<T extends NBT.Tags[NBT.TagType] | { type: "end"; value: [] } | string | number | undefined>(
+                tag: T,
+                path: readonly string[] = []
+            ): T {
+                if (!tag || typeof tag !== "object") return tag;
+
+                if (tag.type === "string" && !isStorageKeyPath(path)) {
+                    tag.value = decodeMaybeUtf8(tag.value);
+                    return tag;
+                }
+
+                if (tag.type === "compound") {
+                    const obj = tag.value;
+                    for (const key in obj) {
+                        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+                        obj[key] = convertParsedStrings(obj[key], [...path, key]);
+                    }
+                    return tag;
+                }
+
+                if (tag.type === "list") {
+                    const arr = tag.value.value;
+                    for (let i = 0; i < arr.length; i++) {
+                        arr[i] = convertParsedStrings({ type: tag.value.type, value: arr[i]! } as NBT.Tags[NBT.TagType], [...path, String(i)]).value;
+                    }
+                    return tag;
+                }
+
+                return tag;
+            }
+
+            protoLEBinaryStringEncoding.setVariable("noArraySizeCheck", undefined);
+
+            const parsedData: ExtendedResults = protoLEBinaryStringEncoding.parsePacketBuffer("nbt", data, 0);
+            convertParsedStrings(parsedData.data);
+
+            return parsedData.data as NBTSchemas.NBTSchemaTypes.ActorPrefix;
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.ActorPrefix): Buffer<ArrayBuffer> {
+            // function encodeUtf8AsBinary(utf8String: string): string {
+            //     return Buffer.from(utf8String, "utf8").toString("binary");
+            // }
+            function encodeMaybeUtf8(str: string): string {
+                const decoded: string = Buffer.from(str, "binary").toString("utf8");
+                if (decoded.includes("\uFFFD")) return str;
+
+                return Buffer.from(str, "utf8").toString("binary");
+            }
+
+            function isStorageKeyPath(path: string[]): boolean {
+                return (
+                    path.length >= 5 &&
+                    path[path.length - 5] === "internalComponents" &&
+                    path[path.length - 4] === "EntityStorageKeyComponent" &&
+                    path[path.length - 3] === "StorageKey"
+                );
+            }
+            function convertSerializedStrings<T extends NBT.Tags[NBT.TagType] | { type: "end"; value: [] } | string | number | undefined>(
+                tag: T,
+                path: string[] = []
+            ): T {
+                if (!tag || typeof tag !== "object") return tag;
+
+                if (tag.type === "string" && !isStorageKeyPath(path)) {
+                    tag.value = encodeMaybeUtf8(tag.value);
+                    return tag;
+                }
+
+                if (tag.type === "compound") {
+                    const obj = tag.value;
+                    for (const key in obj) {
+                        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+                        obj[key] = convertSerializedStrings(obj[key], [...path, key]);
+                    }
+                    return tag;
+                }
+
+                if (tag.type === "list") {
+                    const arr = tag.value.value;
+                    for (let i = 0; i < arr.length; i++) {
+                        arr[i] = convertSerializedStrings({ type: tag.value.type, value: arr[i]! } as NBT.Tags[NBT.TagType], [...path, String(i)]).value;
+                    }
+                    return tag;
+                }
+
+                return tag;
+            }
+            // cloneNBT is actually 5x faster that JSON.parse(JSON.stringify(obj)) and 10x faster than structuredClone(obj).
+            // function deepClone<T>(obj: T): T {
+            //     // In case an older environment that doesn't support structuredClone is being used.
+            //     if (typeof structuredClone === "undefined") return JSON.parse(JSON.stringify(obj)) as T;
+            //     return structuredClone(obj);
+            // }
+            function cloneNBT<T>(node: T, isTag = true): T {
+                if (node === null || typeof node !== "object") return node;
+
+                if (isTag) {
+                    const { type, value } = node as unknown as NBT.Tags[NBT.TagType];
+
+                    if (type === "list") {
+                        const elemType = value.type;
+                        const arr = value.value;
+
+                        const clonedArr = arr.map((elem) => {
+                            if (elemType === "compound" || elemType === "list") return cloneNBT(elem, false);
+                            return elem;
+                        });
+
+                        return {
+                            type: "list",
+                            value: {
+                                type: elemType,
+                                value: clonedArr,
+                            },
+                        } as T;
+                    }
+
+                    return {
+                        type,
+                        value: cloneNBT(value, false),
+                    } as T;
+                }
+
+                if (Array.isArray(node)) {
+                    return node.map((elem: unknown): unknown => cloneNBT(elem, false)) as T;
+                }
+
+                const out: T = {} as T;
+                for (const key in node) {
+                    if (!Object.prototype.hasOwnProperty.call(node, key)) continue;
+                    out[key] = cloneNBT(node[key], false);
+                }
+                return out;
+            }
+
+            const reencodedData: NBTSchemas.NBTSchemaTypes.ActorPrefix = cloneNBT(data);
+            convertSerializedStrings(reencodedData);
+
+            const serializedData: Buffer = protoLEBinaryStringEncoding.createPacketBuffer("nbt", reencodedData);
+            return Buffer.from(serializedData);
+        },
     },
     /**
      * A list of entity IDs in a chunk.
@@ -2882,6 +3234,7 @@ export const entryContentTypeToFormatMap = {
      *
      * @see {@link NBTSchemas.nbtSchemas.BiomeIdsTable}
      */
+    // TODO: See how this worked when the `Creation of Custom Biomes` experimental toggle still existed, and as it was being developed.
     BiomeIdsTable: {
         /**
          * The format type of the data.
@@ -3781,9 +4134,16 @@ export interface BiomePalette {
 export type DBEntryContentType = (typeof DBEntryContentTypes)[number];
 
 /**
- * A content type of a LevelDB chunk key entry.
+ * A content type of a LevelDB chunk key entry (entries that use the key format of appending a byte representing the content type to the end of the key).
  */
 export type DBChunkKeyEntryContentType = (typeof DBChunkKeyEntryContentTypes)[number];
+
+/**
+ * A content type of a LevelDB entry that is associated with a specific chunk.
+ *
+ * This includes the content types from {@link DBChunkKeyEntryContentType} as well as other content types that use different key formats but are still tied to a specific chunk.
+ */
+export type DBChunkLinkedContentType = (typeof DBChunkLinkedContentTypes)[number];
 
 /**
  * The a grouping type of LevelDB entry content types.
@@ -4263,16 +4623,24 @@ export function getDimensionNumericIdsSync(dimensionNameIdTable: NBTSchemas.NBTS
 /**
  * Gets the chunk indices from a LevelDB key.
  *
- * The key must be a [chunk key](https://minecraft.wiki/w/Bedrock_Edition_level_format#Chunk_key_format).
+ * The key must be a [chunk key](https://minecraft.wiki/w/Bedrock_Edition_level_format#Chunk_key_format) or one of the following content types:
+ * - {@link entryContentTypeToFormatMap.Digest | Digest}
  *
  * @param key The key to get the chunk indices for, as a Buffer.
  * @returns The chunk indices.
  */
 export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ | DimensionVectorXZ {
+    if ([12, 16].includes(key.length) && key[0] === 0x64 && key[1] === 0x69 && key[2] === 0x67 && key[3] === 0x70) {
+        return {
+            x: getInt32Val(key, 4),
+            z: getInt32Val(key, 8),
+            dimension: key.length === 16 ? intToDimensionVectorDimension(getInt32Val(key, 12)) : "overworld",
+        };
+    }
     return {
         x: getInt32Val(key, 0),
         z: getInt32Val(key, 4),
-        dimension: [13, 14].includes(key.length) ? (dimensions[getInt32Val(key, 8)] ?? getInt32Val(key, 8)) : "overworld",
+        dimension: [13, 14].includes(key.length) ? intToDimensionVectorDimension(getInt32Val(key, 8)) : "overworld",
         ...([10, 14].includes(key.length) ? { subChunkIndex: (key.at(-1)! << 24) >> 24 } : undefined),
     };
 }
@@ -4286,19 +4654,35 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
  */
 export function generateChunkKeyFromIndices(
     indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ,
-    chunkKeyType: DBChunkKeyEntryContentType
+    chunkKeyType: DBChunkLinkedContentType
 ): Buffer<ArrayBuffer> {
-    if (typeof indices.dimension === "string" && dimensions.indexOf(indices.dimension) === -1)
-        throw new TypeError(`Invalid dimension: ${indices.dimension}. For custom dimensions please provide the numeric ID instead.`);
-    const buffer: Buffer<ArrayBuffer> = Buffer.alloc(
-        (indices.dimension === "overworld" ? 9 : 13) + +("subChunkIndex" in indices && indices.subChunkIndex !== undefined)
-    );
+    if (typeof indices.dimension === "string") {
+        if (dimensions.indexOf(indices.dimension) === -1) {
+            throw new TypeError(`Invalid dimension: ${indices.dimension}. For custom dimensions please provide the numeric ID instead.`);
+        }
+        indices.dimension = dimensionVectorDimensionToInt(indices.dimension);
+    }
+
+    if (chunkKeyType === "Digest") {
+        const buffer: Buffer<ArrayBuffer> = Buffer.alloc(indices.dimension === 0 ? 12 : 16);
+        buffer[0] = 0x64; // d
+        buffer[1] = 0x69; // i
+        buffer[2] = 0x67; // g
+        buffer[3] = 0x70; // p
+        setInt32Val(buffer, 4, indices.x);
+        setInt32Val(buffer, 8, indices.z);
+        if (indices.dimension !== 0) setInt32Val(buffer, 8, indices.dimension);
+        return buffer;
+    }
+
+    const buffer: Buffer<ArrayBuffer> = Buffer.alloc((indices.dimension === 0 ? 9 : 13) + +("subChunkIndex" in indices && indices.subChunkIndex !== undefined));
     setInt32Val(buffer, 0, indices.x);
     setInt32Val(buffer, 4, indices.z);
-    if (indices.dimension !== "overworld")
-        setInt32Val(buffer, 8, typeof indices.dimension === "string" ? dimensions.indexOf(indices.dimension) : indices.dimension);
-    buffer[8 + +(indices.dimension !== "overworld") * 4] = getIntFromChunkKeyType(chunkKeyType);
-    if ("subChunkIndex" in indices && indices.subChunkIndex !== undefined) buffer[9 + +(indices.dimension !== "overworld") * 4] = indices.subChunkIndex;
+    if (indices.dimension !== 0) {
+        setInt32Val(buffer, 8, indices.dimension);
+    }
+    buffer[8 + +(indices.dimension !== 0) * 4] = getIntFromChunkKeyType(chunkKeyType);
+    if ("subChunkIndex" in indices && indices.subChunkIndex !== undefined) buffer[9 + +(indices.dimension !== 0) * 4] = indices.subChunkIndex;
     return buffer;
 }
 
@@ -4403,7 +4787,7 @@ export function getKeyDisplayName(key: Buffer): string {
             }_${contentType}`;
         }
         case "Digest": {
-            const indices: DimensionVectorXZ = getChunkKeyIndices(key.subarray(4));
+            const indices: DimensionVectorXZ = getChunkKeyIndices(key);
             return `digp_${indices.dimension}_${indices.x}_${indices.z}`;
         }
         case "ActorPrefix": {
@@ -4583,10 +4967,10 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "Map";
         case stringKey.startsWith("player_server_"):
             return "Player";
-        // FIXME: This does not work properly on really old worlds, where there was no PlayerClient content type, and the Player content type was prefixed with player_ instead of player_server_.
+        // FIXME: This does not work properly on really old worlds, where there was no PlayerClient content type, and the Player content type was prefixed with player_ instead of player_server_. The older Player keys also used UUIDv3, just like the newer PlayerClient keys.
         case stringKey.startsWith("player_"):
             return "PlayerClient";
-        case stringKey.startsWith("digp"):
+        case stringKey.startsWith("digp") && (stringKey.length === 12 || stringKey.length === 16):
             return "Digest";
         // REVIEW: The dimension may not be present in this key in older versions (if it was present in those older version), like with the village-related keys.
         case /^chunk_loaded_request_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_\d+$/.test(stringKey):

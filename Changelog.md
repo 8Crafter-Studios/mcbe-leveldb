@@ -1,3 +1,40 @@
+# v1.20.0
+
+## Critical Fixes
+
+-   Added a custom serializer and parser for the `ActorPrefix` content type as it contains a property with a binary-encoded string value, and the regular NBT parser parses and serializes as UTF-8, so it could end up corrupting that property, and that property is very critical and changing it changes the LevelDB key the game writes the entity to, resulting in the entity no longer being loaded in the world.
+-   Fixed a bug where the `getKeyDisplayName` function did not work properly for the `Digest` content type, it would incorrectly always return the Overworld as the dimension.
+
+## Additions
+
+-   The `getChunkKeyIndices` function now supports `Digest` keys.
+-   The `generateChunkKeyFromIndices` function now supports `Digest` keys.
+-   Added the following functions:
+    -   `parseActorPrefixStorageKey`
+    -   `parseActorPrefixStorageKeyToParts`
+    -   `serializeActorPrefixStorageKey`
+-   Added the following constants:
+    -   `DBChunkLinkedContentTypes`
+    -   `chunkLegacyVersionDetailsMap`
+    -   `chunkVersionDetailsMap`
+    -   `protoLEBinaryStringEncoding`
+-   Added the following types:
+    -   `DBChunkLinkedContentType`
+-   Documented the following properties of the `ActorPrefix` NBT schema:
+    -   `internalComponents`
+    -   `internalComponents.EntityStorageKeyComponent`
+    -   `internalComponents.EntityStorageKeyComponent.StorageKey`
+-   The package now has the [`protodef`](https://www.npmjs.com/package/protodef) package as a dependency (this package was already required by `prismarine-nbt`).
+
+## Fixes
+
+-   Overloaded a misconfigured type for the `parseAs` function in the [`prismarine-nbt`](https://www.npmjs.com/package/prismarine-nbt) package to fix several errors.
+
+## Performance Improvements
+
+-   Optimizations to the `getChunkKeyIndices` function.
+-   Optimizations to the `generateChunkKeyFromIndices` function.
+
 # v1.19.0
 
 ## Critical Fixes
@@ -14,6 +51,7 @@
 ## Additions
 
 -   Added the `DBChunkKeyEntryContentTypes` constant.
+-   Added the `DBChunkKeyEntryContentType` type.
 
 ## Fixes
 

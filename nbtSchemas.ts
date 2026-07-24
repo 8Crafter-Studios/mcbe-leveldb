@@ -90,6 +90,7 @@ export namespace NBTSchemas {
         {
             //#region Top-Level Schemas
             // NOTE: Verified.
+            // FIXME: This is used for the Entity content type event though the entities in that type do not include the internalComponents property.
             ActorPrefix: {
                 id: "ActorPrefix",
                 title: "The ActorPrefix schema.",
@@ -209,17 +210,19 @@ export namespace NBTSchemas {
                         type: "string",
                     },
                     internalComponents: {
-                        markdownDescription: "UNDOCUMENTED.",
+                        markdownDescription: "Internal components containing critical storage information for the entity.",
                         type: "compound",
                         required: ["EntityStorageKeyComponent"],
                         properties: {
                             EntityStorageKeyComponent: {
-                                markdownDescription: "UNDOCUMENTED.",
+                                markdownDescription:
+                                    "A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.",
                                 type: "compound",
                                 required: ["StorageKey"],
                                 properties: {
                                     StorageKey: {
-                                        markdownDescription: "UNDOCUMENTED.",
+                                        markdownDescription:
+                                            "The ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries. If this is changed, the game will write this ActorPrefix to a different LevelDB key that corresponds to the value here, the game will **not** automatically update the Digest LevelDB entries to reflect this.",
                                         type: "string",
                                     },
                                 },

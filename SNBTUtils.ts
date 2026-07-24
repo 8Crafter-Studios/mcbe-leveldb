@@ -2028,7 +2028,7 @@ export function prismarineToSNBT<T extends NBT.Tags[NBT.TagType]>(nbt: T): SNBTL
 }
 
 /**
- * Converts a long in bigint format to tuple form.
+ * Converts a long in bigint format to tuple form of two signed 32-bit integers.
  *
  * @param longVal The long as a bigint.
  * @returns The long as a tuple.
@@ -2040,7 +2040,9 @@ export function toLongParts(longVal: bigint): [high: number, low: number] {
 }
 
 /**
- * Converts a long as a string to a tuple.
+ * Converts a long as a string to a tuple of two signed 32-bit integers.
+ *
+ * The string would be formatted like `"0n"`.
  *
  * @param literal A long as a string.
  * @returns The long as a tuple.
@@ -2052,13 +2054,13 @@ export function parseLong(literal: string): [high: number, low: number] {
 }
 
 /**
- * Converts a long in tuple form to bigint form.
+ * Converts a long in tuple form (two signed 32-bit integers) to bigint form.
  *
  * @param param0 The long as a tuple.
  * @returns The long as a bigint.
  */
 export function toLong([high, low]: [high: number, low: number]): bigint {
-    const lo: bigint = BigInt(low) & BigInt(0xffffffff);
+    const lo: bigint = BigInt(low) & 0xffffffffn;
     const hi: bigint = BigInt(high);
     return (hi << 32n) | lo;
 }
