@@ -2758,7 +2758,7 @@ export const entryContentTypeToFormatMap = {
          *
          * @throws {any} If an error occurs while parsing the data.
          */
-        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.ActorPrefix {
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.ActorPrefix & Pick<NBT.NBT, "name"> {
             function decodeMaybeUtf8(binaryString: string): string {
                 const decoded: string = Buffer.from(binaryString, "binary").toString("utf8");
                 return decoded.includes("\uFFFD") ? binaryString : decoded;
@@ -2807,7 +2807,7 @@ export const entryContentTypeToFormatMap = {
             const parsedData: ExtendedResults = protoLEBinaryStringEncoding.parsePacketBuffer("nbt", data, 0);
             convertParsedStrings(parsedData.data);
 
-            return parsedData.data as NBTSchemas.NBTSchemaTypes.ActorPrefix;
+            return parsedData.data as NBTSchemas.NBTSchemaTypes.ActorPrefix & Pick<NBT.NBT, "name">;
         },
         /**
          * The function to serialize the data.
@@ -2819,7 +2819,7 @@ export const entryContentTypeToFormatMap = {
          *
          * @throws {any} If an error occurs while parsing the data.
          */
-        serialize(data: NBTSchemas.NBTSchemaTypes.ActorPrefix): Buffer<ArrayBuffer> {
+        serialize(data: NBTSchemas.NBTSchemaTypes.ActorPrefix & Partial<Pick<NBT.NBT, "name">>): Buffer<ArrayBuffer> {
             // function encodeUtf8AsBinary(utf8String: string): string {
             //     return Buffer.from(utf8String, "utf8").toString("binary");
             // }
@@ -2899,6 +2899,7 @@ export const entryContentTypeToFormatMap = {
                     }
 
                     return {
+                        ...("name" in node && { name: node.name }),
                         type,
                         value: cloneNBT(value, false),
                     } as T;
@@ -2916,7 +2917,8 @@ export const entryContentTypeToFormatMap = {
                 return out;
             }
 
-            const reencodedData: NBTSchemas.NBTSchemaTypes.ActorPrefix = cloneNBT(data);
+            const reencodedData: NBTSchemas.NBTSchemaTypes.ActorPrefix & Partial<Pick<NBT.NBT, "name">> = cloneNBT(data);
+            reencodedData.name ??= "";
             convertSerializedStrings(reencodedData);
 
             const serializedData: Buffer = protoLEBinaryStringEncoding.createPacketBuffer("nbt", reencodedData);

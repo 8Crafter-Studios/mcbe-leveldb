@@ -1,3 +1,9 @@
+# v1.20.1
+
+## Critical Fixes
+
+-   Fixed an issue where the serializer for the `ActorPrefix` content type would always throw an error because the `name` property of the input object was not copied over to the reencoded object.
+
 # v1.20.0
 
 ## Critical Fixes
