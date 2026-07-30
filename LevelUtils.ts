@@ -1399,7 +1399,7 @@ export const entryContentTypeToFormatMap = {
                 // 0 means a runtime palette of copmosite tag values; 1 means a network palette of numeric runtime ids (used in network packets)
                 const isRuntimePalette: boolean = (storageVersion & 1) === 0;
                 const bitsPerBlock: number = storageVersion >> 1;
-                console.log(blockIndex, storageVersion, isRuntimePalette, bitsPerBlock);
+                // console.log(blockIndex, storageVersion, isRuntimePalette, bitsPerBlock);
                 if (
                     !(
                         (
@@ -1411,19 +1411,62 @@ export const entryContentTypeToFormatMap = {
                             bitsPerBlock === 5 ||
                             bitsPerBlock === 6 ||
                             bitsPerBlock === 8 ||
-                            bitsPerBlock === 16
+                            bitsPerBlock === 16 ||
+                            bitsPerBlock === 127
                         )
-                        // TODO: Figure out if bitsPerBlock === 127 is valid for SubChunkPrefix or not.
+                        // TEST: Figure out if bitsPerBlock === 127 is actually valid for SubChunkPrefix or not.
                     )
-                )
+                ) {
                     throw new Error(`Unknown storage version: ${storageVersion}`);
+                }
                 fakeAssertType<0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 16 | 17 | 32 | 33>(storageVersion);
                 currentOffset++;
+                if (bitsPerBlock === 127) {
+                    // REVIEW: Maybe this should have an empty block_indices array.
+                    layers.push({
+                        palette: NBT.comp({}),
+                        block_indices: { type: "list", value: { type: "int", value: new Array<number>(4096).fill(0) } },
+                    });
+                    continue;
+                }
+                if (bitsPerBlock === 0) {
+                    if (isRuntimePalette) {
+                        // Runtime palette
+                        const paletteEntry = (await NBT.parse(data.subarray(currentOffset), "little")) as unknown as {
+                            parsed: NBTSchemas.NBTSchemaTypes.Block;
+                            type: NBT.NBTFormat;
+                            metadata: NBT.Metadata;
+                        };
+
+                        layers.push({
+                            palette: NBT.comp({
+                                "0": paletteEntry.parsed,
+                            }),
+                            block_indices: { type: "list", value: { type: "int", value: new Array<number>(4096).fill(0) } },
+                        });
+                        currentOffset += paletteEntry.metadata.size;
+                        continue;
+                    } else {
+                        // Network palette
+                        throw new Error("Network palettes are not yet supported for the SubChunkPrefix parser.");
+                        // NOTE: The below code is actually fully functional.
+                        // const value: number = data.readUInt32LE(currentOffset);
+
+                        // layers.push({
+                        //     palette: NBT.comp({
+                        //         "0": { type: "int", value },
+                        //     }),
+                        //     block_indices: { type: "list", value: { type: "int", value: new Array<number>(4096).fill(0) } },
+                        // });
+                        // currentOffset += 4;
+                        // continue;
+                    }
+                }
                 const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
-                const numints: number = bitsPerBlock === 0 ? 0 : Math.ceil(4096 / blocksPerWord);
+                const numints: number = Math.ceil(4096 / blocksPerWord);
                 const blockDataOffset: number = currentOffset;
                 let paletteOffset: number = blockDataOffset + 4 * numints;
-                let psize: number = bitsPerBlock === 0 ? 1 : getInt32Val(data, paletteOffset);
+                let psize: number = getInt32Val(data, paletteOffset);
                 paletteOffset += Math.sign(bitsPerBlock) * 4;
                 // const debugInfo = {
                 //     version,
@@ -1439,6 +1482,7 @@ export const entryContentTypeToFormatMap = {
                 //     // palette,
                 // };
                 if (isRuntimePalette) {
+                    // Runtime palette
                     const palette: {
                         [paletteIndex: `${bigint}`]: NBTSchemas.NBTSchemaTypes.Block;
                     } = {};
@@ -1474,11 +1518,11 @@ export const entryContentTypeToFormatMap = {
                         block_indices.fill(0);
                     }
                     layers.push({
-                        storageVersion: NBT.byte(storageVersion),
                         palette: NBT.comp(palette),
                         block_indices: { type: "list", value: { type: "int", value: block_indices } },
                     });
                 } else {
+                    // Network palette
                     throw new Error("Network palettes are not yet supported for the SubChunkPrefix parser.");
                     // NOTE: The below code is actually fully functional.
                     // const palette: {
@@ -1585,28 +1629,53 @@ export const entryContentTypeToFormatMap = {
                     const layerBuffers: Buffer<ArrayBuffer>[] = data.value.layers.value.value.map(
                         (layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer<ArrayBuffer> => {
                             // 0 means a runtime palette of copmosite tag values; 1 means a network palette of numeric runtime ids (used in network packets)
-                            const isRuntimePalette: boolean = (layer.storageVersion.value & 1) === 0;
+                            const isRuntimePalette: boolean = true; /* layer.isRuntimePalette.value === 1 */ /* (layer.storageVersion.value & 1) === 0 */
                             if (!isRuntimePalette) {
                                 throw new Error("Network palettes are not yet supported for the SubChunkPrefix serializer.");
                             }
-                            const bitsPerBlock: number = layer.storageVersion.value >> 1;
-                            const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
-                            const numints: number = Math.ceil(4096 / blocksPerWord);
-                            const bytes: number[] = [layer.storageVersion.value];
-                            const blockIndicesBuffer: Buffer<ArrayBuffer> = Buffer.alloc(Math.ceil(numints * 4));
-                            writeBlockIndices(blockIndicesBuffer, 0, layer.block_indices.value.value, bitsPerBlock, blocksPerWord);
-                            bytes.push(...blockIndicesBuffer);
-                            const paletteLengthBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
-                            setInt32Val(paletteLengthBuffer, 0, Object.keys(layer.palette.value).length);
-                            bytes.push(...paletteLengthBuffer);
+                            // const bitsPerBlock: number = layer.storageVersion.value >> 1;
+                            // const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
+                            // const numints: number = Math.ceil(4096 / blocksPerWord);
+                            // const bytes: number[] = [layer.storageVersion.value];
                             const paletteKeys: `${bigint}`[] = (Object.keys(layer.palette.value) as `${bigint}`[]).sort(
                                 (a: `${bigint}`, b: `${bigint}`): number => Number(a) - Number(b)
                             );
-                            for (let paletteIndex: number = 0; paletteIndex < paletteKeys.length; paletteIndex++) {
-                                const block: NBTSchemas.NBTSchemaTypes.Block = layer.palette.value[paletteKeys[paletteIndex]!]!;
-                                bytes.push(...NBT.writeUncompressed({ name: "", ...block }, "little"));
+                            const bitsPerBlockOriginal: number = Math.max(1, Math.ceil(Math.log2(paletteKeys.length)));
+                            const bitsPerBlockDivisors: number[] = [1, 2, 3, 4, 5, 6, 8, 16];
+
+                            const blockCount: number = layer.block_indices.value.value.length;
+                            const bitsPerBlock: number =
+                                paletteKeys.length === 0 ? 127
+                                : paletteKeys.length === 1 ? 0
+                                : (bitsPerBlockDivisors.find((d: number): boolean => d >= bitsPerBlockOriginal) ?? 16);
+                            if (bitsPerBlock === 127) return Buffer.from([(0x7f << 1) | +!isRuntimePalette]);
+                            const buffers: (Uint8Array | Buffer)[] = [Uint8Array.from([(bitsPerBlock << 1) | +!isRuntimePalette])];
+                            if (bitsPerBlock > 0) {
+                                const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
+                                const wordCount: number = Math.ceil(blockCount / blocksPerWord);
+                                const blockIndicesBuffer: Buffer<ArrayBuffer> = Buffer.alloc(Math.ceil(wordCount * 4));
+                                writeBlockIndices(blockIndicesBuffer, 0, layer.block_indices.value.value, bitsPerBlock, blocksPerWord);
+                                const paletteLengthBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
+                                setInt32Val(paletteLengthBuffer, 0, Object.keys(layer.palette.value).length);
+                                buffers.push(blockIndicesBuffer, paletteLengthBuffer);
                             }
-                            return Buffer.from(bytes);
+                            if (isRuntimePalette) {
+                                // Runtime palette
+                                for (let paletteIndex: number = 0; paletteIndex < paletteKeys.length; paletteIndex++) {
+                                    const block: NBTSchemas.NBTSchemaTypes.Block = layer.palette.value[paletteKeys[paletteIndex]!]!;
+                                    buffers.push(NBT.writeUncompressed({ name: "", ...block }, "little"));
+                                }
+                            } else {
+                                // Network palette
+                                const paletteBuffer: Buffer<ArrayBuffer> = Buffer.alloc(paletteKeys.length * 4);
+                                for (let paletteIndex: number = 0; paletteIndex < paletteKeys.length; paletteIndex++) {
+                                    const value: number = layer.palette.value[paletteKeys[paletteIndex]!]!
+                                        .value as unknown as number; /* TEMP: This as statement can be removed when the types for network palettes are added. */
+                                    setInt32Val(paletteBuffer, paletteIndex * 4, value);
+                                }
+                                buffers.push(paletteBuffer);
+                            }
+                            return Buffer.concat(buffers);
                         }
                     );
                     return Buffer.concat([buffer, ...layerBuffers]);
@@ -3061,6 +3130,80 @@ export const entryContentTypeToFormatMap = {
          * The format type of the data.
          */
         type: "NBT",
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * @todo Add a link to the object with the default level.dat value once it is made.
+         */
+        get defaultValue(): Buffer<ArrayBuffer> {
+            const nbtData: Buffer = NBT.writeUncompressed(
+                {
+                    type: "compound",
+                    name: "",
+                    value: {
+                        colors: {
+                            type: "byteArray",
+                            value: new Array<number>(65536).fill(0),
+                        },
+                        decorations: {
+                            type: "list",
+                            value: {
+                                type: "end" as NBT.TagType.Compound,
+                                value: [],
+                            },
+                        },
+                        dimension: {
+                            type: "byte",
+                            value: 0,
+                        },
+                        fullyExplored: {
+                            type: "byte",
+                            value: 0,
+                        },
+                        height: {
+                            type: "short",
+                            value: 128,
+                        },
+                        mapId: {
+                            type: "long",
+                            value: [0, 0],
+                        },
+                        mapLocked: {
+                            type: "byte",
+                            value: 0,
+                        },
+                        parentMapId: {
+                            type: "long",
+                            value: [0, 0],
+                        },
+                        scale: {
+                            type: "byte",
+                            value: 0,
+                        },
+                        unlimitedTracking: {
+                            type: "byte",
+                            value: 0,
+                        },
+                        width: {
+                            type: "short",
+                            value: 128,
+                        },
+                        xCenter: {
+                            type: "int",
+                            value: 0,
+                        },
+                        zCenter: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                } satisfies NBTSchemas.NBTSchemaTypes.Map & Pick<NBT.NBT, "name">,
+                "little"
+            );
+            const result: Buffer<ArrayBuffer> = Buffer.concat([nbtData]);
+            Object.defineProperty(this, "defaultValue", { value: result, configurable: true, enumerable: true, writable: false });
+            return result;
+        },
     },
     /**
      * The content type of the `portals` LevelDB key, which stores portal data.

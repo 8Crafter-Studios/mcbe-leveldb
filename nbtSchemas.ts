@@ -12299,85 +12299,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 title: "The SubChunkPrefixLayer schema.",
                 markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.",
                 type: "compound",
-                required: ["storageVersion", "palette", "block_indices"],
+                required: ["palette", "block_indices"],
                 properties: {
-                    storageVersion: {
-                        type: "byte",
-                        enum: [
-                            {
-                                type: "byte",
-                                value: 0,
-                            },
-                            {
-                                type: "byte",
-                                value: 1,
-                            },
-                            {
-                                type: "byte",
-                                value: 2,
-                            },
-                            {
-                                type: "byte",
-                                value: 3,
-                            },
-                            {
-                                type: "byte",
-                                value: 4,
-                            },
-                            {
-                                type: "byte",
-                                value: 5,
-                            },
-                            {
-                                type: "byte",
-                                value: 6,
-                            },
-                            {
-                                type: "byte",
-                                value: 7,
-                            },
-                            {
-                                type: "byte",
-                                value: 8,
-                            },
-                            {
-                                type: "byte",
-                                value: 9,
-                            },
-                            {
-                                type: "byte",
-                                value: 10,
-                            },
-                            {
-                                type: "byte",
-                                value: 11,
-                            },
-                            {
-                                type: "byte",
-                                value: 12,
-                            },
-                            {
-                                type: "byte",
-                                value: 13,
-                            },
-                            {
-                                type: "byte",
-                                value: 16,
-                            },
-                            {
-                                type: "byte",
-                                value: 17,
-                            },
-                            {
-                                type: "byte",
-                                value: 32,
-                            },
-                            {
-                                type: "byte",
-                                value: 33,
-                            },
-                        ],
-                    },
                     palette: {
                         type: "compound",
                         additionalProperties: { $ref: "Block" },
@@ -27927,10 +27850,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         export type SubChunkPrefixLayer = {
             type: "compound";
             value: {
-                /**
-                 * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 16 | 17 | 32 | 33
-                 */
-                storageVersion: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 16 | 17 | 32 | 33 };
                 palette: {
                     type: "compound";
                     value: {

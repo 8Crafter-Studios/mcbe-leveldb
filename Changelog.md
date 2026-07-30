@@ -1,3 +1,17 @@
+# v1.21.0
+
+## Critical Fixes
+
+-   Fixed many issues where the parser and serializer for the `SubChunkPrefix` content type did not work properly in certain situations.
+
+## Breaking Changes
+
+-   The `SubChunkPrefixLayer` NBT schema and the `layers` field of the `SubChunkPrefix` parser/serializer no longer include a `storageVersion` field.
+
+## Additions
+
+-   Added a default value for the `Map` content type.
+
 # v1.20.1
 
 ## Critical Fixes
