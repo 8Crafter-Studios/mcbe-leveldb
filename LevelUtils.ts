@@ -1352,6 +1352,9 @@ export const entryContentTypeToFormatMap = {
          * @throws {Error} If the SubChunkPrefix version is unknown.
          * @throws {Error} If the storage version is unknown.
          */
+        // TODO: Make this synchronous.
+        // TODO: Remove the storageVersion property from the schema and data and make it be automatically determined.
+        // IDEA: Add support for network palettes, maybe in a different content type. I think the network palettes may be parsed the same way as the Data3D content type's subchunk palette IDs.
         async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.SubChunkPrefix> {
             let currentOffset: number = 0;
             /**
@@ -1393,26 +1396,34 @@ export const entryContentTypeToFormatMap = {
             const subChunkIndex: number | undefined = version >= 0x09 ? data[currentOffset++] : undefined;
             for (let blockIndex: number = 0; blockIndex < numStorageBlocks; blockIndex++) {
                 const storageVersion: number = data[currentOffset]!;
+                // 0 means a runtime palette of copmosite tag values; 1 means a network palette of numeric runtime ids (used in network packets)
+                const isRuntimePalette: boolean = (storageVersion & 1) === 0;
+                const bitsPerBlock: number = storageVersion >> 1;
+                console.log(blockIndex, storageVersion, isRuntimePalette, bitsPerBlock);
                 if (
                     !(
-                        storageVersion === 1 ||
-                        storageVersion === 2 ||
-                        storageVersion === 3 ||
-                        storageVersion === 4 ||
-                        storageVersion === 5 ||
-                        storageVersion === 6 ||
-                        storageVersion === 8 ||
-                        storageVersion === 16
+                        (
+                            bitsPerBlock === 0 ||
+                            bitsPerBlock === 1 ||
+                            bitsPerBlock === 2 ||
+                            bitsPerBlock === 3 ||
+                            bitsPerBlock === 4 ||
+                            bitsPerBlock === 5 ||
+                            bitsPerBlock === 6 ||
+                            bitsPerBlock === 8 ||
+                            bitsPerBlock === 16
+                        )
+                        // TODO: Figure out if bitsPerBlock === 127 is valid for SubChunkPrefix or not.
                     )
                 )
                     throw new Error(`Unknown storage version: ${storageVersion}`);
+                fakeAssertType<0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 16 | 17 | 32 | 33>(storageVersion);
                 currentOffset++;
-                const bitsPerBlock: number = storageVersion >> 1;
                 const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
-                const numints: number = Math.ceil(4096 / blocksPerWord);
+                const numints: number = bitsPerBlock === 0 ? 0 : Math.ceil(4096 / blocksPerWord);
                 const blockDataOffset: number = currentOffset;
                 let paletteOffset: number = blockDataOffset + 4 * numints;
-                let psize: number = bitsPerBlock === 0 ? 0 : getInt32Val(data, paletteOffset);
+                let psize: number = bitsPerBlock === 0 ? 1 : getInt32Val(data, paletteOffset);
                 paletteOffset += Math.sign(bitsPerBlock) * 4;
                 // const debugInfo = {
                 //     version,
@@ -1427,41 +1438,85 @@ export const entryContentTypeToFormatMap = {
                 //     // blockData,
                 //     // palette,
                 // };
-                const palette: {
-                    [paletteIndex: `${bigint}`]: NBTSchemas.NBTSchemaTypes.Block;
-                } = {};
-                for (let i: bigint = 0n; i < psize; i++) {
-                    // console.log(debugInfo);
-                    // appendFileSync("./test1.bin", JSON.stringify(debugInfo) + "\n");
-                    const result = (await NBT.parse(data.subarray(paletteOffset), "little")) as unknown as {
-                        parsed: NBTSchemas.NBTSchemaTypes.Block;
-                        type: NBT.NBTFormat;
-                        metadata: NBT.Metadata;
-                    };
-                    paletteOffset += result.metadata.size;
-                    palette[`${i}`] = result.parsed;
-                    // console.log(result);
-                    // appendFileSync("./test1.bin", JSON.stringify(result));
-                }
-                currentOffset = paletteOffset;
-                const block_indices: number[] = [];
-                for (let i: number = 0; i < 4096; i++) {
-                    const maskVal: number = getInt32Val(data, blockDataOffset + Math.floor(i / blocksPerWord) * 4);
-                    const blockVal: number = (maskVal >> ((i % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1);
-                    // const blockType: DataTypes_Block | undefined = palette[`${blockVal as unknown as bigint}`];
-                    // if (!blockType && blockVal !== -1) throw new ReferenceError(`Invalid block palette index ${blockVal} for block ${i}`);
-                    /* const chunkOffset: Vector3 = {
+                if (isRuntimePalette) {
+                    const palette: {
+                        [paletteIndex: `${bigint}`]: NBTSchemas.NBTSchemaTypes.Block;
+                    } = {};
+                    for (let i: bigint = 0n; i < psize; i++) {
+                        // console.log(debugInfo);
+                        // appendFileSync("./test1.bin", JSON.stringify(debugInfo) + "\n");
+                        const result = (await NBT.parse(data.subarray(paletteOffset), "little")) as unknown as {
+                            parsed: NBTSchemas.NBTSchemaTypes.Block;
+                            type: NBT.NBTFormat;
+                            metadata: NBT.Metadata;
+                        };
+                        paletteOffset += result.metadata.size;
+                        palette[`${i}`] = result.parsed;
+                        // console.log(result);
+                        // appendFileSync("./test1.bin", JSON.stringify(result));
+                    }
+                    currentOffset = paletteOffset;
+                    const block_indices: number[] = [];
+                    if (bitsPerBlock > 0) {
+                        for (let i: number = 0; i < 4096; i++) {
+                            const maskVal: number = getInt32Val(data, blockDataOffset + Math.floor(i / blocksPerWord) * 4);
+                            const blockVal: number = (maskVal >> ((i % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1);
+                            // const blockType: DataTypes_Block | undefined = palette[`${blockVal as unknown as bigint}`];
+                            // if (!blockType && blockVal !== -1) throw new ReferenceError(`Invalid block palette index ${blockVal} for block ${i}`);
+                            /* const chunkOffset: Vector3 = {
                         x: (i >> 8) & 0xf,
                         y: (i >> 4) & 0xf,
                         z: (i >> 0) & 0xf,
                     }; */
-                    block_indices.push(blockVal);
+                            block_indices.push(blockVal);
+                        }
+                    } else {
+                        block_indices.fill(0);
+                    }
+                    layers.push({
+                        storageVersion: NBT.byte(storageVersion),
+                        palette: NBT.comp(palette),
+                        block_indices: { type: "list", value: { type: "int", value: block_indices } },
+                    });
+                } else {
+                    throw new Error("Network palettes are not yet supported for the SubChunkPrefix parser.");
+                    // NOTE: The below code is actually fully functional.
+                    // const palette: {
+                    //     [paletteIndex: `${bigint}`]: { type: "int"; value: number };
+                    // } = {};
+                    // for (let i: bigint = 0n; i < psize; i++) {
+                    //     // console.log(debugInfo);
+                    //     // appendFileSync("./test1.bin", JSON.stringify(debugInfo) + "\n");
+                    //     const result: number = data.readUInt32LE(paletteOffset);
+                    //     paletteOffset += 4;
+                    //     palette[`${i}`] = { type: "int", value: result };
+                    //     // console.log(result);
+                    //     // appendFileSync("./test1.bin", JSON.stringify(result));
+                    // }
+                    // currentOffset = paletteOffset;
+                    // const block_indices: number[] = [];
+                    // if (bitsPerBlock > 0) {
+                    //     for (let i: number = 0; i < 4096; i++) {
+                    //         const maskVal: number = getInt32Val(data, blockDataOffset + Math.floor(i / blocksPerWord) * 4);
+                    //         const blockVal: number = (maskVal >> ((i % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1);
+                    //         // const blockType: DataTypes_Block | undefined = palette[`${blockVal as unknown as bigint}`];
+                    //         // if (!blockType && blockVal !== -1) throw new ReferenceError(`Invalid block palette index ${blockVal} for block ${i}`);
+                    //         /* const chunkOffset: Vector3 = {
+                    //     x: (i >> 8) & 0xf,
+                    //     y: (i >> 4) & 0xf,
+                    //     z: (i >> 0) & 0xf,
+                    // }; */
+                    //         block_indices.push(blockVal);
+                    //     }
+                    // } else {
+                    //     block_indices.fill(0);
+                    // }
+                    // layers.push({
+                    //     storageVersion: NBT.byte(storageVersion),
+                    //     palette: NBT.comp(palette),
+                    //     block_indices: { type: "list", value: { type: "int", value: block_indices } },
+                    // });
                 }
-                layers.push({
-                    storageVersion: NBT.byte(storageVersion),
-                    palette: NBT.comp(palette),
-                    block_indices: { type: "list", value: { type: "int", value: block_indices } },
-                });
             }
             if (version === 0x01) {
                 return NBT.comp({
@@ -1529,6 +1584,11 @@ export const entryContentTypeToFormatMap = {
                     ]);
                     const layerBuffers: Buffer<ArrayBuffer>[] = data.value.layers.value.value.map(
                         (layer: NBTSchemas.NBTSchemaTypes.SubChunkPrefixLayer["value"]): Buffer<ArrayBuffer> => {
+                            // 0 means a runtime palette of copmosite tag values; 1 means a network palette of numeric runtime ids (used in network packets)
+                            const isRuntimePalette: boolean = (layer.storageVersion.value & 1) === 0;
+                            if (!isRuntimePalette) {
+                                throw new Error("Network palettes are not yet supported for the SubChunkPrefix serializer.");
+                            }
                             const bitsPerBlock: number = layer.storageVersion.value >> 1;
                             const blocksPerWord: number = Math.floor(32 / bitsPerBlock);
                             const numints: number = Math.ceil(4096 / blocksPerWord);
@@ -3376,12 +3436,12 @@ export const entryContentTypeToFormatMap = {
                     clocks: {
                         type: "list",
                         value: {
-                            type: "end" as NBT.TagType,
+                            type: "end" as NBT.TagType.Compound,
                             value: [],
                         },
                     },
                 },
-            },
+            } satisfies NBTSchemas.NBTSchemaTypes.WorldClocks & Pick<NBT.NBT, "name">,
             "little"
         ),
     },

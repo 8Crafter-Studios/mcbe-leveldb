@@ -12306,6 +12306,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         enum: [
                             {
                                 type: "byte",
+                                value: 0,
+                            },
+                            {
+                                type: "byte",
                                 value: 1,
                             },
                             {
@@ -12330,11 +12334,47 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             },
                             {
                                 type: "byte",
+                                value: 7,
+                            },
+                            {
+                                type: "byte",
                                 value: 8,
                             },
                             {
                                 type: "byte",
+                                value: 9,
+                            },
+                            {
+                                type: "byte",
+                                value: 10,
+                            },
+                            {
+                                type: "byte",
+                                value: 11,
+                            },
+                            {
+                                type: "byte",
+                                value: 12,
+                            },
+                            {
+                                type: "byte",
+                                value: 13,
+                            },
+                            {
+                                type: "byte",
                                 value: 16,
+                            },
+                            {
+                                type: "byte",
+                                value: 17,
+                            },
+                            {
+                                type: "byte",
+                                value: 32,
+                            },
+                            {
+                                type: "byte",
+                                value: 33,
                             },
                         ],
                     },
@@ -27888,9 +27928,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             type: "compound";
             value: {
                 /**
-                 * @enum 1 | 2 | 3 | 4 | 5 | 6 | 8 | 16
+                 * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 16 | 17 | 32 | 33
                  */
-                storageVersion: { type: "byte"; value: 1 | 2 | 3 | 4 | 5 | 6 | 8 | 16 };
+                storageVersion: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 16 | 17 | 32 | 33 };
                 palette: {
                     type: "compound";
                     value: {
