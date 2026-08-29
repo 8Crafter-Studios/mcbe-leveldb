@@ -77,6 +77,14 @@ export namespace NBTSchemas {
             }),
         };
     }
+    // TODO: Add an Entity_Custom NBT schema with optional NBT definitions for all the possible components.
+    // TODO: Add the NBT schemas for the newer entities.
+    // TODO: Add a schema type which contains all the entity-specific NBT schemas that are auto-detected by the type ID,
+    // and a fallback to the Entity_Custom NBT schema, this should be automatically generated based on the schemaCategory and schemaCategory_typeId properties
+    // of the NBT schemas, there should also be an option when converting NBT schemas to put it in the mode where schemas will keep references rather than
+    // inlining them and you should be able to pass a function to rename those references. There should also be variants of this that either don't have internalComponents or have it required.
+    // TODO: The above should maybe also be done for items and block entities.
+    // REVIEW: Figure out which areas should use ActorPrefixOrEntity, which ones should use Entity_Entity, and which ones should use ActorPrefix.
     /**
      * The NBT schemas.
      *
@@ -94,6 +102,37 @@ export namespace NBTSchemas {
             ActorPrefix: {
                 id: "ActorPrefix",
                 title: "The ActorPrefix schema.",
+                markdownDescription: "The base for ActorPrefix LevelDB entries.",
+                type: "compound",
+                required: ["internalComponents"],
+                // properties: {
+                //     internalComponents: {
+                //         markdownDescription: "Internal components containing critical storage information for the entity.",
+                //         type: "compound",
+                //         required: ["EntityStorageKeyComponent"],
+                //         properties: {
+                //             EntityStorageKeyComponent: {
+                //                 markdownDescription:
+                //                     "A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.",
+                //                 type: "compound",
+                //                 required: ["StorageKey"],
+                //                 properties: {
+                //                     StorageKey: {
+                //                         markdownDescription:
+                //                             "The ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries. If this is changed, the game will write this ActorPrefix to a different LevelDB key that corresponds to the value here, the game will **not** automatically update the Digest LevelDB entries to reflect this.",
+                //                         type: "string",
+                //                     },
+                //                 },
+                //             },
+                //         },
+                //     },
+                // },
+                allOf: [{ $ref: "ActorPrefixOrEntity" /* "Entity_Entity" */ }],
+                $fragment: false,
+            },
+            Entity_Entity: {
+                id: "Entity_Entity",
+                title: "The Entity_Entity schema.",
                 markdownDescription: "All entities share this base.",
                 type: "compound",
                 required: [
@@ -102,7 +141,6 @@ export namespace NBTSchemas {
                     "Color2",
                     "FallDistance",
                     "identifier",
-                    "internalComponents",
                     "Invulnerable",
                     "IsAngry",
                     "IsAutonomous",
@@ -208,26 +246,6 @@ export namespace NBTSchemas {
                     identifier: {
                         markdownDescription: "The namespaced ID of this entity.",
                         type: "string",
-                    },
-                    internalComponents: {
-                        markdownDescription: "Internal components containing critical storage information for the entity.",
-                        type: "compound",
-                        required: ["EntityStorageKeyComponent"],
-                        properties: {
-                            EntityStorageKeyComponent: {
-                                markdownDescription:
-                                    "A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.",
-                                type: "compound",
-                                required: ["StorageKey"],
-                                properties: {
-                                    StorageKey: {
-                                        markdownDescription:
-                                            "The ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries. If this is changed, the game will write this ActorPrefix to a different LevelDB key that corresponds to the value here, the game will **not** automatically update the Digest LevelDB entries to reflect this.",
-                                        type: "string",
-                                    },
-                                },
-                            },
-                        },
                     },
                     Invulnerable: {
                         markdownDescription:
@@ -577,6 +595,37 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            ActorPrefixOrEntity: {
+                id: "ActorPrefixOrEntity",
+                title: "The ActorPrefixOrEntity schema.",
+                markdownDescription: "A generic entity base, this is for places where either the Entity_Entity or the ActorPrefix NBT schema could be used.",
+                type: "compound",
+                properties: {
+                    internalComponents: {
+                        markdownDescription:
+                            "Internal components containing critical storage information for the entity.\nThis is **REQUIRED** for ActorPrefix, and is **NOT** used in other places.",
+                        type: "compound",
+                        required: ["EntityStorageKeyComponent"],
+                        properties: {
+                            EntityStorageKeyComponent: {
+                                markdownDescription:
+                                    "A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.",
+                                type: "compound",
+                                required: ["StorageKey"],
+                                properties: {
+                                    StorageKey: {
+                                        markdownDescription:
+                                            "The ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries. If this is changed, the game will write this ActorPrefix to a different LevelDB key that corresponds to the value here, the game will **not** automatically update the Digest LevelDB entries to reflect this.",
+                                        type: "string",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                allOf: [{ $ref: "Entity_Entity" }],
+                $fragment: false,
+            },
             // NOTE: Verified.
             AutonomousEntities: {
                 id: "AutonomousEntities",
@@ -659,8 +708,13 @@ export namespace NBTSchemas {
                 title: "The BlockEntity schema.",
                 markdownDescription: "All block entities share this base.",
                 type: "compound",
-                required: ["id", "isMovable", "x", "y", "z"],
+                required: ["id", "x", "y", "z"],
                 properties: {
+                    BlockEntityVersion: {
+                        markdownDescription: "UNDOCUMENTED.",
+                        type: "int",
+                        default: { type: "int", value: 0 },
+                    },
                     CustomName: {
                         markdownDescription: "(May not exist) The custom name of the block entity.",
                         type: "string",
@@ -4795,7 +4849,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription: "The list of entities in the structure.",
                                 type: "list",
                                 items: {
-                                    $ref: "ActorPrefix",
+                                    $ref: "ActorPrefixOrEntity",
                                 },
                             },
                         },
@@ -5702,6 +5756,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     ExecuteOnFirstTick: {
                         markdownDescription: "1 or 0 (true/false) - true if it executes on the first tick once saved or activated.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     LastExecution: {
                         markdownDescription: "Stores the time when a command block was last executed.",
@@ -5732,6 +5791,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         markdownDescription:
                             '1 or 0 (true/false) - true if the `LastOutput` is stored. Can be toggled in the GUI by clicking a button near the "Previous Output" textbox.',
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Version: {
                         markdownDescription: "The data version.",
@@ -5758,10 +5822,20 @@ however when the corresponding block in the block layer is broken, this block ge
                     FireworkFlicker: {
                         markdownDescription: "1 or 0 (true/false) - true if this explosion has the twinkle effect (glowstone dust).",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     FireworkTrail: {
                         markdownDescription: "1 or 0 (true/false) - true if this explosion has the trail effect (diamond).",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     FireworkType: {
                         markdownDescription:
@@ -5791,6 +5865,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         markdownDescription:
                             "1 or 0 (true/false) - true if this effect is provided by a beacon and therefore should be less intrusive on screen.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Amplifier: {
                         markdownDescription: "The potion effect level. 0 is level 1.",
@@ -5852,6 +5931,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     ShowParticles: {
                         markdownDescription: "1 or 0 (true/false) - true if particles are shown.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 $fragment: true,
@@ -5970,13 +6054,18 @@ however when the corresponding block in the block layer is broken, this block ge
             //#region Entity NBT Schemas
             Entity_Minecart: {
                 id: "Entity_Minecart",
-                markdownDescription: "Minecart entities include.",
+                markdownDescription: "Additional fields for minecart entities.",
                 type: "compound",
                 required: ["CustomDisplayTile"],
                 properties: {
                     CustomDisplayTile: {
                         markdownDescription: "1 or 0 (true/false) - (may not exist) if is displayed the custom tile in this minecart.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     DisplayBlock: {
                         markdownDescription: "(May not exist) The custom block in the minecart.",
@@ -5989,12 +6078,14 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:minecart",
                 $fragment: false,
             },
             Entity_Villagers: {
                 id: "Entity_Villagers",
-                markdownDescription: "Villager entities include.",
+                markdownDescription: "Additional fields for villager entities.",
                 type: "compound",
                 required: ["Willing"],
                 properties: {
@@ -6002,28 +6093,38 @@ however when the corresponding block in the block layer is broken, this block ge
                         markdownDescription:
                             "1 or 0 (true/false) - true if the villager is willing to mate. Becomes true after certain trades (those that would cause offers to be refreshed), and false after mating.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
                 $fragment: false,
             },
             Entity_Monster: {
                 id: "Entity_Monster",
-                markdownDescription: "Monster entities include.",
+                markdownDescription: "Additional fields for monsters.",
                 type: "compound",
                 required: ["SpawnedByNight"],
                 properties: {
                     SpawnedByNight: {
                         markdownDescription: "1 or 0 (true/false) - true if is spawned by night.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
                 $fragment: false,
             },
             Entity_HumanoidMonster: {
                 id: "Entity_HumanoidMonster",
-                markdownDescription: "Humanoid monster entities include.",
+                markdownDescription: "Additional fields for humanoid monsters.",
                 type: "compound",
                 properties: {
                     ItemInHand: {
@@ -6032,12 +6133,12 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Item_ItemStack",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
                 $fragment: false,
             },
             Entity_Mob: {
                 id: "Entity_Mob",
-                markdownDescription: "Mob entities include.",
+                markdownDescription: "Additional fields for mobs.",
                 type: "compound",
                 required: [
                     "Air",
@@ -6134,10 +6235,20 @@ however when the corresponding block in the block layer is broken, this block ge
                     canPickupItems: {
                         markdownDescription: "1 or 0 (true/false) - true if this entity can pick up items.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Dead: {
                         markdownDescription: "1 or 0 (true/false) - true if dead.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     DeathTime: {
                         markdownDescription: "Number of ticks the mob has been dead for. Controls death animations. 0 when alive.",
@@ -6147,10 +6258,20 @@ however when the corresponding block in the block layer is broken, this block ge
                         markdownDescription:
                             "1 or 0 (true/false) - if this mob has bound origin. Only *needs testing* effects [Vex](https://minecraft.wiki/w/Vex). When a vex is idle, it wanders, selecting air blocks from within a 15×11×15 *needs testing* cuboid range centered at BoundX, BoundY, BoundZ. when it summoned the vex, this value is set to true, and the central spot is the location of the evoker. Or if an evoker was not involved, this value is false.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     hasSetCanPickupItems: {
                         markdownDescription: "1 or 0 (true/false) - true if `canPickupItems` has been set by the game.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     HurtTime: {
                         markdownDescription: "Number of ticks the mob turns red for after being hit. 0 when not recently hit.",
@@ -6177,6 +6298,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     NaturalSpawn: {
                         markdownDescription: "1 or 0 (true/false) - true if it is naturally spawned.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Offhand: {
                         markdownDescription: "The item being held in the mob's off hand.",
@@ -6198,6 +6324,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     Surface: {
                         markdownDescription: "1 or 0 (true/false) - true if it is naturally spawned on the surface.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     TargetCaptainID: {
                         markdownDescription: "(May not exist) The Unique ID of a captain to follow. Used by pillager and vindicator.",
@@ -6220,18 +6351,23 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
                 $fragment: false,
             },
             Entity_AbstractArrow: {
                 id: "Entity_AbstractArrow",
-                markdownDescription: "Abstract arrow entities include.",
+                markdownDescription: "Additional fields for abstract arrow entities.",
                 type: "compound",
                 required: ["isCreative", "OwnerID", "player"],
                 properties: {
                     isCreative: {
                         markdownDescription: "1 or 0 (true/false) - true if its owner is a player in Creative mode.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     OwnerID: {
                         markdownDescription: "The Unique ID of the entity this projectile was thrown by. Set to -1 if it has no owner.",
@@ -6240,14 +6376,19 @@ however when the corresponding block in the block layer is broken, this block ge
                     player: {
                         markdownDescription: "1 or 0 (true/false) - true if its owner is a player.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
                 $fragment: false,
             },
             Entity_Throwable: {
                 id: "Entity_Throwable",
-                markdownDescription: "Throwable entities include.",
+                markdownDescription: "Additional fields for throwable entities.",
                 type: "compound",
                 required: ["inGround", "OwnerID", "shake"],
                 properties: {
@@ -6264,7 +6405,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
                 $fragment: false,
             },
             Entity_Allay: {
@@ -6333,7 +6474,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Inventory",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:allay",
                 $fragment: false,
             },
             Entity_AreaEffectCloud: {
@@ -6423,7 +6566,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "long",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:area_effect_cloud",
                 $fragment: false,
             },
             Entity_Armadillo: {
@@ -6440,14 +6585,29 @@ however when the corresponding block in the block layer is broken, this block ge
                             "minecraft:is_rolled_up": {
                                 markdownDescription: "1 or 0 (true/false) - true if the armadillo is rolled up.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             "minecraft:is_threatened": {
                                 markdownDescription: "1 or 0 (true/false) - true if the armadillo was hit.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             "minecraft:is_trying_to_relax": {
                                 markdownDescription: "1 or 0 (true/false) - UNDOCUMENTED.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                         },
                     },
@@ -6457,7 +6617,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:armadillo",
                 $fragment: false,
             },
             Entity_ArmorStand: {
@@ -6482,7 +6644,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:armor_stand",
                 $fragment: false,
             },
             Entity_Arrow: {
@@ -6530,7 +6694,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Projectile",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:arrow",
                 $fragment: false,
             },
             Entity_Axolotl: {
@@ -6554,7 +6720,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:axolotl",
                 $fragment: false,
             },
             Entity_Bat: {
@@ -6568,7 +6736,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:bat",
                 $fragment: false,
             },
             Entity_Bee: {
@@ -6585,6 +6755,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             "minecraft:has_nectar": {
                                 markdownDescription: "1 or 0 (true/false) - true if the bee is carrying pollen.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                         },
                     },
@@ -6594,7 +6769,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:bee",
                 $fragment: false,
             },
             Entity_BoatWithChest: {
@@ -6602,7 +6779,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [boat with chest](https://minecraft.wiki/w/boat_with_chest).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:chest_boat",
                 $fragment: false,
             },
             Entity_Breeze: {
@@ -6619,11 +6798,18 @@ however when the corresponding block in the block layer is broken, this block ge
                             "minecraft:is_playing_idle_ground_sound": {
                                 markdownDescription: "1 or 0 (true/false) - true if the breeze is playing the `mob.breeze.idle_ground` sound.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                         },
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:breeze",
                 $fragment: false,
             },
             Entity_Camel: {
@@ -6631,7 +6817,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [camel](https://minecraft.wiki/w/camel).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:camel",
                 $fragment: false,
             },
             Entity_Cat: {
@@ -6639,7 +6827,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [cat](https://minecraft.wiki/w/cat).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:cat",
                 $fragment: false,
             },
             Entity_Chicken: {
@@ -6671,7 +6861,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:chicken",
                 $fragment: false,
             },
             Entity_Cow: {
@@ -6679,7 +6871,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [cow](https://minecraft.wiki/w/cow).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:cow",
                 $fragment: false,
             },
             Entity_Creeper: {
@@ -6687,7 +6881,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [creeper](https://minecraft.wiki/w/creeper).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:creeper",
                 $fragment: false,
             },
             Entity_Dolphin: {
@@ -6715,7 +6911,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:dolphin",
                 $fragment: false,
             },
             Entity_Donkey: {
@@ -6735,7 +6933,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:donkey",
                 $fragment: false,
             },
             Entity_Egg: {
@@ -6743,7 +6943,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [egg](https://minecraft.wiki/w/egg).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:egg",
                 $fragment: false,
             },
             Entity_EnderCrystal: {
@@ -6756,11 +6958,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                     BlockTargetY: {
-                        markdownDescription: "(May not exist) See above.",
+                        markdownDescription: "(May not exist) The block location its beam points to.",
                         type: "int",
                     },
                     BlockTargetZ: {
-                        markdownDescription: "(May not exist) See above.",
+                        markdownDescription: "(May not exist) The block location its beam points to.",
                         type: "int",
                     },
                 },
@@ -6769,7 +6971,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Explode",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:ender_crystal",
                 $fragment: false,
             },
             Entity_Enderman: {
@@ -6784,7 +6988,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Block",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:enderman",
                 $fragment: false,
             },
             Entity_Endermite: {
@@ -6798,7 +7004,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:endermite",
                 $fragment: false,
             },
             Entity_Evoker: {
@@ -6806,7 +7014,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [evoker](https://minecraft.wiki/w/evoker).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:evocation_illager",
                 $fragment: false,
             },
             Entity_ExperienceOrb: {
@@ -6825,7 +7035,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:xp_orb",
                 $fragment: false,
             },
             Entity_ExperiencePotion: {
@@ -6833,7 +7045,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [experience potion](https://minecraft.wiki/w/experience_potion).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:xp_bottle",
                 $fragment: false,
             },
             Entity_FallingBlock: {
@@ -6852,7 +7066,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:falling_block",
                 $fragment: false,
             },
             Entity_Fireball: {
@@ -6907,7 +7123,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Explode",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:fireball",
                 $fragment: false,
             },
             Entity_FireworksRocket: {
@@ -6926,7 +7144,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "int",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:fireworks_rocket",
                 $fragment: false,
             },
             Entity_FishingBobber: {
@@ -6934,7 +7154,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing_bobber).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:fishing_hook",
                 $fragment: false,
             },
             Entity_Fox: {
@@ -6959,7 +7181,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:fox",
                 $fragment: false,
             },
             Entity_Frog: {
@@ -6967,7 +7191,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [frog](https://minecraft.wiki/w/frog).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Breedable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:frog",
                 $fragment: false,
             },
             Entity_Goat: {
@@ -6986,7 +7212,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:goat",
                 $fragment: false,
             },
             Entity_GuardianAndElderGuardian: {
@@ -6999,6 +7227,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     Elder: {
                         markdownDescription: "1 or 0 (true/false) - true if it is an elder guardian.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 allOf: [
@@ -7006,7 +7239,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Home",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: ["minecraft:guardian", "minecraft:elder_guardian"],
                 $fragment: false,
             },
             Entity_Hoglin: {
@@ -7014,7 +7249,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [hoglin](https://minecraft.wiki/w/hoglin).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:hoglin",
                 $fragment: false,
             },
             Entity_Horse: {
@@ -7034,7 +7271,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:horse",
                 $fragment: false,
             },
             Entity_Husk: {
@@ -7042,7 +7281,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [husk](https://minecraft.wiki/w/husk).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Timer" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:husk",
                 $fragment: false,
             },
             Entity_IronGolem: {
@@ -7050,7 +7291,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [iron golem](https://minecraft.wiki/w/iron_golem).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:iron_golem",
                 $fragment: false,
             },
             Entity_ItemEntity: {
@@ -7082,7 +7325,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:item",
                 $fragment: false,
             },
             Entity_Llama: {
@@ -7102,7 +7347,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:llama",
                 $fragment: false,
             },
             Entity_LlamaSpit: {
@@ -7110,7 +7357,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [llama spit](https://minecraft.wiki/w/Llama_Spit).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:llama_spit",
                 $fragment: false,
             },
             Entity_MinecartWithChest: {
@@ -7118,7 +7367,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart_with_chest).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:chest_minecart",
                 $fragment: false,
             },
             Entity_MinecartWithCommandBlock: {
@@ -7136,7 +7387,10 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
-                $ref: "ActorPrefix",
+                allOf: [{ $ref: "Component_Inventory" }, { $ref: "CommandBlock" }],
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:command_block_minecart",
                 $fragment: false,
             },
             Entity_MinecartWithHopper: {
@@ -7144,7 +7398,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart_with_hopper).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:hopper_minecart",
                 $fragment: false,
             },
             Entity_MinecartWithTNT: {
@@ -7152,7 +7408,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart_with_tnt).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:tnt_minecart",
                 $fragment: false,
             },
             Entity_Mooshroom: {
@@ -7160,7 +7418,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [mooshroom](https://minecraft.wiki/w/mooshroom).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:mooshroom",
                 $fragment: false,
             },
             Entity_Mule: {
@@ -7180,7 +7440,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:mule",
                 $fragment: false,
             },
             Entity_NPC: {
@@ -7220,7 +7482,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "string",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:npc",
                 $fragment: false,
             },
             Entity_Ocelot: {
@@ -7228,7 +7492,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [ocelot](https://minecraft.wiki/w/ocelot).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:ocelot",
                 $fragment: false,
             },
             Entity_Painting: {
@@ -7248,9 +7514,67 @@ however when the corresponding block in the block layer is broken, this block ge
                     Motif: {
                         markdownDescription: "(May not exist) The ID of the painting's artwork.",
                         type: "string",
+                        // REVIEW: Verify that all of these painting IDs are the correct IDs for Bedrock Edition, these may be the Java Edition IDs.
+                        // https://minecraft.wiki/w/Painting
+                        // Array.from(document.querySelectorAll('table[data-description="Paintings"]')).map(v=>Array.from(v.children[0].children).slice(1)).flat().map(v=>v.children?.[4] && Array.from(v.children).at(-1)).filter(v=>v).map(v=>v.textContent.replace(/\n$/, "")).map(v=>`{ type: "string", value: "${v}" },`).join("\n");
+                        enum: [
+                            { type: "string", value: "kebab" },
+                            { type: "string", value: "aztec" },
+                            { type: "string", value: "alban" },
+                            { type: "string", value: "aztec2" },
+                            { type: "string", value: "bomb" },
+                            { type: "string", value: "plant" },
+                            { type: "string", value: "wasteland" },
+                            { type: "string", value: "meditative" },
+                            { type: "string", value: "wanderer" },
+                            { type: "string", value: "graham" },
+                            { type: "string", value: "prairie_ride" },
+                            { type: "string", value: "pool" },
+                            { type: "string", value: "courbet" },
+                            { type: "string", value: "sunset" },
+                            { type: "string", value: "sea" },
+                            { type: "string", value: "creebet" },
+                            { type: "string", value: "match" },
+                            { type: "string", value: "bust" },
+                            { type: "string", value: "stage" },
+                            { type: "string", value: "void" },
+                            { type: "string", value: "skull_and_roses" },
+                            { type: "string", value: "wither" },
+                            { type: "string", value: "baroque" },
+                            { type: "string", value: "humble" },
+                            { type: "string", value: "bouquet" },
+                            { type: "string", value: "cavebird" },
+                            { type: "string", value: "cotan" },
+                            { type: "string", value: "endboss" },
+                            { type: "string", value: "fern" },
+                            { type: "string", value: "owlemons" },
+                            { type: "string", value: "sunflowers" },
+                            { type: "string", value: "tides" },
+                            { type: "string", value: "dennis" },
+                            { type: "string", value: "backyard" },
+                            { type: "string", value: "pond" },
+                            { type: "string", value: "fighters" },
+                            { type: "string", value: "changing" },
+                            { type: "string", value: "finding" },
+                            { type: "string", value: "lowmist" },
+                            { type: "string", value: "passage" },
+                            { type: "string", value: "skeleton" },
+                            { type: "string", value: "donkey_kong" },
+                            { type: "string", value: "pointer" },
+                            { type: "string", value: "pigscene" },
+                            { type: "string", value: "burning_skull" },
+                            { type: "string", value: "orb" },
+                            { type: "string", value: "unpacked" },
+                            { type: "string", value: "earth" },
+                            { type: "string", value: "wind" },
+                            { type: "string", value: "fire" },
+                            { type: "string", value: "water" },
+                        ],
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:painting",
                 $fragment: false,
             },
             Entity_Panda: {
@@ -7258,7 +7582,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [panda](https://minecraft.wiki/w/panda).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:panda",
                 $fragment: false,
             },
             Entity_Pig: {
@@ -7266,7 +7592,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [pig](https://minecraft.wiki/w/pig).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:pig",
                 $fragment: false,
             },
             Entity_Piglin: {
@@ -7274,7 +7602,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [piglin](https://minecraft.wiki/w/piglin).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Inventory" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:piglin",
                 $fragment: false,
             },
             Entity_PiglinBrute: {
@@ -7282,7 +7612,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [piglin brute](https://minecraft.wiki/w/piglin_brute).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Home" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:piglin_brute",
                 $fragment: false,
             },
             Entity_Pillager: {
@@ -7290,7 +7622,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [pillager](https://minecraft.wiki/w/pillager).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:pillager",
                 $fragment: false,
             },
             Entity_Player: {
@@ -7377,6 +7711,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         markdownDescription:
                             "1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End_portal).",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Inventory: {
                         markdownDescription: "Each compound tag in this list is an item in the player's inventory.",
@@ -7467,6 +7806,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     Sleeping: {
                         markdownDescription: "1 or 0 (true/false) - true if the player is sleeping.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     SleepTimer: {
                         markdownDescription:
@@ -7476,6 +7820,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     Sneaking: {
                         markdownDescription: "1 or 0 (true/false) - true if the player is sneaking.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     SpawnBlockPositionX: {
                         markdownDescription: "The X coordinate of the player's spawn block.",
@@ -7529,7 +7878,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Abilities",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:player",
                 $fragment: false,
             },
             Entity_PolarBear: {
@@ -7537,7 +7888,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [polar bear](https://minecraft.wiki/w/polar_bear).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:polar_bear",
                 $fragment: false,
             },
             Entity_Pufferfish: {
@@ -7545,7 +7898,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [pufferfish](https://minecraft.wiki/w/pufferfish).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Timer" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:pufferfish",
                 $fragment: false,
             },
             Entity_Rabbit: {
@@ -7568,7 +7923,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:rabbit",
                 $fragment: false,
             },
             Entity_Ravager: {
@@ -7576,7 +7933,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [ravager](https://minecraft.wiki/w/ravager).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:ravager",
                 $fragment: false,
             },
             Entity_Sheep: {
@@ -7584,7 +7943,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [sheep](https://minecraft.wiki/w/sheep).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:sheep",
                 $fragment: false,
             },
             Entity_ShulkerBullet: {
@@ -7592,7 +7953,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker_bullet).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:shulker_bullet",
                 $fragment: false,
             },
             Entity_Skeleton: {
@@ -7612,7 +7975,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Timer",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:skeleton",
                 $fragment: false,
             },
             Entity_SkeletonHorse: {
@@ -7620,7 +7985,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [skeleton horse](https://minecraft.wiki/w/skeleton_horse).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:skeleton_horse",
                 $fragment: false,
             },
             Entity_Slime: {
@@ -7635,7 +8002,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "byte",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:slime",
                 $fragment: false,
             },
             Entity_Sniffer: {
@@ -7643,7 +8012,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [sniffer](https://minecraft.wiki/w/sniffer).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:sniffer",
                 $fragment: false,
             },
             Entity_Snowball: {
@@ -7651,7 +8022,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [snowball](https://minecraft.wiki/w/snowball).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:snowball",
                 $fragment: false,
             },
             Entity_Strider: {
@@ -7659,7 +8032,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [strider](https://minecraft.wiki/w/strider).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:strider",
                 $fragment: false,
             },
             Entity_Tadpole: {
@@ -7667,7 +8042,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [tadpole](https://minecraft.wiki/w/tadpole).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:tadpole",
                 $fragment: false,
             },
             Entity_ThrownEnderPearl: {
@@ -7675,7 +8052,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender_pearl).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:ender_pearl",
                 $fragment: false,
             },
             Entity_ThrownPotion: {
@@ -7694,7 +8073,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Projectile",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: ["minecraft:splash_potion", "minecraft:lingering_potion"],
                 $fragment: false,
             },
             Entity_ThrownTrident: {
@@ -7719,7 +8100,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Projectile",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:thrown_trident",
                 $fragment: false,
             },
             Entity_TNT: {
@@ -7727,7 +8110,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [tnt](https://minecraft.wiki/w/tnt).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:tnt",
                 $fragment: false,
             },
             Entity_Turtle: {
@@ -7739,6 +8124,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     IsPregnant: {
                         markdownDescription: "1 or 0 (true/false) - true if the turtle has eggs.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 allOf: [
@@ -7746,7 +8136,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:turtle",
                 $fragment: false,
             },
             Entity_Vex: {
@@ -7761,18 +8153,47 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Item_ItemStack",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:vex",
                 $fragment: false,
             },
+            // REVIEW: The ageable component may not always be present.
+            Entity_Villager: {
+                id: "Entity_Villager",
+                markdownDescription: "Additional fields for [villager (old)](https://minecraft.wiki/w/Villager_(old)).",
+                type: "compound",
+                allOf: [
+                    {
+                        $ref: "Component_Ageable",
+                    },
+                    {
+                        $ref: "Component_Inventory",
+                    },
+                    {
+                        $ref: "Component_Trade_table",
+                    },
+                ],
+                $ref: "Entity_Villagers",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:villager",
+                $fragment: false,
+            },
+            // REVIEW: The ageable component may not always be present.
             Entity_Villager_V2: {
                 id: "Entity_Villager_V2",
                 markdownDescription: "Additional fields for [villager](https://minecraft.wiki/w/villager) (v2).",
                 type: "compound",
-                required: ["HasResupplied", "IsInRaid", "ReactToBell"],
+                required: ["IsInRaid", "ReactToBell"],
                 properties: {
                     HasResupplied: {
                         markdownDescription: "1 or 0 (true/false) - true if the villager's trade has been resupplied.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsInRaid: {
                         markdownDescription: "UNDOCUMENTED.",
@@ -7787,8 +8208,19 @@ however when the corresponding block in the block layer is broken, this block ge
                     {
                         $ref: "Component_Ageable",
                     },
+                    {
+                        $ref: "Component_Dweller",
+                    },
+                    {
+                        $ref: "Component_Economy_trade_table",
+                    },
+                    {
+                        $ref: "Component_Inventory",
+                    },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "Entity_Villagers",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:villager_v2",
                 $fragment: false,
             },
             Entity_Vindicator: {
@@ -7796,7 +8228,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [vindicator](https://minecraft.wiki/w/vindicator).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:vindicator",
                 $fragment: false,
             },
             Entity_WanderingTrader: {
@@ -7828,7 +8262,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Economy_trade_table",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:wandering_trader",
                 $fragment: false,
             },
             Entity_Warden: {
@@ -7856,6 +8292,11 @@ however when the corresponding block in the block layer is broken, this block ge
                                 Priority: {
                                     markdownDescription: "1 or 0 (true/false) - true if the nuisance is priority.",
                                     type: "byte",
+                                    markdownEnumDescriptions: ["false", "true"],
+                                    enum: [
+                                        { type: "byte", value: 0 },
+                                        { type: "byte", value: 1 },
+                                    ],
                                 },
                             },
                         },
@@ -7911,7 +8352,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:warden",
                 $fragment: false,
             },
             Entity_WindChargeProjectile: {
@@ -7919,7 +8362,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind_charge_projectile).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Projectile" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: ["minecraft:wind_charge_projectile", "minecraft:breeze_wind_charge_projectile"],
                 $fragment: false,
             },
             Entity_Witch: {
@@ -7927,7 +8372,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [witch](https://minecraft.wiki/w/witch).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Dweller" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:witch",
                 $fragment: false,
             },
             Entity_Wither: {
@@ -8003,7 +8450,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "float",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:wither",
                 $fragment: false,
             },
             Entity_WitherSkull: {
@@ -8011,7 +8460,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [wither skull](https://minecraft.wiki/w/Wither).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Explode" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: ["minecraft:wither_skull", "minecraft:wither_skull_dangerous"],
                 $fragment: false,
             },
             Entity_Wolf: {
@@ -8028,15 +8479,30 @@ however when the corresponding block in the block layer is broken, this block ge
                             "minecraft:has_armor": {
                                 markdownDescription: "1 or 0 (true/false) - true if the wolf has [wolf armor](https://minecraft.wiki/w/wolf_armor).",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             "minecraft:has_increased_max_health": {
                                 markdownDescription: "1 or 0 (true/false) - true if the wolf's maximum health is 40.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             "minecraft:is_armorable": {
                                 markdownDescription:
                                     "1 or 0 (true/false) - true if the wolf can be equipped with [wolf armor](https://minecraft.wiki/w/wolf_armor).",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                         },
                     },
@@ -8046,7 +8512,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Component_Ageable",
                     },
                 ],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:wolf",
                 $fragment: false,
             },
             Entity_Zombie: {
@@ -8054,7 +8522,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [zombie](https://minecraft.wiki/w/zombie).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Timer" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:zombie",
                 $fragment: false,
             },
             Entity_ZombieHorse: {
@@ -8062,11 +8532,36 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [zombie horse](https://minecraft.wiki/w/zombie_horse).",
                 type: "compound",
                 allOf: [{ $ref: "Component_Ageable" }],
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:zombie_horse",
                 $fragment: false,
             },
+            // TODO: This schema is incomplete.
             Entity_ZombieVillager: {
                 id: "Entity_ZombieVillager",
+                markdownDescription: "Additional fields for [zombie villager (old)](https://minecraft.wiki/w/Zombie_Villager_(old)).",
+                type: "compound",
+                required: ["SpawnedFromVillage"],
+                properties: {
+                    SpawnedFromVillage: {
+                        markdownDescription: "1 or 0 (true/false) - true if spawned from village.",
+                        type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                },
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:zombie_villager",
+                $fragment: false,
+            },
+            // TODO: This schema is incomplete.
+            Entity_ZombieVillager_V2: {
+                id: "Entity_ZombieVillager_V2",
                 markdownDescription: "Additional fields for [zombie villager](https://minecraft.wiki/w/zombie_villager).",
                 type: "compound",
                 required: ["SpawnedFromVillage"],
@@ -8074,9 +8569,16 @@ however when the corresponding block in the block layer is broken, this block ge
                     SpawnedFromVillage: {
                         markdownDescription: "1 or 0 (true/false) - true if spawned from village.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:zombie_villager_v2",
                 $fragment: false,
             },
             Entity_ZombifiedPiglin: {
@@ -8090,7 +8592,9 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "short",
                     },
                 },
-                $ref: "ActorPrefix",
+                $ref: "ActorPrefixOrEntity",
+                schemaCategory: "entity",
+                schemaCategory_typeId: "minecraft:zombie_pigman",
                 $fragment: false,
             },
             //#endregion
@@ -8185,7 +8689,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 SaveData: {
                                     markdownDescription: "The NBT data of the entity in the hive.",
                                     type: "compound",
-                                    $ref: "ActorPrefix",
+                                    $ref: "ActorPrefixOrEntity",
                                 },
                                 TicksLeftToStay: {
                                     markdownDescription: "The time in ticks until the entity leave the beehive.",
@@ -8197,6 +8701,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     ShouldSpawnBees: {
                         markdownDescription: "1 or 0 (true/false) - true if new bees will be spawned.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 $fragment: false,
@@ -8214,6 +8723,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     Ringing: {
                         markdownDescription: "1 or 0 (true/false) - true if it is ringing.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Ticks: {
                         markdownDescription: "UNDOCUMENTED.",
@@ -8337,10 +8851,20 @@ however when the corresponding block in the block layer is broken, this block ge
                     Locked: {
                         markdownDescription: "1 or 0 (true/false) - true if it is on locked.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     OnGround: {
                         markdownDescription: "1 or 0 (true/false) - true if it is on ground.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Owner: {
                         markdownDescription: "The Unique ID of its owner.",
@@ -8384,7 +8908,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription:
                     "Additional fields for [chest](https://minecraft.wiki/w/chest), [trapped chest](https://minecraft.wiki/w/trapped_chest), [barrel](https://minecraft.wiki/w/barrel), and [ender chest](https://minecraft.wiki/w/ender_chest).",
                 type: "compound",
-                required: ["Findable", "forceunpair", "Items"],
+                required: ["Findable", "Items"],
                 properties: {
                     Findable: {
                         markdownDescription: "UNDOCUMENTED.",
@@ -8393,6 +8917,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     forceunpair: {
                         markdownDescription: "1 or 0 (true/false) - (may not exist) true if this chest is unpair with chest next to it.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Items: {
                         markdownDescription: "List of items in this container.",
@@ -8464,6 +8993,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     auto: {
                         markdownDescription: "1 or 0 (true/false) - Allows to activate the command without the requirement of a redstone signal.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     conditionalMode: {
                         markdownDescription: "(May not exist) UNDOCUMENTED.",
@@ -8473,6 +9007,11 @@ however when the corresponding block in the block layer is broken, this block ge
                         markdownDescription:
                             "1 or 0 (true/false) - if a conditional command block had its condition met when last activated. True if not a conditional command block.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     LPCondionalMode: {
                         markdownDescription: "UNDOCUMENTED.",
@@ -8489,6 +9028,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     powered: {
                         markdownDescription: "1 or 0 (true/false) - true if the command block is powered by redstone.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 allOf: [
@@ -8520,6 +9064,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     Active: {
                         markdownDescription: "1 or 0 (true/false) - true if it is active.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Target: {
                         markdownDescription: "The Unique ID of the hostile mob the conduit is currently attacking. If there's no target, defaults to -1.",
@@ -8823,6 +9372,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     hasBook: {
                         markdownDescription: "1 or 0 (true/false) - (may not exist) true if it has a book.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     page: {
                         markdownDescription: "(May not exist) The page the book is currently on, starting from 0.",
@@ -8912,10 +9466,20 @@ however when the corresponding block in the block layer is broken, this block ge
                     HasFinished: {
                         markdownDescription: "1 or 0 (true/false) - true if the reactor has completed its activation phase, and has gone dark.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     IsInitialized: {
                         markdownDescription: "1 or 0 (true/false) - true if the reactor has been activated, and has turned red.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     Progress: {
                         markdownDescription: "Number of ticks the reactor has been active for. It finishes after 900 game ticks (45 seconds).",
@@ -9024,6 +9588,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     Sticky: {
                         markdownDescription: "1 or 0 (true/false) - true if this piston is sticky.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 $fragment: false,
@@ -9169,11 +9738,21 @@ however when the corresponding block in the block layer is broken, this block ge
                             HideGlowOutline: {
                                 markdownDescription: "1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             IgnoreLighting: {
                                 markdownDescription:
                                     "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow_ink_sac).",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             PersistFormatting: {
                                 markdownDescription: "UNDOCUMENTED. Defaults to 1.",
@@ -9202,11 +9781,21 @@ however when the corresponding block in the block layer is broken, this block ge
                             HideGlowOutline: {
                                 markdownDescription: "1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             IgnoreLighting: {
                                 markdownDescription:
                                     "1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow_ink_sac).",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             PersistFormatting: {
                                 markdownDescription: "UNDOCUMENTED. Defaults to 1.",
@@ -9230,6 +9819,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     IsWaxed: {
                         markdownDescription: "1 or 0 (true/false) - true if the text is locked with [honeycomb](https://minecraft.wiki/w/honeycomb).",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                 },
                 $fragment: false,
@@ -9243,6 +9837,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     MouthMoving: {
                         markdownDescription: "1 or 0 (true/false) - true if this dragon head's mouth is moving.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     MouthTickCount: {
                         markdownDescription: "The animation frame of the dragon head's mouth movement. *needs testing*",
@@ -9302,6 +9901,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     ignoreEntities: {
                         markdownDescription: "1 or 0 (true/false) - true if the entities should be ignored in the structure.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     integrity: {
                         markdownDescription: "How complete the structure is that gets placed.",
@@ -9310,6 +9914,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     isPowered: {
                         markdownDescription: "1 or 0 (true/false) - true if this structure block is being powered by redstone.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     mirror: {
                         markdownDescription: "How the structure is mirrored.",
@@ -9322,6 +9931,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     removeBlocks: {
                         markdownDescription: "1 or 0 (true/false) - true if the blocks should be removed in the structure.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     rotation: {
                         markdownDescription: "Rotation of the structure.",
@@ -9334,6 +9948,11 @@ however when the corresponding block in the block layer is broken, this block ge
                     showBoundingBox: {
                         markdownDescription: "1 or 0 (true/false) - true if show the structure's bounding box to players in Creative mode.",
                         type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
                     },
                     structureName: {
                         markdownDescription: "Name of the structure.",
@@ -10026,6 +10645,11 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription:
                                     "1 or 0 (true/false) - true if the entity color, state, and id are used to generate the bucket item's name.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             BodyID: {
                                 markdownDescription: "(May not exist) The translation key of entity's state. Used to generate the bucket item's name.",
@@ -10050,7 +10674,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         },
                         allOf: [
                             {
-                                $ref: "ActorPrefix",
+                                $ref: "ActorPrefixOrEntity",
                             },
                         ],
                     },
@@ -10090,6 +10714,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             map_display_players: {
                                 markdownDescription: "1 or 0 (true/false) - (may not exist) true if the map displays player markers.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                             map_is_init: {
                                 markdownDescription: "(May not exist) UNDOCUMENTED.",
@@ -10237,6 +10866,11 @@ however when the corresponding block in the block layer is broken, this block ge
                             wasJustBrewed: {
                                 markdownDescription: "1 or 0 (true/false) - (may not exist) true if item is brewed in brewing stand.",
                                 type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
                             },
                         },
                     },
@@ -10408,6 +11042,11 @@ however when the corresponding block in the block layer is broken, this block ge
                                         rewardExp: {
                                             markdownDescription: "1 or 0 (true/false) - true if this trade provides XP orb drops.",
                                             type: "byte",
+                                            markdownEnumDescriptions: ["false", "true"],
+                                            enum: [
+                                                { type: "byte", value: 0 },
+                                                { type: "byte", value: 1 },
+                                            ],
                                         },
                                         demand: {
                                             markdownDescription:
@@ -10571,7 +11210,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription:
                     "This component is used by minecarts with chest, minecarts with command block, minecarts with hopper, horses, donkeys, llamas, mules, pandas, and villagers.",
                 type: "compound",
-                required: ["InventoryVersion", "LootTable", "LootTableSeed"],
+                required: ["InventoryVersion"],
                 properties: {
                     ChestItems: {
                         type: "list",
@@ -11265,11 +11904,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                     markdownDescription: "A vanilla biome numeric ID.",
                                                     type: "byte",
                                                     markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
-                                                        .sort((a, b) => a[1] - b[1])
-                                                        .map(([biome, id]) => `${biome} (${id})`),
+                                                        .sort((a: [biome: string, id: number], b: [biome: string, id: number]): number => a[1] - b[1])
+                                                        .map(([biome, id]: [biome: string, id: number]): string => `${biome} (${id})`),
                                                     enum: Object.values(__biome_data__.int_map)
-                                                        .sort((a, b) => a - b)
-                                                        .map((v): NBT.Byte => ({ type: "byte", value: v })),
+                                                        .sort((a: number, b: number): number => a - b)
+                                                        .map((v: number): NBT.Byte => ({ type: "byte", value: v })),
                                                     errorMessage:
                                                         "Unknown vanilla biome numeric ID. If you meant to enter the ID of a custom biome, it should be at least 10000.",
                                                 },
@@ -11317,11 +11956,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                     markdownDescription: "A vanilla biome numeric ID.",
                                                     type: "short",
                                                     markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
-                                                        .sort((a, b) => a[1] - b[1])
-                                                        .map(([biome, id]) => `${biome} (${id})`),
+                                                        .sort((a: [biome: string, id: number], b: [biome: string, id: number]): number => a[1] - b[1])
+                                                        .map(([biome, id]: [biome: string, id: number]): string => `${biome} (${id})`),
                                                     enum: Object.values(__biome_data__.int_map)
-                                                        .sort((a, b) => a - b)
-                                                        .map((v): NBT.Short => ({ type: "short", value: v })),
+                                                        .sort((a: number, b: number): number => a - b)
+                                                        .map((v: number): NBT.Short => ({ type: "short", value: v })),
                                                     errorMessage:
                                                         "Unknown vanilla biome numeric ID. If you meant to enter the ID of a custom biome, it should be at least 10000.",
                                                 },
@@ -11643,12 +12282,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                 markdownDescription: "A vanilla biome numeric ID.",
                                                 type: "int",
                                                 markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
-                                                    .sort((a, b) => a[1] - b[1])
-                                                    .map(([biome, id]) => `${biome} (${id})`),
+                                                    .sort((a: [biome: string, id: number], b: [biome: string, id: number]): number => a[1] - b[1])
+                                                    .map(([biome, id]: [biome: string, id: number]): string => `${biome} (${id})`),
                                                 enum: Object.values(__biome_data__.int_map)
-                                                    .sort((a, b) => a - b)
-                                                    // HACK: This is a temporary workaround the to bug mentioned inside of the nbtSchemaToJsonSchema function, it should be making NBT.Int objects but due to the bug the raw numeric value is being entered instead.
-                                                    .map((v) => v as unknown as NBT.Int),
+                                                    .sort((a: number, b: number): number => a - b)
+                                                    .map((v: number): NBT.Int => ({ type: "int", value: v })),
                                                 errorMessage:
                                                     "Unknown vanilla biome numeric ID. If you meant to enter the ID of a custom biome, it should be at least 10000.",
                                             },
@@ -11769,7 +12407,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 title: "The LegacyTerrain schema.",
                 markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the LegacyTerrain content type.",
                 type: "compound",
-                required: ["block_ids", "block_data", "sky_light", "block_light", "dirty_columns", "grass_color"],
+                required: ["block_ids", "block_data", "sky_light", "block_light", "height_map", "grass_color"],
                 properties: {
                     block_ids: {
                         title: "Block IDs",
@@ -12593,6 +13231,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
      */
     export interface NBTSubSchema {
         /**
+         * The category used for generating certain schema
+         *
+         * @internal
+         */
+        schemaCategory?: "item" | "entity" | "block_entity" | undefined;
+        /**
+         * The type ID of the thing in the schema's category that this schema is associated with.
+         *
+         * @internal
+         */
+        schemaCategory_typeId?: string | string[] | undefined;
+        /**
          * The ID of this schema.
          */
         id?: string | undefined;
@@ -12704,24 +13354,29 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         maxLength?: number | undefined;
         /**
          * @todo
+         * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
-        minimum?: number | undefined;
+        minimum?: number | bigint | undefined;
         /**
          * @todo
+         * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
-        maximum?: number | undefined;
+        maximum?: number | bigint | undefined;
         /**
          * @todo
+         * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
-        exclusiveMinimum?: boolean | number | undefined;
+        exclusiveMinimum?: boolean | number | bigint | undefined;
         /**
          * @todo
+         * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
-        exclusiveMaximum?: boolean | number | undefined;
+        exclusiveMaximum?: boolean | number | bigint | undefined;
         /**
          * @todo
+         * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
-        multipleOf?: number | undefined;
+        multipleOf?: number | bigint | undefined;
         /**
          * @todo
          */
@@ -13027,14 +13682,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                     // copy over JSON-Schema-like constraints (minItems, maxItems, etc.)
                     for (const k of [
-                        "enum",
                         "enumDescriptions",
                         "markdownEnumDescriptions",
-                        "const",
                         "doNotSuggest",
                         "errorMessage",
                         "deprecationMessage",
-                        "examples",
                         "suggestSortText",
                     ] as const satisfies (keyof JSONSchema & (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                         keyof NBTSubSchema &
@@ -13042,6 +13694,19 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         keyof NBTSchemaFragment)[]) {
                         if (schema[k] !== undefined) {
                             jsonSchema[k] = schema[k];
+                        }
+                    }
+                    for (const k of ["enum", "const", "examples"] as const satisfies (keyof JSONSchema &
+                        (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
+                        keyof NBTSubSchema &
+                        keyof NBTSchema &
+                        keyof NBTSchemaFragment)[]) {
+                        if (schema[k] !== undefined) {
+                            if ((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot) {
+                                jsonSchema[k] = schema[k] instanceof Array ? schema[k].map((v) => v.value ?? v) : (schema[k].value ?? schema[k]); // TEST
+                            } else {
+                                jsonSchema[k] = schema[k];
+                            }
                         }
                     }
 
@@ -13662,7 +14327,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "array",
                                         items:
                                             schema.items ?
-                                                nbtSchemaToJsonSchema(schema.items as NBTSubSchema, allSchemas, { ...options, makeValueSchema: true }, true)
+                                                schema.items instanceof Array ?
+                                                    schema.items.map((v) =>
+                                                        nbtSchemaToJsonSchema(v as NBTSubSchema, allSchemas, { ...options, makeValueSchema: true }, true)
+                                                    )
+                                                :   nbtSchemaToJsonSchema(schema.items as NBTSubSchema, allSchemas, { ...options, makeValueSchema: true }, true)
                                             :   {},
                                     },
                                 },
@@ -16233,11 +16902,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         /**
          * The ActorPrefix schema.
          *
-         * All entities share this base.
+         * The base for ActorPrefix LevelDB entries.
          *
          * @see {@link NBTSchemas.nbtSchemas.ActorPrefix}
          */
-        export type ActorPrefix = {
+        export type ActorPrefix = { type: "compound"; value: object } & ActorPrefixOrEntity;
+
+        /**
+         * The Entity_Entity schema.
+         *
+         * All entities share this base.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Entity_Entity}
+         */
+        export type Entity_Entity = {
             type: "compound";
             value: {
                 /**
@@ -16304,26 +16982,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * The namespaced ID of this entity.
                  */
                 identifier: { type: "string"; value: string };
-                /**
-                 * UNDOCUMENTED.
-                 */
-                internalComponents: {
-                    type: "compound";
-                    value: {
-                        /**
-                         * UNDOCUMENTED.
-                         */
-                        EntityStorageKeyComponent: {
-                            type: "compound";
-                            value: {
-                                /**
-                                 * UNDOCUMENTED.
-                                 */
-                                StorageKey: { type: "string"; value: string };
-                            };
-                        };
-                    };
-                };
                 /**
                  * 1 or 0 (true/false) - true if the entity should not take damage. This applies to living and nonliving entities alike: mobs should not take damage from any source (including potion effects), and cannot be moved by fishing rods, attacks, explosions, or projectiles, and objects such as vehicles cannot be destroyed. Invulnerable player entities are also ignored by any hostile mobs. Note that these entities can be damaged by players in Creative mode. *needs testing*
                  *
@@ -16639,6 +17297,39 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
+         * The ActorPrefixOrEntity schema.
+         *
+         * A generic entity base, this is for places where either the Entity_Entity or the ActorPrefix NBT schema could be used.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.ActorPrefixOrEntity}
+         */
+        export type ActorPrefixOrEntity = {
+            type: "compound";
+            value: {
+                /**
+                 * Internal components containing critical storage information for the entity.
+                 */
+                internalComponents?: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.
+                         */
+                        EntityStorageKeyComponent: {
+                            type: "compound";
+                            value: {
+                                /**
+                                 * The ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries. If this is changed, the game will write this ActorPrefix to a different LevelDB key that corresponds to the value here, the game will **not** automatically update the Digest LevelDB entries to reflect this.
+                                 */
+                                StorageKey: { type: "string"; value: string };
+                            };
+                        };
+                    };
+                };
+            };
+        } & Entity_Entity;
+
+        /**
          * The AutonomousEntities schema.
          *
          * The autonomous entities data.
@@ -16749,6 +17440,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             type: "compound";
             value: {
                 /**
+                 * UNDOCUMENTED.
+                 *
+                 * @default 0
+                 */
+                BlockEntityVersion?: { type: "int"; value: number };
+                /**
                  * (May not exist) The custom name of the block entity.
                  */
                 CustomName?: { type: "string"; value: string };
@@ -16765,7 +17462,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * - `0`: false
                  * - `1`: true
                  */
-                isMovable: { type: "byte"; value: 0 | 1 };
+                isMovable?: { type: "byte"; value: 0 | 1 };
                 /**
                  * X coordinate of the block entity.
                  */
@@ -20970,7 +21667,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         /**
                          * The list of entities in the structure.
                          */
-                        entities: { type: "list"; value: { type: "compound"; value: ActorPrefix["value"][] } };
+                        entities: { type: "list"; value: { type: "compound"; value: ActorPrefixOrEntity["value"][] } };
                     };
                 };
                 /**
@@ -21732,8 +22429,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 CustomName: { type: "string"; value: string };
                 /**
                  * 1 or 0 (true/false) - true if it executes on the first tick once saved or activated.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                ExecuteOnFirstTick: { type: "byte"; value: number };
+                ExecuteOnFirstTick: { type: "byte"; value: 0 | 1 };
                 /**
                  * Stores the time when a command block was last executed.
                  */
@@ -21756,8 +22459,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 TickDelay: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if the `LastOutput` is stored. Can be toggled in the GUI by clicking a button near the "Previous Output" textbox.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                TrackOutput: { type: "byte"; value: number };
+                TrackOutput: { type: "byte"; value: 0 | 1 };
                 /**
                  * The data version.
                  */
@@ -21783,12 +22492,24 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 FireworkFade: { type: "byteArray"; value: number[] };
                 /**
                  * 1 or 0 (true/false) - true if this explosion has the twinkle effect (glowstone dust).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                FireworkFlicker: { type: "byte"; value: number };
+                FireworkFlicker: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if this explosion has the trail effect (diamond).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                FireworkTrail: { type: "byte"; value: number };
+                FireworkTrail: { type: "byte"; value: 0 | 1 };
                 /**
                  * The shape of this firework's explosion. 0 = Small Ball, 1 = Large Ball, 2 = Star-shaped, 3 = Creeper-shaped, and 4 = Burst. *needs testing*
                  */
@@ -21806,8 +22527,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if this effect is provided by a beacon and therefore should be less intrusive on screen.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Ambient: { type: "byte"; value: number };
+                Ambient: { type: "byte"; value: 0 | 1 };
                 /**
                  * The potion effect level. 0 is level 1.
                  */
@@ -21851,8 +22578,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 Id: { type: "byte"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if particles are shown.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                ShowParticles: { type: "byte"; value: number };
+                ShowParticles: { type: "byte"; value: 0 | 1 };
             };
         };
 
@@ -21955,7 +22688,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
-         * Minecart entities include.
+         * Additional fields for minecart entities.
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Minecart}
          */
@@ -21964,8 +22697,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - (may not exist) if is displayed the custom tile in this minecart.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                CustomDisplayTile: { type: "byte"; value: number };
+                CustomDisplayTile: { type: "byte"; value: 0 | 1 };
                 /**
                  * (May not exist) The custom block in the minecart.
                  */
@@ -21975,10 +22714,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 DisplayOffset?: { type: "int"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
-         * Villager entities include.
+         * Additional fields for villager entities.
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Villagers}
          */
@@ -21987,13 +22726,19 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if the villager is willing to mate. Becomes true after certain trades (those that would cause offers to be refreshed), and false after mating.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Willing: { type: "byte"; value: number };
+                Willing: { type: "byte"; value: 0 | 1 };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
-         * Monster entities include.
+         * Additional fields for monsters.
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Monster}
          */
@@ -22002,13 +22747,19 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if is spawned by night.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                SpawnedByNight: { type: "byte"; value: number };
+                SpawnedByNight: { type: "byte"; value: 0 | 1 };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
-         * Humanoid monster entities include.
+         * Additional fields for humanoid monsters.
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_HumanoidMonster}
          */
@@ -22020,10 +22771,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 ItemInHand?: { type: "compound"; value: object } & Item_ItemStack;
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
-         * Mob entities include.
+         * Additional fields for mobs.
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Mob}
          */
@@ -22071,24 +22822,48 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 boundZ: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if this entity can pick up items.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                canPickupItems: { type: "byte"; value: number };
+                canPickupItems: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if dead.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Dead: { type: "byte"; value: number };
+                Dead: { type: "byte"; value: 0 | 1 };
                 /**
                  * Number of ticks the mob has been dead for. Controls death animations. 0 when alive.
                  */
                 DeathTime: { type: "short"; value: number };
                 /**
                  * 1 or 0 (true/false) - if this mob has bound origin. Only *needs testing* effects [Vex](https://minecraft.wiki/w/Vex). When a vex is idle, it wanders, selecting air blocks from within a 15×11×15 *needs testing* cuboid range centered at BoundX, BoundY, BoundZ. when it summoned the vex, this value is set to true, and the central spot is the location of the evoker. Or if an evoker was not involved, this value is false.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                hasBoundOrigin: { type: "byte"; value: number };
+                hasBoundOrigin: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if `canPickupItems` has been set by the game.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                hasSetCanPickupItems: { type: "byte"; value: number };
+                hasSetCanPickupItems: { type: "byte"; value: 0 | 1 };
                 /**
                  * Number of ticks the mob turns red for after being hit. 0 when not recently hit.
                  */
@@ -22107,8 +22882,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 Mainhand: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
                 /**
                  * 1 or 0 (true/false) - true if it is naturally spawned.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                NaturalSpawn: { type: "byte"; value: number };
+                NaturalSpawn: { type: "byte"; value: 0 | 1 };
                 /**
                  * The item being held in the mob's off hand.
                  */
@@ -22123,8 +22904,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 persistingRiches?: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if it is naturally spawned on the surface.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Surface: { type: "byte"; value: number };
+                Surface: { type: "byte"; value: 0 | 1 };
                 /**
                  * (May not exist) The Unique ID of a captain to follow. Used by pillager and vindicator.
                  */
@@ -22146,10 +22933,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 WantsToBeJockey?: { type: "byte"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
-         * Abstract arrow entities include.
+         * Additional fields for abstract arrow entities.
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_AbstractArrow}
          */
@@ -22158,21 +22945,33 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if its owner is a player in Creative mode.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                isCreative: { type: "byte"; value: number };
+                isCreative: { type: "byte"; value: 0 | 1 };
                 /**
                  * The Unique ID of the entity this projectile was thrown by. Set to -1 if it has no owner.
                  */
                 OwnerID: { type: "long"; value: [high: number, low: number] };
                 /**
                  * 1 or 0 (true/false) - true if its owner is a player.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                player: { type: "byte"; value: number };
+                player: { type: "byte"; value: 0 | 1 };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
-         * Throwable entities include.
+         * Additional fields for throwable entities.
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Throwable}
          */
@@ -22192,7 +22991,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 shake: { type: "byte"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [allay](https://minecraft.wiki/w/allay).
@@ -22259,7 +23058,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     };
                 };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Inventory;
 
         /**
@@ -22331,7 +23130,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 SpawnTick: { type: "long"; value: [high: number, low: number] };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [armadillo](https://minecraft.wiki/w/armadillo).
@@ -22349,20 +23148,38 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - true if the armadillo is rolled up.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        "minecraft:is_rolled_up": { type: "byte"; value: number };
+                        "minecraft:is_rolled_up": { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the armadillo was hit.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        "minecraft:is_threatened": { type: "byte"; value: number };
+                        "minecraft:is_threatened": { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - UNDOCUMENTED.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        "minecraft:is_trying_to_relax": { type: "byte"; value: number };
+                        "minecraft:is_trying_to_relax": { type: "byte"; value: 0 | 1 };
                     };
                 };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22390,7 +23207,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     };
                 };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [arrow](https://minecraft.wiki/w/arrow).
@@ -22425,7 +23242,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 enchantPunch: { type: "byte"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Projectile;
 
         /**
@@ -22445,7 +23262,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 TicksRemainingUntilDryOut: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22461,7 +23278,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 BatFlags: { type: "byte"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [bee](https://minecraft.wiki/w/bee).
@@ -22479,12 +23296,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - true if the bee is carrying pollen.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        "minecraft:has_nectar": { type: "byte"; value: number };
+                        "minecraft:has_nectar": { type: "byte"; value: 0 | 1 };
                     };
                 };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22492,7 +23315,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_BoatWithChest}
          */
-        export type Entity_BoatWithChest = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
+        export type Entity_BoatWithChest = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Inventory;
 
         /**
          * Additional fields for [breeze](https://minecraft.wiki/w/breeze).
@@ -22510,26 +23333,32 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - true if the breeze is playing the `mob.breeze.idle_ground` sound.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        "minecraft:is_playing_idle_ground_sound": { type: "byte"; value: number };
+                        "minecraft:is_playing_idle_ground_sound": { type: "byte"; value: 0 | 1 };
                     };
                 };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [camel](https://minecraft.wiki/w/camel).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Camel}
          */
-        export type Entity_Camel = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Camel = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [cat](https://minecraft.wiki/w/cat).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Cat}
          */
-        export type Entity_Cat = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Cat = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [chicken](https://minecraft.wiki/w/chicken).
@@ -22556,7 +23385,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     };
                 };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22564,14 +23393,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Cow}
          */
-        export type Entity_Cow = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Cow = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [creeper](https://minecraft.wiki/w/creeper).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Creeper}
          */
-        export type Entity_Creeper = { type: "compound"; value: object } & ActorPrefix & Component_Explode;
+        export type Entity_Creeper = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Explode;
 
         /**
          * Additional fields for [dolphin](https://minecraft.wiki/w/dolphin).
@@ -22594,7 +23423,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 TicksRemainingUntilDryOut: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22610,7 +23439,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Temper: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22618,7 +23447,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Egg}
          */
-        export type Entity_Egg = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
+        export type Entity_Egg = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Projectile;
 
         /**
          * Additional fields for [ender crystal](https://minecraft.wiki/w/ender_crystal).
@@ -22633,15 +23462,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 BlockTargetX?: { type: "int"; value: number };
                 /**
-                 * (May not exist) See above.
+                 * (May not exist) The block location its beam points to.
                  */
                 BlockTargetY?: { type: "int"; value: number };
                 /**
-                 * (May not exist) See above.
+                 * (May not exist) The block location its beam points to.
                  */
                 BlockTargetZ?: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Explode;
 
         /**
@@ -22657,7 +23486,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 carriedBlock: { type: "compound"; value: object } & Block;
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [endermite](https://minecraft.wiki/w/endermite).
@@ -22672,14 +23501,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Lifetime: { type: "int"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [evoker](https://minecraft.wiki/w/evoker).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Evoker}
          */
-        export type Entity_Evoker = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
+        export type Entity_Evoker = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Dweller;
 
         /**
          * Additional fields for [experience orb](https://minecraft.wiki/w/experience_orb).
@@ -22698,14 +23527,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 "experience value": { type: "int"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [experience potion](https://minecraft.wiki/w/experience_potion).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ExperiencePotion}
          */
-        export type Entity_ExperiencePotion = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
+        export type Entity_ExperiencePotion = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Projectile;
 
         /**
          * Additional fields for [falling block](https://minecraft.wiki/w/falling_block).
@@ -22721,7 +23550,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Time: { type: "byte"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [fireball](https://minecraft.wiki/w/fireball).
@@ -22744,7 +23573,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 power: { type: "list"; value: { type: "float"; value: [number, number, number] } };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Explode;
 
         /**
@@ -22764,14 +23593,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 LifeTime: { type: "int"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [fishing bobber](https://minecraft.wiki/w/fishing_bobber).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_FishingBobber}
          */
-        export type Entity_FishingBobber = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
+        export type Entity_FishingBobber = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Projectile;
 
         /**
          * Additional fields for [fox](https://minecraft.wiki/w/fox).
@@ -22788,7 +23617,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             } & {
                 [key: `TrustedPlayer${bigint}`]: { type: "long"; value: [high: number, low: number] };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22796,7 +23625,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Frog}
          */
-        export type Entity_Frog = { type: "compound"; value: object } & ActorPrefix & Component_Breedable;
+        export type Entity_Frog = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Breedable;
 
         /**
          * Additional fields for [goat](https://minecraft.wiki/w/goat).
@@ -22811,7 +23640,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 GoatHornCount: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22824,10 +23653,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if it is an elder guardian.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Elder: { type: "byte"; value: number };
+                Elder: { type: "byte"; value: 0 | 1 };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Home;
 
         /**
@@ -22835,7 +23670,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Hoglin}
          */
-        export type Entity_Hoglin = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Hoglin = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [horse](https://minecraft.wiki/w/horse).
@@ -22850,7 +23685,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Temper: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22858,14 +23693,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Husk}
          */
-        export type Entity_Husk = { type: "compound"; value: object } & ActorPrefix & Component_Timer;
+        export type Entity_Husk = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Timer;
 
         /**
          * Additional fields for [iron golem](https://minecraft.wiki/w/iron_golem).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_IronGolem}
          */
-        export type Entity_IronGolem = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
+        export type Entity_IronGolem = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Dweller;
 
         /**
          * Additional fields for [item entity](https://minecraft.wiki/w/Item_(entity)).
@@ -22895,7 +23730,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 OwnerID: { type: "long"; value: [high: number, low: number] };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [llama](https://minecraft.wiki/w/llama).
@@ -22910,7 +23745,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Temper: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -22918,14 +23753,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_LlamaSpit}
          */
-        export type Entity_LlamaSpit = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
+        export type Entity_LlamaSpit = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Projectile;
 
         /**
          * Additional fields for [minecart with chest](https://minecraft.wiki/w/minecart_with_chest).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithChest}
          */
-        export type Entity_MinecartWithChest = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
+        export type Entity_MinecartWithChest = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Inventory;
 
         /**
          * Additional fields for [minecart with command block](https://minecraft.wiki/w/minecart_with_command_block).
@@ -22944,28 +23779,30 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Ticking: { type: "byte"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity &
+            Component_Inventory &
+            CommandBlock;
 
         /**
          * Additional fields for [minecart with hopper](https://minecraft.wiki/w/minecart_with_hopper).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithHopper}
          */
-        export type Entity_MinecartWithHopper = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
+        export type Entity_MinecartWithHopper = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Inventory;
 
         /**
          * Additional fields for [minecart with tnt](https://minecraft.wiki/w/minecart_with_tnt).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_MinecartWithTNT}
          */
-        export type Entity_MinecartWithTNT = { type: "compound"; value: object } & ActorPrefix & Component_Explode;
+        export type Entity_MinecartWithTNT = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Explode;
 
         /**
          * Additional fields for [mooshroom](https://minecraft.wiki/w/mooshroom).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Mooshroom}
          */
-        export type Entity_Mooshroom = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Mooshroom = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [mule](https://minecraft.wiki/w/mule).
@@ -22980,7 +23817,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Temper: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -23023,14 +23860,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 RawtextName?: { type: "string"; value: string };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [ocelot](https://minecraft.wiki/w/ocelot).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Ocelot}
          */
-        export type Entity_Ocelot = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Ocelot = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [painting](https://minecraft.wiki/w/painting).
@@ -23050,45 +23887,101 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 Direction: { type: "byte"; value: number };
                 /**
                  * (May not exist) The ID of the painting's artwork.
+                 *
+                 * @enum "kebab" | "aztec" | "alban" | "aztec2" | "bomb" | "plant" | "wasteland" | "meditative" | "wanderer" | "graham" | "prairie_ride" | "pool" | "courbet" | "sunset" | "sea" | "creebet" | "match" | "bust" | "stage" | "void" | "skull_and_roses" | "wither" | "baroque" | "humble" | "bouquet" | "cavebird" | "cotan" | "endboss" | "fern" | "owlemons" | "sunflowers" | "tides" | "dennis" | "backyard" | "pond" | "fighters" | "changing" | "finding" | "lowmist" | "passage" | "skeleton" | "donkey_kong" | "pointer" | "pigscene" | "burning_skull" | "orb" | "unpacked" | "earth" | "wind" | "fire" | "water"
                  */
-                Motif?: { type: "string"; value: string };
+                Motif?: {
+                    type: "string";
+                    value:
+                        | "kebab"
+                        | "aztec"
+                        | "alban"
+                        | "aztec2"
+                        | "bomb"
+                        | "plant"
+                        | "wasteland"
+                        | "meditative"
+                        | "wanderer"
+                        | "graham"
+                        | "prairie_ride"
+                        | "pool"
+                        | "courbet"
+                        | "sunset"
+                        | "sea"
+                        | "creebet"
+                        | "match"
+                        | "bust"
+                        | "stage"
+                        | "void"
+                        | "skull_and_roses"
+                        | "wither"
+                        | "baroque"
+                        | "humble"
+                        | "bouquet"
+                        | "cavebird"
+                        | "cotan"
+                        | "endboss"
+                        | "fern"
+                        | "owlemons"
+                        | "sunflowers"
+                        | "tides"
+                        | "dennis"
+                        | "backyard"
+                        | "pond"
+                        | "fighters"
+                        | "changing"
+                        | "finding"
+                        | "lowmist"
+                        | "passage"
+                        | "skeleton"
+                        | "donkey_kong"
+                        | "pointer"
+                        | "pigscene"
+                        | "burning_skull"
+                        | "orb"
+                        | "unpacked"
+                        | "earth"
+                        | "wind"
+                        | "fire"
+                        | "water";
+                };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [panda](https://minecraft.wiki/w/panda).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Panda}
          */
-        export type Entity_Panda = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Panda = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [pig](https://minecraft.wiki/w/pig).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pig}
          */
-        export type Entity_Pig = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Pig = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [piglin](https://minecraft.wiki/w/piglin).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Piglin}
          */
-        export type Entity_Piglin = { type: "compound"; value: object } & ActorPrefix & Component_Inventory;
+        export type Entity_Piglin = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Inventory;
 
         /**
          * Additional fields for [piglin brute](https://minecraft.wiki/w/piglin_brute).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_PiglinBrute}
          */
-        export type Entity_PiglinBrute = { type: "compound"; value: object } & ActorPrefix & Component_Home;
+        export type Entity_PiglinBrute = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Home;
 
         /**
          * Additional fields for [pillager](https://minecraft.wiki/w/pillager).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pillager}
          */
-        export type Entity_Pillager = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
+        export type Entity_Pillager = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Dweller;
 
         /**
          * Additional fields for [player](https://minecraft.wiki/w/player).
@@ -23135,8 +24028,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 format_version: { type: "string"; value: string };
                 /**
                  * 1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End_portal).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                HasSeenCredits: { type: "byte"; value: number };
+                HasSeenCredits: { type: "byte"; value: 0 | 1 };
                 /**
                  * Each compound tag in this list is an item in the player's inventory.
                  */
@@ -23221,16 +24120,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 SelectedInventorySlot: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if the player is sleeping.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Sleeping: { type: "byte"; value: number };
+                Sleeping: { type: "byte"; value: 0 | 1 };
                 /**
                  * The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0. *needs testing*
                  */
                 SleepTimer: { type: "short"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if the player is sneaking.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Sneaking: { type: "byte"; value: number };
+                Sneaking: { type: "byte"; value: 0 | 1 };
                 /**
                  * The X coordinate of the player's spawn block.
                  */
@@ -23276,7 +24187,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 WardenThreatLevelIncreaseCooldown: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Abilities;
 
         /**
@@ -23284,14 +24195,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_PolarBear}
          */
-        export type Entity_PolarBear = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_PolarBear = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [pufferfish](https://minecraft.wiki/w/pufferfish).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Pufferfish}
          */
-        export type Entity_Pufferfish = { type: "compound"; value: object } & ActorPrefix & Component_Timer;
+        export type Entity_Pufferfish = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Timer;
 
         /**
          * Additional fields for [rabbit](https://minecraft.wiki/w/rabbit).
@@ -23310,7 +24221,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 MoreCarrotTicks: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -23318,21 +24229,21 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Ravager}
          */
-        export type Entity_Ravager = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
+        export type Entity_Ravager = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Dweller;
 
         /**
          * Additional fields for [sheep](https://minecraft.wiki/w/sheep).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Sheep}
          */
-        export type Entity_Sheep = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Sheep = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [shulker bullet](https://minecraft.wiki/w/shulker_bullet).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ShulkerBullet}
          */
-        export type Entity_ShulkerBullet = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
+        export type Entity_ShulkerBullet = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Projectile;
 
         /**
          * Additional fields for [skeleton](https://minecraft.wiki/w/skeleton).
@@ -23347,7 +24258,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 ItemInHand: { type: "compound"; value: object } & Item_ItemStack;
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Timer;
 
         /**
@@ -23355,7 +24266,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_SkeletonHorse}
          */
-        export type Entity_SkeletonHorse = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_SkeletonHorse = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [slime](https://minecraft.wiki/w/slime).
@@ -23370,42 +24281,42 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Size: { type: "byte"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [sniffer](https://minecraft.wiki/w/sniffer).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Sniffer}
          */
-        export type Entity_Sniffer = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Sniffer = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [snowball](https://minecraft.wiki/w/snowball).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Snowball}
          */
-        export type Entity_Snowball = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
+        export type Entity_Snowball = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Projectile;
 
         /**
          * Additional fields for [strider](https://minecraft.wiki/w/strider).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Strider}
          */
-        export type Entity_Strider = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Strider = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for [tadpole](https://minecraft.wiki/w/tadpole).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Tadpole}
          */
-        export type Entity_Tadpole = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_Tadpole = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
          * Additional fields for thrown [ender pearl](https://minecraft.wiki/w/ender_pearl).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ThrownEnderPearl}
          */
-        export type Entity_ThrownEnderPearl = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
+        export type Entity_ThrownEnderPearl = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Projectile;
 
         /**
          * Additional fields for thrown [potion](https://minecraft.wiki/w/potion).
@@ -23420,7 +24331,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 PotionId: { type: "short"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Projectile;
 
         /**
@@ -23440,7 +24351,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Trident: { type: "compound"; value: object } & Item_ItemStack;
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Projectile;
 
         /**
@@ -23448,7 +24359,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_TNT}
          */
-        export type Entity_TNT = { type: "compound"; value: object } & ActorPrefix & Component_Explode;
+        export type Entity_TNT = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Explode;
 
         /**
          * Additional fields for [turtle](https://minecraft.wiki/w/turtle).
@@ -23460,10 +24371,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if the turtle has eggs.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsPregnant: { type: "byte"; value: number };
+                IsPregnant: { type: "byte"; value: 0 | 1 };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -23479,7 +24396,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 ItemInHand: { type: "compound"; value: object } & Item_ItemStack;
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
+
+        /**
+         * Additional fields for [villager (old)](https://minecraft.wiki/w/Villager_(old)).
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Entity_Villager}
+         */
+        export type Entity_Villager = { type: "compound"; value: object } & Entity_Villagers & Component_Ageable & Component_Inventory & Component_Trade_table;
 
         /**
          * Additional fields for [villager](https://minecraft.wiki/w/villager) (v2).
@@ -23491,8 +24415,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if the villager's trade has been resupplied.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                HasResupplied: { type: "byte"; value: number };
+                HasResupplied?: { type: "byte"; value: 0 | 1 };
                 /**
                  * UNDOCUMENTED.
                  */
@@ -23502,15 +24432,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 ReactToBell: { type: "byte"; value: number };
             };
-        } & ActorPrefix &
-            Component_Ageable;
+        } & Entity_Villagers &
+            Component_Ageable &
+            Component_Dweller &
+            Component_Economy_trade_table &
+            Component_Inventory;
 
         /**
          * Additional fields for [vindicator](https://minecraft.wiki/w/vindicator).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Vindicator}
          */
-        export type Entity_Vindicator = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
+        export type Entity_Vindicator = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Dweller;
 
         /**
          * Additional fields for [wandering trader](https://minecraft.wiki/w/wandering_trader).
@@ -23537,7 +24470,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     };
                 };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Economy_trade_table;
 
         /**
@@ -23566,8 +24499,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             Anger: { type: "int"; value: number };
                             /**
                              * 1 or 0 (true/false) - true if the nuisance is priority.
+                             *
+                             * @enum 0 | 1
+                             *
+                             * @enumDescriptions
+                             * - `0`: false
+                             * - `1`: true
                              */
-                            Priority: { type: "byte"; value: number };
+                            Priority: { type: "byte"; value: 0 | 1 };
                         }[];
                     };
                 };
@@ -23624,21 +24563,21 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     };
                 };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [wind charge projectile](https://minecraft.wiki/w/wind_charge_projectile).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_WindChargeProjectile}
          */
-        export type Entity_WindChargeProjectile = { type: "compound"; value: object } & ActorPrefix & Component_Projectile;
+        export type Entity_WindChargeProjectile = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Projectile;
 
         /**
          * Additional fields for [witch](https://minecraft.wiki/w/witch).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Witch}
          */
-        export type Entity_Witch = { type: "compound"; value: object } & ActorPrefix & Component_Dweller;
+        export type Entity_Witch = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Dweller;
 
         /**
          * Additional fields for [wither](https://minecraft.wiki/w/wither).
@@ -23697,14 +24636,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 swellAmount: { type: "float"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [wither skull](https://minecraft.wiki/w/Wither).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_WitherSkull}
          */
-        export type Entity_WitherSkull = { type: "compound"; value: object } & ActorPrefix & Component_Explode;
+        export type Entity_WitherSkull = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Explode;
 
         /**
          * Additional fields for [wolf](https://minecraft.wiki/w/wolf).
@@ -23722,20 +24661,38 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - true if the wolf has [wolf armor](https://minecraft.wiki/w/wolf_armor).
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        "minecraft:has_armor": { type: "byte"; value: number };
+                        "minecraft:has_armor": { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the wolf's maximum health is 40.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        "minecraft:has_increased_max_health": { type: "byte"; value: number };
+                        "minecraft:has_increased_max_health": { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the wolf can be equipped with [wolf armor](https://minecraft.wiki/w/wolf_armor).
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        "minecraft:is_armorable": { type: "byte"; value: number };
+                        "minecraft:is_armorable": { type: "byte"; value: 0 | 1 };
                     };
                 };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Component_Ageable;
 
         /**
@@ -23743,17 +24700,17 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Zombie}
          */
-        export type Entity_Zombie = { type: "compound"; value: object } & ActorPrefix & Component_Timer;
+        export type Entity_Zombie = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Timer;
 
         /**
          * Additional fields for [zombie horse](https://minecraft.wiki/w/zombie_horse).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ZombieHorse}
          */
-        export type Entity_ZombieHorse = { type: "compound"; value: object } & ActorPrefix & Component_Ageable;
+        export type Entity_ZombieHorse = { type: "compound"; value: object } & ActorPrefixOrEntity & Component_Ageable;
 
         /**
-         * Additional fields for [zombie villager](https://minecraft.wiki/w/zombie_villager).
+         * Additional fields for [zombie villager (old)](https://minecraft.wiki/w/Zombie_Villager_(old)).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_ZombieVillager}
          */
@@ -23762,10 +24719,37 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if spawned from village.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                SpawnedFromVillage: { type: "byte"; value: number };
+                SpawnedFromVillage: { type: "byte"; value: 0 | 1 };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
+
+        /**
+         * Additional fields for [zombie villager](https://minecraft.wiki/w/zombie_villager).
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Entity_ZombieVillager_V2}
+         */
+        export type Entity_ZombieVillager_V2 = {
+            type: "compound";
+            value: {
+                /**
+                 * 1 or 0 (true/false) - true if spawned from village.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                SpawnedFromVillage: { type: "byte"; value: 0 | 1 };
+            };
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [zombified piglin](https://minecraft.wiki/w/zombified_piglin).
@@ -23780,7 +24764,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 Anger: { type: "short"; value: number };
             };
-        } & ActorPrefix;
+        } & ActorPrefixOrEntity;
 
         /**
          * Additional fields for [banner](https://minecraft.wiki/w/banner).
@@ -23877,7 +24861,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             /**
                              * The NBT data of the entity in the hive.
                              */
-                            SaveData: { type: "compound"; value: object } & ActorPrefix;
+                            SaveData: { type: "compound"; value: object } & ActorPrefixOrEntity;
                             /**
                              * The time in ticks until the entity leave the beehive.
                              */
@@ -23887,8 +24871,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 };
                 /**
                  * 1 or 0 (true/false) - true if new bees will be spawned.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                ShouldSpawnBees: { type: "byte"; value: number };
+                ShouldSpawnBees: { type: "byte"; value: 0 | 1 };
             };
         };
 
@@ -23906,8 +24896,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 Direction: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if it is ringing.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Ringing: { type: "byte"; value: number };
+                Ringing: { type: "byte"; value: 0 | 1 };
                 /**
                  * UNDOCUMENTED.
                  */
@@ -24026,12 +25022,24 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 BaseZ: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if it is on locked.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Locked: { type: "byte"; value: number };
+                Locked: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if it is on ground.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                OnGround: { type: "byte"; value: number };
+                OnGround: { type: "byte"; value: 0 | 1 };
                 /**
                  * The Unique ID of its owner.
                  */
@@ -24084,8 +25092,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 Findable: { type: "byte"; value: number };
                 /**
                  * 1 or 0 (true/false) - (may not exist) true if this chest is unpair with chest next to it.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                forceunpair: { type: "byte"; value: number };
+                forceunpair?: { type: "byte"; value: 0 | 1 };
                 /**
                  * List of items in this container.
                  */
@@ -24153,16 +25167,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - Allows to activate the command without the requirement of a redstone signal.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                auto: { type: "byte"; value: number };
+                auto: { type: "byte"; value: 0 | 1 };
                 /**
                  * (May not exist) UNDOCUMENTED.
                  */
                 conditionalMode?: { type: "byte"; value: number };
                 /**
                  * 1 or 0 (true/false) - if a conditional command block had its condition met when last activated. True if not a conditional command block.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                conditionMet: { type: "byte"; value: number };
+                conditionMet: { type: "byte"; value: 0 | 1 };
                 /**
                  * UNDOCUMENTED.
                  */
@@ -24177,8 +25203,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 LPCommandMode: { type: "byte"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if the command block is powered by redstone.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                powered: { type: "byte"; value: number };
+                powered: { type: "byte"; value: 0 | 1 };
             };
         } & CommandBlock;
 
@@ -24207,8 +25239,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if it is active.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Active: { type: "byte"; value: number };
+                Active: { type: "byte"; value: 0 | 1 };
                 /**
                  * The Unique ID of the hostile mob the conduit is currently attacking. If there's no target, defaults to -1.
                  */
@@ -24507,8 +25545,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 book?: { type: "compound"; value: object } & Item_ItemStack;
                 /**
                  * 1 or 0 (true/false) - (may not exist) true if it has a book.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                hasBook: { type: "byte"; value: number };
+                hasBook: { type: "byte"; value: 0 | 1 };
                 /**
                  * (May not exist) The page the book is currently on, starting from 0.
                  */
@@ -24602,12 +25646,24 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if the reactor has completed its activation phase, and has gone dark.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                HasFinished: { type: "byte"; value: number };
+                HasFinished: { type: "byte"; value: 0 | 1 };
                 /**
                  * 1 or 0 (true/false) - true if the reactor has been activated, and has turned red.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsInitialized: { type: "byte"; value: number };
+                IsInitialized: { type: "byte"; value: 0 | 1 };
                 /**
                  * Number of ticks the reactor has been active for. It finishes after 900 game ticks (45 seconds).
                  */
@@ -24657,8 +25713,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 State: { type: "byte"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if this piston is sticky.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Sticky: { type: "byte"; value: number };
+                Sticky: { type: "byte"; value: 0 | 1 };
             };
         };
 
@@ -24806,12 +25868,24 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        HideGlowOutline: { type: "byte"; value: number };
+                        HideGlowOutline: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow_ink_sac).
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        IgnoreLighting: { type: "byte"; value: number };
+                        IgnoreLighting: { type: "byte"; value: 0 | 1 };
                         /**
                          * UNDOCUMENTED. Defaults to 1.
                          */
@@ -24838,12 +25912,24 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - true if the outer glow of a sign with glowing text does not show.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        HideGlowOutline: { type: "byte"; value: number };
+                        HideGlowOutline: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the sign has been dyed with a [glow ink sac](https://minecraft.wiki/w/glow_ink_sac).
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        IgnoreLighting: { type: "byte"; value: number };
+                        IgnoreLighting: { type: "byte"; value: 0 | 1 };
                         /**
                          * UNDOCUMENTED. Defaults to 1.
                          */
@@ -24864,8 +25950,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 };
                 /**
                  * 1 or 0 (true/false) - true if the text is locked with [honeycomb](https://minecraft.wiki/w/honeycomb).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                IsWaxed: { type: "byte"; value: number };
+                IsWaxed: { type: "byte"; value: 0 | 1 };
             };
         };
 
@@ -24879,8 +25971,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * 1 or 0 (true/false) - true if this dragon head's mouth is moving.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                MouthMoving: { type: "byte"; value: number };
+                MouthMoving: { type: "byte"; value: 0 | 1 };
                 /**
                  * The animation frame of the dragon head's mouth movement. *needs testing*
                  */
@@ -24918,16 +26016,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 dataField: { type: "string"; value: string };
                 /**
                  * 1 or 0 (true/false) - true if the entities should be ignored in the structure.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                ignoreEntities: { type: "byte"; value: number };
+                ignoreEntities: { type: "byte"; value: 0 | 1 };
                 /**
                  * How complete the structure is that gets placed.
                  */
                 integrity: { type: "float"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if this structure block is being powered by redstone.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                isPowered: { type: "byte"; value: number };
+                isPowered: { type: "byte"; value: 0 | 1 };
                 /**
                  * How the structure is mirrored.
                  */
@@ -24938,8 +26048,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 redstoneSaveMode: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if the blocks should be removed in the structure.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                removeBlocks: { type: "byte"; value: number };
+                removeBlocks: { type: "byte"; value: 0 | 1 };
                 /**
                  * Rotation of the structure.
                  */
@@ -24950,8 +26066,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 seed: { type: "long"; value: [high: number, low: number] };
                 /**
                  * 1 or 0 (true/false) - true if show the structure's bounding box to players in Creative mode.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                showBoundingBox: { type: "byte"; value: number };
+                showBoundingBox: { type: "byte"; value: 0 | 1 };
                 /**
                  * Name of the structure.
                  */
@@ -25585,8 +26707,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - true if the entity color, state, and id are used to generate the bucket item's name.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        AppendCustomName: { type: "byte"; value: number };
+                        AppendCustomName: { type: "byte"; value: 0 | 1 };
                         /**
                          * (May not exist) The translation key of entity's state. Used to generate the bucket item's name.
                          */
@@ -25608,7 +26736,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          */
                         GroupName?: { type: "string"; value: string };
                     };
-                } & ActorPrefix;
+                } & ActorPrefixOrEntity;
             };
         } & Item_ItemStack;
 
@@ -25645,8 +26773,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - (may not exist) true if the map displays player markers.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        map_display_players: { type: "byte"; value: number };
+                        map_display_players: { type: "byte"; value: 0 | 1 };
                         /**
                          * (May not exist) UNDOCUMENTED.
                          */
@@ -25793,8 +26927,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     value: {
                         /**
                          * 1 or 0 (true/false) - (may not exist) true if item is brewed in brewing stand.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
                          */
-                        wasJustBrewed: { type: "byte"; value: number };
+                        wasJustBrewed: { type: "byte"; value: 0 | 1 };
                     };
                 };
             };
@@ -25946,8 +27086,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     traderExp: { type: "int"; value: number };
                                     /**
                                      * 1 or 0 (true/false) - true if this trade provides XP orb drops.
+                                     *
+                                     * @enum 0 | 1
+                                     *
+                                     * @enumDescriptions
+                                     * - `0`: false
+                                     * - `1`: true
                                      */
-                                    rewardExp: { type: "byte"; value: number };
+                                    rewardExp: { type: "byte"; value: 0 | 1 };
                                     /**
                                      * The price adjuster of the first 'cost' item based on demand. Updated when a villager resupply.
                                      */
@@ -26133,11 +27279,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * Loot table to be used to fill the inventory when it is next opened, or the items are otherwise interacted with.
                  */
-                LootTable: { type: "string"; value: string };
+                LootTable?: { type: "string"; value: string };
                 /**
                  * Seed for generating the loot table. 0 or omitted uses a random seed *needs testing*.
                  */
-                LootTableSeed: { type: "int"; value: number };
+                LootTableSeed?: { type: "int"; value: number };
             };
         };
 
@@ -27164,12 +28310,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                       /**
                        * Format Version
                        *
-                       * The format version of the Data2D data. For versions before v1.18.0, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
+                       * The format version of the Data2D data. For older Minecraft versions, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
                        *
                        * @enum 1
                        *
                        * @enumDescriptions
-                       * - `1`: Pre-v1.18.0
+                       * - `1`: Pre-?
                        */
                       version: { type: "byte"; value: 1 };
                       /**
@@ -27200,12 +28346,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                       /**
                        * Format Version
                        *
-                       * The format version of the Data2D data. For versions before v1.18.0, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
+                       * The format version of the Data2D data. For older Minecraft versions, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
                        *
                        * @enum 2
                        *
                        * @enumDescriptions
-                       * - `2`: Post-v1.18.0
+                       * - `2`: Post-?
                        */
                       version: { type: "byte"; value: 2 };
                       /**
@@ -27926,8 +29072,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 format_version: { type: "string"; value: string };
                 /**
                  * 1 or 0 (true/false) - true if the player has traveled to the [Overworld](https://minecraft.wiki/w/Overworld) via an [End portal](https://minecraft.wiki/w/End_portal).
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                HasSeenCredits: { type: "byte"; value: number };
+                HasSeenCredits: { type: "byte"; value: 0 | 1 };
                 /**
                  * Each compound tag in this list is an item in the player's inventory.
                  */
@@ -28012,16 +29164,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 SelectedInventorySlot: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if the player is sleeping.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Sleeping: { type: "byte"; value: number };
+                Sleeping: { type: "byte"; value: 0 | 1 };
                 /**
                  * The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0. *needs testing*
                  */
                 SleepTimer: { type: "short"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if the player is sneaking.
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
                  */
-                Sneaking: { type: "byte"; value: number };
+                Sneaking: { type: "byte"; value: 0 | 1 };
                 /**
                  * The X coordinate of the player's spawn block.
                  */
@@ -28067,7 +29231,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 WardenThreatLevelIncreaseCooldown: { type: "int"; value: number };
             };
-        } & ActorPrefix &
+        } & ActorPrefixOrEntity &
             Abilities;
 
         /**

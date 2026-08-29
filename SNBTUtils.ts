@@ -1034,7 +1034,7 @@ function parseList(items: string[], options: ParseListOptions & { keepGoingAfter
 function parseList(items: string[], options?: ParseListOptions & { keepGoingAfterError?: false | undefined }): NBT.List<NBT.TagType>;
 function parseList(items: string[], options?: ParseListOptions): NBT.List<NBT.TagType> | { value: NBT.List<NBT.TagType>; errors: SNBTParseError[] };
 function parseList(items: string[], options: ParseListOptions = {}): NBT.List<NBT.TagType> | { value: NBT.List<NBT.TagType>; errors: SNBTParseError[] } {
-    console.log(items, items.length);
+    // console.log(items, items.length);
     const errors: SNBTParseError[] = [];
     let values: NBT.Tags[NBT.TagType][] = [];
     let valueIndices: number[] = [];
@@ -1244,7 +1244,7 @@ export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOpt
     function parseValue(val: string, key: string, pos: number): NBT.Tags[NBT.TagType] | undefined {
         const originalVal: string = val;
         val = val.trim();
-        if (!val) return NBT.comp({});
+        if (!val) return { type: NBT.TagType.Compound, value: {} };
 
         if (val.startsWith("{") && val.endsWith("}")) {
             const baseVal = parseSNBTCompoundString(val, { ...options, isInnerStack: true });
@@ -1339,8 +1339,9 @@ export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOpt
 
     commitPair();
 
-    const val = NBT.comp(
-        Object.fromEntries(
+    const val = {
+        type: NBT.TagType.Compound,
+        value: Object.fromEntries(
             Object.entries(result)
                 .map(([k, v]: [string, any]): [string | undefined, any] => [
                     ((): string | undefined => {
@@ -1372,8 +1373,8 @@ export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOpt
                     v,
                 ])
                 .filter((v: [string | undefined, any]): v is [string, any] => v[0] !== undefined)
-        )
-    );
+        ),
+    } as NBT.Compound;
 
     return options.keepGoingAfterError ? { value: val, errors } : val;
 }
@@ -1459,7 +1460,7 @@ export function extractSNBT(input: string, options: ParseSNBTBaseOptions = {}): 
     function parseValue(val: string, key: string, pos: number) {
         const originalVal: string = val;
         val = val.trim();
-        if (!val) return NBT.comp({});
+        if (!val) return { type: NBT.TagType.Compound, value: {} };
 
         if (val.startsWith("{") && val.endsWith("}")) {
             const baseVal = parseSNBTCompoundString(val, { ...options, isInnerStack: true });
@@ -1606,8 +1607,9 @@ export function extractSNBT(input: string, options: ParseSNBTBaseOptions = {}): 
     }
 
     return {
-        value: NBT.comp(
-            Object.fromEntries(
+        value: {
+            type: NBT.TagType.Compound,
+            value: Object.fromEntries(
                 Object.entries(result)
                     .map(([k, v]: [string, any]): [string | undefined, any] => [
                         ((): string | undefined => {
@@ -1639,8 +1641,8 @@ export function extractSNBT(input: string, options: ParseSNBTBaseOptions = {}): 
                         v,
                     ])
                     .filter((v: [string | undefined, any]): v is [string, any] => v[0] !== undefined)
-            )
-        ),
+            ),
+        },
         remaining: originalInput.slice(i + originalInput.indexOf(input)),
         startPos: originalInput.indexOf(input),
         endPos: i + originalInput.indexOf(input),
@@ -1766,7 +1768,7 @@ export function snbtToPrismarine(snbt: any): Compound {
         }
     }
 
-    return NBT.comp(value);
+    return { type: NBT.TagType.Compound, value };
 }
 
 function formatString(s: string): string {

@@ -1,3 +1,33 @@
+# v1.22.0
+
+## Additions
+
+-   Added enums to many boolean NBT schema properties.
+-   Added the `Entity_Entity` NBT schema, which is like the `ActorPrefix` NBT schema, but it is for entries in the `Entity` content type, which doesn't have the `internalComponents` field.
+-   Added the `ActorPrefixOrEntity` NBT schema, which is like the `ActorPrefix` NBT schema, except the `internalComponents` field is optional.
+-   Added the `Entity_Villager` NBT schema.
+-   Added the `Entity_ZombieVillager_V2` NBT schema. NOTE: Currently the `Entity_ZombieVillager` and `Entity_ZombieVillager_V2` are the same, and they are both incomplete
+-   Added the `BlockEntityVersion` field to the `BlockEntity` NBT schema.
+-   Added an enum to the `Motif` field of the `Entity_Painting` NBT schema.
+
+## Changes
+
+-   All entity NBT schemas now extend the `ActorPrefixOrEntity` NBT schema rather than the `ActorPrefix` NBT schema.
+-   The `isMovable` field of the `BlockEntity` NBT schema is now optional.
+-   The `LootTable` and `LootTableSeed` fields of the `Component_Inventory` NBT schema are now optional.
+-   The `HasResupplied` field of the `Entity_Villager_V2` NBT schema is now optional.
+-   The `Entity_MinecartWithCommandBlock` NBT schema now also extends the `Component_Inventory` and `CommandBlock` NBT schemas.
+-   The `Entity_Villager_V2` NBT schema now also extends the `Entity_Villagers`, `Component_Dweller`, `Component_Economy_trade_table`, and `Component_Inventory` NBT schemas.
+
+## Fixes
+
+-   Fixed an issue with the `LegacyTerrain` NBT schema where the required property names referenced the old `dirty_columns` property instead of `height_map`.
+-   When `enum`, `const`, and `examples` properties `items` properties (or entries in that property) of NBT schemas a translated to JSON schemas by the NBT schema to JSON schema converter, it now converts the values to the values of value properties.
+-   Fixed some issues with handling of tuple type `items` properties of NBT schemas by the NBT schema to JSON schema converter.
+-   Fixed the descriptions of many NBT schemas and fields.
+-   Removed an unnecessary console log from the internal `parseList` function.
+-   Fixed an issue where `parseSNBTCompoundString`, `extractSNBT`, and `snbtToPrismarine` functions would add extra useless `"name": ""` properties to many NBT compounds.
+
 # v1.21.0
 
 ## Critical Fixes
