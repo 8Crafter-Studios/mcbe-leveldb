@@ -1,3 +1,13 @@
+# v1.22.1
+
+## Additions
+
+-   Added handling for unresolved names from the required properties list of NBT schemas to the NBT schema to TypeScript type converter, to ensure that it is required, even if the actual definition for the property is in `oneOf`, `anyOf`, `allOf`, a reference, etc.
+
+## Fixes
+
+-   Fixed a invalid internal TypeScript type that was causing errors.
+
 # v1.22.0
 
 ## Additions

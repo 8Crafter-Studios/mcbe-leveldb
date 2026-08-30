@@ -603,7 +603,7 @@ export namespace NBTSchemas {
                 properties: {
                     internalComponents: {
                         markdownDescription:
-                            "Internal components containing critical storage information for the entity.\nThis is **REQUIRED** for ActorPrefix, and is **NOT** used in other places.",
+                            "Internal components containing critical storage information for the entity.\n\nThis is **REQUIRED** for ActorPrefix, and is **NOT** used in other places.",
                         type: "compound",
                         required: ["EntityStorageKeyComponent"],
                         properties: {
@@ -7163,7 +7163,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 id: "Entity_Fox",
                 markdownDescription: "Additional fields for [fox](https://minecraft.wiki/w/fox).",
                 type: "compound",
-                required: ["TrustedPlayersAmount", "TrustedPlayer[0-9]+"],
+                required: ["TrustedPlayersAmount"],
                 properties: {
                     TrustedPlayersAmount: {
                         markdownDescription: "The number of players who are trusted by the fox.",
@@ -8778,7 +8778,6 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription:
                     "Additional fields for [campfire](https://minecraft.wiki/w/campfire) and [soul campfire](https://minecraft.wiki/w/soul_campfire).",
                 type: "compound",
-                required: ["ItemTime[0-9]+"],
                 patternProperties: {
                     "Item[0-9]+": {
                         markdownDescription: "(May not exist) An items currently cooking. `<_num_>` is 1, 2, 3, and 4.",
@@ -11584,7 +11583,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 id: "Component_Trust",
                 markdownDescription: "This component is only used by foxes.",
                 type: "compound",
-                required: ["TrustedPlayersAmount", "TrustedPlayer[0-9]+"],
+                required: ["TrustedPlayersAmount"],
                 properties: {
                     TrustedPlayersAmount: {
                         markdownDescription: "The number of players who are trusted by this entity.",
@@ -15801,9 +15800,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     // compound
                     if (t === "compound") {
                         const props = schema.properties ?? {};
-                        const parentReq = new Set<string>((schema.required as any) ?? []);
+                        const parentReq = new Set<string>(schema.required ?? []);
+                        const allRequiredNames: Set<string> = new Set(schema.required ?? []);
+                        const resolvedRequiredNames: Set<string> = new Set();
 
                         const lines: string[] = Object.entries(props).map(([key, val]: [key: string, value: unknown]): string => {
+                            resolvedRequiredNames.add(key);
                             const childSchema = val as NBTSubSchema;
                             const comment = renderComment(childSchema, undefined, indent);
                             const required = parentReq.has(key) || (childSchema as any).required === true;
@@ -15885,8 +15887,34 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         } else if (opts.allowExtraProps) {
                             lines.push(`${propLinesCount > 0 ? `${indent}} & {\n` : ""}${indent}[key: string]: { type: string; value: any };`);
                         }
+                        {
+                            let unresolvedRequiredKeyType: string | undefined;
 
-                        return { type: '"compound"', value: lines.length === 0 ? "object" : `{\n${lines.join("\n")}\n${indent}}` };
+                            const unresolvedRequiredNames: SetIterator<string> | ArrayIterator<string> =
+                                (allRequiredNames.difference?.(resolvedRequiredNames) as Set<string> | undefined)?.values() ??
+                                /* fallback for older environments */ Array.from(allRequiredNames)
+                                    .filter((name: string): boolean => !resolvedRequiredNames.has(name))
+                                    .values();
+                            if ((unresolvedRequiredKeyType = unresolvedRequiredNames.next().value) !== undefined) {
+                                unresolvedRequiredKeyType = JSON.stringify(unresolvedRequiredKeyType);
+                                for (const name of unresolvedRequiredNames) {
+                                    // Having these as two separate assignment operations is actually faster.
+                                    unresolvedRequiredKeyType += " | ";
+                                    unresolvedRequiredKeyType += JSON.stringify(name);
+                                }
+                            }
+
+                            const valueString: string = lines.length === 0 ? "object" : `{\n${lines.join("\n")}\n${indent}}`;
+                            return {
+                                type: '"compound"',
+                                value:
+                                    unresolvedRequiredKeyType ?
+                                        valueString === "object" ?
+                                            `Record<${unresolvedRequiredKeyType}, NonNullable<unknown> | null>`
+                                        :   `(${valueString} & Record<${unresolvedRequiredKeyType}, NonNullable<unknown> | null>)`
+                                    :   valueString,
+                            };
+                        }
                     }
 
                     // fallback
@@ -16631,7 +16659,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             resolvedSchemaName = "StructureTemplate";
                             break;
                         case schemaName === "Entity" && (schemaCategory === "entity" || schemaCategory === "others"):
-                            return "ActorPrefix";
+                            return "ActorPrefixOrEntity";
                         case schemaName === "Block Entity" && schemaCategory === "block":
                             return "BlockEntity";
                         default:
@@ -16906,7 +16934,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.ActorPrefix}
          */
-        export type ActorPrefix = { type: "compound"; value: object } & ActorPrefixOrEntity;
+        export type ActorPrefix = { type: "compound"; value: Record<"internalComponents", NonNullable<unknown> | null> } & ActorPrefixOrEntity;
 
         /**
          * The Entity_Entity schema.
@@ -17308,6 +17336,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * Internal components containing critical storage information for the entity.
+                 *
+                 * This is **REQUIRED** for ActorPrefix, and is **NOT** used in other places.
                  */
                 internalComponents?: {
                     type: "compound";
