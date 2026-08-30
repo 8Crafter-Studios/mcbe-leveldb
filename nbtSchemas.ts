@@ -5,6 +5,8 @@ import type { Full, LooseAutocomplete } from "./types.js";
 import __biome_data__ from "./__biome_data__.ts";
 import type { ExclusifyUnion } from "type-fest";
 
+// TODO: Add NBT schemas for newer entities, like the sulfur cube.
+
 /**
  * Types, constants, and functions related to NBT schemas.
  */
@@ -105,35 +107,37 @@ export namespace NBTSchemas {
                 markdownDescription: "The base for ActorPrefix LevelDB entries.",
                 type: "compound",
                 required: ["internalComponents"],
-                // properties: {
-                //     internalComponents: {
-                //         markdownDescription: "Internal components containing critical storage information for the entity.",
-                //         type: "compound",
-                //         required: ["EntityStorageKeyComponent"],
-                //         properties: {
-                //             EntityStorageKeyComponent: {
-                //                 markdownDescription:
-                //                     "A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.",
-                //                 type: "compound",
-                //                 required: ["StorageKey"],
-                //                 properties: {
-                //                     StorageKey: {
-                //                         markdownDescription:
-                //                             "The ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries. If this is changed, the game will write this ActorPrefix to a different LevelDB key that corresponds to the value here, the game will **not** automatically update the Digest LevelDB entries to reflect this.",
-                //                         type: "string",
-                //                     },
-                //                 },
-                //             },
-                //         },
-                //     },
-                // },
-                allOf: [{ $ref: "ActorPrefixOrEntity" /* "Entity_Entity" */ }],
+                properties: {
+                    internalComponents: {
+                        markdownDescription:
+                            "Internal components containing critical storage information for the entity.\n\nThis is **REQUIRED** for ActorPrefix, and is optional in other places.",
+                        type: "compound",
+                        required: ["EntityStorageKeyComponent"],
+                        properties: {
+                            EntityStorageKeyComponent: {
+                                markdownDescription:
+                                    "A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.\n\nThis is **REQUIRED** for an ActorPrefix, and is optional in other places.",
+                                type: "compound",
+                                required: ["StorageKey"],
+                                properties: {
+                                    StorageKey: {
+                                        markdownDescription:
+                                            "The ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries. If this is changed, the game will write this ActorPrefix to a different LevelDB key that corresponds to the value here, the game will **not** automatically update the Digest LevelDB entries to reflect this.",
+                                        type: "string",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                allOf: [{ $ref: "Entity_Entity" }],
                 $fragment: false,
             },
             Entity_Entity: {
                 id: "Entity_Entity",
                 title: "The Entity_Entity schema.",
-                markdownDescription: "All entities share this base.",
+                markdownDescription:
+                    "All entities share this base. This should only be used for places where only old entity formats that don't have internalComponents are supported, such as the Entity content type. Newer formats (even when embedded in things like a StructureTemplate) should use ActorPrefixOrEntity (or ActorPrefix if it is the data of an ActorPrefix LevelDB entry).",
                 type: "compound",
                 required: [
                     "Chested",
@@ -598,18 +602,18 @@ export namespace NBTSchemas {
             ActorPrefixOrEntity: {
                 id: "ActorPrefixOrEntity",
                 title: "The ActorPrefixOrEntity schema.",
-                markdownDescription: "A generic entity base, this is for places where either the Entity_Entity or the ActorPrefix NBT schema could be used.",
+                markdownDescription:
+                    "A generic entity base, this is for places where either the Entity_Entity or the ActorPrefix NBT schema could be used, and for places where a partial ActorPrefix is used, like in StructureTemplates in newer versions (where it has internalComponents, but not EntityStorageKeyComponent).",
                 type: "compound",
                 properties: {
                     internalComponents: {
                         markdownDescription:
-                            "Internal components containing critical storage information for the entity.\n\nThis is **REQUIRED** for ActorPrefix, and is **NOT** used in other places.",
+                            "Internal components containing critical storage information for the entity.\n\nThis is **REQUIRED** for ActorPrefix, and is optional in other places.",
                         type: "compound",
-                        required: ["EntityStorageKeyComponent"],
                         properties: {
                             EntityStorageKeyComponent: {
                                 markdownDescription:
-                                    "A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.",
+                                    "A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.\n\nThis is **REQUIRED** for an ActorPrefix, and is optional in other places.",
                                 type: "compound",
                                 required: ["StorageKey"],
                                 properties: {
@@ -16934,12 +16938,40 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.ActorPrefix}
          */
-        export type ActorPrefix = { type: "compound"; value: Record<"internalComponents", NonNullable<unknown> | null> } & ActorPrefixOrEntity;
+        export type ActorPrefix = {
+            type: "compound";
+            value: {
+                /**
+                 * Internal components containing critical storage information for the entity.
+                 *
+                 * This is **REQUIRED** for ActorPrefix, and is optional in other places.
+                 */
+                internalComponents: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.
+                         *
+                         * This is **REQUIRED** for an ActorPrefix, and is optional in other places.
+                         */
+                        EntityStorageKeyComponent: {
+                            type: "compound";
+                            value: {
+                                /**
+                                 * The ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries. If this is changed, the game will write this ActorPrefix to a different LevelDB key that corresponds to the value here, the game will **not** automatically update the Digest LevelDB entries to reflect this.
+                                 */
+                                StorageKey: { type: "string"; value: string };
+                            };
+                        };
+                    };
+                };
+            };
+        } & Entity_Entity;
 
         /**
          * The Entity_Entity schema.
          *
-         * All entities share this base.
+         * All entities share this base. This should only be used for places where only old entity formats that don't have internalComponents are supported, such as the Entity content type. Newer formats (even when embedded in things like a StructureTemplate) should use ActorPrefixOrEntity (or ActorPrefix if it is the data of an ActorPrefix LevelDB entry).
          *
          * @see {@link NBTSchemas.nbtSchemas.Entity_Entity}
          */
@@ -17327,7 +17359,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         /**
          * The ActorPrefixOrEntity schema.
          *
-         * A generic entity base, this is for places where either the Entity_Entity or the ActorPrefix NBT schema could be used.
+         * A generic entity base, this is for places where either the Entity_Entity or the ActorPrefix NBT schema could be used, and for places where a partial ActorPrefix is used, like in StructureTemplates in newer versions (where it has internalComponents, but not EntityStorageKeyComponent).
          *
          * @see {@link NBTSchemas.nbtSchemas.ActorPrefixOrEntity}
          */
@@ -17337,15 +17369,17 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * Internal components containing critical storage information for the entity.
                  *
-                 * This is **REQUIRED** for ActorPrefix, and is **NOT** used in other places.
+                 * This is **REQUIRED** for ActorPrefix, and is optional in other places.
                  */
                 internalComponents?: {
                     type: "compound";
                     value: {
                         /**
                          * A component containing the StorageKey. The StorageKey is a binary-encoded string containing the ID that is used in the ActorPrefix's LevelDB key and in the entity IDs list of Digest LevelDB entries.
+                         *
+                         * This is **REQUIRED** for an ActorPrefix, and is optional in other places.
                          */
-                        EntityStorageKeyComponent: {
+                        EntityStorageKeyComponent?: {
                             type: "compound";
                             value: {
                                 /**

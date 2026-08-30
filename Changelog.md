@@ -1,3 +1,9 @@
+# v1.22.2
+
+## Changes
+
+-   The `internalComponents.EntityStorageKeyComponent` field of the `ActorPrefixOrEntity` NBT schema is now optional.
+
 # v1.22.1
 
 ## Additions
