@@ -1,3 +1,18 @@
+# v1.23.0
+
+## Additions
+
+-   The `~local_player.Editor` LevelDB key is now detected as the `Player` content type.
+-   Added the `DayCycleStopTime` property to the `LevelDat` NBT schema.
+
+## Fixes
+
+-   Fixed a bug where a the following optional properties of the `Entity_Player` NBT schema were incorrectly marked as required:
+    -   `AgentID`
+    -   `LeftShoulderRiderID`
+    -   `RideID`
+    -   `RightShoulderRiderID`
+
 # v1.22.2
 
 ## Changes

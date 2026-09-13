@@ -1526,6 +1526,16 @@ export namespace NBTSchemas {
                         type: "long",
                         markdownDescription: "UNDOCUMENTED.",
                     },
+                    DayCycleStopTime: {
+                        type: "int",
+                        markdownDescription:
+                            "UNDOCUMENTED. Currently observed value is -1.\n\nThis was found in a world from 0.12.0.1 Windows 10 Edition Beta, it is unknown when it was added or removed.",
+                        default: { type: "int", value: -1 },
+                    },
+                    daylightCycle: {
+                        type: "int",
+                        markdownDescription: "UNDOCUMENTED.",
+                    },
                     Difficulty: {
                         type: "int",
                         markdownDescription: "The current difficulty setting. 0 is Peaceful, 1 is Easy, 2 is Normal, and 3 is Hard.",
@@ -1547,10 +1557,6 @@ export namespace NBTSchemas {
                             { type: "int", value: 1 },
                             { type: "int", value: 2 },
                         ],
-                    },
-                    daylightCycle: {
-                        type: "int",
-                        markdownDescription: "UNDOCUMENTED.",
                     },
                     dodaylightcycle: {
                         type: "byte",
@@ -1981,6 +1987,7 @@ export namespace NBTSchemas {
                             },
                         ],
                     },
+                    // TEST: Test other numbers other than the known ones for the generator type and see if this should become an enum or not.
                     Generator: {
                         type: "int",
                         markdownDescription: "The world type. 0 is Old, 1 is Infinite, 2 is Flat, and 5 is Void.",
@@ -2360,6 +2367,7 @@ export namespace NBTSchemas {
                     },
                     Platform: {
                         type: "int",
+                        // REVIEW: Check if this is the platform the world was created on or if it is the platform the world was last opened on.
                         markdownDescription: "Seems to store the platform that the level is created on. Currently observed value is 2.",
                         default: {
                             type: "int",
@@ -7636,7 +7644,6 @@ however when the corresponding block in the block layer is broken, this block ge
                 markdownDescription: "Additional fields for [player](https://minecraft.wiki/w/player).",
                 type: "compound",
                 required: [
-                    "AgentID",
                     "DimensionId",
                     "EnchantmentSeed",
                     "EnderChestInventory",
@@ -7644,15 +7651,12 @@ however when the corresponding block in the block layer is broken, this block ge
                     "format_version",
                     "HasSeenCredits",
                     "Inventory",
-                    "LeftShoulderRiderID",
                     "MapIndex",
                     "PlayerGameMode",
                     "PlayerLevel",
                     "PlayerLevelProgress",
                     "PlayerUIItems",
                     "recipe_unlocking",
-                    "RideID",
-                    "RightShoulderRiderID",
                     "SelectedContainerId",
                     "SelectedInventorySlot",
                     "Sleeping",
@@ -18555,6 +18559,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 currentTick?: { type: "long"; value: [high: number, low: number] };
                 /**
+                 * UNDOCUMENTED. Currently observed value is -1.
+                 *
+                 * This was found in a world from 0.12.0.1 Windows 10 Edition Beta, it is unknown when it was added or removed.
+                 *
+                 * @default -1
+                 */
+                DayCycleStopTime?: { type: "int"; value: number };
+                /**
+                 * UNDOCUMENTED.
+                 */
+                daylightCycle?: { type: "int"; value: number };
+                /**
                  * The current difficulty setting. 0 is Peaceful, 1 is Easy, 2 is Normal, and 3 is Hard.
                  *
                  * @enum 0 | 1 | 2 | 3
@@ -18577,10 +18593,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * - `2`: The End
                  */
                 Dimension?: { type: "int"; value: 0 | 1 | 2 };
-                /**
-                 * UNDOCUMENTED.
-                 */
-                daylightCycle?: { type: "int"; value: number };
                 /**
                  * The `dodaylightcycle` [game rule](https://minecraft.wiki/w/game_rule).
                  *
@@ -24058,7 +24070,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The Unique ID of the player's agent.
                  */
-                AgentID: { type: "long"; value: [high: number, low: number] };
+                AgentID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * The ID of the dimension the player is in.
                  */
@@ -24118,7 +24130,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The Unique ID of the entity that is on the player's left shoulder.
                  */
-                LeftShoulderRiderID: { type: "long"; value: [high: number, low: number] };
+                LeftShoulderRiderID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * UNDOCUMENTED.
                  */
@@ -24169,11 +24181,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The Unique ID of the entity that the player is riding.
                  */
-                RideID: { type: "long"; value: [high: number, low: number] };
+                RideID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * The Unique ID of the entity that is on the player's right shoulder.
                  */
-                RightShoulderRiderID: { type: "long"; value: [high: number, low: number] };
+                RightShoulderRiderID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * The ID of the selected container. *needs testing*
                  */
@@ -29102,7 +29114,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The Unique ID of the player's agent.
                  */
-                AgentID: { type: "long"; value: [high: number, low: number] };
+                AgentID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * The ID of the dimension the player is in.
                  */
@@ -29162,7 +29174,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The Unique ID of the entity that is on the player's left shoulder.
                  */
-                LeftShoulderRiderID: { type: "long"; value: [high: number, low: number] };
+                LeftShoulderRiderID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * UNDOCUMENTED.
                  */
@@ -29213,11 +29225,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The Unique ID of the entity that the player is riding.
                  */
-                RideID: { type: "long"; value: [high: number, low: number] };
+                RideID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * The Unique ID of the entity that is on the player's right shoulder.
                  */
-                RightShoulderRiderID: { type: "long"; value: [high: number, low: number] };
+                RightShoulderRiderID?: { type: "long"; value: [high: number, low: number] };
                 /**
                  * The ID of the selected container. *needs testing*
                  */

@@ -3475,6 +3475,8 @@ export const entryContentTypeToFormatMap = {
      * This stores all the world settings.
      *
      * @see {@link NBTSchemas.nbtSchemas.LevelDat}
+     *
+     * @todo Add support for reading and setting the BedrockHeader version number.
      */
     LevelDat: {
         /**
@@ -5106,6 +5108,7 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
     const stringKey: string = key.toString();
     switch (stringKey) {
         case "~local_player":
+        case "~local_player.Editor":
             return "Player";
         case "game_flatworldlayers":
             return "FlatWorldLayers";
