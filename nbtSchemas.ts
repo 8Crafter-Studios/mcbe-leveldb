@@ -96,6 +96,7 @@ export namespace NBTSchemas {
      *
      * @caution Many of these NBT schemas were auto-generated from the Minecraft wiki and have not been verified to be correct, many issues have been found with these schemas, so please verify the accuracy of these schemas. Fully verified NBT schemas will have a "NOTE: Verified." line comment above their definition in the code.
      */
+    // IDEA: Maybe the schemas for the custom serializers/parsers should include descriptions of what the content type is actually for.
     export const nbtSchemas = defineNBTSchemasMapping(
         {
             //#region Top-Level Schemas
@@ -982,6 +983,16 @@ export namespace NBTSchemas {
                                 type: "compound",
                                 // REVIEW: Figure out if these properties are actually required.
                                 properties: {
+                                    DragonFightVersion: {
+                                        title: "Dragon Fight Version",
+                                        markdownDescription: "UNDOCUMENTED.",
+                                        type: "byte",
+                                        default: {
+                                            type: "byte",
+                                            value: 1,
+                                        },
+                                        enum: [{ type: "byte", value: 1 }],
+                                    },
                                     DragonKilled: {
                                         title: "Dragon Killed",
                                         markdownDescription: "UNDOCUMENTED.",
@@ -1124,6 +1135,16 @@ export namespace NBTSchemas {
                 additionalProperties: false,
             },
             // NOTE: Verified.
+            MCChinaDevDimension: {
+                id: "MCChinaDevDimension",
+                title: "The MCChinaDevDimension schema.",
+                markdownDescription:
+                    "The data of a Minecraft China Edition development dimension (dm3-dm20), seems to currently just include the LimboEntities data.",
+                type: "compound",
+                properties: {},
+                $ref: "LimboEntities",
+            },
+            // NOTE: Verified.
             CustomDimension: {
                 id: "CustomDimension",
                 title: "The CustomDimension schema.",
@@ -1192,6 +1213,7 @@ export namespace NBTSchemas {
                 title: "The LevelDat schema.",
                 markdownDescription: "World data.",
                 type: "compound",
+                required: ["StorageVersion"],
                 properties: {
                     abilities: {
                         type: "compound",
@@ -1336,6 +1358,7 @@ export namespace NBTSchemas {
                             permissionsLevel: {
                                 type: "int",
                                 markdownDescription: "What permissions a player defaults to, when joining a world.",
+                                // TODO: Make this an enum.
                                 default: {
                                     type: "int",
                                     value: 0,
@@ -1345,6 +1368,7 @@ export namespace NBTSchemas {
                             playerPermissionsLevel: {
                                 type: "int",
                                 markdownDescription: "What permissions a player has.",
+                                // TODO: Make this an enum.
                                 default: {
                                     type: "int",
                                     value: 0,
@@ -2206,6 +2230,8 @@ export namespace NBTSchemas {
                                 ],
                             },
                         ],
+                        minItems: 4,
+                        maxItems: 5,
                     },
                     LastPlayed: {
                         type: "long",
@@ -2391,10 +2417,12 @@ export namespace NBTSchemas {
                     permissionsLevel: {
                         type: "int",
                         markdownDescription: "UNDOCUMENTED.",
+                        // TODO: Make this an enum.
                     },
                     playerPermissionsLevel: {
                         type: "int",
                         markdownDescription: "UNDOCUMENTED.",
+                        // TODO: Make this an enum.
                     },
                     playerssleepingpercentage: {
                         type: "int",
@@ -2446,6 +2474,21 @@ export namespace NBTSchemas {
                     RandomSeed: {
                         type: "long",
                         markdownDescription: "Level seed.",
+                    },
+                    LegacySeed: {
+                        type: "int",
+                        markdownDescription: "Level seed.\n\nThis is used for Minecraft versions prior to Pocket Edition v0.2.0 Alpha.",
+                    },
+                    SizeOnDisk: {
+                        type: "long",
+                        // REVIEW: Verify this description is correct.
+                        markdownDescription:
+                            "A 64-bit integer representing the world size in bits. *verify*\n\nThis is used for old MCPE versions (it is known to be used from v0.1.2 Alpha until at least v0.10.0).",
+                    },
+                    LegacyLastPlayed: {
+                        type: "int",
+                        markdownDescription:
+                            "Stores a timestamp of when the world was last played as the number of seconds since the epoch (1/1/1970).\n\nNote that this will overflow approximately every 136 years.\n\nThis is used for Minecraft versions prior to Pocket Edition v0.2.0 Alpha.",
                     },
                     randomtickspeed: {
                         type: "int",
@@ -2612,6 +2655,7 @@ export namespace NBTSchemas {
                             { type: "byte", value: 1 },
                         ],
                     },
+                    // TODO: Add the verison ranges for each storage version.
                     StorageVersion: {
                         type: "int",
                         markdownDescription: "Version of _Bedrock Edition_ Storage Tool, currently is 10.",
@@ -2686,11 +2730,12 @@ export namespace NBTSchemas {
                         markdownDescription: "UNDOCUMENTED.",
                     },
                     XBLBroadcastIntent: {
-                        type: "int",
+                        // In newer versions this is an int, but in 1.8.0.24 it was a byte.
                         markdownDescription:
-                            'The [multiplayer](https://minecraft.wiki/w/multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."',
+                            'The [multiplayer](https://minecraft.wiki/w/multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends.".\n\nThis is an int in newer versions and a byte in older versions.',
                         oneOf: [
                             {
+                                type: ["int", "byte"],
                                 not: {
                                     enum: [
                                         {
@@ -2707,6 +2752,22 @@ export namespace NBTSchemas {
                                         },
                                         {
                                             type: "int",
+                                            value: 3,
+                                        },
+                                        {
+                                            type: "byte",
+                                            value: 0,
+                                        },
+                                        {
+                                            type: "byte",
+                                            value: 1,
+                                        },
+                                        {
+                                            type: "byte",
+                                            value: 2,
+                                        },
+                                        {
+                                            type: "byte",
                                             value: 3,
                                         },
                                     ],
@@ -2730,6 +2791,28 @@ export namespace NBTSchemas {
                                     },
                                     {
                                         type: "int",
+                                        value: 3,
+                                    },
+                                ],
+                            },
+                            {
+                                type: "byte",
+                                markdownEnumDescriptions: ["disabled", "Invite Only", "Friends Only", "Friends of Friends"],
+                                enum: [
+                                    {
+                                        type: "byte",
+                                        value: 0,
+                                    },
+                                    {
+                                        type: "byte",
+                                        value: 1,
+                                    },
+                                    {
+                                        type: "byte",
+                                        value: 2,
+                                    },
+                                    {
+                                        type: "byte",
                                         value: 3,
                                     },
                                 ],
@@ -4137,13 +4220,18 @@ export namespace NBTSchemas {
                         type: "long",
                     },
                     parentMapId: {
-                        markdownDescription: "The Unique ID's of the parent maps.",
+                        markdownDescription: "The Unique ID of the parent map. If there is no parent map, this value is -1.",
                         type: "long",
+                        default: {
+                            type: "long",
+                            value: -1n,
+                        },
                     },
                     dimension: {
                         markdownDescription:
-                            "0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The_Nether), 2 = [The End](https://minecraft.wiki/w/The_End), any other value = a static image with no player pin.",
+                            "0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The_Nether), 2 = [The End](https://minecraft.wiki/w/The_End), any other value = a static image with no player pin, unless it is the numeric ID of an existing custom dimension.",
                         type: "byte",
+                        // IDEA: Add defaultSnippets here for the dimensions.
                     },
                     fullyExplored: {
                         markdownDescription: "1 if the map is full explored.",
@@ -4192,85 +4280,171 @@ export namespace NBTSchemas {
                         items: {
                             markdownDescription: "An individual decoration.",
                             type: "compound",
+                            required: ["data", "key"],
                             properties: {
                                 data: {
+                                    title: "Data",
                                     markdownDescription: "The data of the decoration.",
                                     type: "compound",
                                     required: ["rot", "type", "x", "y"],
                                     properties: {
                                         rot: {
+                                            // TODO: Make this an enum.
+                                            title: "Rotation",
                                             markdownDescription: "The rotation of the symbol, ranging from 0 to 15. South = 0, West = 4, North = 8, East = 12.",
                                             type: "int",
                                         },
                                         type: {
+                                            title: "Icon Type",
                                             markdownDescription: "The ID of the [map icon](https://minecraft.wiki/w/Map_icons.png) to display.",
                                             type: "int",
+                                            enum: [
+                                                { type: "int", value: 0 },
+                                                { type: "int", value: 1 },
+                                                { type: "int", value: 2 },
+                                                { type: "int", value: 3 },
+                                                { type: "int", value: 4 },
+                                                { type: "int", value: 5 },
+                                                { type: "int", value: 6 },
+                                                { type: "int", value: 7 },
+                                                { type: "int", value: 8 },
+                                                { type: "int", value: 9 },
+                                                { type: "int", value: 10 },
+                                                { type: "int", value: 11 },
+                                                { type: "int", value: 12 },
+                                                { type: "int", value: 13 },
+                                                { type: "int", value: 14 },
+                                                { type: "int", value: 15 },
+                                                { type: "int", value: 16 },
+                                                { type: "int", value: 17 },
+                                                { type: "int", value: 18 },
+                                                { type: "int", value: 19 },
+                                                { type: "int", value: 20 },
+                                                { type: "int", value: 21 },
+                                                { type: "int", value: 22 },
+                                                { type: "int", value: 23 },
+                                                { type: "int", value: 24 },
+                                            ],
+                                            markdownEnumDescriptions: [
+                                                "MarkerWhite/Player",
+                                                "MarkerGreen/ItemFrame",
+                                                "MarkerRed",
+                                                "MarkerBlue",
+                                                "XWhite",
+                                                "TriangleRed",
+                                                "SquareWhite/PlayerOffMap",
+                                                "MarkerSign",
+                                                "MarkerPink",
+                                                "MarkerOrange",
+                                                "MarkerYellow",
+                                                "MarkerTeal",
+                                                "TriangleGreen",
+                                                "SmallSquareWhite/PlayerOffLimits",
+                                                "Mansion",
+                                                "Monument",
+                                                "NoDraw/PlayerHidden",
+                                                "VillageDesert",
+                                                "VillagePlains",
+                                                "VillageSavanna",
+                                                "VillageSnowy",
+                                                "VillageTaiga",
+                                                "JungleTemple",
+                                                "WitchHut",
+                                                "TrialChambers",
+                                            ],
                                         },
                                         x: {
+                                            title: "X",
                                             markdownDescription: "The horizontal column (x) where the decoration is located on the map (per pixel).",
                                             type: "int",
                                         },
                                         y: {
+                                            title: "Y",
                                             markdownDescription: "The vertical column (y) where the decoration is located on the map (per pixel).",
                                             type: "int",
                                         },
                                     },
                                 },
-                                // TODO: Figure out the correct schemas for the `key` property.
-                                // NOTE: The below schema has been verified but it is unknown if it is different in certain situations.
                                 key: {
-                                    markdownDescription:
-                                        "UNKNOWN. // CAUTION: This schema has only been verified in certain situations, it is possible that this might follow a different structure in other situations.",
+                                    title: "Key",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "compound",
-                                    required: ["entityId", "type"],
+                                    required: ["type"],
                                     properties: {
-                                        entityId: {
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "long",
-                                            default: {
-                                                type: "long",
-                                                value: 0n,
-                                            },
-                                        },
                                         type: {
+                                            title: "Tracked Type",
                                             markdownDescription: "UNDOCUMENTED.",
                                             type: "int",
-                                            default: {
-                                                type: "int",
-                                                value: 0,
-                                            },
+                                            enum: [
+                                                { type: "int", value: 0 },
+                                                { type: "int", value: 1 },
+                                            ],
+                                            markdownEnumDescriptions: ["Entity", "Block"],
                                         },
                                     },
+                                    oneOf: [
+                                        {
+                                            type: "compound",
+                                            required: ["entityId", "type"],
+                                            properties: {
+                                                entityId: {
+                                                    title: "Entity UUID",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "long",
+                                                    default: {
+                                                        type: "long",
+                                                        value: 0n,
+                                                    },
+                                                },
+                                                type: {
+                                                    type: "int",
+                                                    const: {
+                                                        type: "int",
+                                                        value: 0,
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        {
+                                            type: "compound",
+                                            required: ["blockX", "blockY", "blockZ", "type"],
+                                            properties: {
+                                                blockX: {
+                                                    title: "Block X",
+                                                    markdownDescription: "The world x-position of the decoration.",
+                                                    type: "int",
+                                                },
+                                                blockY: {
+                                                    title: "Block Y",
+                                                    markdownDescription: "The world y-position of the decoration.",
+                                                    type: "int",
+                                                },
+                                                blockZ: {
+                                                    title: "Block Z",
+                                                    markdownDescription: "The world z-position of the decoration.",
+                                                    type: "int",
+                                                },
+                                                type: {
+                                                    type: "int",
+                                                    const: {
+                                                        type: "int",
+                                                        value: 1,
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    ],
                                 },
-                                // TODO: Check if the below schema is actually used in some situations.
-                                // key: {
-                                //     type: "compound",
-                                //     required: ["blockX", "blockY", "blockZ", "type"],
-                                //     properties: {
-                                //         blockX: {
-                                //             markdownDescription: "The world x-position of the decoration.",
-                                //             type: "int",
-                                //         },
-                                //         blockY: {
-                                //             markdownDescription: "The world y-position of the decoration.",
-                                //             type: "int",
-                                //         },
-                                //         blockZ: {
-                                //             markdownDescription: "The world z-position of the decoration.",
-                                //             type: "int",
-                                //         },
-                                //         type: {
-                                //             markdownDescription: "UNDOCUMENTED.",
-                                //             type: "int",
-                                //         },
-                                //     },
-                                // },
                             },
                         },
                     },
                     colors: {
-                        markdownDescription: "An array of bytes that represent color values (**65536 entries** for a default 128×128 map).",
+                        // IDEA: Maybe add an items field with all 65536 items, that documents the coordinates and color component of each item.
+                        markdownDescription: "An array of bytes that RGBA represent color values (**65536 entries** for a default 128×128 map).",
                         type: "byteArray",
+                        // TEST: Make sure the lengths here are actually applied, and that the NBT schema to JSON schema converter isn't broken.
+                        minLength: 65536,
+                        maxLength: 65536,
                     },
                 },
                 $fragment: false,
@@ -4321,6 +4495,50 @@ export namespace NBTSchemas {
                 },
                 $fragment: false,
             },
+            NeteaseData: {
+                id: "NeteaseData",
+                title: "The NeteaseData schema.",
+                markdownDescription: "NBT structure of the neteaseData LevelDB key.\n\nExclusive to Minecraft China Edition.",
+                type: "compound",
+                required: ["enableEduNpc"],
+                properties: {
+                    enableEduNpc: {
+                        title: "Enable Edu NPC Spawning",
+                        markdownDescription:
+                            "Whether it should be allowed to spawn NPCs, if false NPC spawn eggs will not work, though existing NPCs will not be affected. The `/summon npc` and `/summon minecraft:npc` commands do not work ever, even if this is set to true.",
+                        type: "byte",
+                        default: {
+                            type: "byte",
+                            value: 1,
+                        },
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                    },
+                },
+                $fragment: false,
+            },
+            NeteaseScriptGid: {
+                id: "NeteaseScriptGid",
+                title: "The NeteaseScriptGid schema.",
+                markdownDescription: "NBT structure of the scriptGid LevelDB key.\n\nExclusive to Minecraft China Edition.",
+                type: "compound",
+                required: ["scriptGid"],
+                properties: {
+                    scriptGid: {
+                        title: "Script GID",
+                        markdownDescription: "UNDOCUMENTED.",
+                        type: "long",
+                        default: {
+                            type: "long",
+                            value: 0n,
+                        },
+                    },
+                },
+                $fragment: false,
+            },
             // NOTE: Verified.
             PendingTicks: {
                 id: "PendingTicks",
@@ -4350,7 +4568,7 @@ export namespace NBTSchemas {
                                 tileID: {
                                     title: "Tile ID",
                                     markdownDescription: "The tile ID of this block. This was used in older versions of Minecraft.",
-                                    type: "int",
+                                    type: ["int", "byte"], // REVIEW: Observed as a byte in 0.12.1.0, see if it is actually an int in slightly newer versions.
                                 },
                                 time: {
                                     title: "Time",
@@ -4384,15 +4602,36 @@ export namespace NBTSchemas {
                 title: "The PlayerClient schema.",
                 markdownDescription: "The player client data.",
                 type: "compound",
-                required: ["MsaId", "SelfSignedId", "ServerId"],
+                required: ["ServerId"],
                 properties: {
                     MsaId: {
+                        title: "Microsoft Account ID",
+                        markdownDescription: "The current player's Microsoft account ID.",
                         type: "string",
                     },
                     SelfSignedId: {
+                        title: "Self-Signed ID",
+                        markdownDescription: "The current player's self-signed ID.", // TEST: See if this is the ID in options.txt.
                         type: "string",
                     },
                     ServerId: {
+                        title: "Server ID",
+                        markdownDescription: "The key of the LevelDB entry that stores this player's NBT data.",
+                        type: "string",
+                    },
+                    PlatformOnlineId: {
+                        title: "Platform Online ID",
+                        markdownDescription: "The current player's client platform online ID.",
+                        type: "string",
+                    },
+                    PlatformOfflineId: {
+                        title: "Platform Offline ID",
+                        markdownDescription: "The current player's client platform offline ID.",
+                        type: "string",
+                    },
+                    NeteaseUUID: {
+                        title: "Netease UUID",
+                        markdownDescription: "The current player's Netease UUID.\n\nExclusive to Minecraft China Edition.",
                         type: "string",
                     },
                 },
@@ -4654,7 +4893,7 @@ export namespace NBTSchemas {
                         type: "list",
                     },
                     DisplayObjectives: {
-                        markdownDescription: "A  list of compound tags representing specific displayed objectives.",
+                        markdownDescription: "A list of compound tags representing specific displayed objectives.",
                         type: "list",
                         items: {
                             markdownDescription: "A displayed objective.",
@@ -4781,52 +5020,61 @@ export namespace NBTSchemas {
                 id: "StructureTemplate",
                 title: "The StructureTemplate schema.",
                 type: "compound",
-                required: ["structure", "size", "structure_world_origin", "format_version"],
-                properties: {
-                    structure: {
-                        markdownDescription: "The structure data.",
+                oneOf: [
+                    {
                         type: "compound",
-                        required: ["palette", "block_indices", "entities"],
+                        required: ["structure", "size", "structure_world_origin", "format_version"],
                         properties: {
-                            palette: {
-                                markdownDescription: "The block palette.",
+                            structure: {
+                                title: "Structure",
+                                markdownDescription: "The structure data.",
                                 type: "compound",
-                                required: ["default"],
+                                required: ["palette", "block_indices", "entities"],
                                 properties: {
-                                    default: {
-                                        markdownDescription: "The default block palette.",
+                                    palette: {
+                                        title: "Palette",
+                                        markdownDescription: "The block palette.",
                                         type: "compound",
-                                        required: ["block_position_data", "block_palette"],
+                                        required: ["default"],
                                         properties: {
-                                            block_position_data: {
-                                                markdownDescription: "The block entity data.",
+                                            default: {
+                                                title: "Default Block Palette",
+                                                markdownDescription: "The default block palette.",
                                                 type: "compound",
-                                                patternProperties: {
-                                                    "[0-9]+": {
+                                                required: ["block_position_data", "block_palette"],
+                                                properties: {
+                                                    block_position_data: {
+                                                        title: "Block Position Data",
+                                                        markdownDescription: "The block entity data.",
                                                         type: "compound",
-                                                        required: ["block_entity_data"],
-                                                        properties: {
-                                                            block_entity_data: {
-                                                                $ref: "BlockEntity",
+                                                        patternProperties: {
+                                                            "[0-9]+": {
+                                                                type: "compound",
+                                                                required: ["block_entity_data"],
+                                                                properties: {
+                                                                    block_entity_data: {
+                                                                        $ref: "BlockEntity",
+                                                                    },
+                                                                },
                                                             },
+                                                        },
+                                                    },
+                                                    block_palette: {
+                                                        title: "Block Palette",
+                                                        markdownDescription: "The block palette.",
+                                                        type: "list",
+                                                        items: {
+                                                            markdownDescription: "The block palette array.",
+                                                            $ref: "Block",
                                                         },
                                                     },
                                                 },
                                             },
-                                            block_palette: {
-                                                markdownDescription: "The block palette.",
-                                                type: "list",
-                                                items: {
-                                                    markdownDescription: "The block palette array.",
-                                                    $ref: "Block",
-                                                },
-                                            },
                                         },
                                     },
-                                },
-                            },
-                            block_indices: {
-                                markdownDescription: `The block indices.
+                                    block_indices: {
+                                        title: "Block Indices",
+                                        markdownDescription: `The block indices.
 
 These are two arrays of indices in the block palette.
 
@@ -4835,87 +5083,255 @@ The first layer is the block layer.
 The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
 which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
 however when the corresponding block in the block layer is broken, this block gets moved to the block layer).`,
+                                        type: "list",
+                                        items: [
+                                            {
+                                                title: "Block Layer",
+                                                markdownDescription: "The block layer.",
+                                                type: "list",
+                                                items: {
+                                                    markdownDescription: "A block index in this layer.",
+                                                    type: "int",
+                                                },
+                                            },
+                                            {
+                                                title: "Waterlog Layer",
+                                                markdownDescription: "The waterlog layer.",
+                                                type: "list",
+                                                items: {
+                                                    markdownDescription: "A block index in this layer.",
+                                                    type: "int",
+                                                },
+                                            },
+                                        ],
+                                        minItems: 2,
+                                        maxItems: 2,
+                                    },
+                                    entities: {
+                                        title: "Entities",
+                                        markdownDescription: "The list of entities in the structure.",
+                                        type: "list",
+                                        items: {
+                                            $ref: "ActorPrefixOrEntity",
+                                        },
+                                    },
+                                },
+                            },
+                            size: {
+                                title: "Size",
+                                markdownDescription: "The size of the structure, as a tuple of 3 integers.",
                                 type: "list",
                                 items: [
                                     {
-                                        title: "Block Layer",
-                                        markdownDescription: "The block layer.",
-                                        type: "list",
-                                        items: {
-                                            markdownDescription: "A block index in this layer.",
-                                            type: "int",
-                                        },
+                                        title: "x",
+                                        markdownDescription: "The size of the x axis.",
+                                        type: "int",
+                                        minimum: 0,
                                     },
                                     {
-                                        title: "Waterlog Layer",
-                                        markdownDescription: "The waterlog layer.",
-                                        type: "list",
-                                        items: {
-                                            markdownDescription: "A block index in this layer.",
-                                            type: "int",
-                                        },
+                                        title: "y",
+                                        markdownDescription: "The size of the y axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        title: "z",
+                                        markdownDescription: "The size of the z axis.",
+                                        type: "int",
+                                        minimum: 0,
                                     },
                                 ],
                             },
-                            entities: {
-                                markdownDescription: "The list of entities in the structure.",
+                            structure_world_origin: {
+                                title: "Structure World Origin",
+                                markdownDescription:
+                                    "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
                                 type: "list",
-                                items: {
-                                    $ref: "ActorPrefixOrEntity",
+                                items: [
+                                    {
+                                        title: "x",
+                                        markdownDescription: "The x coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        title: "y",
+                                        markdownDescription: "The y coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        title: "z",
+                                        markdownDescription: "The z coordinate.",
+                                        type: "int",
+                                    },
+                                ],
+                            },
+                            format_version: {
+                                type: "int",
+                                const: {
+                                    type: "int",
+                                    value: 1,
                                 },
                             },
                         },
                     },
-                    size: {
-                        markdownDescription: "The size of the structure, as a tuple of 3 integers.",
-                        type: "list",
-                        items: [
-                            {
-                                title: "x",
-                                markdownDescription: "The size of the x axis.",
-                                type: "int",
-                                minimum: 0,
+                    {
+                        type: "compound",
+                        required: ["structure", "size", "structure_world_origin", "format_version"],
+                        properties: {
+                            structure: {
+                                title: "Structure",
+                                markdownDescription: "The structure data.",
+                                type: "compound",
+                                required: ["palette", "block_indices", "entities"],
+                                properties: {
+                                    palette: {
+                                        title: "Palette",
+                                        markdownDescription: "The block palette.",
+                                        type: "compound",
+                                        required: ["default"],
+                                        properties: {
+                                            default: {
+                                                title: "Default Palette",
+                                                markdownDescription: "The default block palette.",
+                                                type: "compound",
+                                                required: ["block_position_data", "block_palette"],
+                                                properties: {
+                                                    block_position_data: {
+                                                        title: "Block Position Data",
+                                                        markdownDescription: "The block entity data.",
+                                                        type: "compound",
+                                                        patternProperties: {
+                                                            "[0-9]+": {
+                                                                type: "compound",
+                                                                required: ["block_entity_data"],
+                                                                properties: {
+                                                                    block_entity_data: {
+                                                                        $ref: "BlockEntity",
+                                                                    },
+                                                                },
+                                                            },
+                                                        },
+                                                    },
+                                                    block_palette: {
+                                                        title: "Block Palette",
+                                                        markdownDescription: "The block palette.",
+                                                        type: "list",
+                                                        items: {
+                                                            markdownDescription: "The block palette array.",
+                                                            $ref: "Block",
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                    block_indices: {
+                                        title: "Block Indices",
+                                        markdownDescription: `The block indices.
+
+These are two arrays of indices in the block palette.
+
+The first layer is the block layer.
+
+The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
+which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
+however when the corresponding block in the block layer is broken, this block gets moved to the block layer).`,
+                                        type: "list",
+                                        items: [
+                                            {
+                                                title: "Block Layer",
+                                                markdownDescription: "The block layer.",
+                                                type: "intArray",
+                                                items: {
+                                                    markdownDescription: "A block index in this layer.",
+                                                    type: "int",
+                                                },
+                                            },
+                                            {
+                                                title: "Waterlog Layer",
+                                                markdownDescription: "The waterlog layer.",
+                                                type: "intArray",
+                                                items: {
+                                                    markdownDescription: "A block index in this layer.",
+                                                    type: "int",
+                                                },
+                                            },
+                                        ],
+                                        minItems: 1,
+                                        maxItems: 2,
+                                    },
+                                    entities: {
+                                        title: "Entities",
+                                        markdownDescription: "The list of entities in the structure.",
+                                        type: "list",
+                                        items: {
+                                            $ref: "ActorPrefixOrEntity",
+                                        },
+                                    },
+                                },
                             },
-                            {
-                                title: "y",
-                                markdownDescription: "The size of the y axis.",
-                                type: "int",
-                                minimum: 0,
+                            size: {
+                                title: "Size",
+                                markdownDescription: "The size of the structure, as a tuple of 3 integers.",
+                                type: "list",
+                                items: [
+                                    {
+                                        title: "x",
+                                        markdownDescription: "The size of the x axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        title: "y",
+                                        markdownDescription: "The size of the y axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        title: "z",
+                                        markdownDescription: "The size of the z axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                ],
                             },
-                            {
-                                title: "z",
-                                markdownDescription: "The size of the z axis.",
-                                type: "int",
-                                minimum: 0,
+                            structure_world_origin: {
+                                title: "Structure World Origin",
+                                markdownDescription:
+                                    "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
+                                type: "list",
+                                items: [
+                                    {
+                                        title: "x",
+                                        markdownDescription: "The x coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        title: "y",
+                                        markdownDescription: "The y coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        title: "z",
+                                        markdownDescription: "The z coordinate.",
+                                        type: "int",
+                                    },
+                                ],
                             },
-                        ],
+                            format_version: {
+                                type: "int",
+                                const: {
+                                    type: "int",
+                                    value: 2,
+                                },
+                            },
+                        },
                     },
-                    structure_world_origin: {
-                        markdownDescription:
-                            "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
-                        type: "list",
-                        items: [
-                            {
-                                title: "x",
-                                markdownDescription: "The x coordinate.",
-                                type: "int",
-                            },
-                            {
-                                title: "y",
-                                markdownDescription: "The y coordinate.",
-                                type: "int",
-                            },
-                            {
-                                title: "z",
-                                markdownDescription: "The z coordinate.",
-                                type: "int",
-                            },
-                        ],
-                    },
-                    /**
-                     * The format version of the structure.
-                     */
+                ],
+                required: ["format_version"],
+                properties: {
                     format_version: {
+                        title: "Format Version",
                         markdownDescription: "The format version of the structure.",
                         type: "int",
                         enum: [
@@ -4923,6 +5339,14 @@ however when the corresponding block in the block layer is broken, this block ge
                                 type: "int",
                                 value: 1,
                             },
+                            {
+                                type: "int",
+                                value: 2,
+                            },
+                        ],
+                        enumDescriptions: [
+                            "Format version 1 is supported by all Minecraft versions.",
+                            "Format version 2 is supported in Preview 1.26.50.24 and above.",
                         ],
                     },
                 },
@@ -5423,15 +5847,15 @@ however when the corresponding block in the block layer is broken, this block ge
                             "lightning",
                             "mayfly",
                             "mine",
-                            "mute",
-                            "noclip",
+                            // "mute",
+                            // "noclip",
                             "op",
                             "opencontainers",
-                            "permissionsLevel",
-                            "playerPermissionsLevel",
+                            // "permissionsLevel",
+                            // "playerPermissionsLevel",
                             "teleport",
                             "walkSpeed",
-                            "worldbuilder",
+                            // "worldbuilder",
                         ],
                         properties: {
                             attackmobs: {
@@ -5567,10 +5991,12 @@ however when the corresponding block in the block layer is broken, this block ge
                             permissionsLevel: {
                                 markdownDescription: "What permissions a player will default to, when joining a world.",
                                 type: "int",
+                                // TODO: Make this an enum.
                             },
                             playerPermissionsLevel: {
                                 markdownDescription: "What permissions a player has.",
                                 type: "int",
+                                // TODO: Make this an enum.
                             },
                             teleport: {
                                 markdownDescription: "1 or 0 (true/false) - true if the player is allowed to teleport.",
@@ -10307,7 +10733,7 @@ however when the corresponding block in the block layer is broken, this block ge
                 id: "Item_ItemStackBase",
                 markdownDescription: "All items share this base.",
                 type: "compound",
-                required: ["Count", "Damage", "Name", "WasPickedUp"],
+                required: ["Count", "Damage", "Name"],
                 properties: {
                     Block: {
                         markdownDescription: "(May not exist) What block is placed when placing a block item.",
@@ -10347,6 +10773,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound",
                     },
                     WasPickedUp: {
+                        // This exists in newer versions, but not 1.8.0.24.
                         markdownDescription: "UNDOCUMENTED.",
                         type: "byte",
                     },
@@ -12143,12 +12570,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         required: ["version", "heightMap", "biomeData"],
                         properties: {
                             version: {
-                                // TODO: Figure out what version the format version changed in. 1.18.0 uses format version 1.
                                 title: "Format Version",
                                 markdownDescription:
-                                    "The format version of the Data2D data. For older Minecraft versions, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
+                                    "The format version of the Data2D data. For Minecraft versions prior to 1.21.40.23, this is format version 1. For Minecraft versions 1.21.40.23 and later, this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
                                 type: "byte",
-                                enumDescriptions: ["Pre-?"],
+                                enumDescriptions: ["Pre-1.21.40.23"],
                                 enum: [{ type: "byte", value: 1 }],
                             },
                             heightMap: {
@@ -12190,12 +12616,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         required: ["version", "heightMap", "biomeData"],
                         properties: {
                             version: {
-                                // TODO: Figure out what version the format version changed in. 1.18.0 uses format version 1.
                                 title: "Format Version",
                                 markdownDescription:
-                                    "The format version of the Data2D data. For older Minecraft versions, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
+                                    "The format version of the Data2D data. For Minecraft versions prior to 1.21.40.23, this is format version 1. For Minecraft versions 1.21.40.23 and later, this is format version 2 but it is only used for worlds using the Old world type or an older base game version.",
                                 type: "byte",
-                                enumDescriptions: ["Post-?"],
+                                enumDescriptions: ["Post-1.21.40.23"],
                                 enum: [{ type: "byte", value: 2 }],
                             },
                             heightMap: {
@@ -12402,6 +12827,354 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         "Pillager Outpost",
                                         "Deprecated New Village",
                                     ],
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            JigsawStructureBlueprint: {
+                id: "JigsawStructureBlueprint",
+                title: "The JigsawStructureBlueprint schema.",
+                markdownDescription:
+                    "A custom schema for the NBT structure used by the custom parser and serializer for the JigsawStructureBlueprint content type.",
+                type: "compound",
+                required: ["pos", "minBounds", "maxBounds", "structure", "sections"],
+                properties: {
+                    pos: {
+                        title: "Position",
+                        markdownDescription: "UNDOCUMENTED. This may be the position of the jigsaw block.", // TEST: See if this is actually the position of the jigsaw block.
+                        type: "list",
+                        items: [
+                            {
+                                title: "x",
+                                markdownDescription: "X component of this vector.",
+                                type: "int",
+                            },
+                            {
+                                title: "y",
+                                markdownDescription: "Y component of this vector.",
+                                type: "int",
+                            },
+                            {
+                                title: "z",
+                                markdownDescription: "Z component of this vector.",
+                                type: "int",
+                            },
+                        ],
+                    },
+                    minBounds: {
+                        title: "Min Bounds",
+                        markdownDescription: "The minimum bounds of the jigsaw structure.",
+                        type: "list",
+                        items: [
+                            {
+                                title: "x",
+                                markdownDescription: "X component of this vector.",
+                                type: "int",
+                            },
+                            {
+                                title: "y",
+                                markdownDescription: "Y component of this vector.",
+                                type: "int",
+                            },
+                            {
+                                title: "z",
+                                markdownDescription: "Z component of this vector.",
+                                type: "int",
+                            },
+                        ],
+                    },
+                    maxBounds: {
+                        title: "Max Bounds",
+                        markdownDescription: "The maximum bounds of the jigsaw structure.",
+                        type: "list",
+                        items: [
+                            {
+                                title: "x",
+                                markdownDescription: "X component of this vector.",
+                                type: "int",
+                            },
+                            {
+                                title: "y",
+                                markdownDescription: "Y component of this vector.",
+                                type: "int",
+                            },
+                            {
+                                title: "z",
+                                markdownDescription: "Z component of this vector.",
+                                type: "int",
+                            },
+                        ],
+                    },
+                    structure: {
+                        title: "Structure ID",
+                        markdownDescription: "The ID of the jigsaw structure.",
+                        type: "string",
+                    },
+                    sections: {
+                        title: "Sections",
+                        markdownDescription: "UNDOCUMENTED.",
+                        type: "list",
+                        items: {
+                            title: "Pool Element Structure Section",
+                            markdownDescription: "UNDOCUMENTED.",
+                            type: "compound",
+                            required: ["elementID", "groundOffset", "boundingBox", "position", "rotation", "junctions"],
+                            properties: {
+                                elementID: {
+                                    title: "Element ID",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "string",
+                                },
+                                groundOffset: {
+                                    title: "Ground Offset",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "int",
+                                },
+                                boundingBox: {
+                                    title: "Bounding Box",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "compound",
+                                    required: ["min", "max"],
+                                    properties: {
+                                        min: {
+                                            title: "Min Bounds",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: [
+                                                {
+                                                    title: "x",
+                                                    markdownDescription: "X component of this vector.",
+                                                    type: "int",
+                                                },
+                                                {
+                                                    title: "y",
+                                                    markdownDescription: "Y component of this vector.",
+                                                    type: "int",
+                                                },
+                                                {
+                                                    title: "z",
+                                                    markdownDescription: "Z component of this vector.",
+                                                    type: "int",
+                                                },
+                                            ],
+                                        },
+                                        max: {
+                                            title: "Max Bounds",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "list",
+                                            items: [
+                                                {
+                                                    title: "x",
+                                                    markdownDescription: "X component of this vector.",
+                                                    type: "int",
+                                                },
+                                                {
+                                                    title: "y",
+                                                    markdownDescription: "Y component of this vector.",
+                                                    type: "int",
+                                                },
+                                                {
+                                                    title: "z",
+                                                    markdownDescription: "Z component of this vector.",
+                                                    type: "int",
+                                                },
+                                            ],
+                                        },
+                                    },
+                                },
+                                position: {
+                                    title: "Position",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "list",
+                                    items: [
+                                        {
+                                            title: "x",
+                                            markdownDescription: "X component of this vector.",
+                                            type: "int",
+                                        },
+                                        {
+                                            title: "y",
+                                            markdownDescription: "Y component of this vector.",
+                                            type: "int",
+                                        },
+                                        {
+                                            title: "z",
+                                            markdownDescription: "Z component of this vector.",
+                                            type: "int",
+                                        },
+                                    ],
+                                },
+                                /**
+                                 * Here is the enum for this value, though the observed value of `none` was in lowercase:
+                                 * ```cpp
+                                 * enum class Rotation : uchar {
+                                 *     // bitfield representation
+                                 *     None               = 0,
+                                 *     Rotate90           = 1 << 0,
+                                 *     Clockwise90        = 1 << 0,
+                                 *     Rotate180          = 1 << 1,
+                                 *     Clockwise180       = 1 << 1,
+                                 *     Total              = 1 << 2,
+                                 *     CounterClockwise90 = Clockwise90 | Clockwise180,
+                                 *     Rotate270          = Clockwise90 | Clockwise180,
+                                 * },
+                                 * ```
+                                 *
+                                 * @todo Add an enum to this.
+                                 */
+                                rotation: {
+                                    title: "Rotation",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "string",
+                                },
+                                junctions: {
+                                    title: "Junctions",
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "list",
+                                    items: {
+                                        title: "Jigsaw Junction",
+                                        markdownDescription: "UNDOCUMENTED.",
+                                        type: "compound",
+                                        required: ["sourceX", "sourceGroundY", "sourceZ", "deltaY", "destProjection"],
+                                        properties: {
+                                            sourceX: {
+                                                title: "Source X",
+                                                markdownDescription: "UNDOCUMENTED.",
+                                                type: "int",
+                                            },
+                                            sourceGroundY: {
+                                                title: "Source Ground Y",
+                                                markdownDescription: "UNDOCUMENTED.",
+                                                type: "int",
+                                            },
+                                            sourceZ: {
+                                                title: "Source Z",
+                                                markdownDescription: "UNDOCUMENTED.",
+                                                type: "int",
+                                            },
+                                            deltaY: {
+                                                title: "Delta Y",
+                                                markdownDescription: "UNDOCUMENTED.",
+                                                type: "int",
+                                            },
+                                            /**
+                                             * Here is the enum for this value, though the observed value of `rigid` was in lowercase:
+                                             * ```cpp
+                                             * enum class Projection : uchar {
+                                             *     Rigid           = 0,
+                                             *     TerrainMatching = 1,
+                                             * },
+                                             * ```
+                                             *
+                                             * @todo Add an enum to this.
+                                             */
+                                            destProjection: {
+                                                title: "Destination Projection",
+                                                markdownDescription: "UNDOCUMENTED.",
+                                                type: "string",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            LegacyBlockExtraData: {
+                id: "LegacyBlockExtraData",
+                title: "The LegacyBlockExtraData schema.",
+                markdownDescription:
+                    "A custom schema for the NBT structure used by the custom parser and serializer for the LegacyBlockExtraData content type.",
+                type: "compound",
+                required: ["BlockExtraData"],
+                properties: {
+                    BlockExtraData: {
+                        title: "Block Extra Data",
+                        markdownDescription: "All blocks in the secondary block layer.",
+                        type: "list",
+                        items: {
+                            title: "Extra Data",
+                            markdownDescription: "The data of a block in the secondary block layer.",
+                            type: "compound",
+                            required: ["pos", "id", "data"],
+                            properties: {
+                                pos: {
+                                    title: "Position",
+                                    markdownDescription: "The position of this block.",
+                                    type: "compound",
+                                    required: ["x", "y", "z"],
+                                    properties: {
+                                        x: {
+                                            title: "x",
+                                            markdownDescription: "The relative x coordinate of this block in the chunk.",
+                                            type: "byte",
+                                            minimum: 0,
+                                            maximum: 15,
+                                            enum: [
+                                                { type: "byte", value: 0x0 },
+                                                { type: "byte", value: 0x1 },
+                                                { type: "byte", value: 0x2 },
+                                                { type: "byte", value: 0x3 },
+                                                { type: "byte", value: 0x4 },
+                                                { type: "byte", value: 0x5 },
+                                                { type: "byte", value: 0x6 },
+                                                { type: "byte", value: 0x7 },
+                                                { type: "byte", value: 0x8 },
+                                                { type: "byte", value: 0x9 },
+                                                { type: "byte", value: 0xa },
+                                                { type: "byte", value: 0xb },
+                                                { type: "byte", value: 0xc },
+                                                { type: "byte", value: 0xd },
+                                                { type: "byte", value: 0xe },
+                                                { type: "byte", value: 0xf },
+                                            ],
+                                        },
+                                        y: {
+                                            title: "y",
+                                            markdownDescription: "The y coordinate of this block.",
+                                            type: "byte",
+                                        },
+                                        z: {
+                                            title: "z",
+                                            markdownDescription: "The relative z coordinate of this block in the chunk.",
+                                            type: "byte",
+                                            minimum: 0,
+                                            maximum: 15,
+                                            enum: [
+                                                { type: "byte", value: 0x0 },
+                                                { type: "byte", value: 0x1 },
+                                                { type: "byte", value: 0x2 },
+                                                { type: "byte", value: 0x3 },
+                                                { type: "byte", value: 0x4 },
+                                                { type: "byte", value: 0x5 },
+                                                { type: "byte", value: 0x6 },
+                                                { type: "byte", value: 0x7 },
+                                                { type: "byte", value: 0x8 },
+                                                { type: "byte", value: 0x9 },
+                                                { type: "byte", value: 0xa },
+                                                { type: "byte", value: 0xb },
+                                                { type: "byte", value: 0xc },
+                                                { type: "byte", value: 0xd },
+                                                { type: "byte", value: 0xe },
+                                                { type: "byte", value: 0xf },
+                                            ],
+                                        },
+                                    },
+                                },
+                                id: {
+                                    title: "Tile ID",
+                                    markdownDescription: "The tile ID of this block.",
+                                    type: "byte",
+                                },
+                                data: {
+                                    title: "Data Value",
+                                    markdownDescription: "The data value of this block.",
+                                    type: "byte",
                                 },
                             },
                         },
@@ -12682,6 +13455,158 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         },
                     },
                     additionalProperties: true,
+                },
+            },
+            // NOTE: Verified.
+            POITypes: {
+                id: "POITypes",
+                title: "The POITypes schema.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the POITypes content type.",
+                type: "compound",
+                required: ["POITypes"],
+                properties: {
+                    POITypes: {
+                        title: "POI Types",
+                        markdownDescription: "The list of all possible POI types in the world.",
+                        type: "list",
+                        items: {
+                            title: "POI Type",
+                            markdownDescription: "A possible POI type in the world.",
+                            type: "compound",
+                            required: ["type", "id"],
+                            properties: {
+                                type: {
+                                    title: "Type",
+                                    markdownDescription: "The numeric type ID of the POI type.",
+                                    type: "short",
+                                },
+                                id: {
+                                    title: "ID",
+                                    markdownDescription: "The namespaced ID of the POI type.",
+                                    type: "string",
+                                    examples: [
+                                        { type: "string", value: "minecraft:cleric" },
+                                        { type: "string", value: "minecraft:armorer" },
+                                        { type: "string", value: "minecraft:farmer" },
+                                        { type: "string", value: "minecraft:bee_nest" },
+                                        { type: "string", value: "minecraft:beehive" },
+                                        { type: "string", value: "minecraft:weaponsmith" },
+                                        { type: "string", value: "minecraft:fisherman" },
+                                        { type: "string", value: "minecraft:shepherd" },
+                                        { type: "string", value: "minecraft:butcher" },
+                                        { type: "string", value: "minecraft:cartographer" },
+                                        { type: "string", value: "minecraft:fletcher" },
+                                        { type: "string", value: "minecraft:home" },
+                                        { type: "string", value: "minecraft:leatherworker" },
+                                        { type: "string", value: "minecraft:librarian" },
+                                        { type: "string", value: "minecraft:lightning_rod" },
+                                        { type: "string", value: "minecraft:lodestone" },
+                                        { type: "string", value: "minecraft:mason" },
+                                        { type: "string", value: "minecraft:meeting" },
+                                        { type: "string", value: "minecraft:toolsmith" },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            POIRegionRegistry: {
+                id: "POIRegionRegistry",
+                title: "The POIRegionRegistry schema.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the POIRegionRegistry content type.",
+                type: "compound",
+                required: ["POIRegionRegistry"],
+                properties: {
+                    POIRegionRegistry: {
+                        title: "POI Region Registry",
+                        markdownDescription: "A registry of all POI regions in a dimension.",
+                        type: "list",
+                        items: {
+                            title: "POI Region",
+                            markdownDescription: "A POI region entry in the registry.",
+                            type: "compound",
+                            required: ["key", "pos"],
+                            properties: {
+                                key: {
+                                    type: "string",
+                                },
+                                pos: {
+                                    type: "list",
+                                    items: [
+                                        {
+                                            title: "Region X",
+                                            markdownDescription: "X index of the region.",
+                                            type: "int",
+                                        },
+                                        {
+                                            title: "Region Z",
+                                            markdownDescription: "Z index of the region.",
+                                            type: "int",
+                                        },
+                                    ],
+                                    minItems: 2,
+                                    maxItems: 2,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            POIRegion: {
+                id: "POIRegion",
+                title: "The POIRegion schema.",
+                markdownDescription: "A custom schema for the NBT structure used by the custom parser and serializer for the POIRegion content type.",
+                type: "compound",
+                required: ["POIRegion"],
+                properties: {
+                    POIRegion: {
+                        title: "POI Region",
+                        markdownDescription: "The list of POI entries in the POI region.",
+                        type: "list",
+                        items: {
+                            title: "POI Entry",
+                            markdownDescription: "A POI entry in the POI region.",
+                            type: "compound",
+                            required: ["type", "tickets", "pos"],
+                            properties: {
+                                type: {
+                                    title: "Type",
+                                    markdownDescription: "The numeric type ID of the POI type.",
+                                    type: "short",
+                                },
+                                tickets: {
+                                    title: "Tickets",
+                                    description: "UNDOCUMENTED.",
+                                    type: "byte",
+                                },
+                                pos: {
+                                    type: "list",
+                                    items: [
+                                        {
+                                            title: "Relative X",
+                                            markdownDescription: "The relative X coordinate of the block within the region.",
+                                            type: "short",
+                                        },
+                                        {
+                                            title: "Relative Y",
+                                            markdownDescription: "The Y coordinate of the block relative to the bottom of the world.",
+                                            type: "short",
+                                        },
+                                        {
+                                            title: "Relative Z",
+                                            markdownDescription: "The relative Z coordinate of the block within the region.",
+                                            type: "short",
+                                        },
+                                    ],
+                                    minItems: 3,
+                                    maxItems: 3,
+                                },
+                            },
+                        },
+                    },
                 },
             },
             // NOTE: Verified.
@@ -13060,6 +13985,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: { type: "integer" },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13067,6 +13993,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: { type: "integer" },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13074,6 +14001,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: { type: "integer" },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13086,6 +14014,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13093,6 +14022,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: { type: "number" },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13100,6 +14030,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: { type: "number" },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13107,6 +14038,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: { type: "string" },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13120,9 +14052,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                 },
                                             },
                                             required: ["type", "value"],
+                                            additionalProperties: false,
                                         },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13130,6 +14064,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: { $ref: "#" },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13140,17 +14075,19 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
-                                {
-                                    properties: {
-                                        type: { const: "shortArray" },
-                                        value: {
-                                            type: "array",
-                                            items: { type: "integer" },
-                                        },
-                                    },
-                                    required: ["type", "value"],
-                                },
+                                // {
+                                //     properties: {
+                                //         type: { const: "shortArray" },
+                                //         value: {
+                                //             type: "array",
+                                //             items: { type: "integer" },
+                                //         },
+                                //     },
+                                //     required: ["type", "value"],
+                                //     additionalProperties: false,
+                                // },
                                 {
                                     properties: {
                                         type: { const: "intArray" },
@@ -13160,6 +14097,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                                 {
                                     properties: {
@@ -13175,6 +14113,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         },
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 },
                             ],
                         },
@@ -13275,13 +14214,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         type?: `${NBT.TagType}` | `${NBT.TagType}`[] | undefined;
         /**
          * The title of this schema.
+         *
+         * This is only shown when hovering in monaco editor, not in the IntelliSense completions, for IntelliSense completions use {@link completionDetail}.
          */
         title?: string | undefined;
         /**
          * The default value for this schema.
          */
         // REVIEW: This may actually need to be just `any` instead of always explicitly this object format.
-        default?: { type: `${NBT.TagType}`; value: any } | undefined;
+        default?:
+            | {
+                  /**
+                   * The NBT tag type.
+                   */
+                  type: `${NBT.TagType}`;
+                  /**
+                   * The value of the NBT tag.
+                   */
+                  value: any;
+              }
+            | undefined;
         /**
          * @todo
          */
@@ -13311,11 +14263,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          */
         additionalProperties?: boolean | NBTSubSchemaRef | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         minProperties?: number | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         maxProperties?: number | undefined;
         /**
@@ -13328,84 +14280,85 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
               }
             | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         items?: NBTSubSchemaRef | NBTSubSchemaRef[] | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         minItems?: number | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         maxItems?: number | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         uniqueItems?: boolean | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         additionalItems?: boolean | NBTSubSchemaRef | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         pattern?: string | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         minLength?: number | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         maxLength?: number | undefined;
         /**
-         * @todo
+         * @todo Document this.
          * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
         minimum?: number | bigint | undefined;
         /**
-         * @todo
+         * @todo Document this.
          * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
         maximum?: number | bigint | undefined;
         /**
-         * @todo
+         * @todo Document this.
          * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
         exclusiveMinimum?: boolean | number | bigint | undefined;
         /**
-         * @todo
+         * @todo Document this.
          * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
         exclusiveMaximum?: boolean | number | bigint | undefined;
         /**
-         * @todo
+         * @todo Document this.
          * @todo Also add support for translating bigints into min and max values for the values of the generated tuple type when converting the NBT schema to a JOSN schema.
          */
         multipleOf?: number | bigint | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         required?: string[] | undefined;
         /**
          * The ID of another schema to reference.
          */
         $ref?: string | undefined;
+        // TODO: Add $converter_inlineableRef so that $ref can reference itself or create a circular reference, and have this alternate simplified ref for situations where it needs to be inlined.
         /**
-         * @todo
+         * @todo  Document this.
          */
         anyOf?: NBTSubSchemaRef[] | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         allOf?: NBTSubSchemaRef[] | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         oneOf?: NBTSubSchemaRef[] | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         not?: NBTSubSchemaRef | undefined;
         /**
@@ -13413,11 +14366,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          */
         enum?: NBT.Tags[NBT.TagType][] | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         format?: string | undefined;
         /**
-         * @todo
+         * @todo Document this.
          */
         const?: any;
         /**
@@ -13425,11 +14378,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          */
         contains?: NBTSubSchemaRef | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         propertyNames?: NBTSubSchemaRef | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         examples?: NBT.Tags[NBT.TagType][] | undefined;
         /**
@@ -13448,6 +14401,64 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          * @todo
          */
         else?: NBTSubSchemaRef | undefined;
+
+        // schema 2019-09
+        /**
+         * @todo  Document this.
+         */
+        unevaluatedProperties?: boolean | NBTSubSchemaRef | undefined;
+        /**
+         * @todo  Document this.
+         */
+        unevaluatedItems?: boolean | NBTSubSchemaRef | undefined;
+        /**
+         * @todo
+         */
+        minContains?: number | undefined;
+        /**
+         * @todo
+         */
+        maxContains?: number | undefined;
+        /**
+         * @todo
+         */
+        deprecated?: boolean | undefined;
+        /**
+         * @todo
+         */
+        dependentRequired?: { [prop: string]: string[] } | undefined;
+        /**
+         * @todo
+         */
+        dependentSchemas?: NBTSchemaMap | undefined;
+        /**
+         * @todo
+         */
+        $defs?: { [name: string]: NBTSubSchema } | undefined;
+        /**
+         * @todo
+         */
+        $anchor?: string | undefined;
+        /**
+         * @todo
+         */
+        $recursiveRef?: string | undefined;
+        /**
+         * @todo
+         */
+        $recursiveAnchor?: boolean | undefined;
+        /**
+         * @todo
+         */
+        $vocabulary?: { [uri: string]: boolean } | undefined;
+
+        // schema 2020-12
+        // prefixItems?: JSONSchemaRef[] | undefined;
+        // $dynamicRef?: string | undefined;
+        // $dynamicAnchor?: string | undefined;
+
+        // VSCode extensions
+
         /**
          * @todo
          */
@@ -13476,15 +14487,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
               }[]
             | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         errorMessage?: string | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         patternErrorMessage?: string | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         deprecationMessage?: string | undefined;
         /**
@@ -13494,17 +14505,29 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         /**
          * @todo
          */
+        enumSortTexts?: string[] | undefined;
+        /**
+         * Details for each enum value, in the same order as {@link NBTSubSchema.enum}.
+         *
+         * These are shown when the description in monaco editor IntelliSense is collapsed and when it is expanded it is shown above the description.
+         *
+         * These are not shown when hovering.
+         */
+        enumDetails?: string[] | undefined;
+        /**
+         * Descriptions for each enum value in markdown, in the same order as {@link NBTSubSchema.enum}.
+         */
         markdownEnumDescriptions?: string[] | undefined;
         /**
-         * @todo
+         *The description of this schema in markdown.
          */
         markdownDescription?: string | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         doNotSuggest?: boolean | undefined;
         /**
-         * @todo
+         * @todo  Document this.
          */
         suggestSortText?: string | undefined;
         /**
@@ -13515,6 +14538,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          * @todo
          */
         allowTrailingCommas?: boolean | undefined;
+        /**
+         * This is shown when the description in monaco editor IntelliSense completions is collapsed, and when it is expanded it is shown above the description.
+         *
+         * This is not shown when hovering.
+         */
+        completionDetail?: string | undefined;
     }
 
     /**
@@ -13591,9 +14620,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         ref: string,
                         schema: NBTSchema | NBTSchemaFragment,
                         allSchemas: Record<string, NBTSchema | NBTSchemaFragment>
-                    ): string | { inline: boolean; name: string };
+                    ):
+                        | string
+                        | {
+                              /**
+                               * Whether the new ref name should be resolved and inlined.
+                               */
+                              inline: boolean;
+                              /**
+                               * The new ref name.
+                               */
+                              name: string;
+                          };
                 }
 
+                /**
+                 * The default values for {@link ConvertOptions}.
+                 */
                 export const defaultConvertOptions: Omit<Full<ConvertOptions>, "shouldInlineRef" | "refNameResolver"> = {
                     inlineRefs: true,
                     makeValueSchema: false,
@@ -13622,15 +14665,17 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     const jsonSchema: JSONSchema = {
                         id: schema.id,
                         $id: schema.$id,
-                        $schema: schema.$schema,
+                        $schema: schema.$schema ?? "https://json-schema.org/draft/2019-09/schema",
                         title: schema.title,
+                        completionDetail: schema.completionDetail,
                         description: schema.description,
                         markdownDescription: schema.markdownDescription,
                     };
                     if (!("id" in schema)) delete jsonSchema.id;
                     if (!("$id" in schema)) delete jsonSchema.$id;
-                    if (!("$schema" in schema)) delete jsonSchema.$schema;
+                    // if (!("$schema" in schema)) delete jsonSchema.$schema;
                     if (!("title" in schema)) delete jsonSchema.title;
+                    if (!("completionDetail" in schema)) delete jsonSchema.completionDetail;
                     if (!("description" in schema)) delete jsonSchema.description;
                     if (!("markdownDescription" in schema)) delete jsonSchema.markdownDescription;
                     if (schema.$ref) {
@@ -13691,6 +14736,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     for (const k of [
                         "enumDescriptions",
                         "markdownEnumDescriptions",
+                        "enumDetails",
                         "doNotSuggest",
                         "errorMessage",
                         "deprecationMessage",
@@ -13710,9 +14756,22 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         keyof NBTSchemaFragment)[]) {
                         if (schema[k] !== undefined) {
                             if ((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot) {
-                                jsonSchema[k] = schema[k] instanceof Array ? schema[k].map((v) => v.value ?? v) : (schema[k].value ?? schema[k]); // TEST
+                                jsonSchema[k] =
+                                    schema[k] instanceof Array ?
+                                        schema[k].map((v) =>
+                                            JSON.parse(
+                                                JSON.stringify(v.value ?? v, (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                            )
+                                        )
+                                    :   JSON.parse(
+                                            JSON.stringify(schema[k].value ?? schema[k], (_k: string, v: unknown): unknown =>
+                                                typeof v === "bigint" ? toLongParts(v) : v
+                                            )
+                                        ); // TEST
                             } else {
-                                jsonSchema[k] = schema[k];
+                                jsonSchema[k] = JSON.parse(
+                                    JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                );
                             }
                         }
                     }
@@ -13742,6 +14801,33 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             valueSchema.additionalProperties = schema.additionalProperties;
                         } else {
                             valueSchema.additionalProperties = nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options, false);
+                        }
+                    }
+
+                    if (schema.unevaluatedProperties !== undefined && !skipExtraPropertyDefs) {
+                        if (typeof schema.unevaluatedProperties === "boolean") {
+                            valueSchema.unevaluatedProperties = schema.unevaluatedProperties;
+                        } else {
+                            valueSchema.unevaluatedProperties = nbtSchemaToJsonSchema(schema.unevaluatedProperties, allSchemas, options, false);
+                        }
+                    } /* else if (schema.additionalProperties === undefined && !skipExtraPropertyDefs) {
+                        valueSchema.unevaluatedProperties = false;
+                    } */ // UNDONE
+
+                    // REVIEW: This may need to set additionalItems to false if it is not specified and there is an items array, if it isn't already handled elsewhere.
+                    if (schema.additionalItems !== undefined && !skipExtraPropertyDefs) {
+                        if (typeof schema.additionalItems === "boolean") {
+                            valueSchema.additionalItems = schema.additionalItems;
+                        } else {
+                            valueSchema.additionalItems = nbtSchemaToJsonSchema(schema.additionalItems, allSchemas, options, false);
+                        }
+                    }
+
+                    if (schema.unevaluatedItems !== undefined && !skipExtraPropertyDefs) {
+                        if (typeof schema.unevaluatedItems === "boolean") {
+                            valueSchema.unevaluatedItems = schema.unevaluatedItems;
+                        } else {
+                            valueSchema.unevaluatedItems = nbtSchemaToJsonSchema(schema.unevaluatedItems, allSchemas, options, false);
                         }
                     }
 
@@ -13803,7 +14889,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 (schema.description === undefined && schema.markdownDescription === undefined) ||
                                 !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
                             ) {
-                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                                valueType.description = valueType.markdownDescription = `A${type === "int" ? "n" : ""} ${type}.`;
                             }
                             switch (type) {
                                 case NBT.TagType.Byte:
@@ -13833,10 +14919,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         .filter((v) => v[0] === type)
                                         .map((v) => schema.markdownEnumDescriptions![v[1]]!);
                                 }
+                                if (schema.enumDetails) {
+                                    valueType.enumDetails = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDetails![v[1]]!);
+                                }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const =
-                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                                valueType.const = JSON.parse(
+                                    JSON.stringify(
+                                        "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
+                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
+                                    )
+                                );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
                                 valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
@@ -13857,6 +14953,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: valueType,
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 };
                                 for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
@@ -13869,7 +14966,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         );
                                     }
                                 }
-                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions", "enumDetails"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                                     keyof NBTSubSchema &
                                     keyof NBTSchema &
@@ -13886,6 +14983,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "$ref",
                                 "$comment",
                                 "title",
+                                "completionDetail",
                                 "description",
                                 "markdownDescription",
                                 "doNotSuggest",
@@ -13938,6 +15036,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 ],
                                 minItems: 2,
                                 maxItems: 2,
+                                additionalItems: false,
                             };
                             if (
                                 (schema.description === undefined && schema.markdownDescription === undefined) ||
@@ -13961,14 +15060,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         .filter((v) => v[0] === type)
                                         .map((v) => schema.markdownEnumDescriptions![v[1]]!);
                                 }
+                                if (schema.enumDetails) {
+                                    valueType.enumDetails = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDetails![v[1]]!);
+                                }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const =
-                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ?
-                                        typeof schema.const.value === "bigint" ?
-                                            toLongParts(schema.const.value)
-                                        :   schema.const.value
-                                    :   schema.const;
+                                valueType.const = JSON.parse(
+                                    JSON.stringify(
+                                        "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
+                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
+                                    )
+                                );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
                                 valueType.examples = schema.examples
@@ -13994,6 +15099,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: valueType,
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 };
                                 for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
@@ -14006,7 +15112,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         );
                                     }
                                 }
-                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions", "enumDetails"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                                     keyof NBTSubSchema &
                                     keyof NBTSchema &
@@ -14023,6 +15129,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "$ref",
                                 "$comment",
                                 "title",
+                                "completionDetail",
                                 "description",
                                 "markdownDescription",
                                 "doNotSuggest",
@@ -14089,10 +15196,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         .filter((v) => v[0] === type)
                                         .map((v) => schema.markdownEnumDescriptions![v[1]]!);
                                 }
+                                if (schema.enumDetails) {
+                                    valueType.enumDetails = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDetails![v[1]]!);
+                                }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const =
-                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                                valueType.const = JSON.parse(
+                                    JSON.stringify(
+                                        "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
+                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
+                                    )
+                                );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
                                 valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
@@ -14113,6 +15230,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: valueType,
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 };
                                 for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
@@ -14125,7 +15243,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         );
                                     }
                                 }
-                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions", "enumDetails"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                                     keyof NBTSubSchema &
                                     keyof NBTSchema &
@@ -14142,6 +15260,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "$ref",
                                 "$comment",
                                 "title",
+                                "completionDetail",
                                 "description",
                                 "markdownDescription",
                                 "doNotSuggest",
@@ -14207,10 +15326,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         .filter((v) => v[0] === type)
                                         .map((v) => schema.markdownEnumDescriptions![v[1]]!);
                                 }
+                                if (schema.enumDetails) {
+                                    valueType.enumDetails = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDetails![v[1]]!);
+                                }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const =
-                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                                valueType.const = JSON.parse(
+                                    JSON.stringify(
+                                        "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
+                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
+                                    )
+                                );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
                                 valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
@@ -14231,6 +15360,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: valueType,
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 };
                                 for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
@@ -14243,7 +15373,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         );
                                     }
                                 }
-                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions", "enumDetails"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                                     keyof NBTSubSchema &
                                     keyof NBTSchema &
@@ -14260,6 +15390,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "$ref",
                                 "$comment",
                                 "title",
+                                "completionDetail",
                                 "description",
                                 "markdownDescription",
                                 "doNotSuggest",
@@ -14340,9 +15471,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                     )
                                                 :   nbtSchemaToJsonSchema(schema.items as NBTSubSchema, allSchemas, { ...options, makeValueSchema: true }, true)
                                             :   {},
+                                        additionalItems:
+                                            typeof schema.additionalItems === "object" ?
+                                                nbtSchemaToJsonSchema(schema.additionalItems, allSchemas, options, false)
+                                            :   (schema.additionalItems ?? (schema.items instanceof Array ? false : undefined)),
+                                        unevaluatedItems:
+                                            typeof schema.unevaluatedItems === "object" ?
+                                                nbtSchemaToJsonSchema(schema.unevaluatedItems, allSchemas, options, false)
+                                            :   schema.unevaluatedItems,
                                     },
                                 },
                                 required: ["type", "value"],
+                                additionalProperties: false,
                             };
                             if (
                                 (schema.description === undefined && schema.markdownDescription === undefined) ||
@@ -14364,10 +15504,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         .filter((v) => v[0] === type)
                                         .map((v) => schema.markdownEnumDescriptions![v[1]]!);
                                 }
+                                if (schema.enumDetails) {
+                                    valueType.enumDetails = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDetails![v[1]]!);
+                                }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const =
-                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                                valueType.const = JSON.parse(
+                                    JSON.stringify(
+                                        "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
+                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
+                                    )
+                                );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
                                 valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
@@ -14388,6 +15538,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: valueType,
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 };
                                 for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
@@ -14400,7 +15551,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         );
                                     }
                                 }
-                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions", "enumDetails"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                                     keyof NBTSubSchema &
                                     keyof NBTSchema &
@@ -14417,6 +15568,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "$ref",
                                 "$comment",
                                 "title",
+                                "completionDetail",
                                 "description",
                                 "markdownDescription",
                                 "doNotSuggest",
@@ -14476,7 +15628,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 additionalProperties:
                                     typeof schema.additionalProperties === "object" ?
                                         nbtSchemaToJsonSchema(schema.additionalProperties, allSchemas, options, false)
-                                    :   true,
+                                    :   schema.additionalProperties,
+                                unevaluatedProperties:
+                                    typeof schema.unevaluatedProperties === "object" ?
+                                        nbtSchemaToJsonSchema(schema.unevaluatedProperties, allSchemas, options, false)
+                                    :   schema.unevaluatedProperties /* ?? (schema.additionalProperties === undefined ? false : undefined) */ /* UNDONE */,
                             };
                             if (
                                 (schema.description === undefined && schema.markdownDescription === undefined) ||
@@ -14498,10 +15654,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         .filter((v) => v[0] === type)
                                         .map((v) => schema.markdownEnumDescriptions![v[1]]!);
                                 }
+                                if (schema.enumDetails) {
+                                    valueType.enumDetails = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDetails![v[1]]!);
+                                }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const =
-                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                                valueType.const = JSON.parse(
+                                    JSON.stringify(
+                                        "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
+                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
+                                    )
+                                );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
                                 valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
@@ -14522,6 +15688,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: valueType,
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 };
                                 for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
@@ -14534,7 +15701,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         );
                                     }
                                 }
-                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions", "enumDetails"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                                     keyof NBTSubSchema &
                                     keyof NBTSchema &
@@ -14551,6 +15718,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "$ref",
                                 "$comment",
                                 "title",
+                                "completionDetail",
                                 "description",
                                 "markdownDescription",
                                 "doNotSuggest",
@@ -14605,7 +15773,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 (schema.description === undefined && schema.markdownDescription === undefined) ||
                                 !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
                             ) {
-                                valueType.description = valueType.markdownDescription = `A ${type}.`;
+                                valueType.description = valueType.markdownDescription = `A${type === "intArray" ? "n" : ""} ${type}.`;
                             }
                             switch (type) {
                                 case NBT.TagType.ByteArray:
@@ -14635,10 +15803,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         .filter((v) => v[0] === type)
                                         .map((v) => schema.markdownEnumDescriptions![v[1]]!);
                                 }
+                                if (schema.enumDetails) {
+                                    valueType.enumDetails = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDetails![v[1]]!);
+                                }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const =
-                                    "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const;
+                                valueType.const = JSON.parse(
+                                    JSON.stringify(
+                                        "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
+                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
+                                    )
+                                );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
                                 valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
@@ -14659,6 +15837,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: valueType,
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 };
                                 for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
@@ -14671,7 +15850,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         );
                                     }
                                 }
-                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions", "enumDetails"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                                     keyof NBTSubSchema &
                                     keyof NBTSchema &
@@ -14688,6 +15867,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "$ref",
                                 "$comment",
                                 "title",
+                                "completionDetail",
                                 "description",
                                 "markdownDescription",
                                 "doNotSuggest",
@@ -14739,6 +15919,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     items: { type: "integer", minimum: -0x80000000, maximum: 0x7fffffff },
                                     minItems: 2,
                                     maxItems: 2,
+                                    additionalItems: false,
                                 },
                             };
                             if (
@@ -14764,6 +15945,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         .map((v, i) => [v.type, i] as const)
                                         .filter((v) => v[0] === type)
                                         .map((v) => schema.markdownEnumDescriptions![v[1]]!);
+                                }
+                                if (schema.enumDetails) {
+                                    valueType.enumDetails = schema.enum
+                                        .map((v, i) => [v.type, i] as const)
+                                        .filter((v) => v[0] === type)
+                                        .map((v) => schema.enumDetails![v[1]]!);
                                 }
                             }
                             if (schema.const !== undefined) {
@@ -14807,6 +15994,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: valueType,
                                     },
                                     required: ["type", "value"],
+                                    additionalProperties: false,
                                 };
                                 for (const k of ["enum", "const", "examples", "default"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
@@ -14819,7 +16007,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         );
                                     }
                                 }
-                                for (const k of ["enumDescriptions", "markdownEnumDescriptions"] as const satisfies (keyof JSONSchema &
+                                for (const k of ["enumDescriptions", "markdownEnumDescriptions", "enumDetails"] as const satisfies (keyof JSONSchema &
                                     (keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment))[] as (keyof JSONSchema &
                                     keyof NBTSubSchema &
                                     keyof NBTSchema &
@@ -14836,6 +16024,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "$ref",
                                 "$comment",
                                 "title",
+                                "completionDetail",
                                 "description",
                                 "markdownDescription",
                                 "doNotSuggest",
@@ -14906,6 +16095,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
              * Utilities for converting NBT schemas to TypeScript types.
              */
             export namespace ToTypeScriptType {
+                // FIXME: Implement use of LooseAutocomplete/LooseAutocompleteB for the types that have the oneOf with the enum and reverse not enum (for an example of what this is for, see the XBLBroadcastIntent field of the LevelDat NBT schema).
+                // FIXME: Implement support for added enumDescriptions and other properties for the types that have the oneOf with the enum and reverse not enum (for an example of what this is for, see the XBLBroadcastIntent field of the LevelDat NBT schema). Maybe also for regular allOf/oneOf/anyOf too.
                 /**
                  * The type of the generated NBT schema type.
                  */
@@ -15265,6 +16456,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         }
                     }
 
+                    // Handle const value
+                    if (schema.const !== undefined) {
+                        const defVal: string = formatValue(schema.const);
+                        parts.push(`@const\n\`\`\`ts\n${defVal}\n\`\`\``);
+                    }
+
                     // Handle default value
                     if (schema.default !== undefined) {
                         const defVal: string = formatValue(schema.default);
@@ -15316,7 +16513,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 `@enumDescriptions\n${enumDescriptions
                                     .map(
                                         (d: string, i: number): string =>
-                                            `- ${schema.enum![i]?.value !== undefined ? `\`${schema.enum![i]?.value}\`` : `UNKNOWN_ENUM_MEMBER_${i}`}: ${d}`
+                                            `- ${schema.enum![i]?.value !== undefined ? `\`${schema.enum![i]?.value}\`` : `UNKNOWN_ENUM_MEMBER_${i}`}${schema.enumDetails?.[i] !== undefined ? ` (${schema.enumDetails[i]})` : ""}: ${d}`
                                     )
                                     .join("\n")}`
                             );
@@ -15437,9 +16634,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     opts: NBTSchemaToTypeScriptInterfaceConversionOptions,
                     ctx: NBTSchemaToTypeScriptInterfaceConversionContext,
                     additionalInformation: { isListChild?: boolean } = {}
-                ): SpecificBuiltType<string, `"${string}"` | "any" | "unknown"> {
+                ): SpecificBuiltType<
+                    string,
+                    `"${string}"` | "any" | "unknown"
+                > /* | SpecificBuiltType<string, `"${string}"` | "any" | "unknown">[] */ /* UNDONE: Uncomment this when implementing multi-type support. */ {
                     const refLookup = opts.refLookup ?? nbtSchemas;
                     const st = schema.type as Exclude<NBTSubSchema["type"], any[]>;
+                    // FIXME: This does not have handling for situations where the type property is an array, it needs to filter allOf, oneOf, and anyOf based on matching the type property.
+
                     const mainSchemaRefName: string | undefined =
                         schema.$ref ? resolveSchemaRefName(schema.$ref, !(opts.inlineRefs ?? false), opts) : undefined;
                     const resolvedSchema =
@@ -15628,7 +16830,39 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 value: mainSchemaRefName! + (additionalInformation.isListChild ? '["value"]' : ""),
                             };
                         }
+                        // FIXME: This does not have handling for situations where there is no type property on the schema object and the types are purely from allOf, oneOf, and anyOf. (this affects the DynamicProperties NBT schema)
                         return { type: "unknown", value: "any" };
+                        // UNDONE
+                        // if (!(allOfRefTypes || oneOfRefTypes || anyOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes || anyOfNonRefTypes)) {
+                        //     return { type: "unknown", value: "any" };
+                        // }
+
+                        // UNDONE
+                        // return {
+                        //     type: "unknown",
+                        //     value:
+                        //         (opts.inlineRefs ?? false) ?
+                        //             `${
+                        //                 inlineRefTypes.allOf || allOfNonRefTypes ?
+                        //                     ` & ${[...(inlineRefTypes.allOf ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}`
+                        //                 :   ""
+                        //             }${
+                        //                 inlineRefTypes.oneOf || oneOfNonRefTypes ?
+                        //                     ` & (ExclusifyUnion<${[...(inlineRefTypes.oneOf ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")}>)`
+                        //                 :   ""
+                        //             }${
+                        //                 inlineRefTypes.anyOf || anyOfNonRefTypes ?
+                        //                     ` & (${[...(inlineRefTypes.anyOf ?? []), ...(anyOfNonRefTypes ?? [])].join(" | ")})`
+                        //                 :   ""
+                        //             }`.replace(/^ & /, "")
+                        //         :   `${allOfRefTypes || allOfNonRefTypes ? ` & ${[...(allOfRefTypes ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}` : ""}${
+                        //                 oneOfRefTypes || oneOfNonRefTypes ?
+                        //                     ` & (ExclusifyUnion<${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")}>)`
+                        //                 :   ""
+                        //             }${
+                        //                 anyOfRefTypes || anyOfNonRefTypes ? ` & (${[...(anyOfRefTypes ?? []), ...(anyOfNonRefTypes ?? [])].join(" | ")})` : ""
+                        //             }`.replace(/^ & /, ""),
+                        // };
                     }
 
                     const builtType = buildBuiltTypeForTag(st, resolvedSchema, indent, opts, ctx!);
@@ -15693,6 +16927,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 ): SpecificBuiltType<string, `"${string}"`> {
                     const t: string = tagType;
 
+                    if (schema.const && schema.const.type === t) {
+                        return {
+                            type: `"${t}"`,
+                            value: JSON.stringify(schema.const.value, (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)),
+                        };
+                    }
+
                     // primitive/simple
                     const primitiveNames = new Set([
                         "byte",
@@ -15741,7 +16982,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 "double",
                                 "string",
                                 "byteArray",
-                                "shortArray",
+                                // "shortArray", // UNDONE: Disable emitting shortArray in unknown types as it doesn't actually exist.
                                 "intArray",
                                 "longArray",
                             ] as const;
@@ -15769,23 +17010,33 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                         if (Array.isArray(items)) {
                             const child = refToType(items, indent + "    ", opts, ctx);
-                            function builtTypeValueToTupleList(value: BuiltType["value"]): string {
-                                return (
-                                    typeof value === "string" ? value
-                                    : Array.isArray(value) ? value.map(builtTypeValueToTupleList).join(", ")
-                                    : builtTypeValueToTupleList(value.value)
-                                );
+                            function builtTypeValueToTupleList(value: BuiltType["value"]): string[] {
+                                if (typeof value === "string") {
+                                    if (opts.allowExtraArrayItems) return [value + ", ...any[]"];
+                                    else return [value];
+                                }
+                                if (Array.isArray(value)) {
+                                    const minItems: number = schema.minItems ?? value.length;
+                                    const typeStrings: string[] = [];
+                                    for (let itemCount = minItems; itemCount < Math.max(value.length, minItems) + 1; itemCount++) {
+                                        typeStrings.push(
+                                            `${value
+                                                .slice(0, itemCount)
+                                                .map(builtTypeValueToTupleList)
+                                                .flat()
+                                                .join(", ")}${opts.allowExtraArrayItems && itemCount === value.length ? ", ...any[]" : ""}`
+                                        );
+                                    }
+                                    return typeStrings;
+                                }
+                                return builtTypeValueToTupleList(value.value);
                             }
 
-                            if (opts.allowExtraArrayItems) {
-                                return {
-                                    type: child.type,
-                                    value: `{ type: ${child.value.type}, value: [${builtTypeValueToTupleList(child.value.value)}, ...any[]] }`,
-                                };
-                            }
                             return {
                                 type: child.type,
-                                value: `{ type: ${child.value.type}, value: [${builtTypeValueToTupleList(child.value.value)}] }`,
+                                value: `{ type: ${child.value.type}, value: ${builtTypeValueToTupleList(child.value.value)
+                                    .map((v: string): string => `[${v}]`)
+                                    .join(" | ")} }`,
                             };
                         } else {
                             // TO-DO: Test this, as it may not work correctly.
@@ -16022,7 +17273,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     ctx: NBTSchemaToTypeScriptInterfaceConversionContext = { helperTypes: [], helperCounter: 0 }
                 ): string {
                     const refLookup = opts.refLookup ?? nbtSchemas;
-                    const st = schema.type as Exclude<NBTSubSchema["type"], any[]>;
+                    const st = schema.type; /* as Exclude<NBTSubSchema["type"], any[]> */
+                    if (st instanceof Array) console.warn(9979.5342, "schemaToType", st, schema); // DEBUG
                     const mainSchemaRefName: string | undefined =
                         schema.$ref ? resolveSchemaRefName(schema.$ref, !(opts.inlineRefs ?? false), opts) : undefined;
                     const resolvedSchema =
@@ -16202,7 +17454,43 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 ?.type;
                             return mainSchemaRefName!;
                         }
-                        return `{ type: unknown, value: any }`;
+                        if (!(allOfRefTypes || oneOfRefTypes || anyOfRefTypes || allOfNonRefTypes || oneOfNonRefTypes || anyOfNonRefTypes)) {
+                            return `{ type: unknown, value: any }`;
+                        }
+                        return (opts.inlineRefs ?? false) ?
+                                `${
+                                    inlineRefTypes.allOf || allOfNonRefTypes ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                                }${inlineRefTypes.oneOf || oneOfNonRefTypes ? ` & (ExclusifyUnion<${inlineRefTypes.oneOf.join(" | ")}>)` : ""}${
+                                    inlineRefTypes.anyOf || anyOfNonRefTypes ? ` & (${inlineRefTypes.anyOf.join(" | ")})` : ""
+                                }`.replace(/^ & /, "")
+                            :   `${allOfRefTypes || allOfNonRefTypes ? ` & ${[...(allOfRefTypes ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}` : ""}${
+                                    oneOfRefTypes || oneOfNonRefTypes ?
+                                        ` & (ExclusifyUnion<${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")}>)`
+                                    :   ""
+                                }${anyOfRefTypes || anyOfNonRefTypes ? ` & (${[...(anyOfRefTypes ?? []), ...(anyOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
+                                    /^ & /,
+                                    ""
+                                );
+                    }
+
+                    if (st instanceof Array) {
+                        const builtType: string = st.map((tV) => buildTypeForTag(tV, resolvedSchema, indent, opts, ctx!)).join(" | ");
+                        return (opts.inlineRefs ?? false) ?
+                                `${(allOfRefTypes || oneOfRefTypes || allOfNonRefTypes || oneOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
+                                    inlineRefTypes.allOf || allOfNonRefTypes ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
+                                }${inlineRefTypes.oneOf || oneOfNonRefTypes ? ` & (ExclusifyUnion<${inlineRefTypes.oneOf.join(" | ")}>)` : ""}${
+                                    inlineRefTypes.anyOf || anyOfNonRefTypes ? ` & (${inlineRefTypes.anyOf.join(" | ")})` : ""
+                                }`.replace(/^ & /, "")
+                            :   `${(allOfRefTypes || oneOfRefTypes || allOfNonRefTypes || oneOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType) ? "" : `(${builtType})`}${
+                                    allOfRefTypes || allOfNonRefTypes ? ` & ${[...(allOfRefTypes ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}` : ""
+                                }${
+                                    oneOfRefTypes || oneOfNonRefTypes ?
+                                        ` & (ExclusifyUnion<${[...(oneOfRefTypes ?? []), ...(oneOfNonRefTypes ?? [])].join(" | ")}>)`
+                                    :   ""
+                                }${anyOfRefTypes || anyOfNonRefTypes ? ` & (${[...(anyOfRefTypes ?? []), ...(anyOfNonRefTypes ?? [])].join(" | ")})` : ""}`.replace(
+                                    /^ & /,
+                                    ""
+                                );
                     }
 
                     const builtType = buildTypeForTag(st, resolvedSchema, indent, opts, ctx!);
@@ -17421,7 +18709,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         | { type: "double"; value: number[] }
                         | { type: "string"; value: number[] }
                         | { type: "byteArray"; value: number[][] }
-                        | { type: "shortArray"; value: number[][] }
                         | { type: "intArray"; value: number[][] }
                         | { type: "longArray"; value: [high: number, low: number][][] }
                         | { type: "compound"; value: Record<string, any> }
@@ -17825,6 +19112,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "compound";
                             value: {
                                 /**
+                                 * Dragon Fight Version
+                                 *
+                                 * UNDOCUMENTED.
+                                 *
+                                 * @default 1
+                                 *
+                                 * @enum 1
+                                 */
+                                DragonFightVersion?: { type: "byte"; value: 1 };
+                                /**
                                  * Dragon Killed
                                  *
                                  * UNDOCUMENTED.
@@ -17919,6 +19216,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 };
             };
         } & LimboEntities;
+
+        /**
+         * The MCChinaDevDimension schema.
+         *
+         * The data of a Minecraft China Edition development dimension (dm3-dm20), seems to currently just include the LimboEntities data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.MCChinaDevDimension}
+         */
+        export type MCChinaDevDimension = { type: "compound"; value: object } & LimboEntities;
 
         /**
          * The CustomDimension schema.
@@ -19189,8 +20495,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 LANBroadcastIntent?: { type: "byte"; value: 0 | 1 };
                 /**
                  * Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock_Edition_Preview_1.20.30.22) the version is `1 20 30 22 1`.
+                 *
+                 * @minItems 4
+                 *
+                 * @maxItems 5
                  */
-                lastOpenedWithVersion?: { type: "list"; value: { type: "int"; value: [number, number, number, number, 0 | 1] } };
+                lastOpenedWithVersion?: {
+                    type: "list";
+                    value: { type: "int"; value: [number, number, number, number] | [number, number, number, number, 0 | 1] };
+                };
                 /**
                  * Stores a timestamp of when the world was last played as the number of seconds since the epoch (1/1/1970).
                  */
@@ -19387,6 +20700,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 RandomSeed?: { type: "long"; value: [high: number, low: number] };
                 /**
+                 * Level seed.
+                 *
+                 * This is used for Minecraft versions prior to Pocket Edition v0.2.0 Alpha.
+                 */
+                LegacySeed?: { type: "int"; value: number };
+                /**
+                 * A 64-bit integer representing the world size in bits. *verify*
+                 *
+                 * This is used for old MCPE versions (it is known to be used from v0.1.2 Alpha until at least v0.10.0).
+                 */
+                SizeOnDisk?: { type: "long"; value: [high: number, low: number] };
+                /**
+                 * Stores a timestamp of when the world was last played as the number of seconds since the epoch (1/1/1970).
+                 *
+                 * Note that this will overflow approximately every 136 years.
+                 *
+                 * This is used for Minecraft versions prior to Pocket Edition v0.2.0 Alpha.
+                 */
+                LegacyLastPlayed?: { type: "int"; value: number };
+                /**
                  * The `randomtickspeed` [game rule](https://minecraft.wiki/w/game_rule).
                  *
                  * @default 1
@@ -19559,7 +20892,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @default 10
                  */
-                StorageVersion?: { type: "int"; value: number };
+                StorageVersion: { type: "int"; value: number };
                 /**
                  * 1 or 0 (true/false) - true if the user must download the texture packs applied to the world to join, this option also disables global resource packs.
                  *
@@ -19627,9 +20960,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     };
                 };
                 /**
-                 * The [multiplayer](https://minecraft.wiki/w/multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends."
+                 * The [multiplayer](https://minecraft.wiki/w/multiplayer) exposure for Xbox Live services, corresponding to the "Microsoft Account Settings" world setting. 0 is disabled, *info needed* 1 is "Invite Only," 2 is "Friends Only," and 3 is "Friends of Friends.".
+                 *
+                 * This is an int in newer versions and a byte in older versions.
                  */
-                XBLBroadcastIntent?: { type: "int"; value: number } & ExclusifyUnion<{ type: "int"; value: number } | { type: "int"; value: 0 | 1 | 2 | 3 }>;
+                XBLBroadcastIntent?: ExclusifyUnion<
+                    | { type: "int"; value: number }
+                    | { type: "byte"; value: number }
+                    | { type: "int"; value: 0 | 1 | 2 | 3 }
+                    | { type: "byte"; value: 0 | 1 | 2 | 3 }
+                >;
             };
         };
 
@@ -21056,7 +22396,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 | { type: "double"; value: number[] }
                                 | { type: "string"; value: number[] }
                                 | { type: "byteArray"; value: number[][] }
-                                | { type: "shortArray"; value: number[][] }
                                 | { type: "intArray"; value: number[][] }
                                 | { type: "longArray"; value: [high: number, low: number][][] }
                                 | { type: "compound"; value: Record<string, any> }
@@ -21083,11 +22422,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 mapId: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * The Unique ID's of the parent maps.
+                 * The Unique ID of the parent map. If there is no parent map, this value is -1.
+                 *
+                 * @default
+                 * [high: -1, low: -1]
                  */
                 parentMapId: { type: "long"; value: [high: number, low: number] };
                 /**
-                 * 0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The_Nether), 2 = [The End](https://minecraft.wiki/w/The_End), any other value = a static image with no player pin.
+                 * 0 = The [Overworld](https://minecraft.wiki/w/Overworld), 1 = [The Nether](https://minecraft.wiki/w/The_Nether), 2 = [The End](https://minecraft.wiki/w/The_End), any other value = a static image with no player pin, unless it is the numeric ID of an existing custom dimension.
                  */
                 dimension: { type: "byte"; value: number };
                 /**
@@ -21135,55 +22477,154 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         type: "compound";
                         value: {
                             /**
+                             * Data
+                             *
                              * The data of the decoration.
                              */
-                            data?: {
+                            data: {
                                 type: "compound";
                                 value: {
                                     /**
+                                     * Rotation
+                                     *
                                      * The rotation of the symbol, ranging from 0 to 15. South = 0, West = 4, North = 8, East = 12.
                                      */
                                     rot: { type: "int"; value: number };
                                     /**
+                                     * Icon Type
+                                     *
                                      * The ID of the [map icon](https://minecraft.wiki/w/Map_icons.png) to display.
+                                     *
+                                     * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24
+                                     *
+                                     * @enumDescriptions
+                                     * - `0`: MarkerWhite/Player
+                                     * - `1`: MarkerGreen/ItemFrame
+                                     * - `2`: MarkerRed
+                                     * - `3`: MarkerBlue
+                                     * - `4`: XWhite
+                                     * - `5`: TriangleRed
+                                     * - `6`: SquareWhite/PlayerOffMap
+                                     * - `7`: MarkerSign
+                                     * - `8`: MarkerPink
+                                     * - `9`: MarkerOrange
+                                     * - `10`: MarkerYellow
+                                     * - `11`: MarkerTeal
+                                     * - `12`: TriangleGreen
+                                     * - `13`: SmallSquareWhite/PlayerOffLimits
+                                     * - `14`: Mansion
+                                     * - `15`: Monument
+                                     * - `16`: NoDraw/PlayerHidden
+                                     * - `17`: VillageDesert
+                                     * - `18`: VillagePlains
+                                     * - `19`: VillageSavanna
+                                     * - `20`: VillageSnowy
+                                     * - `21`: VillageTaiga
+                                     * - `22`: JungleTemple
+                                     * - `23`: WitchHut
+                                     * - `24`: TrialChambers
                                      */
-                                    type: { type: "int"; value: number };
+                                    type: {
+                                        type: "int";
+                                        value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24;
+                                    };
                                     /**
+                                     * X
+                                     *
                                      * The horizontal column (x) where the decoration is located on the map (per pixel).
                                      */
                                     x: { type: "int"; value: number };
                                     /**
+                                     * Y
+                                     *
                                      * The vertical column (y) where the decoration is located on the map (per pixel).
                                      */
                                     y: { type: "int"; value: number };
                                 };
                             };
                             /**
-                             * UNKNOWN. // CAUTION: This schema has only been verified in certain situations, it is possible that this might follow a different structure in other situations.
+                             * Key
+                             *
+                             * UNDOCUMENTED.
                              */
-                            key?: {
+                            key: {
                                 type: "compound";
                                 value: {
                                     /**
+                                     * Tracked Type
+                                     *
                                      * UNDOCUMENTED.
                                      *
-                                     * @default
-                                     * [high: 0, low: 0]
-                                     */
-                                    entityId: { type: "long"; value: [high: number, low: number] };
-                                    /**
-                                     * UNDOCUMENTED.
+                                     * @enum 0 | 1
                                      *
-                                     * @default 0
+                                     * @enumDescriptions
+                                     * - `0`: Entity
+                                     * - `1`: Block
                                      */
-                                    type: { type: "int"; value: number };
+                                    type: { type: "int"; value: 0 | 1 };
                                 };
-                            };
+                            } & ExclusifyUnion<
+                                | {
+                                      type: "compound";
+                                      value: {
+                                          /**
+                                           * Entity UUID
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @default
+                                           * [high: 0, low: 0]
+                                           */
+                                          entityId: { type: "long"; value: [high: number, low: number] };
+                                          /**
+                                           * @const
+                                           * ```ts
+                                           * 0
+                                           * ```
+                                           */
+                                          type: { type: "int"; value: 0 };
+                                      };
+                                  }
+                                | {
+                                      type: "compound";
+                                      value: {
+                                          /**
+                                           * Block X
+                                           *
+                                           * The world x-position of the decoration.
+                                           */
+                                          blockX: { type: "int"; value: number };
+                                          /**
+                                           * Block Y
+                                           *
+                                           * The world y-position of the decoration.
+                                           */
+                                          blockY: { type: "int"; value: number };
+                                          /**
+                                           * Block Z
+                                           *
+                                           * The world z-position of the decoration.
+                                           */
+                                          blockZ: { type: "int"; value: number };
+                                          /**
+                                           * @const
+                                           * ```ts
+                                           * 1
+                                           * ```
+                                           */
+                                          type: { type: "int"; value: 1 };
+                                      };
+                                  }
+                            >;
                         }[];
                     };
                 };
                 /**
-                 * An array of bytes that represent color values (**65536 entries** for a default 128×128 map).
+                 * An array of bytes that RGBA represent color values (**65536 entries** for a default 128×128 map).
+                 *
+                 * @minLength 65536
+                 *
+                 * @maxLength 65536
                  */
                 colors: { type: "byteArray"; value: number[] };
             };
@@ -21241,6 +22682,59 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
+         * The NeteaseData schema.
+         *
+         * NBT structure of the neteaseData LevelDB key.
+         *
+         * Exclusive to Minecraft China Edition.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.NeteaseData}
+         */
+        export type NeteaseData = {
+            type: "compound";
+            value: {
+                /**
+                 * Enable Edu NPC Spawning
+                 *
+                 * Whether it should be allowed to spawn NPCs, if false NPC spawn eggs will not work, though existing NPCs will not be affected. The `/summon npc` and `/summon minecraft:npc` commands do not work ever, even if this is set to true.
+                 *
+                 * @default 1
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                enableEduNpc: { type: "byte"; value: 0 | 1 };
+            };
+        };
+
+        /**
+         * The NeteaseScriptGid schema.
+         *
+         * NBT structure of the scriptGid LevelDB key.
+         *
+         * Exclusive to Minecraft China Edition.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.NeteaseScriptGid}
+         */
+        export type NeteaseScriptGid = {
+            type: "compound";
+            value: {
+                /**
+                 * Script GID
+                 *
+                 * UNDOCUMENTED.
+                 *
+                 * @default
+                 * [high: 0, low: 0]
+                 */
+                scriptGid: { type: "long"; value: [high: number, low: number] };
+            };
+        };
+
+        /**
          * The PendingTicks schema.
          *
          * The list of pending ticks for a chunk.
@@ -21277,7 +22771,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                              *
                              * The tile ID of this block. This was used in older versions of Minecraft.
                              */
-                            tileID?: { type: "int"; value: number };
+                            tileID?: { type: "int"; value: number } | { type: "byte"; value: number };
                             /**
                              * Time
                              *
@@ -21318,9 +22812,44 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         export type PlayerClient = {
             type: "compound";
             value: {
-                MsaId: { type: "string"; value: string };
-                SelfSignedId: { type: "string"; value: string };
+                /**
+                 * Microsoft Account ID
+                 *
+                 * The current player's Microsoft account ID.
+                 */
+                MsaId?: { type: "string"; value: string };
+                /**
+                 * Self-Signed ID
+                 *
+                 * The current player's self-signed ID.
+                 */
+                SelfSignedId?: { type: "string"; value: string };
+                /**
+                 * Server ID
+                 *
+                 * The key of the LevelDB entry that stores this player's NBT data.
+                 */
                 ServerId: { type: "string"; value: string };
+                /**
+                 * Platform Online ID
+                 *
+                 * The current player's client platform online ID.
+                 */
+                PlatformOnlineId?: { type: "string"; value: string };
+                /**
+                 * Platform Offline ID
+                 *
+                 * The current player's client platform offline ID.
+                 */
+                PlatformOfflineId?: { type: "string"; value: string };
+                /**
+                 * Netease UUID
+                 *
+                 * The current player's Netease UUID.
+                 *
+                 * Exclusive to Minecraft China Edition.
+                 */
+                NeteaseUUID?: { type: "string"; value: string };
             };
         };
 
@@ -21380,9 +22909,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * The version of the lodestone compass position tracking database, currently 1.
                  *
+                 * @const
+                 * ```ts
+                 * 1
+                 * ```
+                 *
                  * @default 1
                  */
-                version?: { type: "byte"; value: number };
+                version?: { type: "byte"; value: 1 };
             };
         };
 
@@ -21438,9 +22972,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * The version of the lodestone compass position tracking database that this entry was saved in, currently 1.
                  *
+                 * @const
+                 * ```ts
+                 * 1
+                 * ```
+                 *
                  * @default 1
                  */
-                version?: { type: "byte"; value: number };
+                version?: { type: "byte"; value: 1 };
             };
         };
 
@@ -21553,7 +23092,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         | { type: "double"; value: number[] }
                         | { type: "string"; value: number[] }
                         | { type: "byteArray"; value: number[][] }
-                        | { type: "shortArray"; value: number[][] }
                         | { type: "intArray"; value: number[][] }
                         | { type: "longArray"; value: [high: number, low: number][][] }
                         | { type: "compound"; value: Record<string, any> }
@@ -21561,7 +23099,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     )[];
                 };
                 /**
-                 * A  list of compound tags representing specific displayed objectives.
+                 * A list of compound tags representing specific displayed objectives.
                  */
                 DisplayObjectives: {
                     type: "list";
@@ -21689,81 +23227,227 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             type: "compound";
             value: {
                 /**
-                 * The structure data.
-                 */
-                structure: {
-                    type: "compound";
-                    value: {
-                        /**
-                         * The block palette.
-                         */
-                        palette: {
-                            type: "compound";
-                            value: {
-                                /**
-                                 * The default block palette.
-                                 */
-                                default: {
-                                    type: "compound";
-                                    value: {
-                                        /**
-                                         * The block entity data.
-                                         */
-                                        block_position_data: {
-                                            type: "compound";
-                                            value: {
-                                                [key: `${bigint}`]: {
-                                                    type: "compound";
-                                                    value: {
-                                                        block_entity_data: BlockEntity;
-                                                    };
-                                                };
-                                            };
-                                        };
-                                        /**
-                                         * The block palette.
-                                         */
-                                        block_palette: { type: "list"; value: { type: "compound"; value: Block["value"][] } };
-                                    };
-                                };
-                            };
-                        };
-                        /**
-                         * The block indices.
-                         *
-                         * These are two arrays of indices in the block palette.
-                         *
-                         * The first layer is the block layer.
-                         *
-                         * The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
-                         * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
-                         * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
-                         */
-                        block_indices: { type: "list"; value: { type: "list"; value: [{ type: "int"; value: number[] }, { type: "int"; value: number[] }] } };
-                        /**
-                         * The list of entities in the structure.
-                         */
-                        entities: { type: "list"; value: { type: "compound"; value: ActorPrefixOrEntity["value"][] } };
-                    };
-                };
-                /**
-                 * The size of the structure, as a tuple of 3 integers.
-                 */
-                size: { type: "list"; value: { type: "int"; value: [number, number, number] } };
-                /**
-                 * The world origin of the structure, as a tuple of 3 integers.
+                 * Format Version
                  *
-                 * This is used for entity and block entity data, to get relative positions.
-                 */
-                structure_world_origin: { type: "list"; value: { type: "int"; value: [number, number, number] } };
-                /**
                  * The format version of the structure.
                  *
-                 * @enum 1
+                 * @enum 1 | 2
+                 *
+                 * @enumDescriptions
+                 * - `1`: Format version 1 is supported by all Minecraft versions.
+                 * - `2`: Format version 2 is supported in Preview 1.26.50.24 and above.
                  */
-                format_version: { type: "int"; value: 1 };
+                format_version: { type: "int"; value: 1 | 2 };
             };
-        };
+        } & ExclusifyUnion<
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Structure
+                       *
+                       * The structure data.
+                       */
+                      structure: {
+                          type: "compound";
+                          value: {
+                              /**
+                               * Palette
+                               *
+                               * The block palette.
+                               */
+                              palette: {
+                                  type: "compound";
+                                  value: {
+                                      /**
+                                       * Default Block Palette
+                                       *
+                                       * The default block palette.
+                                       */
+                                      default: {
+                                          type: "compound";
+                                          value: {
+                                              /**
+                                               * Block Position Data
+                                               *
+                                               * The block entity data.
+                                               */
+                                              block_position_data: {
+                                                  type: "compound";
+                                                  value: {
+                                                      [key: `${bigint}`]: {
+                                                          type: "compound";
+                                                          value: {
+                                                              block_entity_data: BlockEntity;
+                                                          };
+                                                      };
+                                                  };
+                                              };
+                                              /**
+                                               * Block Palette
+                                               *
+                                               * The block palette.
+                                               */
+                                              block_palette: { type: "list"; value: { type: "compound"; value: Block["value"][] } };
+                                          };
+                                      };
+                                  };
+                              };
+                              /**
+                               * Block Indices
+                               *
+                               * The block indices.
+                               *
+                               * These are two arrays of indices in the block palette.
+                               *
+                               * The first layer is the block layer.
+                               *
+                               * The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
+                               * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
+                               * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
+                               *
+                               * @minItems 2
+                               *
+                               * @maxItems 2
+                               */
+                              block_indices: {
+                                  type: "list";
+                                  value: { type: "list"; value: [{ type: "int"; value: number[] }, { type: "int"; value: number[] }] };
+                              };
+                              /**
+                               * Entities
+                               *
+                               * The list of entities in the structure.
+                               */
+                              entities: { type: "list"; value: { type: "compound"; value: ActorPrefixOrEntity["value"][] } };
+                          };
+                      };
+                      /**
+                       * Size
+                       *
+                       * The size of the structure, as a tuple of 3 integers.
+                       */
+                      size: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                      /**
+                       * Structure World Origin
+                       *
+                       * The world origin of the structure, as a tuple of 3 integers.
+                       *
+                       * This is used for entity and block entity data, to get relative positions.
+                       */
+                      structure_world_origin: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                      /**
+                       * @const
+                       * ```ts
+                       * 1
+                       * ```
+                       */
+                      format_version: { type: "int"; value: 1 };
+                  };
+              }
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Structure
+                       *
+                       * The structure data.
+                       */
+                      structure: {
+                          type: "compound";
+                          value: {
+                              /**
+                               * Palette
+                               *
+                               * The block palette.
+                               */
+                              palette: {
+                                  type: "compound";
+                                  value: {
+                                      /**
+                                       * Default Palette
+                                       *
+                                       * The default block palette.
+                                       */
+                                      default: {
+                                          type: "compound";
+                                          value: {
+                                              /**
+                                               * Block Position Data
+                                               *
+                                               * The block entity data.
+                                               */
+                                              block_position_data: {
+                                                  type: "compound";
+                                                  value: {
+                                                      [key: `${bigint}`]: {
+                                                          type: "compound";
+                                                          value: {
+                                                              block_entity_data: BlockEntity;
+                                                          };
+                                                      };
+                                                  };
+                                              };
+                                              /**
+                                               * Block Palette
+                                               *
+                                               * The block palette.
+                                               */
+                                              block_palette: { type: "list"; value: { type: "compound"; value: Block["value"][] } };
+                                          };
+                                      };
+                                  };
+                              };
+                              /**
+                               * Block Indices
+                               *
+                               * The block indices.
+                               *
+                               * These are two arrays of indices in the block palette.
+                               *
+                               * The first layer is the block layer.
+                               *
+                               * The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
+                               * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
+                               * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
+                               *
+                               * @minItems 1
+                               *
+                               * @maxItems 2
+                               */
+                              block_indices: { type: "list"; value: { type: "intArray"; value: [number[]] | [number[], number[]] } };
+                              /**
+                               * Entities
+                               *
+                               * The list of entities in the structure.
+                               */
+                              entities: { type: "list"; value: { type: "compound"; value: ActorPrefixOrEntity["value"][] } };
+                          };
+                      };
+                      /**
+                       * Size
+                       *
+                       * The size of the structure, as a tuple of 3 integers.
+                       */
+                      size: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                      /**
+                       * Structure World Origin
+                       *
+                       * The world origin of the structure, as a tuple of 3 integers.
+                       *
+                       * This is used for entity and block entity data, to get relative positions.
+                       */
+                      structure_world_origin: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                      /**
+                       * @const
+                       * ```ts
+                       * 2
+                       * ```
+                       */
+                      format_version: { type: "int"; value: 2 };
+                  };
+              }
+        >;
 
         /**
          * The TickingArea schema.
@@ -21984,7 +23668,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         | { type: "double"; value: number[] }
                         | { type: "string"; value: number[] }
                         | { type: "byteArray"; value: number[][] }
-                        | { type: "shortArray"; value: number[][] }
                         | { type: "intArray"; value: number[][] }
                         | { type: "longArray"; value: [high: number, low: number][][] }
                         | { type: "compound"; value: Record<string, any> }
@@ -22296,7 +23979,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        mute: { type: "byte"; value: 0 | 1 };
+                        mute?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can phase through blocks.
                          *
@@ -22306,7 +23989,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        noclip: { type: "byte"; value: 0 | 1 };
+                        noclip?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player has operator commands.
                          *
@@ -22330,11 +24013,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         /**
                          * What permissions a player will default to, when joining a world.
                          */
-                        permissionsLevel: { type: "int"; value: number };
+                        permissionsLevel?: { type: "int"; value: number };
                         /**
                          * What permissions a player has.
                          */
-                        playerPermissionsLevel: { type: "int"; value: number };
+                        playerPermissionsLevel?: { type: "int"; value: number };
                         /**
                          * 1 or 0 (true/false) - true if the player is allowed to teleport.
                          *
@@ -22358,7 +24041,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        worldbuilder: { type: "byte"; value: 0 | 1 };
+                        worldbuilder?: { type: "byte"; value: 0 | 1 };
                     };
                 };
             };
@@ -26485,7 +28168,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * UNDOCUMENTED.
                  */
-                WasPickedUp: { type: "byte"; value: number };
+                WasPickedUp?: { type: "byte"; value: number };
             };
         };
 
@@ -27546,7 +29229,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         | { type: "double"; value: number[] }
                         | { type: "string"; value: number[] }
                         | { type: "byteArray"; value: number[][] }
-                        | { type: "shortArray"; value: number[][] }
                         | { type: "intArray"; value: number[][] }
                         | { type: "longArray"; value: [high: number, low: number][][] }
                         | { type: "compound"; value: Record<string, any> }
@@ -28386,12 +30068,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                       /**
                        * Format Version
                        *
-                       * The format version of the Data2D data. For older Minecraft versions, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
+                       * The format version of the Data2D data. For Minecraft versions prior to 1.21.40.23, this is format version 1. For Minecraft versions 1.21.40.23 and later, this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
                        *
                        * @enum 1
                        *
                        * @enumDescriptions
-                       * - `1`: Pre-?
+                       * - `1`: Pre-1.21.40.23
                        */
                       version: { type: "byte"; value: 1 };
                       /**
@@ -28422,12 +30104,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                       /**
                        * Format Version
                        *
-                       * The format version of the Data2D data. For older Minecraft versions, this is format version 1. For modern Minecraft versions this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
+                       * The format version of the Data2D data. For Minecraft versions prior to 1.21.40.23, this is format version 1. For Minecraft versions 1.21.40.23 and later, this is format version 2 but it is only used for worlds using the Old world type or an older base game version.
                        *
                        * @enum 2
                        *
                        * @enumDescriptions
-                       * - `2`: Post-?
+                       * - `2`: Post-1.21.40.23
                        */
                       version: { type: "byte"; value: 2 };
                       /**
@@ -28713,6 +30395,223 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
+         * The JigsawStructureBlueprint schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the JigsawStructureBlueprint content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.JigsawStructureBlueprint}
+         */
+        export type JigsawStructureBlueprint = {
+            type: "compound";
+            value: {
+                /**
+                 * Position
+                 *
+                 * UNDOCUMENTED. This may be the position of the jigsaw block.
+                 */
+                pos: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                /**
+                 * Min Bounds
+                 *
+                 * The minimum bounds of the jigsaw structure.
+                 */
+                minBounds: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                /**
+                 * Max Bounds
+                 *
+                 * The maximum bounds of the jigsaw structure.
+                 */
+                maxBounds: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                /**
+                 * Structure ID
+                 *
+                 * The ID of the jigsaw structure.
+                 */
+                structure: { type: "string"; value: string };
+                /**
+                 * Sections
+                 *
+                 * UNDOCUMENTED.
+                 */
+                sections: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Element ID
+                             *
+                             * UNDOCUMENTED.
+                             */
+                            elementID: { type: "string"; value: string };
+                            /**
+                             * Ground Offset
+                             *
+                             * UNDOCUMENTED.
+                             */
+                            groundOffset: { type: "int"; value: number };
+                            /**
+                             * Bounding Box
+                             *
+                             * UNDOCUMENTED.
+                             */
+                            boundingBox: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * Min Bounds
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    min: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                    /**
+                                     * Max Bounds
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    max: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                };
+                            };
+                            /**
+                             * Position
+                             *
+                             * UNDOCUMENTED.
+                             */
+                            position: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                            /**
+                             * Rotation
+                             *
+                             * UNDOCUMENTED.
+                             */
+                            rotation: { type: "string"; value: string };
+                            /**
+                             * Junctions
+                             *
+                             * UNDOCUMENTED.
+                             */
+                            junctions: {
+                                type: "list";
+                                value: {
+                                    type: "compound";
+                                    value: {
+                                        /**
+                                         * Source X
+                                         *
+                                         * UNDOCUMENTED.
+                                         */
+                                        sourceX: { type: "int"; value: number };
+                                        /**
+                                         * Source Ground Y
+                                         *
+                                         * UNDOCUMENTED.
+                                         */
+                                        sourceGroundY: { type: "int"; value: number };
+                                        /**
+                                         * Source Z
+                                         *
+                                         * UNDOCUMENTED.
+                                         */
+                                        sourceZ: { type: "int"; value: number };
+                                        /**
+                                         * Delta Y
+                                         *
+                                         * UNDOCUMENTED.
+                                         */
+                                        deltaY: { type: "int"; value: number };
+                                        /**
+                                         * Destination Projection
+                                         *
+                                         * UNDOCUMENTED.
+                                         */
+                                        destProjection: { type: "string"; value: string };
+                                    }[];
+                                };
+                            };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The LegacyBlockExtraData schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the LegacyBlockExtraData content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LegacyBlockExtraData}
+         */
+        export type LegacyBlockExtraData = {
+            type: "compound";
+            value: {
+                /**
+                 * Block Extra Data
+                 *
+                 * All blocks in the secondary block layer.
+                 */
+                BlockExtraData: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Position
+                             *
+                             * The position of this block.
+                             */
+                            pos: {
+                                type: "compound";
+                                value: {
+                                    /**
+                                     * x
+                                     *
+                                     * The relative x coordinate of this block in the chunk.
+                                     *
+                                     * @minimum 0
+                                     *
+                                     * @maximum 15
+                                     *
+                                     * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                                     */
+                                    x: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 };
+                                    /**
+                                     * y
+                                     *
+                                     * The y coordinate of this block.
+                                     */
+                                    y: { type: "byte"; value: number };
+                                    /**
+                                     * z
+                                     *
+                                     * The relative z coordinate of this block in the chunk.
+                                     *
+                                     * @minimum 0
+                                     *
+                                     * @maximum 15
+                                     *
+                                     * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                                     */
+                                    z: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 };
+                                };
+                            };
+                            /**
+                             * Tile ID
+                             *
+                             * The tile ID of this block.
+                             */
+                            id: { type: "byte"; value: number };
+                            /**
+                             * Data Value
+                             *
+                             * The data value of this block.
+                             */
+                            data: { type: "byte"; value: number };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
          * The LegacyTerrain schema.
          *
          * A custom schema for the NBT structure used by the custom parser and serializer for the LegacyTerrain content type.
@@ -28939,6 +30838,178 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
+         * The POITypes schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the POITypes content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.POITypes}
+         */
+        export type POITypes = {
+            type: "compound";
+            value: {
+                /**
+                 * POI Types
+                 *
+                 * The list of all possible POI types in the world.
+                 */
+                POITypes: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Type
+                             *
+                             * The numeric type ID of the POI type.
+                             */
+                            type: { type: "short"; value: number };
+                            /**
+                             * ID
+                             *
+                             * The namespaced ID of the POI type.
+                             *
+                             * @example
+                             * "minecraft:cleric"
+                             *
+                             * @example
+                             * "minecraft:armorer"
+                             *
+                             * @example
+                             * "minecraft:farmer"
+                             *
+                             * @example
+                             * "minecraft:bee_nest"
+                             *
+                             * @example
+                             * "minecraft:beehive"
+                             *
+                             * @example
+                             * "minecraft:weaponsmith"
+                             *
+                             * @example
+                             * "minecraft:fisherman"
+                             *
+                             * @example
+                             * "minecraft:shepherd"
+                             *
+                             * @example
+                             * "minecraft:butcher"
+                             *
+                             * @example
+                             * "minecraft:cartographer"
+                             *
+                             * @example
+                             * "minecraft:fletcher"
+                             *
+                             * @example
+                             * "minecraft:home"
+                             *
+                             * @example
+                             * "minecraft:leatherworker"
+                             *
+                             * @example
+                             * "minecraft:librarian"
+                             *
+                             * @example
+                             * "minecraft:lightning_rod"
+                             *
+                             * @example
+                             * "minecraft:lodestone"
+                             *
+                             * @example
+                             * "minecraft:mason"
+                             *
+                             * @example
+                             * "minecraft:meeting"
+                             *
+                             * @example
+                             * "minecraft:toolsmith"
+                             */
+                            id: { type: "string"; value: string };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The POIRegionRegistry schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the POIRegionRegistry content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.POIRegionRegistry}
+         */
+        export type POIRegionRegistry = {
+            type: "compound";
+            value: {
+                /**
+                 * POI Region Registry
+                 *
+                 * A registry of all POI regions in a dimension.
+                 */
+                POIRegionRegistry: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            key: { type: "string"; value: string };
+                            /**
+                             * @minItems 2
+                             *
+                             * @maxItems 2
+                             */
+                            pos: { type: "list"; value: { type: "int"; value: [number, number] } };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The POIRegion schema.
+         *
+         * A custom schema for the NBT structure used by the custom parser and serializer for the POIRegion content type.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.POIRegion}
+         */
+        export type POIRegion = {
+            type: "compound";
+            value: {
+                /**
+                 * POI Region
+                 *
+                 * The list of POI entries in the POI region.
+                 */
+                POIRegion: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        value: {
+                            /**
+                             * Type
+                             *
+                             * The numeric type ID of the POI type.
+                             */
+                            type: { type: "short"; value: number };
+                            /**
+                             * Tickets
+                             *
+                             * UNDOCUMENTED.
+                             */
+                            tickets: { type: "byte"; value: number };
+                            /**
+                             * @minItems 3
+                             *
+                             * @maxItems 3
+                             */
+                            pos: { type: "list"; value: { type: "short"; value: [number, number, number] } };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
          * The SubChunkPrefix schema.
          *
          * A custom schema for the NBT structure used by the custom parser and serializer for the SubChunkPrefix content type.
@@ -29097,9 +31168,44 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         export type Players = {
             type: "compound";
             value: {
-                MsaId: { type: "string"; value: string };
-                SelfSignedId: { type: "string"; value: string };
+                /**
+                 * Microsoft Account ID
+                 *
+                 * The current player's Microsoft account ID.
+                 */
+                MsaId?: { type: "string"; value: string };
+                /**
+                 * Self-Signed ID
+                 *
+                 * The current player's self-signed ID.
+                 */
+                SelfSignedId?: { type: "string"; value: string };
+                /**
+                 * Server ID
+                 *
+                 * The key of the LevelDB entry that stores this player's NBT data.
+                 */
                 ServerId: { type: "string"; value: string };
+                /**
+                 * Platform Online ID
+                 *
+                 * The current player's client platform online ID.
+                 */
+                PlatformOnlineId?: { type: "string"; value: string };
+                /**
+                 * Platform Offline ID
+                 *
+                 * The current player's client platform offline ID.
+                 */
+                PlatformOfflineId?: { type: "string"; value: string };
+                /**
+                 * Netease UUID
+                 *
+                 * The current player's Netease UUID.
+                 *
+                 * Exclusive to Minecraft China Edition.
+                 */
+                NeteaseUUID?: { type: "string"; value: string };
             };
         };
 
@@ -29529,7 +31635,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         | { type: "double"; value: number[] }
                         | { type: "string"; value: number[] }
                         | { type: "byteArray"; value: number[][] }
-                        | { type: "shortArray"; value: number[][] }
                         | { type: "intArray"; value: number[][] }
                         | { type: "longArray"; value: [high: number, low: number][][] }
                         | { type: "compound"; value: Record<string, any> }
@@ -29652,6 +31757,28 @@ interface JSONSchema {
     if?: JSONSchemaRef | undefined;
     then?: JSONSchemaRef | undefined;
     else?: JSONSchemaRef | undefined;
+
+    // schema 2019-09
+    unevaluatedProperties?: boolean | JSONSchemaRef | undefined;
+    unevaluatedItems?: boolean | JSONSchemaRef | undefined;
+    minContains?: number | undefined;
+    maxContains?: number | undefined;
+    deprecated?: boolean | undefined;
+    dependentRequired?: { [prop: string]: string[] } | undefined;
+    dependentSchemas?: JSONSchemaMap | undefined;
+    $defs?: { [name: string]: JSONSchema } | undefined;
+    $anchor?: string | undefined;
+    $recursiveRef?: string | undefined;
+    $recursiveAnchor?: boolean | undefined;
+    $vocabulary?: { [uri: string]: boolean } | undefined;
+
+    // schema 2020-12
+    // prefixItems?: JSONSchemaRef[] | undefined;
+    // $dynamicRef?: string | undefined;
+    // $dynamicAnchor?: string | undefined;
+
+    // VSCode extensions
+
     defaultSnippets?:
         | {
               label?: string | undefined;
@@ -29660,15 +31787,18 @@ interface JSONSchema {
               body?: any;
               bodyText?: string | undefined;
           }[]
-        | undefined;
-    errorMessage?: string | undefined;
-    patternErrorMessage?: string | undefined;
-    deprecationMessage?: string | undefined;
-    enumDescriptions?: string[] | undefined;
-    markdownEnumDescriptions?: string[] | undefined;
-    markdownDescription?: string | undefined;
-    doNotSuggest?: boolean | undefined;
-    suggestSortText?: string | undefined;
-    allowComments?: boolean | undefined;
-    allowTrailingCommas?: boolean | undefined;
+        | undefined; // VSCode extension: body: a object that will be converted to a JSON string. bodyText: text with \t and \n
+    errorMessage?: string | undefined; // VSCode extension
+    patternErrorMessage?: string | undefined; // VSCode extension
+    deprecationMessage?: string | undefined; // VSCode extension
+    enumDescriptions?: string[] | undefined; // VSCode extension
+    enumSortTexts?: string[] | undefined; // VSCode extension
+    enumDetails?: string[] | undefined; // VSCode extension
+    markdownEnumDescriptions?: string[] | undefined; // VSCode extension
+    markdownDescription?: string | undefined; // VSCode extension
+    doNotSuggest?: boolean | undefined; // VSCode extension
+    suggestSortText?: string | undefined; // VSCode extension
+    allowComments?: boolean | undefined; // VSCode extension
+    allowTrailingCommas?: boolean | undefined; // VSCode extension
+    completionDetail?: string | undefined; // VSCode extension
 }

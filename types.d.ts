@@ -680,7 +680,86 @@ export type ReturnTypeWithArgs<T extends (...args: any[]) => any, ARGS_T> = Extr
     [ARGS_T, any]
 >[1];
 
-export type Range<Start extends number, End extends number, Acc extends number[] = []> =
-    Acc["length"] extends End ? [...Acc, End][number]
-    : Acc["length"] extends Start ? [...Acc, Start][number] | Range<Start, End, [...Acc, Acc["length"]]>
-    : Range<Start, End, [...Acc, Acc["length"]]>;
+// export type Range<Start extends number, End extends number, Acc extends number[] = []> =
+//     Acc["length"] extends End ? [...Acc, End][number]
+//     : Acc["length"] extends Start ? [...Acc, Start][number] | Range<Start, End, [...Acc, Acc["length"]]>
+//     : Range<Start, End, [...Acc, Acc["length"]]>;
+
+// type Range_Build<N extends number, A extends unknown[] = []> = A["length"] extends N ? A : Range_Build<N, [...A, unknown]>;
+// type Range_Add<A extends number, B extends number> = Extract<[...Range_Build<A>, ...Range_Build<B>]["length"], number>;
+// type Range_RangePos<Start extends number, End extends number, I extends number = 0, Acc extends number[] = []> =
+//     Range_Add<Start, I> extends End ? [...Acc, End][number] : Range_RangePos<Start, End, Range_Add<I, 1>, [...Acc, Range_Add<Start, I>]>;
+// type Range_Abs<N extends number> = `${N}` extends `-${infer P extends number}` ? P : N;
+// type Range_Neg<N extends number> = `-${N}` extends `${infer R extends number}` ? R : never;
+// type Range_RangeNeg<Start extends number, End extends number> = Range_Neg<Range_RangePos<Range_Abs<End>, Range_Abs<Start>>>;
+// type Range_RangeMixed<Start extends number, End extends number> = Range_RangeNeg<Start, -1> | Range_RangePos<0, End>;
+// type Range_LTE<Start extends number, End extends number> =
+//     `${Start}` extends `-${string}` ?
+//         `${End}` extends `-${string}` ?
+//             Range_Build<Range_Abs<Start>> extends [...Range_Build<Range_Abs<End>>, ...infer _] ?
+//                 true
+//             :   false
+//         :   true
+//     : `${End}` extends `-${string}` ? false
+//     : Range_Build<End> extends [...Range_Build<Start>, ...infer _] ? true
+//     : false;
+// /**
+//  * Represents a range of numbers.
+//  *
+//  * @template Start The start of the range. Can be negative.
+//  * @template End The end of the range. Can be negative.
+//  */
+// export type Range<Start extends number, End extends number> =
+//     Range_LTE<Start, End> extends true ?
+//         `${Start}` extends `-${string}` ?
+//             `${End}` extends `-${string}` ?
+//                 Range_RangeNeg<Start, End>
+//             :   Range_RangeMixed<Start, End>
+//         :   Range_RangePos<Start, End>
+//     :   never;
+
+/**
+ * Source - https://stackoverflow.com/q/76658139
+ * Posted by Tyler V.
+ * Retrieved 2026-09-26, License - CC BY-SA 4.0
+ */
+type Enumerate<N extends number, Acc extends number[] = []> = Acc["length"] extends N ? Acc[number] : Enumerate<N, [...Acc, Acc["length"]]>;
+/**
+ * Source - https://stackoverflow.com/a/76692016
+ * Posted by jcalz
+ * Retrieved 2026-09-26, License - CC BY-SA 4.0
+ */
+type Negate<N extends number> =
+    N extends 0 ? 0
+    : `${N}` extends `-${infer S extends number}` ? S
+    : `-${N}` extends `${infer S extends number}` ? S
+    : never;
+/**
+ * Source - https://stackoverflow.com/a/76692016
+ * Posted by jcalz
+ * Retrieved 2026-09-26, License - CC BY-SA 4.0
+ */
+type NonNegativeIntRange<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>;
+/**
+ * Source - https://stackoverflow.com/a/76692016
+ * Posted by jcalz
+ * Retrieved 2026-09-26, License - CC BY-SA 4.0
+ */
+type NegativeIntRange<F extends number, T extends number> = Exclude<Negate<NonNegativeIntRange<Negate<T>, Negate<F>>> | F, T>;
+/**
+ * Source - https://stackoverflow.com/a/76692016
+ * Posted by jcalz
+ * Retrieved 2026-09-26, License - CC BY-SA 4.0
+ */
+type MixedIntRange<F extends number, T extends number> = F | Negate<Enumerate<Negate<F>>> | Enumerate<T>;
+/**
+ * Source - https://stackoverflow.com/a/76692016
+ * Posted by jcalz
+ * Retrieved 2026-09-26, License - CC BY-SA 4.0
+ */
+export type Range<F extends number, T extends number> =
+    `${F}` extends `-${string}` ?
+        `${T}` extends `-${string}` ?
+            NegativeIntRange<F, T>
+        :   MixedIntRange<F, T>
+    :   NonNegativeIntRange<F, T>;

@@ -1,3 +1,104 @@
+# v1.24.0
+
+## Critical Fixes
+
+-   Fixed a bug where the `generateChunkKeyFromIndices` function could mutate the `dimension` property of the object passed to the `indices` parameter and replace the string dimension ID with its numeric counterpart.
+-   Fixed a bug where strings with a value of `"true"` or `"false"` were not quoted when being converted to SNBT, causing them to turn into bytes when parsed back into Prismarine-NBT ([#11](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/11)).
+
+## Additions
+
+-   The `LevelDat` parser/serializer now supports `StorageVersion` `1`, which was used in MCPE Alpha versions prior to 0.2.0.
+-   Added the `JigsawStructureBlueprint` content type.
+-   Added the `JigsawStructureBlueprint` NBT schema.
+-   Added the `POITypes` content type.
+-   Added the `POITypes` NBT schema.
+-   Added the `POIRegionRegistry` content type.
+-   Added the `POIRegionRegistry` NBT schema.
+-   Added the `POIRegion` content type.
+-   Added the `POIRegion` NBT schema.
+-   Added the `LegacyConsolePlayer` content type.
+-   Added a custom serializer and parser for the `LegacyBlockExtraData` content type.
+-   Added the `LegacyBlockExtraData` NBT schema.
+-   Added the `VersionEnchant` content type (MCCE exclusive).
+-   Added the `VersionMarkInsert` content type (MCCE exclusive).
+-   Added the `unknown0x70` placeholder content type (MCCE exclusive).
+-   Added the `unknown0x71` placeholder content type (MCCE exclusive).
+-   Added the `SSTCommandLog` content type (MCCE exclusive).
+-   Added the `SSTHashRegistry` content type (MCCE exclusive).
+-   Added the `MCChinaDevDimension` content type (MCCE exclusive).
+-   Added the `MCChinaDevDimension` NBT schema (MCCE exclusive).
+-   Added the `NeteaseData` content type (MCCE exclusive).
+-   Added the `NeteaseData` NBT schema (MCCE exclusive).
+-   Added the `NeteaseScriptGid` content type (MCCE exclusive).
+-   Added the `NeteaseScriptGid` NBT schema (MCCE exclusive).
+-   The custom serializer and parser for the `LevelDat` content type now can writes the version from the `StorageVersion` field into the header instead of always `10` ([#2](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/2)).
+-   Added the following constants:
+    -   `dimensionsMCCE`
+    -   `placeholderContentTypes`
+    -   `chinaEditionExclusiveContentTypes`
+    -   `levelDatStorageVersionToMCVersionRangeMap`
+-   Added the following types:
+    -   `DimensionMCCE`
+    -   `LevelDatStorageVersionToMCVersionRangeMapType`
+    -   `StructureTypeDimensionVectorXZ`
+    -   `DimensionVersionDimensionVectorXZ`
+-   The following functions now support Minecraft China Edition dev dimensions (dm3-dm20):
+    -   `dimensionVectorDimensionToInt`
+    -   `dimensionIdToDimensionVectorDimension`
+    -   `dimensionIdToDimensionVectorDimensionSync`
+    -   `getDimensionTypes`
+    -   `getDimensionTypesSync`
+    -   `getDimensionIds`
+    -   `getDimensionIdsSync`
+    -   `getDimensionNumericIds`
+    -   `getDimensionNumericIdsSync`
+-   Added protections to many custom serializers to overflow out of bounds integers and unsign signed integers that are supposed to be unsigned.
+-   Added JSDoc documentation to 125 properties that were missing it.
+-   Added the `data.DragonFightVersion` field to the `TheEnd` NBT schema.
+-   Added the following properties to the `LevelDat` NBT schema:
+    -   `LegacySeed`
+    -   `SizeOnDisk`
+    -   `LegacyLastPlayed`
+-   Added the following properties to the `PlayerClient` NBT schema:
+    -   `PlatformOnlineId`
+    -   `PlatformOfflineId`
+    -   `NeteaseUUID`
+-   Added the version ranges for the format versions of the `Data2D` NBT schema.
+-   The `getContentTypeFromDBKey` function can now detect the following content types when they are located in custom dimensions or Minecraft China Edition dev dimensions (dm3-dm20):
+    -   `ChunkLoadedRequest`
+    -   `VillagePOI`
+    -   `VillageInfo`
+    -   `VillageDwellers`
+    -   `VillagePlayers`
+    -   `VillageRaid`
+-   Added support for `format_version` `2` to the `StructureTemplate` NBT schema.
+
+## Changes
+
+-   Major fixes and improvements to the `Map` NBT schema.
+-   The NBT schemas now use some properties from Draft 2019-09.
+-   Updated the `BiomeData` from `v1.26.30` to `v1.26.50` (the update has zero actual changes as all the changes were already manually added in before).
+
+## Fixes
+
+-   Fixed a bug where the custom parser and serializer for the `Entity` content type had the type defined to use the `ActorPrefix` NBT schema instead of the `Entity_Entity` NBT schema.
+-   Fixed a bug where the format type of the `FlatWorldLayers` content type was `ASCII` instead of `JSON`.
+-   The `StorageVersion` property of the `LevelDat` NBT schema is now marked as required.
+-   Fixed a bug where the `SST_SALOG`, `SST_WORD`, and `SST_WORD_` LevelDB keys were detected as the `ForcedWorldCorruption` content type.
+-   The 5th item of the `lastOpenedWithVersion` field of the `LevelDat` NBT schema is now marked as optional.
+-   The `XBLBroadcastIntent` field of the `LevelDat` NBT schema is now able to be a `byte` or `int`, rather than just an `int`.
+-   The `tickList[number].tileID` field of the `PendingTicks` NBT schema is now able to be a `byte` or `int`, rather than just an `int`.
+-   The `version` field of the `PositionTrackingLastId` and `PositionTrackingDB` NBT schemas now has a const value of `1`.
+-   Fixed a bug where the following properties of the `Abilities` NBT subschema were marked as required:
+    -   `mute`
+    -   `noclip`
+    -   `permissionsLevel`
+    -   `playerPermissionsLevel`
+    -   `worldbuilder`
+-   The `WasPickedUp` property of the `Item_ItemStackBase` NBT schema is now marked as optional.
+-   The `MsaId` and `SelfSignedId` fields of the `PlayerClient` NBT schema are now marked as optional.
+-   Fixed many typos.
+
 # v1.23.0
 
 ## Additions
@@ -642,7 +743,7 @@
 
 ## Fixes
 
--   Fixed a bug where the `getChunkKeyIndices` function return an object containing a `subChunkIndex` property with a value of `undefined` when the key had no sub-chunk index, instead of not including that property at all.
+-   Fixed a bug where the `getChunkKeyIndices` function returned an object containing a `subChunkIndex` property with a value of `undefined` when the key had no sub-chunk index, instead of not including that property at all.
 
 ## Performance Improvements
 

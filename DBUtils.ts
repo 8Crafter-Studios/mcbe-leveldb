@@ -104,7 +104,19 @@ export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntry
 export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
     db: LevelDB,
     types: T
-): AsyncGenerator<{ count: number; results: { [key in T[number]]: Buffer<ArrayBuffer>[] } }, { [key in T[number]]: Buffer<ArrayBuffer>[] }>;
+): AsyncGenerator<
+    {
+        /**
+         * The current number of keys that have been categorized.
+         */
+        count: number;
+        /**
+         * The current object mapping each of the specified content types to the keys from the LevelDB with that content type that have been categorized.
+         */
+        results: { [key in T[number]]: Buffer<ArrayBuffer>[] };
+    },
+    { [key in T[number]]: Buffer<ArrayBuffer>[] }
+>;
 /**
  * Gets the keys from the list of LevelDB keys with one of the specified content types.
  *
@@ -117,7 +129,19 @@ export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntr
 export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[], TArrayBuffer extends ArrayBufferLike>(
     dbKeys: Buffer<TArrayBuffer>[],
     types: T
-): Generator<{ count: number; results: { [key in T[number]]: Buffer<TArrayBuffer>[] } }, { [key in T[number]]: Buffer<TArrayBuffer>[] }>;
+): Generator<
+    {
+        /**
+         * The current number of keys that have been categorized.
+         */
+        count: number;
+        /**
+         * The current object mapping each of the specified content types to the keys from the LevelDB with that content type that have been categorized.
+         */
+        results: { [key in T[number]]: Buffer<TArrayBuffer>[] };
+    },
+    { [key in T[number]]: Buffer<TArrayBuffer>[] }
+>;
 export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
     dbOrDBKeys: LevelDB | Buffer[],
     types: T

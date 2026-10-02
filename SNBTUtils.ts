@@ -1773,7 +1773,7 @@ export function snbtToPrismarine(snbt: any): Compound {
 
 function formatString(s: string): string {
     const unquotedPattern = /^[A-Za-z_][A-Za-z0-9_\-+.]*$/;
-    if (unquotedPattern.test(s)) return s;
+    if (unquotedPattern.test(s) && !/^true|false$/.test(s)) return s;
 
     let quote: '"' | "'" = '"';
     if (!s.includes("'") && s.includes('"')) {

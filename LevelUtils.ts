@@ -6,6 +6,9 @@ import type { LooseAutocomplete, Range } from "./types.js";
 import { toLong, toLongParts } from "./SNBTUtils.ts";
 import { __NBT_LE_binary_string_encoding_proto_defs__ } from "./__nbt_le_bin_str_proto_defs__.ts";
 import protodef from "protodef";
+import { decode, encode } from "iconv-lite";
+
+// FIXME (Important): Check all the areas that assume the length to be stored as a single byte, and make sure that they don't actually use the same length storage method as the POI data, also see if strings actually use that method too.
 
 //#region Local Constants
 
@@ -30,15 +33,131 @@ function readInt16LE(buf: Uint8Array, offset: number): number {
 }
 
 function writeInt16LE(value: number): Buffer<ArrayBuffer> {
-    const buf = Buffer.alloc(2);
+    const buf: Buffer<ArrayBuffer> = Buffer.alloc(2);
     buf.writeInt16LE(value, 0);
     return buf;
 }
 
 function writeInt32LE(value: number): Buffer<ArrayBuffer> {
-    const buf = Buffer.alloc(4);
+    const buf: Buffer<ArrayBuffer> = Buffer.alloc(4);
     buf.writeInt32LE(value, 0);
     return buf;
+}
+
+function writeUInt32LE(value: number): Buffer<ArrayBuffer> {
+    const buf: Buffer<ArrayBuffer> = Buffer.alloc(4);
+    buf.writeUInt32LE(value, 0);
+    return buf;
+}
+
+/**
+ * The result of the {@link readLittleVarint} function.
+ */
+interface ReadLittleVarintResult {
+    /**
+     * The numeric value of the varint.
+     */
+    value: number;
+    /**
+     * The new offset in the buffer after the varint.
+     */
+    offset: number;
+}
+
+/**
+ * Reads a little-endian varint from a buffer.
+ *
+ * @param buf The buffer or to read from.
+ * @param offset The offset to start reading from.
+ * @returns The varint value and the new offset.
+ */
+function readLittleVarint(buf: Uint8Array, offset: number): ReadLittleVarintResult {
+    let value = 0;
+    let i = 0;
+    do {
+        const byte: number = buf[offset + i]!;
+        if ((byte & 0b10000000) !== 0) {
+            value |= (byte & 0b01111111) << (7 * i++);
+            continue;
+        } else {
+            value |= byte << (7 * i++);
+            break;
+        }
+    } while (offset + i < buf.length);
+    return {
+        value,
+        offset: offset + i,
+    };
+}
+
+/**
+ * Writes a little-endian varint and returns the bytes.
+ *
+ * @param value The value to write.
+ * @returns The bytes.
+ */
+function writeLittleVarint(value: number): number[] {
+    const bytes: number[] = [];
+    do {
+        let byte = value & 0b01111111;
+        value >>>= 7;
+
+        if (value !== 0) {
+            byte |= 0b10000000;
+        }
+
+        bytes.push(byte);
+    } while (value !== 0);
+    return bytes;
+}
+
+/**
+ * The result of the {@link readVarString} function.
+ */
+interface ReadVarStringResult {
+    /**
+     * The string value of the VarString.
+     */
+    value: string;
+    /**
+     * The new offset in the buffer after the string.
+     */
+    offset: number;
+}
+
+/**
+ * Reads a string that uses a varint to store its length from a buffer.
+ *
+ * @param buf The buffer to read from.
+ * @param offset The offset to start reading from.
+ * @param encoding The encoding to use. Defaults to `"utf8"`.
+ * @returns The string and the new offset.
+ *
+ * @throws {Error} If the string is incomplete.
+ */
+function readVarString(buf: Buffer<ArrayBufferLike>, offset: number, encoding: BufferEncoding = "utf8"): ReadVarStringResult {
+    const { value, offset: newOffset } = readLittleVarint(buf, offset);
+    if (buf.length < newOffset + value) {
+        throw new Error(
+            `Incomplete VarString data at offset ${newOffset}: Expected ${value} bytes, got ${buf.length - newOffset} bytes; Extracted string: ${JSON.stringify(buf.toString(encoding, newOffset, newOffset + value))}`
+        );
+    }
+    return {
+        value: buf.toString(encoding, newOffset, newOffset + value),
+        offset: newOffset + value,
+    };
+}
+
+/**
+ * Writes a string that uses a varint to store its length.
+ *
+ * @param value The string to write.
+ * @param encoding The encoding to use. Defaults to `"utf8"`.
+ * @returns The buffer.
+ */
+function writeVarString(value: string, encoding: BufferEncoding = "utf8"): Buffer<ArrayBuffer> {
+    const strBuffer: Buffer<ArrayBuffer> = Buffer.from(value, encoding);
+    return Buffer.concat([Buffer.from(writeLittleVarint(strBuffer.byteLength)), strBuffer]);
 }
 
 // export function readData3dValue(rawvalue: Uint8Array | null): {
@@ -564,15 +683,43 @@ function fakeAssertType<T>(value: unknown): asserts value is T {
 export const dimensions = ["overworld", "nether", "the_end"] as const;
 
 /**
+ * The list of Minecraft China Edition dimensions.
+ */
+export const dimensionsMCCE = [
+    "overworld",
+    "nether",
+    "the_end",
+    "dm3",
+    "dm4",
+    "dm5",
+    "dm6",
+    "dm7",
+    "dm8",
+    "dm9",
+    "dm10",
+    "dm11",
+    "dm12",
+    "dm13",
+    "dm14",
+    "dm15",
+    "dm16",
+    "dm17",
+    "dm18",
+    "dm19",
+    "dm20",
+] as const;
+
+/**
  * The list of Minecraft game modes, with their indices corresponding to their numeric gamemode IDs.
  */
 export const gameModes = ["survival", "creative", "adventure", , , "default", "spectator"] as const;
 
+// TODO: Separate this so that file content types and LevelDB content types are separate, and still have a singular array containing all content types.
 /**
- * The content types for LevelDB entries.
+ * The content types for LevelDB entries and files.
  */
 export const DBEntryContentTypes = [
-    // Biome Linked
+    // Chunk Linked
     "Data3D",
     "Version",
     "Data2D",
@@ -596,8 +743,12 @@ export const DBEntryContentTypes = [
     "MetaDataHash",
     "BlendingData",
     "ActorDigestVersion",
+    "VersionEnchant", // China Edition exclusive.
+    "VersionMarkInsert", // China Edition exclusive.
     "LegacyVersion",
-    "AABBVolumes", // TO-DO: Figure out how to parse this, it seems to have data for trial chambers and trail ruins.
+    "AABBVolumes",
+    "JigsawStructureBlueprint",
+    "Digest",
     // Village
     "VillageDwellers",
     "VillageInfo",
@@ -607,9 +758,9 @@ export const DBEntryContentTypes = [
     // Standalone
     "Player",
     "PlayerClient",
+    "LegacyConsolePlayer",
     "ActorPrefix",
     "ChunkLoadedRequest",
-    "Digest",
     "Map",
     "Portals",
     "SchedulerWT",
@@ -620,7 +771,7 @@ export const DBEntryContentTypes = [
     "LegacyNether",
     "LegacyTheEnd",
     "MVillages",
-    "Villages",
+    "Villages", // NOTE: May not exist.
     "LevelSpawnWasFixed",
     "PositionTrackingDB",
     "PositionTrackingLastId",
@@ -628,6 +779,7 @@ export const DBEntryContentTypes = [
     "Overworld",
     "Nether",
     "TheEnd",
+    "MCChinaDevDimension",
     "CustomDimension",
     "AutonomousEntities",
     "BiomeData",
@@ -639,14 +791,29 @@ export const DBEntryContentTypes = [
     "RealmsStoriesData",
     "LevelDat",
     "WorldClocks",
+    "POITypes",
+    "POIRegionRegistry",
+    "POIRegion",
     // Dev Version
     "ForcedWorldCorruption",
+    // China Edition
+    "SSTCommandLog",
+    "SSTHashRegistry",
+    "NeteaseData",
+    "NeteaseScriptGid",
     // Misc.
+    // TEMP: This below two content types need to go right after VersionMarkInsert once they are no longer placeholders.
+    "unknown0x70", // China Edition exclusive. // TEMP: Placeholder.
+    "unknown0x71", // China Edition exclusive. // TEMP: Placeholder.
     "Unknown",
 ] as const;
 
+// export const worldFileContentTypes // TODO
+
+// export const allWorldContentTypes // TODO
+
 /**
- * The content types for LevelDB entries that are associated with a specific chunk and use a single byte at the end of the LevelDB key to denote their content type.
+ * The content types for LevelDB entries that are associated with a specific chunk and use a single byte after the dimension and chunk XZ coordinates in the LevelDB key to denote their content type.
  */
 export const DBChunkKeyEntryContentTypes = [
     "Data3D",
@@ -672,9 +839,24 @@ export const DBChunkKeyEntryContentTypes = [
     "MetaDataHash",
     "BlendingData",
     "ActorDigestVersion",
+    "VersionEnchant",
+    "VersionMarkInsert",
+    "unknown0x70",
+    "unknown0x71",
     "LegacyVersion",
     "AABBVolumes",
+    "JigsawStructureBlueprint",
 ] as const satisfies DBEntryContentType[];
+
+/**
+ * The list of content types that serve a completely unknown purpose and their name is a placeholder.
+ */
+export const placeholderContentTypes = ["unknown0x70", "unknown0x71"] as const satisfies DBEntryContentType[];
+
+/**
+ * The list of content types that are exclusive to Minecraft China Edition.
+ */
+export const chinaEditionExclusiveContentTypes = ["VersionEnchant", "VersionMarkInsert", "unknown0x70", "unknown0x71"] as const satisfies DBEntryContentType[];
 
 /**
  * The content types for LevelDB entries that are associated with a specific chunk, includes both the content types from {@link DBChunkKeyEntryContentTypes} and other keys that are tied to a specific chunk but use a different key format.
@@ -704,8 +886,13 @@ export const DBChunkLinkedContentTypes = [
     "MetaDataHash",
     "BlendingData",
     "ActorDigestVersion",
+    "VersionEnchant",
+    "VersionMarkInsert",
+    "unknown0x70",
+    "unknown0x71",
     "LegacyVersion",
     "AABBVolumes",
+    "JigsawStructureBlueprint",
     // Other Key Format
     "Digest",
 ] as const satisfies [...typeof DBChunkKeyEntryContentTypes, ...Exclude<DBEntryContentType, DBChunkKeyEntryContentType>[]];
@@ -715,8 +902,13 @@ export const DBChunkLinkedContentTypes = [
  *
  * Most content types are not grouped, only a few are.
  */
-export const DBEntryContentTypesGrouping = {
-    // Biome Linked
+export const DBEntryContentTypesGrouping = (function __cloneJSDoc<
+    T extends { [contentType in keyof typeof entryContentTypeToFormatMap]: string },
+    // This copies the JSDoc from entryContentTypeToFormatMap to DBEntryContentTypesGrouping.
+>(data: T): { [contentType in keyof typeof entryContentTypeToFormatMap]: T[contentType] } {
+    return data;
+})({
+    // Chunk Linked
     Data3D: "Data3D",
     Version: "Version",
     Data2D: "Data2D",
@@ -740,8 +932,14 @@ export const DBEntryContentTypesGrouping = {
     MetaDataHash: "MetaDataHash",
     BlendingData: "BlendingData",
     ActorDigestVersion: "ActorDigestVersion",
+    VersionEnchant: "VersionEnchant",
+    VersionMarkInsert: "VersionMarkInsert",
+    unknown0x70: "UnknownChunkKeyPlaceholder",
+    unknown0x71: "UnknownChunkKeyPlaceholder",
     LegacyVersion: "LegacyVersion",
     AABBVolumes: "AABBVolumes",
+    JigsawStructureBlueprint: "JigsawStructureBlueprint",
+    Digest: "Digest",
     // Village
     VillageDwellers: "VillageDwellers",
     VillageInfo: "VillageInfo",
@@ -751,9 +949,9 @@ export const DBEntryContentTypesGrouping = {
     // Standalone
     Player: "Player",
     PlayerClient: "PlayerClient",
+    LegacyConsolePlayer: "LegacyConsolePlayer",
     ActorPrefix: "ActorPrefix",
     ChunkLoadedRequest: "ChunkLoadedRequest",
-    Digest: "Digest",
     Map: "Map",
     Portals: "Portals",
     SchedulerWT: "SchedulerWT",
@@ -766,12 +964,13 @@ export const DBEntryContentTypesGrouping = {
     MVillages: "MVillages",
     Villages: "Villages",
     LevelSpawnWasFixed: "LevelSpawnWasFixed",
-    PositionTrackingDB: "PositionTrackingDB",
-    PositionTrackingLastId: "PositionTrackingLastId",
+    PositionTrackingDB: "PositionTracking",
+    PositionTrackingLastId: "PositionTracking",
     Scoreboard: "Scoreboard",
     Overworld: "Dimension",
     Nether: "Dimension",
     TheEnd: "Dimension",
+    MCChinaDevDimension: "Dimension",
     CustomDimension: "Dimension",
     AutonomousEntities: "AutonomousEntities",
     BiomeData: "BiomeData",
@@ -783,11 +982,19 @@ export const DBEntryContentTypesGrouping = {
     RealmsStoriesData: "RealmsStoriesData",
     LevelDat: "LevelDat",
     WorldClocks: "WorldClocks",
+    POITypes: "POI",
+    POIRegionRegistry: "POI",
+    POIRegion: "POI",
     // Dev Version
     ForcedWorldCorruption: "ForcedWorldCorruption",
+    // China Edition
+    SSTCommandLog: "SerializedStringTables",
+    SSTHashRegistry: "SerializedStringTables",
+    NeteaseData: "Netease",
+    NeteaseScriptGid: "Netease",
     // Misc.
     Unknown: "Unknown",
-} as const satisfies Record<DBEntryContentType, string>;
+} as const satisfies { [contentType in keyof typeof entryContentTypeToFormatMap]: string });
 
 // TODO: Look into the supposed `idcounts` LevelDB key that was supposedly in MCPE v0.13.0.
 // TODO: Add support for the LegacyPlayer content type which is based on a number stored in `cilentid.txt`.
@@ -797,56 +1004,260 @@ export const DBEntryContentTypesGrouping = {
  * Maps the chunk versions from the {@link entryContentTypeToFormatMap.LegacyVersion} content type to details of what version they correspond to.
  */
 export const chunkLegacyVersionDetailsMap = {
-    [0]: "v0.9.0",
-    [1]: "v0.9.2",
-    [2]: "v0.9.5",
-    [3]: "v0.17.0.1",
-    [4]: "v1.1.0",
-    [5]: "Converted from console to v1.1.0",
-    [6]: "v1.2.0.2",
-    [7]: "v1.2.0",
-    [8]: "v1.2.13",
-    [9]: "v1.8.0",
-    [10]: "v1.9.0",
-    [11]: "v1.11.0.1",
-    [12]: "v1.11.0.3",
-    [13]: "v1.11.0.4",
-    [14]: "v1.11.1",
-    [15]: "v1.12.0.4",
-    [16]: "v1.14.0",
-    [17]: "v1.15.0",
-    [18]: "v1.16.0.51",
-    [19]: "v1.16.0",
+    /**
+     * v0.9.0
+     */
+    [0 /* 0x00 */]: "v0.9.0",
+    /**
+     * v0.9.2
+     */
+    [1 /* 0x01 */]: "v0.9.2",
+    /**
+     * v0.9.5
+     */
+    [2 /* 0x02 */]: "v0.9.5",
+    /**
+     * v0.17.0.1
+     */
+    [3 /* 0x03 */]: "v0.17.0.1",
+    /**
+     * v1.1.0
+     */
+    [4 /* 0x04 */]: "v1.1.0",
+    /**
+     * Converted from console to v1.1.0
+     */
+    [5 /* 0x05 */]: "Converted from console to v1.1.0",
+    /**
+     * v1.2.0.2
+     */
+    [6 /* 0x06 */]: "v1.2.0.2",
+    /**
+     * v1.2.0
+     */
+    [7 /* 0x07 */]: "v1.2.0",
+    /**
+     * v1.2.13
+     */
+    [8 /* 0x08 */]: "v1.2.13",
+    /**
+     * v1.8.0
+     */
+    [9 /* 0x09 */]: "v1.8.0",
+    /**
+     * v1.9.0
+     */
+    [10 /* 0x0A */]: "v1.9.0",
+    /**
+     * v1.11.0.1
+     */
+    [11 /* 0x0B */]: "v1.11.0.1",
+    /**
+     * v1.11.0.3
+     */
+    [12 /* 0x0C */]: "v1.11.0.3",
+    /**
+     * v1.11.0.4
+     */
+    [13 /* 0x0D */]: "v1.11.0.4",
+    /**
+     * v1.11.1
+     */
+    [14 /* 0x0E */]: "v1.11.1",
+    /**
+     * v1.12.0.4
+     */
+    [15 /* 0x0F */]: "v1.12.0.4",
+    /**
+     * v1.14.0
+     */
+    [16 /* 0x10 */]: "v1.14.0",
+    /**
+     * v1.15.0
+     */
+    [17 /* 0x11 */]: "v1.15.0",
+    /**
+     * v1.16.0.51
+     */
+    [18 /* 0x12 */]: "v1.16.0.51",
+    /**
+     * v1.16.0
+     */
+    [19 /* 0x13 */]: "v1.16.0",
 } as const;
 
 /**
  * Maps the chunk versions from the {@link entryContentTypeToFormatMap.Version} content type to details of what version they correspond to.
  */
 export const chunkVersionDetailsMap = {
-    [20]: "v1.16.100.52",
-    [21]: "v1.16.100.57",
-    [22]: "v1.16.210",
-    [23]: "v1.16.220.50 (+Caves & Cliffs Experimental Toggle)",
-    [24]: "v1.16.220.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
-    [25]: "v1.16.230.50 (+Caves & Cliffs Experimental Toggle)",
-    [26]: "v1.16.230.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
-    [27]: "v1.17.30.23 (+Caves & Cliffs Experimental Toggle)",
-    [28]: "v1.17.30.23 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
-    [29]: "v1.17.30.25 (+Caves & Cliffs Experimental Toggle)",
-    [30]: "v1.17.30.25 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
-    [31]: "v1.17.40.20 (+Caves & Cliffs Experimental Toggle)",
-    [32]: "v1.17.40.20 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
-    [33]: "v1.18.0.20",
-    [34]: "v1.18.0.20 (internal/developer builds)",
-    [35]: "v1.18.0.22",
-    [36]: "v1.18.0.22 (internal/developer builds)",
-    [37]: "v1.18.0.24",
-    [38]: "v1.18.0.24 (internal/developer builds)",
-    [39]: "v1.18.0.25",
-    [40]: "v1.18.30 after upgrading entities to independent storage",
-    [41]: "v1.21.40",
-    [42]: "v1.21.120",
+    /**
+     * v1.16.100.52
+     */
+    [20 /* 0x14 */]: "v1.16.100.52",
+    /**
+     * v1.16.100.57
+     */
+    [21 /* 0x15 */]: "v1.16.100.57",
+    /**
+     * v1.16.210
+     */
+    [22 /* 0x16 */]: "v1.16.210",
+    /**
+     * v1.16.220.50 (+Caves & Cliffs Experimental Toggle)
+     */
+    [23 /* 0x17 */]: "v1.16.220.50 (+Caves & Cliffs Experimental Toggle)",
+    /**
+     * v1.16.220.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     */
+    [24 /* 0x18 */]: "v1.16.220.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    /**
+     * v1.16.230.50 (+Caves & Cliffs Experimental Toggle)
+     */
+    [25 /* 0x19 */]: "v1.16.230.50 (+Caves & Cliffs Experimental Toggle)",
+    /**
+     * v1.16.230.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     */
+    [26 /* 0x1A */]: "v1.16.230.50 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    /**
+     * v1.17.30.23 (+Caves & Cliffs Experimental Toggle)
+     */
+    [27 /* 0x1B */]: "v1.17.30.23 (+Caves & Cliffs Experimental Toggle)",
+    /**
+     * v1.17.30.23 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     */
+    [28 /* 0x1C */]: "v1.17.30.23 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    /**
+     * v1.17.30.25 (+Caves & Cliffs Experimental Toggle)
+     */
+    [29 /* 0x1D */]: "v1.17.30.25 (+Caves & Cliffs Experimental Toggle)",
+    /**
+     * v1.17.30.25 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     */
+    [30 /* 0x1E */]: "v1.17.30.25 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    /**
+     * v1.17.40.20 (+Caves & Cliffs Experimental Toggle)
+     */
+    [31 /* 0x1F */]: "v1.17.40.20 (+Caves & Cliffs Experimental Toggle)",
+    /**
+     * v1.17.40.20 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)
+     */
+    [32 /* 0x20 */]: "v1.17.40.20 (+Caves & Cliffs Experimental Toggle) (internal/developer builds)",
+    /**
+     * v1.18.0.20
+     */
+    [33 /* 0x21 */]: "v1.18.0.20",
+    /**
+     * v1.18.0.20 (internal/developer builds)
+     */
+    [34 /* 0x22 */]: "v1.18.0.20 (internal/developer builds)",
+    /**
+     * v1.18.0.22
+     */
+    [35 /* 0x23 */]: "v1.18.0.22",
+    /**
+     * v1.18.0.22 (internal/developer builds)
+     */
+    [36 /* 0x24 */]: "v1.18.0.22 (internal/developer builds)",
+    /**
+     * v1.18.0.24
+     */
+    [37 /* 0x25 */]: "v1.18.0.24",
+    /**
+     * v1.18.0.24 (internal/developer builds)
+     */
+    [38 /* 0x26 */]: "v1.18.0.24 (internal/developer builds)",
+    /**
+     * v1.18.0.25
+     */
+    [39 /* 0x27 */]: "v1.18.0.25",
+    /**
+     * v1.18.30 after upgrading entities to independent storage
+     */
+    [40 /* 0x28 */]: "v1.18.30 after upgrading entities to independent storage",
+    /**
+     * v1.21.40
+     */
+    [41 /* 0x29 */]: "v1.21.40",
+    /**
+     * v1.21.120
+     */
+    [42 /* 0x2A */]: "v1.21.120",
 } as const;
+
+/**
+ * Maps the `level.dat` `StorageVersion`s to the Minecraft version ranges that used them.
+ *
+ * For completely unknown version ranges, the value will be `"?"`.
+ *
+ * If either the start or end of the range is unknown, that value in the tuple will be `"?"`.
+ *
+ * If there is no end of the range yet (as in it is the latest known version), the end value of the tuple will be `"N/A"`.
+ *
+ * The start and end values of the tuple are tuples of `[major, minor, patch, build]`, each value in that tuple will be either a number, or `"?"` if that value is unknown.
+ *
+ * For versions where the preview/beta build number is larger than the release build number, the build value will be a tuple of `[preview, release]`.
+ *
+ * The start of the range is inclusive, the end of the range is exclusive.
+ */
+export const levelDatStorageVersionToMCVersionRangeMap = {
+    [0x01]: ["N/A", [0, 2, 0, 0]],
+    [0x02]: [
+        [0, 2, 0, 0],
+        [0, 3, 0, 0],
+    ],
+    // TODO: Figure out what 0.9.0 build this changed in.
+    [0x03]: [
+        [0, 3, 0, 0],
+        [0, 9, 0, "?"],
+    ],
+    // TODO: Figure out what 1.0.0 build this changed in.
+    [0x04]: [
+        [0, 9, 0, "?"],
+        [1, 0, 0, "?"],
+    ],
+    [0x05]: [
+        [1, 0, 0, "?"],
+        [1, 2, 0, 11],
+    ],
+    // TODO: Figure out what 1.2.13 beta this changed in.
+    [0x06]: [
+        [1, 2, 0, 11],
+        [1, 2, 13, "?"],
+    ],
+    [0x07]: [
+        [1, 2, 13, "?"],
+        [1, 2, 20, 2],
+    ], // Earliest known version: 1.2.13.54
+    [0x08]: [
+        [1, 2, 20, 2],
+        [1, 18, 20, 21],
+    ],
+    [0x09]: [
+        [1, 18, 20, 21],
+        [1, 19, 40, [20, 2]],
+    ],
+    [0x0a]: [[1, 19, 40, [20, 2]], "N/A"],
+} as const satisfies LevelDatStorageVersionToMCVersionRangeMapType;
+
+/**
+ * The type for the {@link levelDatStorageVersionToMCVersionRangeMap} object.
+ *
+ * Use this type if you want to have handling for valid data structures for the object that aren't in use yet.
+ */
+export type LevelDatStorageVersionToMCVersionRangeMapType = Record<
+    Range<1, 11>,
+    | [
+          start:
+              | [major: number | "?", minor: number | "?", patch: number | "?", build: number | [previewOrBeta: number | "?", release: number | "?"] | "?"]
+              | "?"
+              | "N/A",
+          end:
+              | [major: number | "?", minor: number | "?", patch: number | "?", build: number | [previewOrBeta: number | "?", release: number | "?"] | "?"]
+              | "?"
+              | "N/A",
+      ]
+    | "?"
+>;
 
 /**
  * This is like {@link NBT.protoLE | protoLE} from the `prismarine-nbt` module, except strings are parsed with a binary encoding instead of UTF-8.
@@ -1174,7 +1585,7 @@ export const entryContentTypeToFormatMap = {
                         for (let x: number = 0; x < 16; x++) {
                             const i: number = z * 16 + x;
                             const val: number = biomeData[x]!.value[z]!;
-                            buffer.writeUInt8(val, 512 + i);
+                            buffer.writeUInt8(val & 0xff, 512 + i);
                         }
                     }
 
@@ -1195,7 +1606,7 @@ export const entryContentTypeToFormatMap = {
                         for (let x: number = 0; x < 16; x++) {
                             const i: number = z * 16 + x;
                             const val: number = biomeData[x]!.value[z]!;
-                            buffer.writeUInt16LE(val, 512 + i * 2);
+                            buffer.writeUInt16LE(val & 0xffff, 512 + i * 2);
                         }
                     }
 
@@ -1318,7 +1729,7 @@ export const entryContentTypeToFormatMap = {
                 for (let x: number = 0; x < 16; x++) {
                     const i: number = z * 16 + x;
                     const vals: [biomeId: number, red: number, green: number, blue: number] = biomeData[x]!.value[z]!.value;
-                    vals.forEach((val: number, index: number): void => void buffer.writeUInt8(val, 512 + i * 4 + index));
+                    vals.forEach((val: number, index: number): void => void buffer.writeUInt8(val & 0xff, 512 + i * 4 + index));
                 }
             }
 
@@ -1877,16 +2288,16 @@ export const entryContentTypeToFormatMap = {
             value: {
                 entities: {
                     type: "list";
-                    value: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.ActorPrefix["value"][] };
+                    value: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.Entity_Entity["value"][] };
                 };
             };
         }> {
-            const entities: NBTSchemas.NBTSchemaTypes.ActorPrefix["value"][] = [];
+            const entities: NBTSchemas.NBTSchemaTypes.Entity_Entity["value"][] = [];
             let currentIndex: number = 0;
             while (currentIndex < data.length) {
                 const result = await NBT.parse(data.subarray(currentIndex), "little");
                 currentIndex += result.metadata.size;
-                entities.push(result.parsed.value as NBTSchemas.NBTSchemaTypes.ActorPrefix["value"]);
+                entities.push(result.parsed.value as NBTSchemas.NBTSchemaTypes.Entity_Entity["value"]);
             }
             return {
                 type: "compound",
@@ -1914,12 +2325,12 @@ export const entryContentTypeToFormatMap = {
             value: {
                 entities: {
                     type: "list";
-                    value: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.ActorPrefix["value"][] };
+                    value: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.Entity_Entity["value"][] };
                 };
             };
         }): Buffer<ArrayBuffer> {
             const nbtData: Buffer[] = data.value.entities.value.value.map(
-                (entity: NBTSchemas.NBTSchemaTypes.ActorPrefix["value"]): Buffer =>
+                (entity: NBTSchemas.NBTSchemaTypes.Entity_Entity["value"]): Buffer =>
                     NBT.writeUncompressed({ name: "", type: "compound", value: entity }, "little")
             );
             return Buffer.concat(nbtData);
@@ -2008,20 +2419,110 @@ export const entryContentTypeToFormatMap = {
         },
     },
     /**
-     * @deprecated Only used in versions < 1.2.3.
+     * This stores the secondary block layer. This is used for snowlogging, the snow layers are stored in the primary block layer, while the block that is being snowlogged is stored here.
      *
-     * @todo Figure out how to parse this.
-     * @todo Add a description for this.
+     * @deprecated Only used in versions < 1.2.13.
      *
-     * @see https://github.com/yechentide/core-bedrock/blob/77d815439da14b3d0b7d0335b80deb1860aee42a/Analysis/chunk-0x34-legacy-block-extra-data.md
-     * @see https://github.com/robofinch/Prismarine-Anchor/blob/main/crates/bedrock/leveldb-entries/src/entries/legacy_extra_block_data.rs
-     * @see https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L331
+     * @see {@link NBTSchemas.nbtSchemas.LegacyBlockExtraData}
      */
     LegacyBlockExtraData: {
+        // https://github.com/yechentide/core-bedrock/blob/77d815439da14b3d0b7d0335b80deb1860aee42a/Analysis/chunk-0x34-legacy-block-extra-data.md
+        // https://github.com/robofinch/Prismarine-Anchor/blob/main/crates/bedrock/leveldb-entries/src/entries/legacy_extra_block_data.rs
+        // https://github.com/MiemieMethod/bedrock-docs/blob/8cd37dacbd064f5fb2a4953548739a258b31dd21/.knowledge/wiki%E6%91%98%E5%BD%95/%E4%B8%AD%E6%96%87Minecraft%20Wiki/%E5%9F%BA%E5%B2%A9%E7%89%88LevelDB%E6%A0%BC%E5%BC%8F.wikitext#L331
         /**
          * The format type of the data.
          */
-        type: "unknown",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.LegacyBlockExtraData.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.LegacyBlockExtraData {
+            const entries: NBTSchemas.NBTSchemaTypes.LegacyBlockExtraData["value"]["BlockExtraData"]["value"]["value"] = [];
+            let i: number = 0;
+            while (i < data.length) {
+                const y: number = data[i++]!;
+                const xy: number = data[i++]!;
+                if (data[i++] !== 0) throw new Error("Unexpected non-zero value in third byte of BlockExtraData key");
+                if (data[i++] !== 0) throw new Error("Unexpected non-zero value in fourth byte of BlockExtraData key");
+                const id: number = data[i++]!;
+                const dataValue: number = data[i++]!;
+                entries.push({
+                    pos: {
+                        type: "compound",
+                        value: {
+                            x: {
+                                type: "byte",
+                                // REVIEW: Make sure the x and z aren't swapped.
+                                value: (xy >> 4) as Range<0, 16>,
+                            },
+                            y: {
+                                type: "byte",
+                                value: y as Range<0, 256>,
+                            },
+                            z: {
+                                type: "byte",
+                                value: (xy & 0x0f) as Range<0, 16>,
+                            },
+                        },
+                    },
+                    id: {
+                        type: "byte",
+                        value: id,
+                    },
+                    data: {
+                        type: "byte",
+                        value: dataValue,
+                    },
+                });
+            }
+            return {
+                type: "compound",
+                value: {
+                    BlockExtraData: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: entries,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.LegacyBlockExtraData): Buffer<ArrayBuffer> {
+            const buf: Buffer<ArrayBuffer> = Buffer.alloc(4 + data.value.BlockExtraData.value.value.length * 6);
+            buf.writeUInt32LE(data.value.BlockExtraData.value.value.length, 0);
+            let i = 0;
+            for (const entry of data.value.BlockExtraData.value.value) {
+                buf[i] = entry.pos.value.y.value & 0xff;
+                let xz = 0;
+                xz |= (entry.pos.value.x.value & 0x0f) << 4;
+                xz |= entry.pos.value.z.value & 0x0f;
+                buf[i + 1] = xz;
+                buf[i + 4] = entry.id.value & 0xff;
+                buf[i + 5] = entry.data.value & 0xff;
+                i += 6;
+            }
+            return buf;
+        },
     },
     /**
      * @todo Figure out what this is used for.
@@ -2288,6 +2789,7 @@ export const entryContentTypeToFormatMap = {
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.BorderBlocks {
             if (data.length < 1) throw new RangeError("BorderBlocks buffer must be at least 1 byte long");
 
+            // FIXME: // REVIEW: This may actually need to be a varint.
             const count: number = data[0]!;
 
             if (data.length !== 1 + count) throw new RangeError(`BorderBlocks length mismatch, expected ${1 + count}, got ${data.length}`);
@@ -2337,6 +2839,7 @@ export const entryContentTypeToFormatMap = {
 
             const serializedData: Buffer<ArrayBuffer> = Buffer.alloc(1 + count);
 
+            // FIXME: // REVIEW: This may actually need to be a varint.
             serializedData[0] = count;
 
             for (let i = 0; i < count; i++) {
@@ -2772,10 +3275,11 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
-     * @deprecated It is unknown when this was removed.
+     * @deprecated It is unknown when this was removed or if it ever existed in the first place.
      *
      * @todo Add a schema for this.
      * @todo Add a description for this.
+     * @todo Figure out if this ever actually existed.
      */
     Villages: {
         /**
@@ -2857,6 +3361,17 @@ export const entryContentTypeToFormatMap = {
      * @see {@link NBTSchemas.nbtSchemas.PlayerClient}
      */
     PlayerClient: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
+     * The data of a player from Legacy Console Edition.
+     *
+     * @todo Add a schema for this.
+     */
+    LegacyConsolePlayer: {
         /**
          * The format type of the data.
          */
@@ -3228,7 +3743,7 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
-     * Date for a structure (the kind saved by a structure block or the [`/structure`](https://minecraft.wiki/w/Commands/structure) command).
+     * The data for a structure (the kind saved by a structure block or the [`/structure`](https://minecraft.wiki/w/Commands/structure) command).
      *
      * @see {@link NBTSchemas.nbtSchemas.StructureTemplate}
      */
@@ -3257,6 +3772,8 @@ export const entryContentTypeToFormatMap = {
      * @deprecated Only used in versions < 1.5.0.
      *
      * @todo Add a description for this.
+     * @todo Add a schema for this.
+     * @todo Add a default value for this.
      *
      * @see https://github.com/robofinch/Prismarine-Anchor/blob/main/crates/bedrock/leveldb-entries/src/entries/flat_world_layers.rs
      */
@@ -3264,7 +3781,7 @@ export const entryContentTypeToFormatMap = {
         /**
          * The format type of the data.
          */
-        type: "ASCII",
+        type: "JSON",
     },
     /**
      * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
@@ -3400,6 +3917,19 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
+     * The data of the a Minecraft China Edition development dimension (dm3-dm20).
+     *
+     * @see {@link NBTSchemas.nbtSchemas.Overworld}
+     *
+     * @platform Minecraft China Edition
+     */
+    MCChinaDevDimension: {
+        /**
+         * The format type of the data.
+         */
+        type: "NBT",
+    },
+    /**
      * The data of a custom dimension.
      *
      * @see {@link NBTSchemas.nbtSchemas.CustomDimension}
@@ -3475,8 +4005,6 @@ export const entryContentTypeToFormatMap = {
      * This stores all the world settings.
      *
      * @see {@link NBTSchemas.nbtSchemas.LevelDat}
-     *
-     * @todo Add support for reading and setting the BedrockHeader version number.
      */
     LevelDat: {
         /**
@@ -3498,7 +4026,52 @@ export const entryContentTypeToFormatMap = {
          * @throws {any} If an error occurs while parsing the data.
          */
         async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.LevelDat> {
-            return (await NBT.parse(data)).parsed;
+            const storageVersion: number = data.readUInt32LE(0);
+            if (storageVersion === 1) {
+                return {
+                    type: "compound",
+                    value: {
+                        StorageVersion: {
+                            type: "int",
+                            value: 1,
+                        },
+                        LegacySeed: {
+                            type: "int",
+                            value: data.readInt32BE(8),
+                        },
+                        SpawnX: {
+                            type: "int",
+                            value: data.readInt32BE(12),
+                        },
+                        SpawnY: {
+                            type: "int",
+                            value: data.readInt32BE(16),
+                        },
+                        SpawnZ: {
+                            type: "int",
+                            value: data.readInt32BE(20),
+                        },
+                        SizeOnDisk: {
+                            type: "long",
+                            value: toLongParts(data.readBigUInt64BE(24)),
+                        },
+                        LegacyLastPlayed: {
+                            type: "int",
+                            value: data.readUInt32BE(32),
+                        },
+                        LevelName: {
+                            type: "string",
+                            value: decode(data.subarray(38, 38 + data.readUInt16BE(36)), "cp437"),
+                        },
+                    },
+                };
+            }
+            const parsedData = (await NBT.parse(data)) as { parsed: NBT.NBT & NBTSchemas.NBTSchemaTypes.LevelDat; type: NBT.NBTFormat; metadata: NBT.Metadata };
+            if (!parsedData.parsed.value.StorageVersion) {
+                if (parsedData.metadata.size === data.length - 8) parsedData.parsed.value.StorageVersion = { type: "int", value: storageVersion };
+                else parsedData.parsed.value.StorageVersion = { type: "int", value: 0x0a };
+            }
+            return parsedData.parsed;
         },
         /**
          * The function to serialize the data.
@@ -3511,8 +4084,32 @@ export const entryContentTypeToFormatMap = {
          * @throws {TypeError} If {@link data} has a name property at the top level that is not of type string.
          */
         serialize(data: NBTSchemas.NBTSchemaTypes.LevelDat): Buffer<ArrayBuffer> {
+            if (data.value.StorageVersion?.value === 1) {
+                const buf: Buffer<ArrayBuffer> = Buffer.alloc(38);
+                buf.writeUInt32LE(1, 0);
+                buf.writeInt32BE(data.value.LegacySeed?.value ?? 0, 8);
+                buf.writeInt32BE(data.value.SpawnX?.value ?? 0, 12);
+                buf.writeInt32BE(data.value.SpawnY?.value ?? 0, 16);
+                buf.writeInt32BE(data.value.SpawnZ?.value ?? 0, 20);
+                // Write a signed bigint because toLong returns a signed bigint.
+                buf.writeBigInt64BE(toLong(data.value.SizeOnDisk?.value ?? [0, 0]), 24);
+                buf.writeUInt32BE((data.value.LegacyLastPlayed?.value ?? 0) & 0xffffffff, 32);
+                if (!data.value.LevelName) {
+                    buf.writeUInt32LE(buf.length, 4);
+                    return buf;
+                }
+                const levelNameBuf: Buffer = encode(data.value.LevelName.value, "cp437");
+                buf.writeUInt16BE(levelNameBuf.length, 36);
+                buf.writeUInt32LE(buf.length + levelNameBuf.length, 4);
+                return Buffer.concat([buf, levelNameBuf]);
+            }
             const nbtData: Buffer = NBT.writeUncompressed({ name: "", ...data }, "little");
-            return Buffer.concat([Buffer.from("0A000000", "hex"), writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false), nbtData]);
+            return Buffer.concat([
+                // REVIEW: Maybe not all StorageVersions had a header. And if really old ones didn't even have the StorageVersion field then make it use that old StorageVersion if StorageVersion isn't present.
+                writeUInt32LE(typeof data.value.StorageVersion?.value === "number" ? data.value.StorageVersion.value : 10),
+                writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false),
+                nbtData,
+            ]);
         },
         /**
          * The default value to use when initializing a new entry.
@@ -3589,6 +4186,298 @@ export const entryContentTypeToFormatMap = {
             } satisfies NBTSchemas.NBTSchemaTypes.WorldClocks & Pick<NBT.NBT, "name">,
             "little"
         ),
+    },
+    /**
+     * The content type of the `poi_types` LevelDB key, which stores a map of numeric POI types to their namespaced IDs.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.POITypes}
+     *
+     * @since ? (This was found in a 1.26.51.1 world, but it might have been added in 1.21.130)
+     *
+     * @todo Figure out what preview and full release this was actually added in.
+     */
+    POITypes: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.POITypes.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.POITypes {
+            if (data.length < 1) {
+                throw new Error("POITypes buffer must be at least 1 byte long");
+            }
+            const types: NBTSchemas.NBTSchemaTypes.POITypes["value"]["POITypes"]["value"]["value"] = [];
+            let i = 0;
+            /**
+             * Applies the new offset from reading a VarString or varint to the {@link i | current offset} and returns the value of the VarString or varint.
+             *
+             * @param result The result of the {@link readVarString} or {@link readLittleVarint} function.
+             * @returns The string value of the VarString or varint.
+             */
+            function applyVarVal<T extends ReadVarStringResult | ReadLittleVarintResult>(result: T): T["value"] {
+                i = result.offset;
+                return result.value;
+            }
+            const typeCount: number = applyVarVal(readLittleVarint(data, i));
+            void typeCount;
+            while (i < data.length) {
+                const type: number = data.readUInt16LE(i);
+                i += 2;
+                const id: string = applyVarVal(readVarString(data, i, "utf8"));
+                types.push({
+                    type: { type: "short", value: type },
+                    id: { type: "string", value: id },
+                });
+            }
+            return {
+                type: "compound",
+                value: {
+                    POITypes: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: types,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.POITypes): Buffer<ArrayBuffer> {
+            const types: Buffer<ArrayBuffer>[] = [];
+            for (const type of data.value.POITypes.value.value) {
+                const buf: Buffer<ArrayBuffer> = Buffer.alloc(2);
+                buf.writeUInt16LE(type.type.value & 0xffff, 0);
+                types.push(Buffer.concat([buf, writeVarString(type.id.value, "utf8")]));
+            }
+            types.unshift(Buffer.from(writeLittleVarint(types.length)));
+            return Buffer.concat(types);
+        },
+    },
+    /**
+     * A registry of all POI regions in a dimension.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.POIRegionRegistry}
+     *
+     * @since ? (This was found in a 1.26.51.1 world, but it might have been added in 1.21.130)
+     *
+     * @todo Figure out what preview and full release this was actually added in.
+     */
+    POIRegionRegistry: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.POIRegionRegistry.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.POIRegionRegistry {
+            if (data.length < 1) {
+                throw new Error("POIRegionRegistry buffer must be at least 1 byte long");
+            }
+            const regions: NBTSchemas.NBTSchemaTypes.POIRegionRegistry["value"]["POIRegionRegistry"]["value"]["value"] = [];
+            let i = 0;
+            /**
+             * Applies the new offset from reading a VarString or varint to the {@link i | current offset} and returns the value of the VarString or varint.
+             *
+             * @param result The result of the {@link readVarString} or {@link readLittleVarint} function.
+             * @returns The string value of the VarString or varint.
+             */
+            function applyVarVal<T extends ReadVarStringResult | ReadLittleVarintResult>(result: T): T["value"] {
+                i = result.offset;
+                return result.value;
+            }
+            const regionCount: number = applyVarVal(readLittleVarint(data, i));
+            void regionCount;
+            while (i < data.length) {
+                const key: string = applyVarVal(readVarString(data, i, "utf8"));
+                const x: number = data.readInt32LE(i);
+                i += 4;
+                const z: number = data.readInt32LE(i);
+                i += 4;
+                regions.push({
+                    key: { type: "string", value: key },
+                    pos: {
+                        type: "list",
+                        value: {
+                            type: "int",
+                            value: [x, z],
+                        },
+                    },
+                });
+            }
+            return {
+                type: "compound",
+                value: {
+                    POIRegionRegistry: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: regions,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.POIRegionRegistry): Buffer<ArrayBuffer> {
+            const regions: Buffer<ArrayBuffer>[] = [];
+            for (const type of data.value.POIRegionRegistry.value.value) {
+                const buf: Buffer<ArrayBuffer> = Buffer.alloc(8);
+                buf.writeInt32LE(type.pos.value.value[0], 0);
+                buf.writeInt32LE(type.pos.value.value[1], 4);
+                regions.push(Buffer.concat([writeVarString(type.key.value, "utf8"), buf]));
+            }
+            regions.unshift(Buffer.from(writeLittleVarint(regions.length)));
+            return Buffer.concat(regions);
+        },
+    },
+    /**
+     * The POI data of a 512x512 region of the world.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.POIRegion}
+     *
+     * @since ? (This was found in a 1.26.51.1 world, but it might have been added in 1.21.130)
+     *
+     * @todo Figure out what preview and full release this was actually added in.
+     * @temp When this bug is fixed add support for the new key format: https://mojira.dev/MCPE-242992
+     */
+    POIRegion: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.POIRegion.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.POIRegion {
+            if (data.length < 1) {
+                throw new Error("POIRegion buffer must be at least 1 byte long");
+            }
+            const entries: NBTSchemas.NBTSchemaTypes.POIRegion["value"]["POIRegion"]["value"]["value"] = [];
+            let i = 0;
+            /**
+             * Applies the new offset from reading a VarString or varint to the {@link i | current offset} and returns the value of the VarString or varint.
+             *
+             * @param result The result of the {@link readVarString} or {@link readLittleVarint} function.
+             * @returns The string value of the VarString or varint.
+             */
+            function applyVarVal<T extends ReadVarStringResult | ReadLittleVarintResult>(result: T): T["value"] {
+                i = result.offset;
+                return result.value;
+            }
+            const entryCount: number = applyVarVal(readLittleVarint(data, i));
+            void entryCount;
+            while (i < data.length) {
+                const rawKey: number = data.readUInt32LE(i);
+                i += 4;
+                if ((0b11111000_00000000_00000000_00000000 & rawKey) !== 0) {
+                    throw new TypeError(`Unknown POIRegion entry key format: 0x${rawKey.toString(16)} (0b${rawKey.toString(2)})`);
+                }
+                const z = (0b00000111_11111100_00000000_00000000 & rawKey) >> 18;
+                const y = (0b00000000_00000011_11111110_00000000 & rawKey) >> 9;
+                const x = 0b00000000_00000000_00000001_11111111 & rawKey;
+                const type = data.readUInt16LE(i);
+                i += 2;
+                const tickets = data[i++]!;
+                entries.push({
+                    type: { type: "short", value: type },
+                    tickets: { type: "byte", value: tickets },
+                    pos: {
+                        type: "list",
+                        value: {
+                            type: "short",
+                            value: [x, y, z],
+                        },
+                    },
+                });
+            }
+            return {
+                type: "compound",
+                value: {
+                    POIRegion: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: entries,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.POIRegion): Buffer<ArrayBuffer> {
+            const buf: Buffer<ArrayBuffer> = Buffer.alloc(7 * data.value.POIRegion.value.value.length);
+            let i = 0;
+            for (const type of data.value.POIRegion.value.value) {
+                let rawKey = 0;
+                rawKey |= (type.pos.value.value[2] & 0b1_11111111) << 18; // z
+                rawKey |= (type.pos.value.value[1] & 0b1_11111111) << 9; // y
+                rawKey |= type.pos.value.value[0] & 0b1_11111111; // x
+                buf.writeUInt32LE(rawKey, i);
+                i += 4;
+                buf.writeUInt16LE(type.type.value & 0xffff, i);
+                i += 2;
+                buf.writeUInt8(type.tickets.value & 0xff, i++);
+            }
+            return Buffer.concat([Buffer.from(writeLittleVarint(data.value.POIRegion.value.value.length)), buf]);
+        },
     },
     /**
      * Bounding boxes for structures, including structure spawns (such as a Pillager Outpost)
@@ -3744,7 +4633,7 @@ export const entryContentTypeToFormatMap = {
                     staticSpawnAreaCount * 16
             );
 
-            serializedData.writeUInt32LE(data.value.version.value, 0);
+            serializedData.writeUInt32LE(data.value.version.value >>> 0, 0);
 
             const structureTypes: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StructureTypes"]["value"]["value"] = data.value.StructureTypes.value.value;
 
@@ -3758,7 +4647,7 @@ export const entryContentTypeToFormatMap = {
                 if (entry === undefined) throw new TypeError(`StructureTypes entry is undefined at index ${i}`);
 
                 const value: string = entry.Type.value;
-                serializedData.writeUInt32LE(entry.Id.value, offset);
+                serializedData.writeUInt32LE(entry.Id.value >>> 0, offset);
                 const stringByteLength: number = serializedData.write(value, offset + 6, "utf-8");
                 serializedData.writeUInt16LE(stringByteLength, offset + 4);
                 offset += 6 + stringByteLength;
@@ -3774,7 +4663,7 @@ export const entryContentTypeToFormatMap = {
                 const entry: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["ChunkBoundingBoxes"]["value"]["value"][number] | undefined = chunkBoundingBoxes[i];
                 if (!entry) throw new TypeError(`ChunkBoundingBoxes entry is undefined at index ${i}`);
 
-                serializedData.writeUInt32LE(entry.Id.value, offset);
+                serializedData.writeUInt32LE(entry.Id.value >>> 0, offset);
                 serializedData.writeInt32LE(entry.AABBMinX.value, offset + 4);
                 serializedData.writeInt32LE(entry.AABBMinY.value, offset + 8);
                 serializedData.writeInt32LE(entry.AABBMinZ.value, offset + 12);
@@ -3793,9 +4682,9 @@ export const entryContentTypeToFormatMap = {
                 const entry: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["DynamicSpawnAreas"]["value"]["value"][number] | undefined = dynamicSpawnAreas[i];
                 if (!entry) throw new TypeError(`DynamicSpawnAreas entry is undefined at index ${i}`);
 
-                serializedData.writeUInt32LE(entry.BoundingBoxId.value, offset);
-                serializedData.writeUInt32LE(entry.StructureId.value, offset + 4);
-                serializedData.writeUInt32LE(entry.FullBoundingBox.value, offset + 8);
+                serializedData.writeUInt32LE(entry.BoundingBoxId.value >>> 0, offset);
+                serializedData.writeUInt32LE(entry.StructureId.value >>> 0, offset + 4);
+                serializedData.writeUInt32LE(entry.FullBoundingBox.value >>> 0, offset + 8);
             }
 
             const staticSpawnAreas: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StaticSpawnAreas"]["value"]["value"] =
@@ -3808,13 +4697,228 @@ export const entryContentTypeToFormatMap = {
                 const entry: NBTSchemas.NBTSchemaTypes.AABBVolumes["value"]["StaticSpawnAreas"]["value"]["value"][number] | undefined = staticSpawnAreas[i];
                 if (!entry) throw new TypeError(`StaticSpawnAreas entry is undefined at index ${i}`);
 
-                serializedData.writeUInt32LE(entry.BoundingBoxId.value, offset);
-                serializedData.writeUInt32LE(entry.StructureId.value, offset + 4);
+                serializedData.writeUInt32LE(entry.BoundingBoxId.value >>> 0, offset);
+                serializedData.writeUInt32LE(entry.StructureId.value >>> 0, offset + 4);
                 serializedData.writeInt32LE(entry.HeightDifference.value, offset + 8);
-                serializedData.writeUInt32LE(entry.FullBoundingBox.value, offset + 12);
+                serializedData.writeUInt32LE(entry.FullBoundingBox.value >>> 0, offset + 12);
             }
 
             return serializedData;
+        },
+    },
+    /**
+     * @see {@link NBTSchemas.nbtSchemas.JigsawStructureBlueprint}
+     *
+     * @since ? (This was found in a 1.26.51.1 world, but it might have been added in 1.21.50)
+     *
+     * @todo Add a description for this.
+     * @todo Figure out what preview and full release this was actually added in.
+     */
+    JigsawStructureBlueprint: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.JigawStructureBlueprint.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {any} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.JigsawStructureBlueprint {
+            if (data.length < 38) {
+                throw new Error("JigsawStructureBlueprint buffer must be at least 38 bytes long");
+            }
+            const pos: [x: number, y: number, z: number] = [data.readInt32LE(0), data.readInt32LE(4), data.readInt32LE(8)];
+            const minBounds: [x: number, y: number, z: number] = [data.readInt32LE(12), data.readInt32LE(16), data.readInt32LE(20)];
+            const maxBounds: [x: number, y: number, z: number] = [data.readInt32LE(24), data.readInt32LE(28), data.readInt32LE(32)];
+            let i = 36;
+            /**
+             * Applies the new offset from reading a VarString or varint to the {@link i | current offset} and returns the value of the VarString or varint.
+             *
+             * @param result The result of the {@link readVarString} or {@link readLittleVarint} function.
+             * @returns The string value of the VarString or varint.
+             */
+            function applyVarVal<T extends ReadVarStringResult | ReadLittleVarintResult>(result: T): T["value"] {
+                i = result.offset;
+                return result.value;
+            }
+            const structure: string = applyVarVal(readVarString(data, i));
+
+            const sections: NBTSchemas.NBTSchemaTypes.JigsawStructureBlueprint["value"]["sections"]["value"]["value"] = [];
+            const sectionCount: number = applyVarVal(readLittleVarint(data, i));
+            void sectionCount;
+            while (i < data.length) {
+                const elementID: string = applyVarVal(readVarString(data, i));
+                const groundOffset: number = data.readInt32LE(i);
+                i += 4;
+                const boundingBoxMin: [x: number, y: number, z: number] = [data.readInt32LE(i), data.readInt32LE(i + 4), data.readInt32LE(i + 8)];
+                i += 12;
+                const boundingBoxMax: [x: number, y: number, z: number] = [data.readInt32LE(i), data.readInt32LE(i + 4), data.readInt32LE(i + 8)];
+                i += 12;
+                const position: [x: number, y: number, z: number] = [data.readInt32LE(i), data.readInt32LE(i + 4), data.readInt32LE(i + 8)];
+                i += 12;
+                const rotation: string = applyVarVal(readVarString(data, i));
+                const junctions: (typeof sections)[number]["junctions"]["value"]["value"] = [];
+                const junctionCount: number = applyVarVal(readLittleVarint(data, i));
+                for (let j = 0; j < junctionCount; j++) {
+                    const sourceX: number = data.readInt32LE(i);
+                    i += 4;
+                    const sourceGroundY: number = data.readInt32LE(i);
+                    i += 4;
+                    const sourceZ: number = data.readInt32LE(i);
+                    i += 4;
+                    const deltaY: number = data.readInt32LE(i);
+                    i += 4;
+                    const destProjection: string = applyVarVal(readVarString(data, i));
+                    junctions.push({
+                        sourceX: { type: "int", value: sourceX },
+                        sourceGroundY: { type: "int", value: sourceGroundY },
+                        sourceZ: { type: "int", value: sourceZ },
+                        deltaY: { type: "int", value: deltaY },
+                        destProjection: { type: "string", value: destProjection },
+                    });
+                }
+                sections.push({
+                    elementID: { type: "string", value: elementID },
+                    groundOffset: { type: "int", value: groundOffset },
+                    boundingBox: {
+                        type: "compound",
+                        value: {
+                            min: {
+                                type: "list",
+                                value: {
+                                    type: "int",
+                                    value: boundingBoxMin,
+                                },
+                            },
+                            max: {
+                                type: "list",
+                                value: {
+                                    type: "int",
+                                    value: boundingBoxMax,
+                                },
+                            },
+                        },
+                    },
+                    position: {
+                        type: "list",
+                        value: {
+                            type: "int",
+                            value: position,
+                        },
+                    },
+                    rotation: { type: "string", value: rotation },
+                    junctions: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: junctions,
+                        },
+                    },
+                });
+            }
+            return {
+                type: "compound",
+                value: {
+                    pos: {
+                        type: "list",
+                        value: {
+                            type: "int",
+                            value: pos,
+                        },
+                    },
+                    minBounds: {
+                        type: "list",
+                        value: {
+                            type: "int",
+                            value: minBounds,
+                        },
+                    },
+                    maxBounds: {
+                        type: "list",
+                        value: {
+                            type: "int",
+                            value: maxBounds,
+                        },
+                    },
+                    structure: { type: "string", value: structure },
+                    sections: {
+                        type: "list",
+                        value: {
+                            type: "compound",
+                            value: sections,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.JigsawStructureBlueprint): Buffer<ArrayBuffer> {
+            const locMetaBuf: Buffer<ArrayBuffer> = Buffer.alloc(36);
+            locMetaBuf.writeUInt32LE(data.value.pos.value.value[0], 0); // x
+            locMetaBuf.writeUInt32LE(data.value.pos.value.value[1], 4); // y
+            locMetaBuf.writeUInt32LE(data.value.pos.value.value[2], 8); // z
+            locMetaBuf.writeUInt32LE(data.value.minBounds.value.value[0], 12); // x
+            locMetaBuf.writeUInt32LE(data.value.minBounds.value.value[1], 16); // y
+            locMetaBuf.writeUInt32LE(data.value.minBounds.value.value[2], 20); // z
+            locMetaBuf.writeUInt32LE(data.value.maxBounds.value.value[0], 24); // x
+            locMetaBuf.writeUInt32LE(data.value.maxBounds.value.value[1], 28); // y
+            locMetaBuf.writeUInt32LE(data.value.maxBounds.value.value[2], 32); // z
+
+            const structureBuf: Buffer<ArrayBuffer> = writeVarString(data.value.structure.value);
+
+            const sections: Buffer<ArrayBuffer>[] = [];
+            for (const type of data.value.sections.value.value) {
+                const elementIDBuf: Buffer<ArrayBuffer> = writeVarString(type.elementID.value);
+
+                const sectionLocMetaBuf: Buffer<ArrayBuffer> = Buffer.alloc(40);
+                sectionLocMetaBuf.writeInt32LE(type.groundOffset.value, 0);
+                sectionLocMetaBuf.writeInt32LE(type.boundingBox.value.min.value.value[0], 4);
+                sectionLocMetaBuf.writeInt32LE(type.boundingBox.value.min.value.value[1], 8);
+                sectionLocMetaBuf.writeInt32LE(type.boundingBox.value.min.value.value[2], 12);
+                sectionLocMetaBuf.writeInt32LE(type.boundingBox.value.max.value.value[0], 16);
+                sectionLocMetaBuf.writeInt32LE(type.boundingBox.value.max.value.value[1], 20);
+                sectionLocMetaBuf.writeInt32LE(type.boundingBox.value.max.value.value[2], 24);
+                sectionLocMetaBuf.writeInt32LE(type.position.value.value[0], 28);
+                sectionLocMetaBuf.writeInt32LE(type.position.value.value[1], 32);
+                sectionLocMetaBuf.writeInt32LE(type.position.value.value[2], 36);
+
+                const rotationBuf: Buffer<ArrayBuffer> = writeVarString(type.rotation.value);
+
+                const junctions: Buffer<ArrayBuffer>[] = [];
+                for (const junction of type.junctions.value.value) {
+                    const junctionLocMetaBuf: Buffer<ArrayBuffer> = Buffer.alloc(16);
+                    junctionLocMetaBuf.writeInt32LE(junction.sourceX.value, 0);
+                    junctionLocMetaBuf.writeInt32LE(junction.sourceGroundY.value, 4);
+                    junctionLocMetaBuf.writeInt32LE(junction.sourceZ.value, 8);
+                    junctionLocMetaBuf.writeInt32LE(junction.deltaY.value, 12);
+                    const destProjectionBuf: Buffer<ArrayBuffer> = writeVarString(junction.destProjection.value);
+
+                    junctions.push(Buffer.concat([junctionLocMetaBuf, destProjectionBuf]));
+                }
+
+                junctions.unshift(elementIDBuf, sectionLocMetaBuf, rotationBuf, Buffer.from(writeLittleVarint(junctions.length)));
+                sections.push(Buffer.concat(junctions));
+            }
+
+            sections.unshift(locMetaBuf, structureBuf, Buffer.from(writeLittleVarint(sections.length)));
+            return Buffer.concat(sections);
         },
     },
     /**
@@ -3858,7 +4962,20 @@ export const entryContentTypeToFormatMap = {
          * The format type of the data.
          */
         type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.LevelChunkMetaDataDictionary.parse | parse} method.
+         */
         resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {Error} If the value does not contain at least one subchunk of biome data.
+         */
         // TODO: Make an NBT schema for the `LevelChunkMetaDataDictionary` format and use it as the return type here.
         async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.LevelChunkMetaDataDictionary> {
             const parsedData: NBTSchemas.NBTSchemaTypes.LevelChunkMetaDataDictionary["value"] = {};
@@ -3872,6 +4989,14 @@ export const entryContentTypeToFormatMap = {
             }
             return { type: "compound", value: parsedData };
         },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         */
         serialize(data: NBTSchemas.NBTSchemaTypes.LevelChunkMetaDataDictionary): Buffer<ArrayBuffer> {
             // TODO: Find a way to properly hash the NBT data, since the `xxhashjs` and `xxhash-wasm` modules don't match up with the hashes generated by the game.
             const entryCountBuffer: Buffer<ArrayBuffer> = Buffer.alloc(4);
@@ -3932,6 +5057,117 @@ export const entryContentTypeToFormatMap = {
          */
         type: "NBT",
         // TO-DO: Add a default value for this.
+    },
+    /**
+     * A world with this LevelDB key has not been found yet, if you have a world with it please send it to 8Crafter so that he can add a parser and serializer for it.
+     *
+     * @platform Minecraft China Edition
+     *
+     * @todo Figure out what this is used for.
+     * @todo Add a description for this.
+     * @todo Figure out how to parse this.
+     */
+    VersionEnchant: {
+        type: "unknown",
+    },
+    /**
+     * A world with this LevelDB key has not been found yet, if you have a world with it please send it to 8Crafter so that he can add a parser and serializer for it.
+     *
+     * @platform Minecraft China Edition
+     *
+     * @todo Figure out what this is used for.
+     * @todo Add a description for this.
+     * @todo Figure out how to parse this.
+     */
+    VersionMarkInsert: {
+        type: "unknown",
+    },
+    /**
+     * It is unknown what this chunk key type is.
+     *
+     * The observed value is `0x0005`.
+     *
+     * Observed in a Minecraft China Edition 1.21.0 dev build.
+     *
+     * @platform Minecraft China Edition
+     *
+     * @todo Figure out what this is used for.
+     * @todo Add a description for this.
+     * @todo Figure out how to parse this.
+     */
+    unknown0x70: {
+        type: "unknown",
+    },
+    /**
+     * It is unknown what this chunk key type is.
+     *
+     * The observed value is `0x00`.
+     *
+     * Observed in a Minecraft China Edition 1.21.0 dev build.
+     *
+     * @platform Minecraft China Edition
+     *
+     * @todo Figure out what this is used for.
+     * @todo Add a description for this.
+     * @todo Figure out how to parse this.
+     */
+    unknown0x71: {
+        type: "unknown",
+    },
+    /**
+     * The content type of the `neteaseData` LevelDB key, which stores NetEase-specific settings.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.NeteaseData}
+     *
+     * @platform Minecraft China Edition
+     *
+     * @todo Figure out what this is used for.
+     * @todo Add a description for this.
+     * @todo Add a default value for this.
+     */
+    NeteaseData: {
+        type: "NBT",
+    },
+    /**
+     * The content type of the `scriptGid` LevelDB key, which stores ?.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.NeteaseScriptGid}
+     *
+     * @platform Minecraft China Edition
+     *
+     * @todo Figure out what this is used for.
+     * @todo Add a description for this.
+     * @todo Add a default value for this.
+     */
+    NeteaseScriptGid: {
+        type: "NBT",
+    },
+    /**
+     * The content type of the `SST_SALOG` LevelDB key, which stores command execution logs.
+     *
+     * @platform Minecraft China Edition
+     *
+     * @todo Figure out what this is used for.
+     * @todo Figure out how to parse this.
+     */
+    SSTCommandLog: {
+        type: "unknown",
+    },
+    /**
+     * The content type of the following LevelDB keys:
+     * - `SST_NAME` - -- TODO: Add a description for this key.
+     * - `SST_WORD` - -- TODO: Add a description for this key.
+     * - `SST_WORD_` (possibly) - I haven't managed to find a world with this key yet to verify this.
+     * - `SST_SIGH` - Appears to store hashes of sign text input history.
+     *
+     * @platform Minecraft China Edition
+     *
+     * @todo Figure out what this is used for.
+     * @todo Add a better description for this.
+     * @todo Figure out how to parse this.
+     */
+    SSTHashRegistry: {
+        type: "unknown",
     },
     /**
      * All data that has a key that is not recognized.
@@ -4231,11 +5467,22 @@ export interface Vector3 {
 export type Dimension = (typeof dimensions)[number];
 
 /**
+ * An ID of a Minecraft China Edition dimension.
+ */
+export type DimensionMCCE = (typeof dimensionsMCCE)[number];
+
+/**
  * Represents a three-directional vector with an associated dimension.
  */
 export interface DimensionLocation extends Vector3 {
     /**
      * Dimension that this coordinate is associated with.
+     *
+     * For vanila dimensions, this is the string ID of the dimension without the `minecraft:` prefix.
+     *
+     * For custom dimensions, this is the numeric ID of the dimension.
+     *
+     * For Minecraft China Edition exclusive dimensions, this is the numeric ID of the dimension.
      */
     dimension: Dimension | number;
 }
@@ -4246,6 +5493,12 @@ export interface DimensionLocation extends Vector3 {
 export interface DimensionVector2 extends Vector2 {
     /**
      * Dimension that this coordinate is associated with.
+     *
+     * For vanila dimensions, this is the string ID of the dimension without the `minecraft:` prefix.
+     *
+     * For custom dimensions, this is the numeric ID of the dimension.
+     *
+     * For Minecraft China Edition exclusive dimensions, this is the numeric ID of the dimension.
      */
     dimension: Dimension | number;
 }
@@ -4256,6 +5509,12 @@ export interface DimensionVector2 extends Vector2 {
 export interface DimensionVectorXZ extends VectorXZ {
     /**
      * Dimension that this coordinate is associated with.
+     *
+     * For vanila dimensions, this is the string ID of the dimension without the `minecraft:` prefix.
+     *
+     * For custom dimensions, this is the numeric ID of the dimension.
+     *
+     * For Minecraft China Edition exclusive dimensions, this is the numeric ID of the dimension.
      */
     dimension: Dimension | number;
 }
@@ -4270,6 +5529,34 @@ export interface SubChunkIndexDimensionVectorXZ extends DimensionVectorXZ {
      * Should be between 0 and 15 (inclusive).
      */
     subChunkIndex: number;
+}
+
+/**
+ * Represents a two-directional vector with X and Z components and an associated dimension and a structure type.
+ *
+ * This is used for the {@link entryContentTypeToFormatMap.JigsawStructureBlueprint | JigsawStructureBlueprint} content type.
+ */
+export interface StructureTypeDimensionVectorXZ extends DimensionVectorXZ {
+    /**
+     * The type of the structure.
+     *
+     * This is an unsigned 64-bit integer.
+     */
+    structureType: bigint;
+}
+
+/**
+ * Represents a two-directional vector with X and Z components and an associated dimension and a structure type.
+ *
+ * This is used for the {@link entryContentTypeToFormatMap.VersionEnchant | VersionEnchant} and {@link entryContentTypeToFormatMap.VersionMarkInsert | VersionMarkInsert} content types.
+ */
+export interface DimensionVersionDimensionVectorXZ extends DimensionVectorXZ {
+    /**
+     * The dimension version.
+     *
+     * This is between 1 and 999 (inclusive).
+     */
+    dimensionVersion: number;
 }
 
 /**
@@ -4620,7 +5907,13 @@ export function writeBlockIndices(buffer: Buffer, blockDataOffset: number, block
  * @returns The numeric ID of the dimension.
  */
 export function dimensionVectorDimensionToInt(dimension: Dimension | number): number {
-    return typeof dimension === "string" ? dimensions.indexOf(dimension) : dimension;
+    if (typeof dimension === "string") {
+        const indexMCBE: number = dimensions.indexOf(dimension);
+        if (indexMCBE !== -1) return indexMCBE;
+        const indexMCCE: number = dimensionsMCCE.indexOf(dimension);
+        return indexMCCE;
+    }
+    return dimension;
 }
 
 /**
@@ -4678,6 +5971,8 @@ export function dimensionVectorDimensionToIdSync(
  *
  * Vanilla dimensions do not require a namespace.
  *
+ * NOTE: Minecraft China Edition exclusive numeric dimensions (dimensions dm3-dm20) are returned as their numeric ID rather than a string.
+ *
  * @param dimension The dimension to convert. Case-sensitive.
  * @param db The LevelDB to use.
  * @returns The ID of the dimension.
@@ -4687,6 +5982,8 @@ export function dimensionVectorDimensionToIdSync(
  */
 export async function dimensionIdToDimensionVectorDimension(dimension: LooseAutocomplete<Dimension>, db: LevelDB): Promise<Dimension | number> {
     if (dimensions.includes(dimension.replace(/^minecraft:/, "") as Dimension)) return dimension.replace(/^minecraft:/, "") as Dimension;
+    if (dimensionsMCCE.includes(dimension.replace(/^minecraft:/, "") as DimensionMCCE))
+        return dimensionsMCCE.indexOf(dimension.replace(/^minecraft:/, "") as DimensionMCCE);
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
     const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
@@ -4705,6 +6002,8 @@ export async function dimensionIdToDimensionVectorDimension(dimension: LooseAuto
  *
  * Vanilla dimensions do not require a namespace.
  *
+ * NOTE: Minecraft China Edition exclusive numeric dimensions (dimensions 3-20) are returned as their numeric ID rather than a string.
+ *
  * @param dimension The dimension to convert. Case-sensitive.
  * @param dimensionNameIdTable The DimensionNameIdTable to use.
  * @returns The ID of the dimension.
@@ -4716,6 +6015,8 @@ export function dimensionIdToDimensionVectorDimensionSync(
     dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable
 ): Dimension | number {
     if (dimensions.includes(dimension.replace(/^minecraft:/, "") as Dimension)) return dimension.replace(/^minecraft:/, "") as Dimension;
+    if (dimensionsMCCE.includes(dimension.replace(/^minecraft:/, "") as DimensionMCCE))
+        return dimensionsMCCE.indexOf(dimension.replace(/^minecraft:/, "") as DimensionMCCE);
     const dimensionNumericId: number | undefined = Object.entries(dimensionNameIdTable.value.entries.value).find(
         ([namespacedId, _numericId]) => namespacedId === dimension
     )?.[1].value;
@@ -4725,6 +6026,8 @@ export function dimensionIdToDimensionVectorDimensionSync(
 
 /**
  * Converts a dimension's numeric ID to a dimension vector dimension.
+ *
+ * NOTE: Minecraft China Edition exclusive numeric dimensions (dimensions 3-20) are returned as their numeric ID rather than a string.
  *
  * @param dimension The numeric ID of the dimension.
  * @returns The dimension vector dimension.
@@ -4737,28 +6040,169 @@ export function intToDimensionVectorDimension(dimension: number): Dimension | nu
  * Gets the dimension types from the DimensionNameIdTable.
  *
  * @param db The LevelDB to use.
+ * @param options The options to use.
  * @returns The dimension types.
  *
  * @throws {ReferenceError} If the DimensionNameIdTable is not found.
  */
-export async function getDimensionTypes(db: LevelDB): Promise<Record<Dimension | `${string}:${string}`, number>> {
+export async function getDimensionTypes(
+    db: LevelDB,
+    options: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions: true;
+    }
+): Promise<Record<Dimension | DimensionMCCE | `${string}:${string}`, number>>;
+/**
+ * Gets the dimension types from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @param options The options to use.
+ * @returns The dimension types.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionTypes(
+    db: LevelDB,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: false;
+    }
+): Promise<Record<Dimension | `${string}:${string}`, number>>;
+/**
+ * Gets the dimension types from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @param options The options to use.
+ * @returns The dimension types.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionTypes(
+    db: LevelDB,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): Promise<Record<Dimension | `${string}:${string}`, number> | Record<Dimension | DimensionMCCE | `${string}:${string}`, number>>;
+/**
+ * Gets the dimension types from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @param options The options to use.
+ * @returns The dimension types.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionTypes(
+    db: LevelDB,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): Promise<Record<Dimension | `${string}:${string}`, number> | Record<Dimension | DimensionMCCE | `${string}:${string}`, number>> {
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
     const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
         rawDimensionNameIdTable,
         "little"
     ) as NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name">;
-    return getDimensionTypesSync(dimensionNameIdTable);
+    return getDimensionTypesSync(dimensionNameIdTable, options);
 }
 
 /**
  * Gets the dimension types from the DimensionNameIdTable synchronously.
  *
  * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
  * @returns The dimension types.
  */
-export function getDimensionTypesSync(dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable): Record<Dimension | `${string}:${string}`, number> {
+export function getDimensionTypesSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         */
+        includeMCCEDimensions: true;
+    }
+): Record<Dimension | DimensionMCCE | `${string}:${string}`, number>;
+/**
+ * Gets the dimension types from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
+ * @returns The dimension types.
+ */
+export function getDimensionTypesSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: false;
+    }
+): Record<Dimension | `${string}:${string}`, number>;
+/**
+ * Gets the dimension types from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
+ * @returns The dimension types.
+ */
+export function getDimensionTypesSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): Record<Dimension | `${string}:${string}`, number> | Record<Dimension | DimensionMCCE | `${string}:${string}`, number>;
+/**
+ * Gets the dimension types from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
+ * @returns The dimension types.
+ */
+export function getDimensionTypesSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): Record<Dimension | `${string}:${string}`, number> | Record<Dimension | DimensionMCCE | `${string}:${string}`, number> {
     return {
+        ...(options?.includeMCCEDimensions ?
+            Object.fromEntries(
+                dimensionsMCCE
+                    .map((dimension: DimensionMCCE, i: number) => (!dimensions.includes(dimension as never) ? [dimension, i] : null))
+                    .filter((dimension): dimension is [DimensionMCCE, number] => dimension !== null)
+            )
+        :   undefined),
         ...(Object.fromEntries(dimensions.map((dimension: Dimension, i: number) => [dimension, i])) as Record<Dimension, number>),
         ...(Object.fromEntries(
             Object.entries(dimensionNameIdTable.value.entries.value).map(([namespacedId, numericId]) => [namespacedId, numericId.value])
@@ -4770,59 +6214,224 @@ export function getDimensionTypesSync(dimensionNameIdTable: NBTSchemas.NBTSchema
  * Gets the dimension IDs from the DimensionNameIdTable.
  *
  * @param db The LevelDB to use.
+ * @param options The options to use.
  * @returns The dimension IDs.
  *
  * @throws {ReferenceError} If the DimensionNameIdTable is not found.
  */
-export async function getDimensionIds(db: LevelDB): Promise<(Dimension | `${string}:${string}`)[]> {
+export async function getDimensionIds(
+    db: LevelDB,
+    options: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions: true;
+    }
+): Promise<(Dimension | DimensionMCCE | `${string}:${string}`)[]>;
+/**
+ * Gets the dimension IDs from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @param options The options to use.
+ * @returns The dimension IDs.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionIds(
+    db: LevelDB,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: false;
+    }
+): Promise<(Dimension | `${string}:${string}`)[]>;
+/**
+ * Gets the dimension IDs from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @param options The options to use.
+ * @returns The dimension IDs.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionIds(
+    db: LevelDB,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): Promise<(Dimension | `${string}:${string}`)[] | (Dimension | DimensionMCCE | `${string}:${string}`)[]>;
+/**
+ * Gets the dimension IDs from the DimensionNameIdTable.
+ *
+ * @param db The LevelDB to use.
+ * @param options The options to use.
+ * @returns The dimension IDs.
+ *
+ * @throws {ReferenceError} If the DimensionNameIdTable is not found.
+ */
+export async function getDimensionIds(
+    db: LevelDB,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): Promise<(Dimension | `${string}:${string}`)[] | (Dimension | DimensionMCCE | `${string}:${string}`)[]> {
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
     const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
         rawDimensionNameIdTable,
         "little"
     ) as NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name">;
-    return getDimensionIdsSync(dimensionNameIdTable);
+    return getDimensionIdsSync(dimensionNameIdTable, options);
 }
 
 /**
  * Gets the dimension IDs from the DimensionNameIdTable synchronously.
  *
  * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
  * @returns The dimension IDs.
  */
-export function getDimensionIdsSync(dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable): (Dimension | `${string}:${string}`)[] {
-    return [...new Set([...dimensions, ...(Object.keys(dimensionNameIdTable.value.entries.value) as `${string}:${string}`[])])];
+export function getDimensionIdsSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions: true;
+    }
+): (Dimension | DimensionMCCE | `${string}:${string}`)[];
+/**
+ * Gets the dimension IDs from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
+ * @returns The dimension IDs.
+ */
+export function getDimensionIdsSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: false;
+    }
+): (Dimension | `${string}:${string}`)[];
+/**
+ * Gets the dimension IDs from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
+ * @returns The dimension IDs.
+ */
+export function getDimensionIdsSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): (Dimension | `${string}:${string}`)[] | (Dimension | DimensionMCCE | `${string}:${string}`)[];
+/**
+ * Gets the dimension IDs from the DimensionNameIdTable synchronously.
+ *
+ * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
+ * @returns The dimension IDs.
+ */
+export function getDimensionIdsSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): (Dimension | `${string}:${string}`)[] | (Dimension | DimensionMCCE | `${string}:${string}`)[] {
+    return [
+        ...new Set([
+            ...dimensions,
+            ...(options?.includeMCCEDimensions ? dimensionsMCCE : []),
+            ...(Object.keys(dimensionNameIdTable.value.entries.value) as `${string}:${string}`[]),
+        ]),
+    ];
 }
 
 /**
  * Gets the dimension numeric IDs from the DimensionNameIdTable.
  *
  * @param db The LevelDB to use.
+ * @param options The options to use.
  * @returns The dimension numeric IDs.
  *
  * @throws {ReferenceError} If the DimensionNameIdTable is not found.
  */
-export async function getDimensionNumericIds(db: LevelDB): Promise<number[]> {
+export async function getDimensionNumericIds(
+    db: LevelDB,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): Promise<number[]> {
     const rawDimensionNameIdTable: Buffer | null = await db.get("DimensionNameIdTable");
     if (rawDimensionNameIdTable === null) throw new ReferenceError("DimensionNameIdTable not found.");
     const dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name"> = NBT.parseUncompressed(
         rawDimensionNameIdTable,
         "little"
     ) as NBTSchemas.NBTSchemaTypes.DimensionNameIdTable & Pick<NBT.NBT, "name">;
-    return getDimensionNumericIdsSync(dimensionNameIdTable);
+    return getDimensionNumericIdsSync(dimensionNameIdTable, options);
 }
 
 /**
  * Gets the dimension numeric IDs from the DimensionNameIdTable synchronously.
  *
  * @param dimensionNameIdTable The DimensionNameIdTable to use.
+ * @param options The options to use.
  * @returns The dimension numeric IDs.
  */
-export function getDimensionNumericIdsSync(dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable): number[] {
+export function getDimensionNumericIdsSync(
+    dimensionNameIdTable: NBTSchemas.NBTSchemaTypes.DimensionNameIdTable,
+    options?: {
+        /**
+         * Whether to include Minecraft China Edition exclusive dimensions.
+         *
+         * @default false
+         */
+        includeMCCEDimensions?: boolean;
+    }
+): number[] {
     return [
         ...new Set([
             ...dimensions.map((_dimension: Dimension, i: number): number => i),
-            ...Object.values(dimensionNameIdTable.value.entries.value).map((numericId): number => numericId.value),
+            ...(options?.includeMCCEDimensions ? dimensionsMCCE.map((_dimension: DimensionMCCE, i: number): number => i) : []),
+            ...Object.values(dimensionNameIdTable.value.entries.value).map((numericId: NBT.Int): number => numericId.value),
         ]),
     ];
 }
@@ -4836,12 +6445,60 @@ export function getDimensionNumericIdsSync(dimensionNameIdTable: NBTSchemas.NBTS
  * @param key The key to get the chunk indices for, as a Buffer.
  * @returns The chunk indices.
  */
-export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ | DimensionVectorXZ {
+export function getChunkKeyIndices(
+    key: Buffer
+): DimensionVersionDimensionVectorXZ | StructureTypeDimensionVectorXZ | SubChunkIndexDimensionVectorXZ | DimensionVectorXZ {
+    // Digest
     if ([12, 16].includes(key.length) && key[0] === 0x64 && key[1] === 0x69 && key[2] === 0x67 && key[3] === 0x70) {
         return {
             x: getInt32Val(key, 4),
             z: getInt32Val(key, 8),
             dimension: key.length === 16 ? intToDimensionVectorDimension(getInt32Val(key, 12)) : "overworld",
+        };
+    }
+    // JigsawStructureBlueprint
+    if (key.length === 21 && key[12] === 0x78) {
+        return {
+            x: getInt32Val(key, 0),
+            z: getInt32Val(key, 4),
+            dimension: intToDimensionVectorDimension(getInt32Val(key, 8)),
+            structureType: key.readBigUInt64LE(13),
+        };
+    }
+    // VersionEnchant - Overworld
+    if ([10, 11].includes(key.length) && key[8] === 0x6e) {
+        return {
+            x: getInt32Val(key, 0),
+            z: getInt32Val(key, 4),
+            dimension: "overworld",
+            dimensionVersion: readLittleVarint(key, 10).value,
+        };
+    }
+    // VersionEnchant - Other Dimensions
+    if ([14, 15].includes(key.length) && key[12] === 0x6e) {
+        return {
+            x: getInt32Val(key, 0),
+            z: getInt32Val(key, 4),
+            dimension: intToDimensionVectorDimension(getInt32Val(key, 8)),
+            dimensionVersion: readLittleVarint(key, 14).value,
+        };
+    }
+    // VersionMarkInsert - Overworld
+    if (key.length === 11 && key[8] === 0x6f) {
+        return {
+            x: getInt32Val(key, 0),
+            z: getInt32Val(key, 4),
+            dimension: "overworld",
+            dimensionVersion: readLittleVarint(key, 10).value - 10000,
+        };
+    }
+    // VersionMarkInsert - Other Dimensions
+    if (key.length === 15 && key[12] === 0x6f) {
+        return {
+            x: getInt32Val(key, 0),
+            z: getInt32Val(key, 4),
+            dimension: intToDimensionVectorDimension(getInt32Val(key, 8)),
+            dimensionVersion: readLittleVarint(key, 14).value - 10000,
         };
     }
     return {
@@ -4860,13 +6517,14 @@ export function getChunkKeyIndices(key: Buffer): SubChunkIndexDimensionVectorXZ 
  * @returns The raw chunk key.
  */
 export function generateChunkKeyFromIndices(
-    indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ,
+    indices: DimensionVersionDimensionVectorXZ | StructureTypeDimensionVectorXZ | SubChunkIndexDimensionVectorXZ | DimensionVectorXZ,
     chunkKeyType: DBChunkLinkedContentType
 ): Buffer<ArrayBuffer> {
     if (typeof indices.dimension === "string") {
-        if (dimensions.indexOf(indices.dimension) === -1) {
+        if (dimensions.indexOf(indices.dimension) === -1 && dimensionsMCCE.indexOf(indices.dimension) === -1) {
             throw new TypeError(`Invalid dimension: ${indices.dimension}. For custom dimensions please provide the numeric ID instead.`);
         }
+        indices = { ...indices }; // Prevents mutating the original object.
         indices.dimension = dimensionVectorDimensionToInt(indices.dimension);
     }
 
@@ -4879,6 +6537,40 @@ export function generateChunkKeyFromIndices(
         setInt32Val(buffer, 4, indices.x);
         setInt32Val(buffer, 8, indices.z);
         if (indices.dimension !== 0) setInt32Val(buffer, 8, indices.dimension);
+        return buffer;
+    }
+
+    if (chunkKeyType === "JigsawStructureBlueprint") {
+        const buffer: Buffer<ArrayBuffer> = Buffer.alloc(21);
+        setInt32Val(buffer, 0, indices.x);
+        setInt32Val(buffer, 4, indices.z);
+        setInt32Val(buffer, 8, indices.dimension);
+        buffer[12] = getIntFromChunkKeyType(chunkKeyType);
+        if ("structureType" in indices && indices.structureType !== undefined) buffer.writeBigUInt64LE(indices.structureType, 13);
+        return buffer;
+    }
+
+    if (chunkKeyType === "VersionEnchant") {
+        const buffer: Buffer<ArrayBuffer> = Buffer.alloc(indices.dimension === 0 ? 9 : 13);
+        setInt32Val(buffer, 0, indices.x);
+        setInt32Val(buffer, 4, indices.z);
+        if (indices.dimension !== 0) setInt32Val(buffer, 8, indices.dimension);
+        buffer[8 + +(indices.dimension !== 0) * 4] = getIntFromChunkKeyType(chunkKeyType);
+        if ("dimensionVersion" in indices && indices.dimensionVersion !== undefined) {
+            return Buffer.concat([buffer, Buffer.from(writeLittleVarint(indices.dimensionVersion))]);
+        }
+        return buffer;
+    }
+
+    if (chunkKeyType === "VersionMarkInsert") {
+        const buffer: Buffer<ArrayBuffer> = Buffer.alloc(indices.dimension === 0 ? 9 : 13);
+        setInt32Val(buffer, 0, indices.x);
+        setInt32Val(buffer, 4, indices.z);
+        if (indices.dimension !== 0) setInt32Val(buffer, 8, indices.dimension);
+        buffer[8 + +(indices.dimension !== 0) * 4] = getIntFromChunkKeyType(chunkKeyType);
+        if ("dimensionVersion" in indices && indices.dimensionVersion !== undefined) {
+            return Buffer.concat([buffer, Buffer.from(writeLittleVarint(indices.dimensionVersion + 10000))]);
+        }
         return buffer;
     }
 
@@ -4947,10 +6639,20 @@ function getIntFromChunkKeyType(chunkKeyType: DBChunkKeyEntryContentType): numbe
             return 0x40;
         case "ActorDigestVersion":
             return 0x41;
+        case "VersionEnchant":
+            return 0x6e;
+        case "VersionMarkInsert":
+            return 0x6f;
+        case "unknown0x70":
+            return 0x70;
+        case "unknown0x71":
+            return 0x71;
         case "LegacyVersion":
             return 0x76;
         case "AABBVolumes":
             return 0x77;
+        case "JigsawStructureBlueprint":
+            return 0x78;
     }
 }
 
@@ -4986,12 +6688,17 @@ export function getKeyDisplayName(key: Buffer): string {
         case "MetaDataHash":
         case "BlendingData":
         case "ActorDigestVersion":
+        case "VersionEnchant":
+        case "VersionMarkInsert":
+        case "unknown0x70":
+        case "unknown0x71":
         case "LegacyVersion":
-        case "AABBVolumes": {
-            const indices: SubChunkIndexDimensionVectorXZ | DimensionVectorXZ = getChunkKeyIndices(key);
+        case "AABBVolumes":
+        case "JigsawStructureBlueprint": {
+            const indices: StructureTypeDimensionVectorXZ | SubChunkIndexDimensionVectorXZ | DimensionVectorXZ = getChunkKeyIndices(key);
             return `${indices.dimension}_${indices.x}_${indices.z}${
                 "subChunkIndex" in indices && indices.subChunkIndex !== undefined ? `_${indices.subChunkIndex}` : ""
-            }_${contentType}`;
+            }${"structureType" in indices && indices.structureType !== undefined ? `_${indices.structureType}` : ""}${"dimensionVersion" in indices && indices.dimensionVersion !== undefined ? `_${indices.dimensionVersion}` : ""}_${contentType}`;
         }
         case "Digest": {
             const indices: DimensionVectorXZ = getChunkKeyIndices(key);
@@ -5025,6 +6732,7 @@ export function getKeyDisplayName(key: Buffer): string {
         case "MVillages":
         case "Player":
         case "PlayerClient":
+        case "LegacyConsolePlayer":
         case "Portals":
         case "RealmsStoriesData":
         case "SchedulerWT":
@@ -5038,6 +6746,11 @@ export function getKeyDisplayName(key: Buffer): string {
         case "VillageRaid":
         case "Villages":
         case "WorldClocks":
+        case "POITypes":
+        case "POIRegionRegistry":
+        case "POIRegion":
+        case "SSTCommandLog":
+        case "SSTHashRegistry":
         case "Unknown":
         default:
             return key.toString("binary");
@@ -5051,58 +6764,91 @@ export function getKeyDisplayName(key: Buffer): string {
  * @returns The content type of the key.
  */
 export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
-    if ([9, 10, 13, 14].includes(key.length)) {
-        switch (key.at([10, 14].includes(key.length) ? -2 : -1)) {
-            case 0x2b:
-                return "Data3D";
-            case 0x2c:
-                return "Version";
-            case 0x2d:
-                return "Data2D";
-            case 0x2e:
-                return "Data2DLegacy";
-            case 0x2f:
-                return "SubChunkPrefix";
-            case 0x30:
-                return "LegacyTerrain";
-            case 0x31:
-                return "BlockEntity";
-            case 0x32:
-                return "Entity";
-            case 0x33:
-                return "PendingTicks";
-            case 0x34:
-                return "LegacyBlockExtraData";
-            case 0x35:
-                return "BiomeState";
-            case 0x36:
-                return "FinalizedState";
-            case 0x37:
-                return "ConversionData";
-            case 0x38:
-                return "BorderBlocks";
-            case 0x39:
-                return "HardcodedSpawners";
-            case 0x3a:
-                return "RandomTicks";
-            case 0x3b:
-                return "Checksums";
-            case 0x3c:
-                return "GenerationSeed";
-            case 0x3d:
-                return "GeneratedPreCavesAndCliffsBlending";
-            case 0x3e:
-                return "BlendingBiomeHeight";
-            case 0x3f:
-                return "MetaDataHash";
-            case 0x40:
-                return "BlendingData";
-            case 0x41:
-                return "ActorDigestVersion";
-            case 0x76:
-                return "LegacyVersion";
-            case 0x77:
-                return "AABBVolumes";
+    if ([9, 10, 11, 13, 14, 15].includes(key.length)) {
+        if ([9, 13].includes(key.length)) {
+            switch (key.at(-1)) {
+                case 0x2b:
+                    return "Data3D";
+                case 0x2c:
+                    return "Version";
+                case 0x2d:
+                    return "Data2D";
+                case 0x2e:
+                    return "Data2DLegacy";
+                case 0x30:
+                    return "LegacyTerrain";
+                case 0x31:
+                    return "BlockEntity";
+                case 0x32:
+                    return "Entity";
+                case 0x33:
+                    return "PendingTicks";
+                case 0x34:
+                    return "LegacyBlockExtraData";
+                case 0x35:
+                    return "BiomeState";
+                case 0x36:
+                    return "FinalizedState";
+                case 0x37:
+                    return "ConversionData";
+                case 0x38:
+                    return "BorderBlocks";
+                case 0x39:
+                    return "HardcodedSpawners";
+                case 0x3a:
+                    return "RandomTicks";
+                case 0x3b:
+                    return "Checksums";
+                case 0x3c:
+                    return "GenerationSeed";
+                case 0x3d:
+                    return "GeneratedPreCavesAndCliffsBlending";
+                case 0x3e:
+                    return "BlendingBiomeHeight";
+                case 0x3f:
+                    return "MetaDataHash";
+                case 0x40:
+                    return "BlendingData";
+                case 0x41:
+                    return "ActorDigestVersion";
+                case 0x70:
+                    return "unknown0x70";
+                case 0x71:
+                    return "unknown0x71";
+                case 0x76:
+                    return "LegacyVersion";
+                case 0x77:
+                    return "AABBVolumes";
+            }
+        } else if ([10, 14].includes(key.length)) {
+            switch (key.at(-2)) {
+                case 0x2f:
+                    return "SubChunkPrefix";
+                case 0x6e:
+                    try {
+                        const dimensionVersion: number = readLittleVarint(key.subarray(-1), 0).value;
+                        if (dimensionVersion < 1 || dimensionVersion > 127) break;
+                        return "VersionEnchant";
+                    } catch {}
+                    break;
+            }
+        } else if ([11, 15].includes(key.length)) {
+            switch (key.at(-3)) {
+                case 0x6e:
+                    try {
+                        const dimensionVersion: number = readLittleVarint(key.subarray(-2), 0).value;
+                        if (dimensionVersion < 128 || dimensionVersion > 999) break;
+                        return "VersionEnchant";
+                    } catch {}
+                    break;
+                case 0x6f:
+                    try {
+                        const dimensionVersion: number = readLittleVarint(key.subarray(-2), 0).value;
+                        if (dimensionVersion < 10001 || dimensionVersion > 10999) break;
+                        return "VersionMarkInsert";
+                    } catch {}
+                    break;
+            }
         }
     }
     const stringKey: string = key.toString();
@@ -5142,9 +6888,15 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "LevelChunkMetaDataDictionary";
         case "WorldClocks":
             return "WorldClocks";
+        case "poi_types":
+            return "POITypes";
         case "SST_SALOG":
+            return "SSTCommandLog";
+        case "SST_NAME":
+        case "SST_SIGH":
         case "SST_WORD":
         case "SST_WORD_":
+            return "SSTHashRegistry";
         case "DedicatedServerForcedCorruption":
             return "ForcedWorldCorruption";
         case "dimension0":
@@ -5159,7 +6911,31 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "Villages";
         case "LevelSpawnWasFixed":
             return "LevelSpawnWasFixed";
+        case "neteaseData":
+            return "NeteaseData";
+        case "scriptGid":
+            return "NeteaseScriptGid";
+        case "3":
+        case "4":
+        case "5":
+        case "6":
+        case "7":
+        case "8":
+        case "9":
+        case "10":
+        case "11":
+        case "12":
+        case "13":
+        case "14":
+        case "15":
+        case "16":
+        case "17":
+        case "18":
+        case "19":
+        case "20":
+            return "MCChinaDevDimension";
     }
+    // REVIEW: Maybe there should also be handling for the SST_ prefix, instead of only manual handling of each specific SST_ key.
     switch (true) {
         case stringKey.startsWith("PosTrackDB-0x"):
             return "PositionTrackingDB";
@@ -5175,30 +6951,61 @@ export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
             return "Map";
         case stringKey.startsWith("player_server_"):
             return "Player";
-        // FIXME: This does not work properly on really old worlds, where there was no PlayerClient content type, and the Player content type was prefixed with player_ instead of player_server_. The older Player keys also used UUIDv3, just like the newer PlayerClient keys.
+        // FIXME: This does not work properly on really old worlds, where there was no PlayerClient content type, and the Player content type was prefixed with player_ instead of player_server_. The older Player keys also used UUIDv3, just like the newer PlayerClient keys. But I'm pretty sure the game does upgrade all Player keys to the new key format when udpating, so maybe if there are PlayerClient keys but no Player keys, then they are PlayerClient keys, or it could just check the contents, or the version in the level.dat.
         case stringKey.startsWith("player_"):
             return "PlayerClient";
+        case stringKey.startsWith("legacy_console_player_"):
+            return "LegacyConsolePlayer";
         case stringKey.startsWith("digp") && (stringKey.length === 12 || stringKey.length === 16):
             return "Digest";
         // REVIEW: The dimension may not be present in this key in older versions (if it was present in those older version), like with the village-related keys.
-        case /^chunk_loaded_request_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_\d+$/.test(stringKey):
+        case /^chunk_loaded_request_(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr]|[3-9]|1[0-9]|20|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])_\d+$/.test(
+            stringKey
+        ):
             return "ChunkLoadedRequest";
         case stringKey.startsWith("RealmsStoriesData_"):
             return "RealmsStoriesData";
-        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_POI$/.test(stringKey):
-            return "VillagePOI";
-        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_INFO$/.test(stringKey):
-            return "VillageInfo";
-        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_DWELLERS$/.test(stringKey):
-            return "VillageDwellers";
-        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_PLAYERS$/.test(stringKey):
-            return "VillagePlayers";
-        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr])_)?[0-9a-f\\-]+_RAID$/.test(stringKey):
-            return "VillageRaid";
-        case /^[\u0001-\u0008\u000b-\u000c\u000e-\u001f\u0021-\u0039\u003b-\uffff]+:[\u0001-\u0008\u000b-\u000c\u000e-\u001f\u0021-\u0039\u003b-\uffff]+$/.test(
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr]|[3-9]|1[0-9]|20|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])_)?[0-9a-f\\-]+_POI$/.test(
             stringKey
         ):
-            return "CustomDimension";
+            return "VillagePOI";
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr]|[3-9]|1[0-9]|20|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])_)?[0-9a-f\\-]+_INFO$/.test(
+            stringKey
+        ):
+            return "VillageInfo";
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr]|[3-9]|1[0-9]|20|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])_)?[0-9a-f\\-]+_DWELLERS$/.test(
+            stringKey
+        ):
+            return "VillageDwellers";
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr]|[3-9]|1[0-9]|20|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])_)?[0-9a-f\\-]+_PLAYERS$/.test(
+            stringKey
+        ):
+            return "VillagePlayers";
+        case /^VILLAGE_(?:(?:[Oo][Vv][Ee][Rr][Ww][Oo][Rr][Ll][Dd]|[Tt][Hh][Ee]_[Ee][Nn][Dd]|[Nn][Ee][Tt][Hh][Ee][Rr]|[3-9]|1[0-9]|20|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])_)?[0-9a-f\\-]+_RAID$/.test(
+            stringKey
+        ):
+            return "VillageRaid";
+        // REVIEW: Figure out if the number can be negative, I think it may actually be the dimension.
+        case /^poi\.\d+\.regions$/.test(stringKey):
+            return "POIRegionRegistry";
+        case /^poi\.\d+\.regions\.-?\d+\.-?\d+$/.test(stringKey):
+            return "POIRegion";
+    }
+    // TODO: Make this more strict.
+    if (key.length === 21) {
+        switch (key[12]) {
+            case 0x78:
+                if (key.readUInt32LE(8) > 65535) break; // Invalid dimension numeric ID.
+                return "JigsawStructureBlueprint";
+        }
+    }
+    // IDEA: Maybe add a way to make this based on the data in the key or the actual custom dimension IDs mapping.
+    if (
+        /^[\u0001-\u0008\u000b-\u000c\u000e-\u001f\u0021-\u0039\u003b-\uffff]+:[\u0001-\u0008\u000b-\u000c\u000e-\u001f\u0021-\u0039\u003b-\uffff]+$/.test(
+            stringKey
+        )
+    ) {
+        return "CustomDimension";
     }
     return "Unknown";
 }
