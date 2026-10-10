@@ -4,13 +4,14 @@ import NBT from "prismarine-nbt";
 import { prettyPrintSNBT, prismarineToSNBT } from "../SNBTUtils.ts";
 import { argv } from "node:process";
 import {
-    DBEntryContentTypes,
+    MCEntryContentTypes,
     entryContentTypeToFormatMap,
     getContentTypeFromDBKey,
     getKeyDisplayName,
     sanitizeDisplayKey,
     sanitizeFilename,
-    type DBEntryContentType,
+    type EntryContentTypeFormatData,
+    type MCDBEntryContentType,
 } from "../LevelUtils.ts";
 
 const worldDir = "../testWorld";
@@ -30,10 +31,10 @@ const DEBUG = true;
 
 const dryRun: boolean = argv.includes("--dry-run");
 
-const typesToExtract: DBEntryContentType[] | undefined = argv
+const typesToExtract: MCDBEntryContentType[] | undefined = argv
     .find((arg: string): boolean => arg.startsWith("--types="))
     ?.slice(8)
-    .split(",") as DBEntryContentType[] | undefined;
+    .split(",") as MCDBEntryContentType[] | undefined;
 
 if (!dryRun) {
     if ((worldDir as string) !== (originalWorldDir as string)) {
@@ -82,7 +83,7 @@ await db.open();
 // }
 
 if (!dryRun) {
-    for (const contentType of DBEntryContentTypes) {
+    for (const contentType of MCEntryContentTypes) {
         mkdirSync(`${outDir}/${parsedDir}/${contentType}`, { recursive: true });
         mkdirSync(`${outDir}/${unparseableDir}/${contentType}`, { recursive: true });
         mkdirSync(`${outDir}/${rawDir}/${contentType}`, { recursive: true });
@@ -95,7 +96,7 @@ if (!dryRun) {
 writeFileSync("../test1.bin", "");
 writeFileSync("../test2.txt", "");
 
-const foundOfContentTypes: Record<DBEntryContentType, number> = Object.fromEntries(DBEntryContentTypes.map((contentType) => [contentType, 0])) as any;
+const foundOfContentTypes: Record<MCDBEntryContentType, number> = Object.fromEntries(MCEntryContentTypes.map((contentType) => [contentType, 0])) as any;
 
 const otherAABBVolumesTypeKeys: string[] = [];
 
@@ -129,10 +130,10 @@ for await (let [rawKey, value] of db.getIterator(
     console.log(/* rawKey,  */ sanitizeDisplayKey(displayKey).padEnd(40), displayKey.padEnd(40), ia);
     // console.log(i);
     const filename: string = sanitizeFilename(displayKey);
-    const contentType: DBEntryContentType | undefined = getContentTypeFromDBKey(rawKey);
-    const format =
+    const contentType: MCDBEntryContentType | undefined = getContentTypeFromDBKey(rawKey);
+    const format: EntryContentTypeFormatData | undefined =
         contentType && contentType in entryContentTypeToFormatMap
-            ? entryContentTypeToFormatMap[contentType as keyof typeof entryContentTypeToFormatMap]
+            ? entryContentTypeToFormatMap[contentType as keyof typeof entryContentTypeToFormatMap] as EntryContentTypeFormatData
             : undefined;
     const subFolder = contentType;
 
@@ -267,19 +268,19 @@ for await (let [rawKey, value] of db.getIterator(
                             writeFileSync(`${outDir}/${snbtDir}/${subFolder}/${filename}.snbt`, snbtOutput);
                         }
                         if (existsSync(`${outDir}/${snbtDir}/${subFolder}/${filename}.bin`)) {
-                            writeFileSync(`${outDir}/${snbtDir}/${subFolder}/${filename} (${ia}).bin`, format.serialize(output as any));
+                            writeFileSync(`${outDir}/${snbtDir}/${subFolder}/${filename} (${ia}).bin`, await format.serialize(output as any));
                         } else {
-                            writeFileSync(`${outDir}/${snbtDir}/${subFolder}/${filename}.bin`, format.serialize(output as any));
+                            writeFileSync(`${outDir}/${snbtDir}/${subFolder}/${filename}.bin`, await format.serialize(output as any));
                         }
                         if (existsSync(`${outDir}/${snbtDir}/${subFolder}/${filename}.snbt2`)) {
                             writeFileSync(
                                 `${outDir}/${snbtDir}/${subFolder}/${filename} (${ia}).snbt2`,
-                                prettyPrintSNBT(prismarineToSNBT(await format.parse(format.serialize(output as any))), { inlineArrays: false, indent: 4 })
+                                prettyPrintSNBT(prismarineToSNBT(await format.parse(await format.serialize(output as any))), { inlineArrays: false, indent: 4 })
                             );
                         } else {
                             writeFileSync(
                                 `${outDir}/${snbtDir}/${subFolder}/${filename}.snbt2`,
-                                prettyPrintSNBT(prismarineToSNBT(await format.parse(format.serialize(output as any))), { inlineArrays: false, indent: 4 })
+                                prettyPrintSNBT(prismarineToSNBT(await format.parse(await format.serialize(output as any))), { inlineArrays: false, indent: 4 })
                             );
                         }
 

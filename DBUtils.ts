@@ -1,5 +1,5 @@
 import type { LevelDB } from "@8crafter/leveldb-zlib";
-import { getContentTypeFromDBKey, type DBEntryContentType } from "./LevelUtils.ts";
+import { getContentTypeFromDBKey, type MCDBEntryContentType } from "./LevelUtils.ts";
 import NBT from "prismarine-nbt";
 import { JSONB } from "./utils/JSONB.ts";
 
@@ -10,24 +10,24 @@ import { JSONB } from "./utils/JSONB.ts";
  *
  * @template T The content type to look for.
  * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/@8crafter/leveldb-zlib | @8crafter/leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
- * @param type The {@link DBEntryContentType | content type} to look for.
+ * @param type The {@link MCDBEntryContentType | content type} to look for.
  * @returns The keys from the LevelDB with the specified content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export async function getKeysOfType<T extends DBEntryContentType>(db: LevelDB, type: T): Promise<Buffer<ArrayBuffer>[]>;
+export async function getKeysOfType<T extends MCDBEntryContentType>(db: LevelDB, type: T): Promise<Buffer<ArrayBuffer>[]>;
 /**
  * Gets the keys from the list of LevelDB keys with a specific content type.
  *
  * @template T The content type to look for.
  * @template TArrayBuffer The type of the buffers.
  * @param dbKeys The LevelDB keys. Should be an array of Buffers.
- * @param type The {@link DBEntryContentType | content type} to look for.
+ * @param type The {@link MCDBEntryContentType | content type} to look for.
  * @returns The keys from the provided LevelDB keys array with the specified content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export function getKeysOfType<T extends DBEntryContentType, TArrayBuffer extends ArrayBufferLike = ArrayBufferLike>(
+export function getKeysOfType<T extends MCDBEntryContentType, TArrayBuffer extends ArrayBufferLike = ArrayBufferLike>(
     dbKeys: Buffer<TArrayBuffer>[],
     type: T
 ): Buffer<TArrayBuffer>[];
-export function getKeysOfType<T extends DBEntryContentType>(dbOrDBKeys: LevelDB | Buffer[], type: T): Promise<Buffer<ArrayBuffer>[]> | Buffer[] {
+export function getKeysOfType<T extends MCDBEntryContentType>(dbOrDBKeys: LevelDB | Buffer[], type: T): Promise<Buffer<ArrayBuffer>[]> | Buffer[] {
     if (Array.isArray(dbOrDBKeys)) return dbOrDBKeys.filter((key: Buffer): boolean => getContentTypeFromDBKey(key) === type);
     return new Promise(
         (resolve: (value: Buffer<ArrayBuffer>[]) => void): void =>
@@ -46,10 +46,10 @@ export function getKeysOfType<T extends DBEntryContentType>(dbOrDBKeys: LevelDB 
  *
  * @template T The content types to look for.
  * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/@8crafter/leveldb-zlib | @8crafter/leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
- * @param types The {@link DBEntryContentType | content types} to look for.
+ * @param types The {@link MCDBEntryContentType | content types} to look for.
  * @returns An object mapping each of the specified content types to the keys from the LevelDB with that content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export async function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
+export async function getKeysOfTypes<T extends MCDBEntryContentType[] | readonly MCDBEntryContentType[]>(
     db: LevelDB,
     types: T
 ): Promise<{ [key in T[number]]: Buffer<ArrayBuffer>[] }>;
@@ -59,14 +59,14 @@ export async function getKeysOfTypes<T extends DBEntryContentType[] | readonly D
  * @template T The content types to look for.
  * @template TArrayBuffer The type of the buffers.
  * @param dbKeys The LevelDB keys. Should be an array of Buffers.
- * @param types The {@link DBEntryContentType | content types} to look for.
+ * @param types The {@link MCDBEntryContentType | content types} to look for.
  * @returns An object mapping each of the specified content types to the keys from the provided LevelDB keys array with that content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntryContentType[], TArrayBuffer extends ArrayBufferLike>(
+export function getKeysOfTypes<T extends MCDBEntryContentType[] | readonly MCDBEntryContentType[], TArrayBuffer extends ArrayBufferLike>(
     dbKeys: Buffer<TArrayBuffer>[],
     types: T
 ): { [key in T[number]]: Buffer<TArrayBuffer>[] };
-export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
+export function getKeysOfTypes<T extends MCDBEntryContentType[] | readonly MCDBEntryContentType[]>(
     dbOrDBKeys: LevelDB | Buffer[],
     types: T
 ): Promise<{ [key in T[number]]: Buffer<ArrayBuffer>[] }> | { [key in T[number]]: Buffer[] } {
@@ -76,7 +76,7 @@ export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntry
     });
     if (Array.isArray(dbOrDBKeys)) {
         for (const key of dbOrDBKeys) {
-            const contentType: DBEntryContentType = getContentTypeFromDBKey(key);
+            const contentType: MCDBEntryContentType = getContentTypeFromDBKey(key);
             if (types.includes(contentType)) results[contentType as T[number]].push(key);
         }
         return results;
@@ -85,7 +85,7 @@ export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntry
         (resolve: (value: { [key in T[number]]: Buffer<ArrayBuffer>[] }) => void): void =>
             void (async (): Promise<void> => {
                 for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
-                    const contentType: DBEntryContentType = getContentTypeFromDBKey(rawKey);
+                    const contentType: MCDBEntryContentType = getContentTypeFromDBKey(rawKey);
                     if (types.includes(contentType)) results[contentType as T[number]].push(rawKey);
                 }
                 resolve(results);
@@ -98,10 +98,10 @@ export function getKeysOfTypes<T extends DBEntryContentType[] | readonly DBEntry
  *
  * @template T The content types to look for.
  * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/@8crafter/leveldb-zlib | @8crafter/leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
- * @param types The {@link DBEntryContentType | content types} to look for.
+ * @param types The {@link MCDBEntryContentType | content types} to look for.
  * @returns An object mapping each of the specified content types to the keys from the LevelDB with that content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
+export function getKeysOfTypesG<T extends MCDBEntryContentType[] | readonly MCDBEntryContentType[]>(
     db: LevelDB,
     types: T
 ): AsyncGenerator<
@@ -123,10 +123,10 @@ export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntr
  * @template T The content types to look for.
  * @template TArrayBuffer The type of the buffers.
  * @param dbKeys The LevelDB keys. Should be an array of Buffers.
- * @param types The {@link DBEntryContentType | content types} to look for.
+ * @param types The {@link MCDBEntryContentType | content types} to look for.
  * @returns An object mapping each of the specified content types to the keys from the provided LevelDB keys array with that content type, the keys are in Buffer format, this is because some keys contain binary data like chunk indices.
  */
-export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[], TArrayBuffer extends ArrayBufferLike>(
+export function getKeysOfTypesG<T extends MCDBEntryContentType[] | readonly MCDBEntryContentType[], TArrayBuffer extends ArrayBufferLike>(
     dbKeys: Buffer<TArrayBuffer>[],
     types: T
 ): Generator<
@@ -142,7 +142,7 @@ export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntr
     },
     { [key in T[number]]: Buffer<TArrayBuffer>[] }
 >;
-export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntryContentType[]>(
+export function getKeysOfTypesG<T extends MCDBEntryContentType[] | readonly MCDBEntryContentType[]>(
     dbOrDBKeys: LevelDB | Buffer[],
     types: T
 ):
@@ -156,7 +156,7 @@ export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntr
     if (Array.isArray(dbOrDBKeys)) {
         return (function* getKeysOfTypesGInner() {
             for (const key of dbOrDBKeys) {
-                const contentType: DBEntryContentType = getContentTypeFromDBKey(key);
+                const contentType: MCDBEntryContentType = getContentTypeFromDBKey(key);
                 if (types.includes(contentType)) {
                     results[contentType as T[number]].push(key);
                     count++;
@@ -168,7 +168,7 @@ export function getKeysOfTypesG<T extends DBEntryContentType[] | readonly DBEntr
     }
     return (async function* getKeysOfTypesGInner() {
         for await (const [rawKey, _value] of dbOrDBKeys.getIterator({ keys: true, keyAsBuffer: true, values: false })) {
-            const contentType: DBEntryContentType = getContentTypeFromDBKey(rawKey);
+            const contentType: MCDBEntryContentType = getContentTypeFromDBKey(rawKey);
             if (types.includes(contentType)) {
                 results[contentType as T[number]].push(rawKey);
                 count++;

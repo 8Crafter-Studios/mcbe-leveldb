@@ -1,9 +1,9 @@
-import { dimensions, type DBEntryContentType } from "./LevelUtils.ts";
+import { dimensions, type MCEntryContentType } from "./LevelUtils.ts";
 import * as NBT from "prismarine-nbt";
-import { toLongParts } from "./SNBTUtils.ts";
-import type { Full, LooseAutocomplete } from "./types.js";
+import { toLong, toLongParts } from "./SNBTUtils.ts";
+import type { Full, LooseAutocomplete, MutableDeep } from "./types.js";
 import __biome_data__ from "./__biome_data__.ts";
-import type { ExclusifyUnion } from "type-fest";
+import type { ExclusifyUnion, TupleOf } from "type-fest";
 
 // TODO: Add NBT schemas for newer entities, like the sulfur cube.
 
@@ -436,16 +436,21 @@ export namespace NBTSchemas {
                     Motion: {
                         markdownDescription: "(May not exist) Three TAG_Floats describing the current dX, dY and dZ velocity of the entity in meters per tick.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "dX",
                                 markdownDescription: "dX",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "dY",
                                 markdownDescription: "dY",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "dZ",
                                 markdownDescription: "dZ",
                                 type: "float",
                             },
@@ -486,16 +491,21 @@ export namespace NBTSchemas {
                     Pos: {
                         markdownDescription: "Three TAG_Floats describing the current X, Y and Z position of the entity.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 markdownDescription: "X",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 markdownDescription: "Y",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 markdownDescription: "Z",
                                 type: "float",
                             },
@@ -504,13 +514,17 @@ export namespace NBTSchemas {
                     Rotation: {
                         markdownDescription: "Two TAG_Floats representing rotation in degrees.",
                         type: "list",
+                        minItems: 2,
+                        maxItems: 2,
                         items: [
                             {
+                                tupleItemLabelTS: "yaw",
                                 markdownDescription:
                                     "The entity's rotation clockwise around the Y axis (called yaw). Due south is 0. Does not exceed 360 degrees.",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "pitch",
                                 markdownDescription:
                                     "The entity's declination from the horizon (called pitch). Horizontal is 0. Positive values look downward. Does not exceed positive or negative 90 degrees.",
                                 type: "float",
@@ -1022,18 +1036,23 @@ export namespace NBTSchemas {
                                         title: "Exit Portal Location",
                                         markdownDescription: "UNDOCUMENTED. A Vector3.",
                                         type: "list",
+                                        minItems: 3,
+                                        maxItems: 3,
                                         items: [
                                             {
+                                                tupleItemLabelTS: "x",
                                                 title: "x",
                                                 markdownDescription: "X component of this vector.",
                                                 type: "int",
                                             },
                                             {
+                                                tupleItemLabelTS: "y",
                                                 title: "y",
                                                 markdownDescription: "Y component of this vector.",
                                                 type: "int",
                                             },
                                             {
+                                                tupleItemLabelTS: "z",
                                                 title: "z",
                                                 markdownDescription: "Z component of this vector.",
                                                 type: "int",
@@ -1085,18 +1104,23 @@ export namespace NBTSchemas {
                                             title: "Entry",
                                             markdownDescription: "UNDOCUMENTED. A Vector3.",
                                             type: "list",
+                                            minItems: 3,
+                                            maxItems: 3,
                                             items: [
                                                 {
+                                                    tupleItemLabelTS: "x",
                                                     title: "x",
                                                     markdownDescription: "X component of this vector.",
                                                     type: "int",
                                                 },
                                                 {
+                                                    tupleItemLabelTS: "y",
                                                     title: "y",
                                                     markdownDescription: "Y component of this vector.",
                                                     type: "int",
                                                 },
                                                 {
+                                                    tupleItemLabelTS: "z",
                                                     title: "z",
                                                     markdownDescription: "Z component of this vector.",
                                                     type: "int",
@@ -1107,18 +1131,23 @@ export namespace NBTSchemas {
                                             title: "Exit",
                                             markdownDescription: "UNDOCUMENTED. A Vector3.",
                                             type: "list",
+                                            minItems: 3,
+                                            maxItems: 3,
                                             items: [
                                                 {
+                                                    tupleItemLabelTS: "x",
                                                     title: "x",
                                                     markdownDescription: "X component of this vector.",
                                                     type: "int",
                                                 },
                                                 {
+                                                    tupleItemLabelTS: "y",
                                                     title: "y",
                                                     markdownDescription: "Y component of this vector.",
                                                     type: "int",
                                                 },
                                                 {
+                                                    tupleItemLabelTS: "z",
                                                     title: "z",
                                                     markdownDescription: "Z component of this vector.",
                                                     type: "int",
@@ -1185,18 +1214,23 @@ export namespace NBTSchemas {
                             {
                                 markdownDescription: "A Vector3.",
                                 type: "list",
+                                minItems: 3,
+                                maxItems: 3,
                                 items: [
                                     {
+                                        tupleItemLabelTS: "x",
                                         title: "x",
                                         markdownDescription: "X component of this vector.",
                                         type: "float",
                                     },
                                     {
+                                        tupleItemLabelTS: "y",
                                         title: "y",
                                         markdownDescription: "Y component of this vector.",
                                         type: "float",
                                     },
                                     {
+                                        tupleItemLabelTS: "z",
                                         title: "z",
                                         markdownDescription: "Z component of this vector.",
                                         type: "float",
@@ -2093,6 +2127,10 @@ export namespace NBTSchemas {
                             },
                             {
                                 type: "string",
+                                value: "1.17.20-beta23",
+                            },
+                            {
+                                type: "string",
                                 value: "1.26.10-preview21",
                             },
                         ],
@@ -2203,35 +2241,40 @@ export namespace NBTSchemas {
                         type: "list",
                         markdownDescription:
                             "Five ints representing the last version with which the world was opened. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock_Edition_Preview_1.20.30.22) the version is `1 20 30 22 1`.",
+                        minItems: 4,
+                        maxItems: 5,
                         items: [
                             {
+                                tupleItemLabelTS: "major",
                                 title: "Major",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "minor",
                                 title: "Minor",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "patch",
                                 title: "Patch",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "build",
                                 title: "Build",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "preview",
                                 title: "Preview",
                                 type: "int",
-                                markdownEnumDescriptions: ["false", "true"],
+                                markdownEnumDescriptions: ["Release", "Beta/Preview"],
                                 enum: [
                                     { type: "int", value: 0 },
                                     { type: "int", value: 1 },
                                 ],
                             },
                         ],
-                        minItems: 4,
-                        maxItems: 5,
                     },
                     LastPlayed: {
                         type: "long",
@@ -2314,27 +2357,34 @@ export namespace NBTSchemas {
                         type: "list",
                         markdownDescription:
                             "Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock_Edition_Preview_1.20.30.22) the minimum compatible version is `1 20 30 0 0`.",
+                        minItems: 5,
+                        maxItems: 5,
                         items: [
                             {
+                                tupleItemLabelTS: "major",
                                 title: "Major",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "minor",
                                 title: "Minor",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "patch",
                                 title: "Patch",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "build",
                                 title: "Build",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "preview",
                                 title: "Preview",
                                 type: "int",
-                                markdownEnumDescriptions: ["false", "true"],
+                                markdownEnumDescriptions: ["Release", "Beta/Preview"],
                                 enum: [
                                     { type: "int", value: 0 },
                                     { type: "int", value: 1 },
@@ -2483,12 +2533,18 @@ export namespace NBTSchemas {
                         type: "long",
                         // REVIEW: Verify this description is correct.
                         markdownDescription:
-                            "A 64-bit integer representing the world size in bits. *verify*\n\nThis is used for old MCPE versions (it is known to be used from v0.1.2 Alpha until at least v0.10.0).",
+                            "A 64-bit integer representing the world size in bits. *verify*\n\nThis is used for old MCPE versions (it is known to be used from v0.1.0 Alpha until at least v0.10.0).",
                     },
                     LegacyLastPlayed: {
                         type: "int",
                         markdownDescription:
                             "Stores a timestamp of when the world was last played as the number of seconds since the epoch (1/1/1970).\n\nNote that this will overflow approximately every 136 years.\n\nThis is used for Minecraft versions prior to Pocket Edition v0.2.0 Alpha.",
+                    },
+                    Player: {
+                        markdownDescription:
+                            "Local player data.\n\nThis is used for Minecraft versions from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).",
+                        $ref: "FileBasedStoragePlayerData",
+                        unevaluatedProperties: false,
                     },
                     randomtickspeed: {
                         type: "int",
@@ -2658,6 +2714,7 @@ export namespace NBTSchemas {
                     // TODO: Add the verison ranges for each storage version.
                     StorageVersion: {
                         type: "int",
+                        title: "Storage Version",
                         markdownDescription: "Version of _Bedrock Edition_ Storage Tool, currently is 10.",
                         default: {
                             type: "int",
@@ -3075,18 +3132,23 @@ export namespace NBTSchemas {
                                                         title: "Template Position",
                                                         markdownDescription: "UNDOCUMENTED. A Vector3.",
                                                         type: "list",
+                                                        minItems: 3,
+                                                        maxItems: 3,
                                                         items: [
                                                             {
+                                                                tupleItemLabelTS: "x",
                                                                 title: "x",
                                                                 markdownDescription: "X component of this vector.",
                                                                 type: "int",
                                                             },
                                                             {
+                                                                tupleItemLabelTS: "y",
                                                                 title: "y",
                                                                 markdownDescription: "Y component of this vector.",
                                                                 type: "int",
                                                             },
                                                             {
+                                                                tupleItemLabelTS: "z",
                                                                 title: "z",
                                                                 markdownDescription: "Z component of this vector.",
                                                                 type: "int",
@@ -3095,7 +3157,7 @@ export namespace NBTSchemas {
                                                     },
                                                     gendepth: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     orientation: {
@@ -3177,7 +3239,7 @@ export namespace NBTSchemas {
                                                     },
                                                     gendepth: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     orientation: {
@@ -3201,7 +3263,7 @@ export namespace NBTSchemas {
                                                         properties: {
                                                             D: {
                                                                 title: "UNTITLED.",
-                                                                description: "UNDOCUMENTED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
                                                                 type: "int",
                                                             },
                                                             tf: {
@@ -3230,6 +3292,7 @@ export namespace NBTSchemas {
                                                                     type: "intArray",
                                                                     minItems: 6,
                                                                     maxItems: 6,
+                                                                    // TODO: Ad a tuple items type here once the converter supports that.
                                                                 },
                                                             },
                                                         },
@@ -3240,7 +3303,7 @@ export namespace NBTSchemas {
                                                         properties: {
                                                             Num: {
                                                                 title: "UNTITLED.",
-                                                                description: "UNDOCUMENTED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
                                                                 type: "int",
                                                             },
                                                             hps: {
@@ -3339,7 +3402,7 @@ export namespace NBTSchemas {
                                                     },
                                                     gendepth: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     orientation: {
@@ -3416,17 +3479,17 @@ export namespace NBTSchemas {
                                                     },
                                                     Depth: {
                                                         title: "Depth",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     HPos: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     Height: {
                                                         title: "Height",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     ID: {
@@ -3436,12 +3499,12 @@ export namespace NBTSchemas {
                                                     },
                                                     Width: {
                                                         title: "Width",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     gendepth: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     orientation: {
@@ -3629,7 +3692,7 @@ export namespace NBTSchemas {
                                                     },
                                                     EntryDoor: {
                                                         title: "Entry Door",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     ID: {
@@ -3639,7 +3702,7 @@ export namespace NBTSchemas {
                                                     },
                                                     Steps: {
                                                         title: "Steps",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     Left: {
@@ -3664,7 +3727,7 @@ export namespace NBTSchemas {
                                                     },
                                                     gendepth: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     leftHigh: {
@@ -3801,7 +3864,7 @@ export namespace NBTSchemas {
                                                     },
                                                     HPos: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     ID: {
@@ -3831,12 +3894,12 @@ export namespace NBTSchemas {
                                                     },
                                                     VCount: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     gendepth: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     orientation: {
@@ -3927,7 +3990,7 @@ export namespace NBTSchemas {
                                                     },
                                                     gendepth: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     orientation: {
@@ -4117,18 +4180,23 @@ export namespace NBTSchemas {
                                                         title: "Template Position",
                                                         markdownDescription: "UNDOCUMENTED. A Vector3.",
                                                         type: "list",
+                                                        minItems: 3,
+                                                        maxItems: 3,
                                                         items: [
                                                             {
+                                                                tupleItemLabelTS: "x",
                                                                 title: "x",
                                                                 markdownDescription: "X component of this vector.",
                                                                 type: "int",
                                                             },
                                                             {
+                                                                tupleItemLabelTS: "y",
                                                                 title: "y",
                                                                 markdownDescription: "Y component of this vector.",
                                                                 type: "int",
                                                             },
                                                             {
+                                                                tupleItemLabelTS: "z",
                                                                 title: "z",
                                                                 markdownDescription: "Z component of this vector.",
                                                                 type: "int",
@@ -4137,7 +4205,7 @@ export namespace NBTSchemas {
                                                     },
                                                     gendepth: {
                                                         title: "UNTITLED.",
-                                                        description: "UNDOCUMENTED.",
+                                                        markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     orientation: {
@@ -4764,18 +4832,23 @@ export namespace NBTSchemas {
                         title: "Position",
                         markdownDescription: "The location of the lodestone the associated lodestone compass points to. A Vector3.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 title: "x",
                                 markdownDescription: "X component of this vector.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 title: "y",
                                 markdownDescription: "Y component of this vector.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 title: "z",
                                 markdownDescription: "Z component of this vector.",
                                 type: "int",
@@ -4864,9 +4937,13 @@ export namespace NBTSchemas {
                 type: "compound",
                 properties: {
                     daysSinceLastWTSpawn: {
+                        title: "Days Since Last Wandering Trader Spawn",
+                        markdownDescription: "UNDOCMENTED.",
                         type: "int",
                     },
                     isSpawningWT: {
+                        title: "Is Spawning Wandering Trader",
+                        markdownDescription: "UNDOCMENTED.",
                         type: "byte",
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
@@ -4875,6 +4952,8 @@ export namespace NBTSchemas {
                         ],
                     },
                     nextWTSpawnCheckTick: {
+                        title: "Next Wandering Trader Spawn Check Tick",
+                        markdownDescription: "UNDOCMENTED.",
                         type: "long",
                     },
                 },
@@ -5080,12 +5159,15 @@ These are two arrays of indices in the block palette.
 
 The first layer is the block layer.
 
-The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
+The second layer is the snowlog layer, even though it is mainly used for snowlogging, other blocks can be put here to,
 which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
 however when the corresponding block in the block layer is broken, this block gets moved to the block layer).`,
                                         type: "list",
+                                        minItems: 2,
+                                        maxItems: 2,
                                         items: [
                                             {
+                                                tupleItemLabelTS: "blockLayer",
                                                 title: "Block Layer",
                                                 markdownDescription: "The block layer.",
                                                 type: "list",
@@ -5095,8 +5177,9 @@ however when the corresponding block in the block layer is broken, this block ge
                                                 },
                                             },
                                             {
-                                                title: "Waterlog Layer",
-                                                markdownDescription: "The waterlog layer.",
+                                                tupleItemLabelTS: "snowlogLayer",
+                                                title: "Snowlog Layer",
+                                                markdownDescription: "The snowlog layer.",
                                                 type: "list",
                                                 items: {
                                                     markdownDescription: "A block index in this layer.",
@@ -5104,8 +5187,6 @@ however when the corresponding block in the block layer is broken, this block ge
                                                 },
                                             },
                                         ],
-                                        minItems: 2,
-                                        maxItems: 2,
                                     },
                                     entities: {
                                         title: "Entities",
@@ -5121,20 +5202,25 @@ however when the corresponding block in the block layer is broken, this block ge
                                 title: "Size",
                                 markdownDescription: "The size of the structure, as a tuple of 3 integers.",
                                 type: "list",
+                                minItems: 3,
+                                maxItems: 3,
                                 items: [
                                     {
+                                        tupleItemLabelTS: "x",
                                         title: "x",
                                         markdownDescription: "The size of the x axis.",
                                         type: "int",
                                         minimum: 0,
                                     },
                                     {
+                                        tupleItemLabelTS: "y",
                                         title: "y",
                                         markdownDescription: "The size of the y axis.",
                                         type: "int",
                                         minimum: 0,
                                     },
                                     {
+                                        tupleItemLabelTS: "z",
                                         title: "z",
                                         markdownDescription: "The size of the z axis.",
                                         type: "int",
@@ -5147,18 +5233,23 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription:
                                     "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
                                 type: "list",
+                                minItems: 3,
+                                maxItems: 3,
                                 items: [
                                     {
+                                        tupleItemLabelTS: "x",
                                         title: "x",
                                         markdownDescription: "The x coordinate.",
                                         type: "int",
                                     },
                                     {
+                                        tupleItemLabelTS: "y",
                                         title: "y",
                                         markdownDescription: "The y coordinate.",
                                         type: "int",
                                     },
                                     {
+                                        tupleItemLabelTS: "z",
                                         title: "z",
                                         markdownDescription: "The z coordinate.",
                                         type: "int",
@@ -5233,12 +5324,15 @@ These are two arrays of indices in the block palette.
 
 The first layer is the block layer.
 
-The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
+The second layer is the snowlog layer, even though it is mainly used for snowlogging, other blocks can be put here to,
 which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
 however when the corresponding block in the block layer is broken, this block gets moved to the block layer).`,
                                         type: "list",
+                                        minItems: 1,
+                                        maxItems: 2,
                                         items: [
                                             {
+                                                tupleItemLabelTS: "blockLayer",
                                                 title: "Block Layer",
                                                 markdownDescription: "The block layer.",
                                                 type: "intArray",
@@ -5248,8 +5342,9 @@ however when the corresponding block in the block layer is broken, this block ge
                                                 },
                                             },
                                             {
-                                                title: "Waterlog Layer",
-                                                markdownDescription: "The waterlog layer.",
+                                                tupleItemLabelTS: "snowlogLayer",
+                                                title: "Snowlog Layer",
+                                                markdownDescription: "The snowlog layer.",
                                                 type: "intArray",
                                                 items: {
                                                     markdownDescription: "A block index in this layer.",
@@ -5257,8 +5352,6 @@ however when the corresponding block in the block layer is broken, this block ge
                                                 },
                                             },
                                         ],
-                                        minItems: 1,
-                                        maxItems: 2,
                                     },
                                     entities: {
                                         title: "Entities",
@@ -5274,20 +5367,25 @@ however when the corresponding block in the block layer is broken, this block ge
                                 title: "Size",
                                 markdownDescription: "The size of the structure, as a tuple of 3 integers.",
                                 type: "list",
+                                minItems: 3,
+                                maxItems: 3,
                                 items: [
                                     {
+                                        tupleItemLabelTS: "x",
                                         title: "x",
                                         markdownDescription: "The size of the x axis.",
                                         type: "int",
                                         minimum: 0,
                                     },
                                     {
+                                        tupleItemLabelTS: "y",
                                         title: "y",
                                         markdownDescription: "The size of the y axis.",
                                         type: "int",
                                         minimum: 0,
                                     },
                                     {
+                                        tupleItemLabelTS: "z",
                                         title: "z",
                                         markdownDescription: "The size of the z axis.",
                                         type: "int",
@@ -5300,18 +5398,23 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription:
                                     "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
                                 type: "list",
+                                minItems: 3,
+                                maxItems: 3,
                                 items: [
                                     {
+                                        tupleItemLabelTS: "x",
                                         title: "x",
                                         markdownDescription: "The x coordinate.",
                                         type: "int",
                                     },
                                     {
+                                        tupleItemLabelTS: "y",
                                         title: "y",
                                         markdownDescription: "The y coordinate.",
                                         type: "int",
                                     },
                                     {
+                                        tupleItemLabelTS: "z",
                                         title: "z",
                                         markdownDescription: "The z coordinate.",
                                         type: "int",
@@ -5444,18 +5547,23 @@ however when the corresponding block in the block layer is broken, this block ge
                                             last_saved_pos: {
                                                 markdownDescription: "UNDOCUMENTED.",
                                                 type: "list",
+                                                minItems: 3,
+                                                maxItems: 3,
                                                 items: [
                                                     {
+                                                        tupleItemLabelTS: "x",
                                                         title: "x",
                                                         markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     {
+                                                        tupleItemLabelTS: "y",
                                                         title: "y",
                                                         markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
                                                     },
                                                     {
+                                                        tupleItemLabelTS: "z",
                                                         title: "z",
                                                         markdownDescription: "UNDOCUMENTED.",
                                                         type: "int",
@@ -5836,25 +5944,25 @@ however when the corresponding block in the block layer is broken, this block ge
                         markdownDescription: "The player's ability setting.",
                         type: "compound",
                         required: [
-                            "attackmobs",
-                            "attackplayers",
-                            "build",
-                            "doorsandswitches",
+                            // "attackmobs",
+                            // "attackplayers",
+                            // "build",
+                            // "doorsandswitches",
                             "flying",
-                            "flySpeed",
+                            // "flySpeed",
                             "instabuild",
                             "invulnerable",
-                            "lightning",
+                            // "lightning",
                             "mayfly",
-                            "mine",
+                            // "mine",
                             // "mute",
                             // "noclip",
-                            "op",
-                            "opencontainers",
+                            // "op",
+                            // "opencontainers",
                             // "permissionsLevel",
                             // "playerPermissionsLevel",
-                            "teleport",
-                            "walkSpeed",
+                            // "teleport",
+                            // "walkSpeed",
                             // "worldbuilder",
                         ],
                         properties: {
@@ -6067,24 +6175,36 @@ however when the corresponding block in the block layer is broken, this block ge
                     Name: {
                         markdownDescription: "The name of this Attribute.",
                         type: "string",
+                        // TODO: Make this an enum, or add examples.
                     },
                     TemporalBuffs: {
                         markdownDescription: "(May not exist) UNDOCUMENTED.",
                         type: "list",
+                        minItems: 4,
+                        maxItems: 4,
                         items: [
+                            // FIXME: This doesn't seem right, these types are mixed, which shouldn't be possible.
                             {
+                                tupleItemLabelTS: "amount",
+                                title: "Amount",
                                 markdownDescription: "UNDOCUMENTED.",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "duration",
+                                title: "Duration",
                                 markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "lifetime",
+                                title: "Lifetime",
                                 markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "type",
+                                title: "Type",
                                 markdownDescription: "UNDOCUMENTED.",
                                 type: "int",
                             },
@@ -6488,6 +6608,514 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
                 $fragment: true,
             },
+            FileBasedStorageItemStack: {
+                id: "FileBasedStorageItemStack",
+                markdownDescription: "NBT structure of an item stack from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).",
+                type: "compound",
+                required: ["Count", "Damage", "id"],
+                properties: {
+                    Count: {
+                        markdownDescription: "Number of items stacked in this inventory slot.",
+                        type: "byte",
+                    },
+                    Damage: {
+                        markdownDescription: "The metadata value. Note that this tag does not store items' damage value.",
+                        type: "short",
+                    },
+                    id: {
+                        markdownDescription: "The numeric item ID of this item.",
+                        type: "short",
+                        // TODO (Important): Add a enum here of all the numeric item IDs from 0.2.0 to 0.9.0 (exclusive), maybe ALSO have an anyOf which shows a dynamic enum for Damage based on the list of data values for the given item ID.
+                    },
+                },
+                $fragment: true,
+            },
+            FileBasedStoragePlayerData: {
+                id: "FileBasedStoragePlayerData",
+                markdownDescription: "NBT structure of a player from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).",
+                type: "compound",
+                required: [
+                    "Air",
+                    "AttackTime",
+                    "DeathTime",
+                    "Dimension",
+                    "FallDistance",
+                    "Fire",
+                    "Health",
+                    "HurtTime",
+                    "Inventory",
+                    "Motion",
+                    "OnGround",
+                    "Pos",
+                    "Rotation",
+                ],
+                properties: {
+                    Air: {
+                        title: "Air",
+                        markdownDescription: "How much air the player has, in ticks.",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: 300,
+                        },
+                    },
+                    Armor: {
+                        title: "Armor",
+                        markdownDescription: "The list of items the player is wearing as armor.",
+                        type: "list",
+                        minItems: 4,
+                        maxItems: 4,
+                        items: [
+                            {
+                                tupleItemLabelTS: "head",
+                                markdownDescription: "The item on the head.",
+                                type: "compound",
+                                // TEST: Make sure this doesn't override the title or description.
+                                $ref: "FileBasedStorageItemStack",
+                                unevaluatedProperties: false,
+                            },
+                            {
+                                tupleItemLabelTS: "chest",
+                                markdownDescription: "The item on the chest.",
+                                type: "compound",
+                                // TEST: Make sure this doesn't override the title or description.
+                                $ref: "FileBasedStorageItemStack",
+                                unevaluatedProperties: false,
+                            },
+                            {
+                                tupleItemLabelTS: "legs",
+                                markdownDescription: "The item on the legs.",
+                                type: "compound",
+                                // TEST: Make sure this doesn't override the title or description.
+                                $ref: "FileBasedStorageItemStack",
+                                unevaluatedProperties: false,
+                            },
+                            {
+                                tupleItemLabelTS: "feet",
+                                markdownDescription: "The item on the feet.",
+                                type: "compound",
+                                // TEST: Make sure this doesn't override the title or description.
+                                $ref: "FileBasedStorageItemStack",
+                                unevaluatedProperties: false,
+                            },
+                        ],
+                        default: {
+                            type: "list",
+                            value: {
+                                type: "compound",
+                                value: [
+                                    {
+                                        Count: {
+                                            type: "byte",
+                                            value: 0,
+                                        },
+                                        Damage: {
+                                            type: "short",
+                                            value: 0,
+                                        },
+                                        id: {
+                                            type: "short",
+                                            value: 0,
+                                        },
+                                    },
+                                    {
+                                        Count: {
+                                            type: "byte",
+                                            value: 0,
+                                        },
+                                        Damage: {
+                                            type: "short",
+                                            value: 0,
+                                        },
+                                        id: {
+                                            type: "short",
+                                            value: 0,
+                                        },
+                                    },
+                                    {
+                                        Count: {
+                                            type: "byte",
+                                            value: 0,
+                                        },
+                                        Damage: {
+                                            type: "short",
+                                            value: 0,
+                                        },
+                                        id: {
+                                            type: "short",
+                                            value: 0,
+                                        },
+                                    },
+                                    {
+                                        Count: {
+                                            type: "byte",
+                                            value: 0,
+                                        },
+                                        Damage: {
+                                            type: "short",
+                                            value: 0,
+                                        },
+                                        id: {
+                                            type: "short",
+                                            value: 0,
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    AttackTime: {
+                        title: "Attack Time",
+                        markdownDescription: "Number of ticks the player attacks for. 0 when not attacking.",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: 0,
+                        },
+                    },
+                    BedPositionX: {
+                        title: "Bed Position X",
+                        // TEST: See if this is the position of a specific half of the bed, or the part of the bed that is clicked on, and if there was a command to change the spawn point at this time, and if it actually changed this field.
+                        markdownDescription: "UNDOCMENTED",
+                        // markdownDescription: "The X coordinate of the player's spawn block.",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                    BedPositionY: {
+                        title: "Bed Position Y",
+                        // TEST: See if this is the position of a specific half of the bed, or the part of the bed that is clicked on, and if there was a command to change the spawn point at this time, and if it actually changed this field.
+                        markdownDescription: "UNDOCMENTED",
+                        // markdownDescription: "The Y coordinate of the player's spawn block.",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                    BedPositionZ: {
+                        title: "Bed Position Z",
+                        // TEST: See if this is the position of a specific half of the bed, or the part of the bed that is clicked on, and if there was a command to change the spawn point at this time, and if it actually changed this field.
+                        markdownDescription: "UNDOCMENTED",
+                        // markdownDescription: "The Z coordinate of the player's spawn block.",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                    DeathTime: {
+                        title: "Death Time",
+                        markdownDescription: "Number of ticks the player has been dead for. Controls death animations. 0 when alive.",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: 0,
+                        },
+                    },
+                    Dimension: {
+                        title: "Dimension",
+                        markdownDescription: "The ID of the dimension the player is in.",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                    FallDistance: {
+                        title: "Fall Distance",
+                        markdownDescription: "Distance the player has fallen. Larger values cause more damage when the player lands.",
+                        type: "float",
+                        default: {
+                            type: "float",
+                            value: 0,
+                        },
+                    },
+                    Fire: {
+                        title: "Fire",
+                        markdownDescription: "Number of ticks until the fire is put out. Default 0 when not on fire.",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: -20,
+                        },
+                    },
+                    Health: {
+                        title: "Health",
+                        markdownDescription: "The health of the player.",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: 20,
+                        },
+                    },
+                    HurtTime: {
+                        title: "Hurt Time",
+                        markdownDescription: "Number of ticks the player turns red for after being hit. 0 when not recently hit.",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: 0,
+                        },
+                    },
+                    Inventory: {
+                        title: "Inventory",
+                        markdownDescription: "Each compound tag in this list is an item in the player's inventory.",
+                        type: "list",
+                        // IDEA: Maybe add a oneOf with each possible number of inventory items, and what the number is used for, and what each slot is.
+                        items: {
+                            title: "Inventory Item",
+                            markdownDescription: "An item in the player's inventory.",
+                            required: ["Slot"],
+                            properties: {
+                                Slot: {
+                                    title: "Slot",
+                                    markdownDescription: "The slot the item is in.",
+                                    type: "byte",
+                                },
+                            },
+                            $ref: "FileBasedStorageItemStack",
+                            unevaluatedProperties: false,
+                        },
+                    },
+                    Motion: {
+                        title: "Motion",
+                        markdownDescription: "Three TAG_Floats describing the current dX, dY and dZ velocity of the player in meters per tick.",
+                        type: "list",
+                        minItems: 3,
+                        maxItems: 3,
+                        items: [
+                            {
+                                tupleItemLabelTS: "dX",
+                                markdownDescription: "dX",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "dY",
+                                markdownDescription: "dY",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "dZ",
+                                markdownDescription: "dZ",
+                                type: "float",
+                            },
+                        ],
+                        default: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [0, 0, 0],
+                            },
+                        },
+                    },
+                    OnGround: {
+                        title: "On Ground",
+                        markdownDescription: "1 or 0 (true/false) - true if the player is touching the ground.",
+                        type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                        default: {
+                            type: "byte",
+                            value: 0,
+                        },
+                    },
+                    Pos: {
+                        title: "Position",
+                        markdownDescription: "Three TAG_Floats describing the current X, Y and Z position of the player.",
+                        type: "list",
+                        minItems: 3,
+                        maxItems: 3,
+                        items: [
+                            {
+                                tupleItemLabelTS: "x",
+                                markdownDescription: "X",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "y",
+                                markdownDescription: "Y",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "z",
+                                markdownDescription: "Z",
+                                type: "float",
+                            },
+                        ],
+                        default: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [0, 0, 0],
+                            },
+                        },
+                    },
+                    Rotation: {
+                        title: "Rotation",
+                        markdownDescription: "Two TAG_Floats representing rotation in degrees.",
+                        type: "list",
+                        minItems: 2,
+                        maxItems: 2,
+                        items: [
+                            {
+                                tupleItemLabelTS: "yaw",
+                                markdownDescription:
+                                    "The player's rotation clockwise around the Y axis (called yaw). Due south is 0. Does not exceed 360 degrees.",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "pitch",
+                                markdownDescription:
+                                    "The player's declination from the horizon (called pitch). Horizontal is 0. Positive values look downward. Does not exceed positive or negative 90 degrees.",
+                                type: "float",
+                            },
+                        ],
+                        default: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [0, 0],
+                            },
+                        },
+                    },
+                    SleepTimer: {
+                        title: "Sleep Timer",
+                        // REVIEW: Verify that this description is accurate in the version range this schema is used for.
+                        markdownDescription:
+                            "The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0. *needs testing*",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: 0,
+                        },
+                    },
+                    Sleeping: {
+                        title: "Sleeping",
+                        markdownDescription: "1 or 0 (true/false) - true if the player is sleeping.",
+                        type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                        default: {
+                            type: "byte",
+                            value: 0,
+                        },
+                    },
+                    SpawnX: {
+                        title: "Spawn X",
+                        markdownDescription: "The X coordinate of the player's spawn point.",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                    SpawnY: {
+                        title: "Spawn Y",
+                        markdownDescription: "The Y coordinate of the player's spawn point.",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                    SpawnZ: {
+                        title: "Spawn Z",
+                        markdownDescription: "The Z coordinate of the player's spawn point.",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                    Score: {
+                        title: "Score",
+                        markdownDescription: "UNDOCUMENTED.",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
+                    },
+                    abilities: {
+                        title: "Abilities",
+                        markdownDescription: "The player's ability settings.",
+                        type: "compound",
+                        // REVIEW: See if all four of these were actually all added at once.
+                        required: ["flying", "instabuild", "invulnerable", "mayfly"],
+                        properties: {
+                            flying: {
+                                markdownDescription: "1 or 0 (true/false) - true if the player is currently flying.",
+                                type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+
+                            instabuild: {
+                                markdownDescription: "1 or 0 (true/false) - true if the player can instantly destroy blocks.",
+                                type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+                            invulnerable: {
+                                markdownDescription: "1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.",
+                                type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+
+                            mayfly: {
+                                markdownDescription: "1 or 0 (true/false) - true if the player can fly.",
+                                type: "byte",
+                                markdownEnumDescriptions: ["false", "true"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                            },
+                        },
+                        default: {
+                            type: "compound",
+                            value: {
+                                flying: {
+                                    type: "byte",
+                                    value: 0,
+                                },
+                                instabuild: {
+                                    type: "byte",
+                                    value: 0,
+                                },
+                                invulnerable: {
+                                    type: "byte",
+                                    value: 0,
+                                },
+                                mayfly: {
+                                    type: "byte",
+                                    value: 0,
+                                },
+                            },
+                        },
+                    },
+                },
+                $fragment: true,
+            },
             //#endregion
             //#region Entity NBT Schemas
             Entity_Minecart: {
@@ -6617,24 +7245,34 @@ however when the corresponding block in the block layer is broken, this block ge
                     Armor: {
                         markdownDescription: "The list of items the mob is wearing as armor.",
                         type: "list",
+                        minItems: 4,
+                        maxItems: 4,
                         items: [
                             {
+                                tupleItemLabelTS: "head",
+                                title: "Head",
                                 markdownDescription: "The item on the head.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
                             {
+                                tupleItemLabelTS: "chest",
+                                title: "Chest",
                                 markdownDescription: "The item on the chest.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
                             {
+                                tupleItemLabelTS: "legs",
+                                title: "Legs",
                                 markdownDescription: "The item on the legs.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
                             {
-                                markdownDescription: "The item on the feets.",
+                                tupleItemLabelTS: "feet",
+                                title: "Feet",
+                                markdownDescription: "The item on the feet.",
                                 type: "compound",
                                 $ref: "Item_ItemStack",
                             },
@@ -7518,16 +8156,21 @@ however when the corresponding block in the block layer is broken, this block ge
                     Direction: {
                         markdownDescription: "List of 3 doubles. Should be identical to Motion. *needs testing*",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 markdownDescription: "X",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 markdownDescription: "Y",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 markdownDescription: "Z",
                                 type: "float",
                             },
@@ -7540,16 +8183,21 @@ however when the corresponding block in the block layer is broken, this block ge
                     power: {
                         markdownDescription: "List of 3 floats that adds to `Direction` every tick. Act as the acceleration.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 markdownDescription: "X",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 markdownDescription: "Y",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 markdownDescription: "Z",
                                 type: "float",
                             },
@@ -8091,7 +8739,7 @@ however when the corresponding block in the block layer is broken, this block ge
                     "SpawnBlockPositionX",
                     "SpawnBlockPositionY",
                     "SpawnBlockPositionZ",
-                    "SpawnDimension",
+                    // "SpawnDimension",
                     "SpawnX",
                     "SpawnY",
                     "SpawnZ",
@@ -9624,16 +10272,21 @@ however when the corresponding block in the block layer is broken, this block ge
                     ExitPortal: {
                         markdownDescription: "Location entities are teleported to when entering the portal.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 markdownDescription: "X coordinate of target location.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 markdownDescription: "Y coordinate of target location.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 markdownDescription: "Z coordinate of target location.",
                                 type: "int",
                             },
@@ -9853,7 +10506,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         $ref: "Block",
                     },
                     movingBlockExtra: {
-                        markdownDescription: "The [extra moving block layer](https://minecraft.wiki/w/Waterlogging) represented by this block entity.",
+                        markdownDescription: "The [extra moving block layer](https://minecraft.wiki/w/Snowlogging) represented by this block entity.",
                         type: "compound",
                         $ref: "Block",
                     },
@@ -9928,72 +10581,22 @@ however when the corresponding block in the block layer is broken, this block ge
                 required: ["AttachedBlocks", "BreakBlocks", "LastProgress", "NewState", "Progress", "State", "Sticky"],
                 properties: {
                     AttachedBlocks: {
-                        markdownDescription: "The list of positions of blocks it should move.",
+                        markdownDescription:
+                            "The list of positions of blocks it should move. It is a flat array of block X, Y, and Z coordinates. ex. [x1, y1, z1, x2, y2, z2, x3, y3, z3, ...]",
                         type: "list",
-                        items: [
-                            {
-                                markdownDescription: "A block's X coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "A block's Y coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "A block's Z coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "Another block's X coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "Another block's Y coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "Another block's Z coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "etc.",
-                                type: "int",
-                            },
-                        ],
+                        items: {
+                            markdownDescription: "The X, Y, or Z coordinate of a block.",
+                            type: "int",
+                        },
                     },
                     BreakBlocks: {
-                        markdownDescription: "The list of positions of blocks it should break.",
+                        markdownDescription:
+                            "The list of positions of blocks it should break. It is a flat array of block X, Y, and Z coordinates. ex. [x1, y1, z1, x2, y2, z2, x3, y3, z3, ...]",
                         type: "list",
-                        items: [
-                            {
-                                markdownDescription: "A block's X coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "A block's Y coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "A block's Z coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "Another block's X coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "Another block's Y coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "Another block's Z coordinate.",
-                                type: "int",
-                            },
-                            {
-                                markdownDescription: "etc.",
-                                type: "int",
-                            },
-                        ],
+                        items: {
+                            markdownDescription: "The X, Y, or Z coordinate of a block.",
+                            type: "int",
+                        },
                     },
                     LastProgress: {
                         markdownDescription: "Progress in last tick.",
@@ -10817,11 +11420,11 @@ however when the corresponding block in the block layer is broken, this block ge
                                 default: { type: "int", value: 0 },
                             },
                             display: {
-                                description: "(May not exist) Display properties.",
+                                markdownDescription: "(May not exist) Display properties.",
                                 type: "compound",
                                 properties: {
                                     Lore: {
-                                        description: "(May not exist) List of strings to display as lore for the item.",
+                                        markdownDescription: "(May not exist) List of strings to display as lore for the item.",
                                         type: "list",
                                         items: {
                                             markdownDescription: "(May not exist) A line of text for the lore of an item.",
@@ -10887,10 +11490,10 @@ however when the corresponding block in the block layer is broken, this block ge
                         required: ["ench"],
                         properties: {
                             ench: {
-                                description: "Contains enchantments on this item.",
+                                markdownDescription: "Contains enchantments on this item.",
                                 type: "list",
                                 items: {
-                                    description: "A single enchantment.",
+                                    markdownDescription: "A single enchantment.",
                                     type: "compound",
                                     required: ["id", "lvl"],
                                     properties: {
@@ -11664,6 +12267,20 @@ however when the corresponding block in the block layer is broken, this block ge
                     InventoryVersion: {
                         markdownDescription: "e.g. 1.17.20-beta23",
                         type: "string",
+                        examples: [
+                            {
+                                type: "string",
+                                value: "1.21.51",
+                            },
+                            {
+                                type: "string",
+                                value: "1.17.20-beta23",
+                            },
+                            {
+                                type: "string",
+                                value: "1.26.10-preview21",
+                            },
+                        ],
                     },
                     LootTable: {
                         markdownDescription: "Loot table to be used to fill the inventory when it is next opened, or the items are otherwise interacted with.",
@@ -11783,16 +12400,21 @@ however when the corresponding block in the block layer is broken, this block ge
                     HomePos: {
                         markdownDescription: "The position of the entity's home.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 markdownDescription: "X",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 markdownDescription: "Y",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 markdownDescription: "Z",
                                 type: "float",
                             },
@@ -11917,16 +12539,21 @@ however when the corresponding block in the block layer is broken, this block ge
                     StuckToBlockPos: {
                         markdownDescription: "UNDOCUMENTED.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 markdownDescription: "X",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 markdownDescription: "Y",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 markdownDescription: "Z",
                                 type: "int",
                             },
@@ -11935,16 +12562,21 @@ however when the corresponding block in the block layer is broken, this block ge
                     CollisionPos: {
                         markdownDescription: "UNDOCUMENTED.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 markdownDescription: "X",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 markdownDescription: "Y",
                                 type: "float",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 markdownDescription: "Z",
                                 type: "float",
                             },
@@ -12492,6 +13124,265 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 },
             },
             // NOTE: Verified.
+            ChunksDat: {
+                id: "ChunksDat",
+                title: "The ChunksDat schema.",
+                markdownDescription:
+                    "The NBT structure of the parsed data of the ChunksDat content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["chunks"],
+                properties: {
+                    chunks: {
+                        // REVIEW: These chunks may actually be able to hold more items in their data arrays if it is modded for a custom height limit.
+                        markdownDescription: "The chunks in the world.\n\nIn it is stored as a 2D matrix with [x][z] compounds.",
+                        type: "list",
+                        minItems: 16,
+                        maxItems: 16,
+                        allOf: [
+                            {
+                                // TEST
+                                type: "list",
+                                items: new Array<void>(16).fill(void 0).map((_: void, x: number) => ({
+                                    type: "list",
+                                    items: new Array<void>(16).fill(void 0).map((_: void, z: number) => ({
+                                        title: `Chunk (${x}, ${z})`,
+                                        completionDetail: `(${x}, ${z})`,
+                                    })),
+                                    minItems: 16,
+                                    maxItems: 16,
+                                })),
+                                minItems: 16,
+                                maxItems: 16,
+                                hideFromTS: true,
+                            },
+                        ],
+                        items: {
+                            title: "Chunk Column",
+                            markdownDescription: "A column of chunks. Its index corresponds to the chunk's X index.",
+                            type: "list",
+                            minItems: 16,
+                            maxItems: 16,
+                            items: {
+                                title: undefined, // This prevents the title of the ChunksDatChunk NBT schema from overriding the indexed chunk title when this is converted to a JSON schema the ChunksDatChunk ref inlined (idk if it actually would override it or not, but it might).
+                                markdownDescription: "A chunk in the world. Its index corresponds to the chunk's Z index.",
+                                $ref: "ChunksDatChunk",
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
+            ChunksDatChunk: {
+                id: "ChunksDatChunk",
+                title: "The ChunksDatChunk schema.",
+                markdownDescription:
+                    "The NBT structure of a chunk in the parsed data of the ChunksDat content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["block_ids", "block_data", "sky_light", "block_light", "update_map", "extra_data"],
+                // BUG: This allows mixing empty properties with non-empty properties (ex. block_ids can be empty while block_data has data), it is currently like this to avoid a stack overflow error from the previously attempted solution.
+                properties: {
+                    block_ids: {
+                        title: "Block IDs",
+                        markdownDescription: "32768 block IDs representing a 16x16x128 chunk.\n\nThe blocks are in XZY order.",
+                        type: "list",
+                        oneOf: [
+                            {
+                                type: "list",
+                                minItems: 32768,
+                                maxItems: 32768,
+                                hideFromTS: true,
+                            },
+                            {
+                                type: "list",
+                                minItems: 0,
+                                maxItems: 0,
+                                hideFromTS: true,
+                            },
+                        ],
+                        items: {
+                            title: "Block ID",
+                            markdownDescription: "The block ID at a given (x, z, y) coordinate.",
+                            type: "byte",
+                            maximum: 0xff, // Unsigned
+                        },
+                    },
+                    block_data: {
+                        title: "Block Data",
+                        markdownDescription: "The data values for each block (0-15).\n\nThe blocks are in XZY order.",
+                        type: "list",
+                        oneOf: [
+                            {
+                                type: "list",
+                                minItems: 32768,
+                                maxItems: 32768,
+                                hideFromTS: true,
+                            },
+                            {
+                                type: "list",
+                                minItems: 0,
+                                maxItems: 0,
+                                hideFromTS: true,
+                            },
+                        ],
+                        items: {
+                            title: "Block Data",
+                            markdownDescription: "The data value at a given (x, z, y) coordinate.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                    sky_light: {
+                        title: "Sky Light",
+                        markdownDescription: "Sky light nibble for each block (0-15).\n\nThe blocks are in XZY order.",
+                        type: "list",
+                        oneOf: [
+                            {
+                                type: "list",
+                                minItems: 32768,
+                                maxItems: 32768,
+                                hideFromTS: true,
+                            },
+                            {
+                                type: "list",
+                                minItems: 0,
+                                maxItems: 0,
+                                hideFromTS: true,
+                            },
+                        ],
+                        items: {
+                            title: "Sky Light",
+                            markdownDescription: "The sky light value at a given (x, z, y) coordinate.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                    block_light: {
+                        title: "Block Light",
+                        markdownDescription: "Block light nibble for each block (0-15).\n\nThe blocks are in XZY order.",
+                        type: "list",
+                        oneOf: [
+                            {
+                                type: "list",
+                                minItems: 32768,
+                                maxItems: 32768,
+                                hideFromTS: true,
+                            },
+                            {
+                                type: "list",
+                                minItems: 0,
+                                maxItems: 0,
+                                hideFromTS: true,
+                            },
+                        ],
+                        items: {
+                            title: "Block Light",
+                            markdownDescription: "The block light value for a block.",
+                            type: "byte",
+                            minimum: 0,
+                            maximum: 15,
+                            enum: [
+                                { type: "byte", value: 0x0 },
+                                { type: "byte", value: 0x1 },
+                                { type: "byte", value: 0x2 },
+                                { type: "byte", value: 0x3 },
+                                { type: "byte", value: 0x4 },
+                                { type: "byte", value: 0x5 },
+                                { type: "byte", value: 0x6 },
+                                { type: "byte", value: 0x7 },
+                                { type: "byte", value: 0x8 },
+                                { type: "byte", value: 0x9 },
+                                { type: "byte", value: 0xa },
+                                { type: "byte", value: 0xb },
+                                { type: "byte", value: 0xc },
+                                { type: "byte", value: 0xd },
+                                { type: "byte", value: 0xe },
+                                { type: "byte", value: 0xf },
+                            ],
+                        },
+                    },
+                    update_map: {
+                        // REVIEW: This might actually be in XZ order, though this seems to indicate otherwise: https://github.com/mschiller890/mcpe64/blob/b9715a2d6cb38e55020652379941151ff43d9be0/src/world/level/chunk/LevelChunk.cpp#L100
+                        markdownDescription:
+                            "The modification states of subchunks, these determine whether the subchunk is sent to other players in multiplayer instead of those players' clients generating it client-side.\n\nThe state values are in ZX order. Each bit in each value represents a subchunk: the highest bit is subchunk 7, and the lowest bit is subchunk 0.",
+                        type: "list",
+                        oneOf: [
+                            {
+                                // TEST
+                                type: "list",
+                                items: new Array<void>(256).fill(void 0).map((_: void, i: number) => ({
+                                    title: `Chunk Update States (${i & 0x0f}, ${i >> 4})`,
+                                    completionDetail: `(${i & 0x0f}, ${i >> 4})`,
+                                })),
+                                minItems: 256,
+                                maxItems: 256,
+                                hideFromTS: true,
+                            },
+                            {
+                                type: "list",
+                                minItems: 0,
+                                maxItems: 0,
+                                hideFromTS: true,
+                            },
+                        ],
+                        items: {
+                            markdownDescription:
+                                "The update states of a chunk. Each bit represents a subchunk: the highest bit is subchunk 7, and the lowest bit is subchunk 0.",
+                            type: "byte",
+                            maximum: 0xff, // Unsigned
+                        },
+                    },
+                    extra_data: {
+                        title: "Extra Data",
+                        markdownDescription: "Extra bytes in the chunk data.\n\nThis is most likely never going to have any data added by the game itself.",
+                        type: "list",
+                        items: {
+                            title: "Extra Byte",
+                            markdownDescription: "An extra byte of data.",
+                            type: "byte",
+                            maximum: 0xff, // Unsigned
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
             Data2DLegacy: {
                 id: "Data2DLegacy",
                 title: "The Data2DLegacy schema.",
@@ -12523,30 +13414,64 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         minItems: 16,
                         maxItems: 16,
                         items: {
-                            markdownDescription: "A biome data row. Its index corresponds to the offset on the x axis.",
+                            markdownDescription: "A biome data column. Its index corresponds to the offset on the x axis.",
                             type: "list",
                             minItems: 16,
                             maxItems: 16,
                             items: {
                                 markdownDescription: "A tuple of the biome data for this xz column. Its index corresponds to the offset on the z axis.",
                                 type: "list",
+                                minItems: 4,
+                                maxItems: 4,
                                 items: [
                                     {
+                                        tupleItemLabelTS: "biomeId",
                                         title: "Biome ID",
                                         markdownDescription: "A biome numeric ID value.",
                                         type: `${NBT.TagType.Byte}`,
+                                        maximum: 0xff, // Unsigned
+                                        oneOf: [
+                                            {
+                                                // FIXME: Make this only have biomes that were present during the time this content type was used.
+                                                markdownDescription: "A vanilla biome numeric ID.",
+                                                type: "byte",
+                                                maximum: 0xff, // Unsigned
+                                                markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
+                                                    .filter(([_biome, id]: [biome: string, id: number]): boolean => id < 256)
+                                                    .sort((a: [biome: string, id: number], b: [biome: string, id: number]): number => a[1] - b[1])
+                                                    .map(([biome, id]: [biome: string, id: number]): string => `${biome} (${id})`),
+                                                enum: Object.values(__biome_data__.int_map)
+                                                    .filter((v: number): boolean => v < 256)
+                                                    .sort((a: number, b: number): number => a - b)
+                                                    .map((v: number): NBT.Byte => ({ type: "byte", value: v })),
+                                                errorMessage: "Unknown vanilla biome numeric ID.",
+                                            },
+                                            {
+                                                // HACK: This is to make the TypeScript type allow arbitrary numeric values.
+                                                type: "byte",
+                                                allOf: [
+                                                    {
+                                                        not: true,
+                                                        hideFromTS: true,
+                                                    },
+                                                ],
+                                            },
+                                        ],
                                     },
                                     {
+                                        tupleItemLabelTS: "red",
                                         title: "Red",
                                         markdownDescription: "The red channel of the biome color.",
                                         type: `${NBT.TagType.Byte}`,
                                     },
                                     {
+                                        tupleItemLabelTS: "green",
                                         title: "Green",
                                         markdownDescription: "The green channel of the biome color.",
                                         type: `${NBT.TagType.Byte}`,
                                     },
                                     {
+                                        tupleItemLabelTS: "blue",
                                         title: "Blue",
                                         markdownDescription: "The blue channel of the biome color.",
                                         type: `${NBT.TagType.Byte}`,
@@ -12606,6 +13531,34 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     items: {
                                         markdownDescription: "A biome numeric ID value. Its index corresponds to the offset on the z axis.",
                                         type: `${NBT.TagType.Byte}`,
+                                        maximum: 0xff, // Unsigned
+                                        oneOf: [
+                                            {
+                                                // FIXME: Make this only have biomes that were present during the time this format version of this content type was used.
+                                                markdownDescription: "A vanilla biome numeric ID.",
+                                                type: "byte",
+                                                maximum: 0xff, // Unsigned
+                                                markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
+                                                    .filter(([_biome, id]: [biome: string, id: number]): boolean => id < 256)
+                                                    .sort((a: [biome: string, id: number], b: [biome: string, id: number]): number => a[1] - b[1])
+                                                    .map(([biome, id]: [biome: string, id: number]): string => `${biome} (${id})`),
+                                                enum: Object.values(__biome_data__.int_map)
+                                                    .filter((v: number): boolean => v < 256)
+                                                    .sort((a: number, b: number): number => a - b)
+                                                    .map((v: number): NBT.Byte => ({ type: "byte", value: v })),
+                                                errorMessage: "Unknown vanilla biome numeric ID.",
+                                            },
+                                            {
+                                                // HACK: This is to make the TypeScript type allow arbitrary numeric values.
+                                                type: "byte",
+                                                allOf: [
+                                                    {
+                                                        not: true,
+                                                        hideFromTS: true,
+                                                    },
+                                                ],
+                                            },
+                                        ],
                                     },
                                 },
                             },
@@ -12652,6 +13605,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     items: {
                                         markdownDescription: "A biome numeric ID value. Its index corresponds to the offset on the z axis.",
                                         type: `${NBT.TagType.Short}`,
+                                        maximum: 0xff_ff, // Unsigned
+                                        oneOf: [
+                                            {
+                                                markdownDescription: "A vanilla biome numeric ID.",
+                                                type: "short",
+                                                maximum: 0xff_ff, // Unsigned
+                                                markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
+                                                    .sort((a: [biome: string, id: number], b: [biome: string, id: number]): number => a[1] - b[1])
+                                                    .map(([biome, id]: [biome: string, id: number]): string => `${biome} (${id})`),
+                                                enum: Object.values(__biome_data__.int_map)
+                                                    .sort((a: number, b: number): number => a - b)
+                                                    .map((v: number): NBT.Short => ({ type: "short", value: v })),
+                                                errorMessage:
+                                                    "Unknown vanilla biome numeric ID. If you meant to enter the ID of a custom biome, it should be at least 10000.",
+                                            },
+                                            {
+                                                markdownDescription: "A custom biome numeric ID.",
+                                                type: "short",
+                                                minimum: 10000,
+                                                maximum: 0xff_ff, // Unsigned
+                                            },
+                                        ],
                                     },
                                 },
                             },
@@ -12698,6 +13673,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     maxItems: 4096,
                                     items: {
                                         type: "int",
+                                        maximum: 0xff_ff_ff_ff, // Unsigned
                                     },
                                 },
                                 palette: {
@@ -12709,10 +13685,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     items: {
                                         markdownDescription: "A biome numeric ID.",
                                         type: "int",
+                                        maximum: 0xff_ff_ff_ff, // Unsigned
                                         oneOf: [
                                             {
                                                 markdownDescription: "A vanilla biome numeric ID.",
                                                 type: "int",
+                                                maximum: 0xff_ff_ff_ff, // Unsigned
                                                 markdownEnumDescriptions: Object.entries(__biome_data__.int_map)
                                                     .sort((a: [biome: string, id: number], b: [biome: string, id: number]): number => a[1] - b[1])
                                                     .map(([biome, id]: [biome: string, id: number]): string => `${biome} (${id})`),
@@ -12726,6 +13704,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                 markdownDescription: "A custom biome numeric ID.",
                                                 type: "int",
                                                 minimum: 10000,
+                                                maximum: 0xff_ff_ff_ff, // Unsigned
                                             },
                                         ],
                                     },
@@ -12846,18 +13825,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         title: "Position",
                         markdownDescription: "UNDOCUMENTED. This may be the position of the jigsaw block.", // TEST: See if this is actually the position of the jigsaw block.
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 title: "x",
                                 markdownDescription: "X component of this vector.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 title: "y",
                                 markdownDescription: "Y component of this vector.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 title: "z",
                                 markdownDescription: "Z component of this vector.",
                                 type: "int",
@@ -12868,18 +13852,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         title: "Min Bounds",
                         markdownDescription: "The minimum bounds of the jigsaw structure.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 title: "x",
                                 markdownDescription: "X component of this vector.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 title: "y",
                                 markdownDescription: "Y component of this vector.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 title: "z",
                                 markdownDescription: "Z component of this vector.",
                                 type: "int",
@@ -12890,18 +13879,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         title: "Max Bounds",
                         markdownDescription: "The maximum bounds of the jigsaw structure.",
                         type: "list",
+                        minItems: 3,
+                        maxItems: 3,
                         items: [
                             {
+                                tupleItemLabelTS: "x",
                                 title: "x",
                                 markdownDescription: "X component of this vector.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "y",
                                 title: "y",
                                 markdownDescription: "Y component of this vector.",
                                 type: "int",
                             },
                             {
+                                tupleItemLabelTS: "z",
                                 title: "z",
                                 markdownDescription: "Z component of this vector.",
                                 type: "int",
@@ -12943,18 +13937,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                             title: "Min Bounds",
                                             markdownDescription: "UNDOCUMENTED.",
                                             type: "list",
+                                            minItems: 3,
+                                            maxItems: 3,
                                             items: [
                                                 {
+                                                    tupleItemLabelTS: "x",
                                                     title: "x",
                                                     markdownDescription: "X component of this vector.",
                                                     type: "int",
                                                 },
                                                 {
+                                                    tupleItemLabelTS: "y",
                                                     title: "y",
                                                     markdownDescription: "Y component of this vector.",
                                                     type: "int",
                                                 },
                                                 {
+                                                    tupleItemLabelTS: "z",
                                                     title: "z",
                                                     markdownDescription: "Z component of this vector.",
                                                     type: "int",
@@ -12965,18 +13964,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                             title: "Max Bounds",
                                             markdownDescription: "UNDOCUMENTED.",
                                             type: "list",
+                                            minItems: 3,
+                                            maxItems: 3,
                                             items: [
                                                 {
+                                                    tupleItemLabelTS: "x",
                                                     title: "x",
                                                     markdownDescription: "X component of this vector.",
                                                     type: "int",
                                                 },
                                                 {
+                                                    tupleItemLabelTS: "y",
                                                     title: "y",
                                                     markdownDescription: "Y component of this vector.",
                                                     type: "int",
                                                 },
                                                 {
+                                                    tupleItemLabelTS: "z",
                                                     title: "z",
                                                     markdownDescription: "Z component of this vector.",
                                                     type: "int",
@@ -12989,18 +13993,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     title: "Position",
                                     markdownDescription: "UNDOCUMENTED.",
                                     type: "list",
+                                    minItems: 3,
+                                    maxItems: 3,
                                     items: [
                                         {
+                                            tupleItemLabelTS: "x",
                                             title: "x",
                                             markdownDescription: "X component of this vector.",
                                             type: "int",
                                         },
                                         {
+                                            tupleItemLabelTS: "y",
                                             title: "y",
                                             markdownDescription: "Y component of this vector.",
                                             type: "int",
                                         },
                                         {
+                                            tupleItemLabelTS: "z",
                                             title: "z",
                                             markdownDescription: "Z component of this vector.",
                                             type: "int",
@@ -13083,6 +14092,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         },
                     },
                 },
+            },
+            // NOTE: Verified.
+            LANPlayerDat: {
+                id: "LANPlayerDat",
+                title: "The LANPlayerDat schema.",
+                markdownDescription:
+                    "The NBT structure of the parsed data of the LANPlayerDat content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["StorageVersion"],
+                properties: {
+                    StorageVersion: {
+                        title: "Storage Version",
+                        markdownDescription: "The storage version of this player's dat file.",
+                        type: "int",
+                        const: {
+                            type: "int",
+                            value: 1,
+                        },
+                    },
+                },
+                // TEST: Make sure this doesn't override the title or description.
+                allOf: [{ $ref: "FileBasedStoragePlayerData" }],
             },
             // NOTE: Verified.
             LegacyBlockExtraData: {
@@ -13458,6 +14489,212 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 },
             },
             // NOTE: Verified.
+            PlayerDat: {
+                id: "PlayerDat",
+                title: "The PlayerDat schema.",
+                markdownDescription:
+                    "The NBT structure of the parsed data of the PlayerDat content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: [
+                    "StorageVersion",
+                    "Air",
+                    "FallDistance",
+                    "Fire",
+                    "Hotbar",
+                    "Motion",
+                    "OnGround",
+                    "Pos",
+                    "Rotation",
+                    "UnknownField1",
+                    "UnknownField2",
+                ],
+                properties: {
+                    StorageVersion: {
+                        title: "Storage Version",
+                        markdownDescription: "The storage version of the player.dat file.",
+                        type: "int",
+                        const: {
+                            type: "int",
+                            value: 1,
+                        },
+                    },
+                    Air: {
+                        title: "Air",
+                        markdownDescription: "How much air the player has, in ticks.",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: 300,
+                        },
+                    },
+                    FallDistance: {
+                        title: "Fall Distance",
+                        markdownDescription: "Distance the player has fallen. Larger values cause more damage when the player lands.",
+                        type: "float",
+                        default: {
+                            type: "float",
+                            value: 0,
+                        },
+                    },
+                    Fire: {
+                        title: "Fire",
+                        markdownDescription: "Number of ticks until the fire is put out. Default 0 when not on fire.",
+                        type: "short",
+                        default: {
+                            type: "short",
+                            value: -20,
+                        },
+                    },
+                    Hotbar: {
+                        title: "Hotbar",
+                        markdownDescription: "Each compound tag in this list is an item in the player's hotbar.",
+                        type: "list",
+                        minItems: 9,
+                        maxItems: 9,
+                        items: (<T>(v: T): TupleOf<9, MutableDeep<T> & { title: `Hotbar Item ${number}`; tupleItemLabelTS: `slot${number}` }> =>
+                            new Array<T>(9).fill(v).map((v2: T, i: number): T & { title: `Hotbar Item ${number}`; tupleItemLabelTS: `slot${number}` } => ({
+                                title: `Hotbar Item ${i + 1}`,
+                                tupleItemLabelTS: `slot${i}`,
+                                ...v2,
+                            })) as TupleOf<9, T & { title: `Hotbar Item ${number}`; tupleItemLabelTS: `slot${number}` }>)({
+                            markdownDescription: "An item in the player's hotbar.",
+                            required: ["ItemID", "UnknownField1"],
+                            properties: {
+                                ItemID: {
+                                    title: "Item ID",
+                                    markdownDescription: "The numeric item ID of this item.",
+                                    type: "short",
+                                    // TODO (Important): Add a enum here of all the numeric item IDs from 0.1.0 to 0.2.0 (exclusive).
+                                },
+                                UnknownField1: {
+                                    title: "?",
+                                    completionDetail: "?",
+                                    markdownDescription: "UNKNOWN.",
+                                    type: "short",
+                                },
+                            },
+                            additionalProperties: false,
+                        } as const satisfies NBTSubSchema),
+                    },
+                    Motion: {
+                        title: "Motion",
+                        markdownDescription: "(May not exist) Three TAG_Floats describing the current dX, dY and dZ velocity of the player in meters per tick.",
+                        type: "list",
+                        minItems: 3,
+                        maxItems: 3,
+                        items: [
+                            {
+                                tupleItemLabelTS: "dX",
+                                markdownDescription: "dX",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "dY",
+                                markdownDescription: "dY",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "dZ",
+                                markdownDescription: "dZ",
+                                type: "float",
+                            },
+                        ],
+                        default: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [0, 0, 0],
+                            },
+                        },
+                    },
+                    OnGround: {
+                        title: "On Ground",
+                        markdownDescription: "1 or 0 (true/false) - true if the player is touching the ground.",
+                        type: "byte",
+                        markdownEnumDescriptions: ["false", "true"],
+                        enum: [
+                            { type: "byte", value: 0 },
+                            { type: "byte", value: 1 },
+                        ],
+                        default: {
+                            type: "byte",
+                            value: 0,
+                        },
+                    },
+                    Pos: {
+                        title: "Position",
+                        markdownDescription: "Three TAG_Floats describing the current X, Y and Z position of the player.",
+                        type: "list",
+                        minItems: 3,
+                        maxItems: 3,
+                        items: [
+                            {
+                                tupleItemLabelTS: "x",
+                                markdownDescription: "X",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "y",
+                                markdownDescription: "Y",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "z",
+                                markdownDescription: "Z",
+                                type: "float",
+                            },
+                        ],
+                        default: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [0, 0, 0],
+                            },
+                        },
+                    },
+                    Rotation: {
+                        title: "Rotation",
+                        markdownDescription: "Two TAG_Floats representing rotation in degrees.",
+                        type: "list",
+                        minItems: 2,
+                        maxItems: 2,
+                        items: [
+                            {
+                                tupleItemLabelTS: "yaw",
+                                markdownDescription:
+                                    "The player's rotation clockwise around the Y axis (called yaw). Due south is 0. Does not exceed 360 degrees.",
+                                type: "float",
+                            },
+                            {
+                                tupleItemLabelTS: "pitch",
+                                markdownDescription:
+                                    "The player's declination from the horizon (called pitch). Horizontal is 0. Positive values look downward. Does not exceed positive or negative 90 degrees.",
+                                type: "float",
+                            },
+                        ],
+                        default: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [0, 0],
+                            },
+                        },
+                    },
+                    UnknownField1: {
+                        title: "?",
+                        completionDetail: "?",
+                        markdownDescription: "UNKNOWN.",
+                        type: "short",
+                    },
+                    UnknownField2: {
+                        title: "?",
+                        completionDetail: "?",
+                        markdownDescription: "UNKNOWN.",
+                        type: "byte",
+                    },
+                },
+            },
+            // NOTE: Verified.
             POITypes: {
                 id: "POITypes",
                 title: "The POITypes schema.",
@@ -13534,20 +14771,22 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 },
                                 pos: {
                                     type: "list",
+                                    minItems: 2,
+                                    maxItems: 2,
                                     items: [
                                         {
+                                            tupleItemLabelTS: "regionX",
                                             title: "Region X",
                                             markdownDescription: "X index of the region.",
                                             type: "int",
                                         },
                                         {
+                                            tupleItemLabelTS: "regionZ",
                                             title: "Region Z",
                                             markdownDescription: "Z index of the region.",
                                             type: "int",
                                         },
                                     ],
-                                    minItems: 2,
-                                    maxItems: 2,
                                 },
                             },
                         },
@@ -13579,30 +14818,33 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 },
                                 tickets: {
                                     title: "Tickets",
-                                    description: "UNDOCUMENTED.",
+                                    markdownDescription: "UNDOCUMENTED.",
                                     type: "byte",
                                 },
                                 pos: {
                                     type: "list",
+                                    minItems: 3,
+                                    maxItems: 3,
                                     items: [
                                         {
+                                            tupleItemLabelTS: "relativeX",
                                             title: "Relative X",
                                             markdownDescription: "The relative X coordinate of the block within the region.",
                                             type: "short",
                                         },
                                         {
+                                            tupleItemLabelTS: "relativeY",
                                             title: "Relative Y",
                                             markdownDescription: "The Y coordinate of the block relative to the bottom of the world.",
                                             type: "short",
                                         },
                                         {
+                                            tupleItemLabelTS: "relativeZ",
                                             title: "Relative Z",
                                             markdownDescription: "The relative Z coordinate of the block within the region.",
                                             type: "short",
                                         },
                                     ],
-                                    minItems: 3,
-                                    maxItems: 3,
                                 },
                             },
                         },
@@ -13819,8 +15061,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     },
                     layers: {
                         type: "list",
+                        minItems: 1,
+                        maxItems: 1,
                         items: [
                             {
+                                tupleItemLabelTS: "blockLayer",
+                                title: "Block Layer",
+                                markdownDescription: "The block layer.",
                                 $ref: "SubChunkPrefixLayer",
                             },
                         ],
@@ -13854,7 +15101,25 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     },
                     layers: {
                         type: "list",
-                        items: {
+                        minItems: 0,
+                        items: [
+                            {
+                                tupleItemLabelTS: "blockLayer",
+                                title: "Block Layer",
+                                markdownDescription: "The block layer.",
+                                $ref: "SubChunkPrefixLayer",
+                            },
+                            {
+                                tupleItemLabelTS: "snowlogLayer",
+                                title: "Snowlog Layer",
+                                markdownDescription: "The snowlog layer.",
+                                $ref: "SubChunkPrefixLayer",
+                            },
+                        ],
+                        additionalItems: {
+                            tupleItemLabelTS: "additionalLayers",
+                            title: "Additional Layer",
+                            markdownDescription: "An additional layer.",
                             $ref: "SubChunkPrefixLayer",
                         },
                     },
@@ -13887,7 +15152,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 $fragment: true,
             },
             //#endregion
-        } as const satisfies Record<string, NBTSchema | NBTSchemaFragment> & Partial<Record<DBEntryContentType, NBTSchema>>,
+        } as const satisfies Record<string, NBTSchema | NBTSchemaFragment> & Partial<Record<MCEntryContentType, NBTSchema>>,
         {
             /**
              * This is an alias of {@link nbtSchemas.PlayerClient}, this only exists because it is what it is called on the Minecraft Wiki, so it is here for the Minecraft Wiki data to schema converter.
@@ -14188,6 +15453,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          * @internal
          */
         schemaCategory_typeId?: string | string[] | undefined;
+        /**
+         * If this schema should be ignored by the NBT schema to TypeScript type converter.
+         *
+         * @warning Currently only works when directly inside of an `allOf`, `anyOf`, or `oneOf`.
+         */
+        hideFromTS?: boolean | undefined;
+        /**
+         * An label for this item in the generated TypeScript tuple type.
+         *
+         * Only works for list items that would normally end up directly in a tuple type.
+         *
+         * Must be a valid TypeScript identifier, otherwise there will be syntax errors in the generated type.
+         *
+         * @todo This might only be functional in some contexts atm.
+         * @todo Add checks to make sure the value of this is a valid identifier.
+         */
+        tupleItemLabelTS?: string | undefined;
         /**
          * The ID of this schema.
          */
@@ -14673,7 +15955,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     };
                     if (!("id" in schema)) delete jsonSchema.id;
                     if (!("$id" in schema)) delete jsonSchema.$id;
-                    // if (!("$schema" in schema)) delete jsonSchema.$schema;
+                    if (!("$schema" in schema) && !isRoot) delete jsonSchema.$schema;
                     if (!("title" in schema)) delete jsonSchema.title;
                     if (!("completionDetail" in schema)) delete jsonSchema.completionDetail;
                     if (!("description" in schema)) delete jsonSchema.description;
@@ -14686,7 +15968,34 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             }
                             const schemaRef: JSONSchemaRef = nbtSchemaToJsonSchema(refTarget, allSchemas, options, isRoot);
                             if (Object.keys(schema).length === 1) return schemaRef;
-                            jsonSchema.allOf = [schemaRef];
+                            if (
+                                typeof schemaRef === "object" &&
+                                Object.keys(schema).filter(
+                                    (v: string): boolean =>
+                                        !["title", "completionDetail", "tupleItemLabelTS", "description", "markdownDescription", "hideFromTS"].includes(v)
+                                ).length === 1
+                            ) {
+                                return {
+                                    ...schemaRef,
+                                    ...Object.fromEntries(
+                                        Object.entries(schema).filter(([k, _v]: [key: string, value: unknown]): boolean =>
+                                            ["title", "completionDetail", "description", "markdownDescription"].includes(k)
+                                        )
+                                    ),
+                                };
+                            }
+                            jsonSchema.allOf = [
+                                typeof schemaRef === "object" ?
+                                    {
+                                        ...schemaRef,
+                                        ...Object.fromEntries(
+                                            Object.entries(schema).filter(([k, _v]: [key: string, value: unknown]): boolean =>
+                                                ["title", "completionDetail", "description", "markdownDescription"].includes(k)
+                                            )
+                                        ),
+                                    }
+                                :   schemaRef,
+                            ];
                             // if (typeof schemaRef === "boolean") return schemaRef;
                             // for (const [k, v] of Object.entries(schemaRef) as [keyof JSONSchema, JSONSchema[keyof JSONSchema]][]) {
                             //     if ((k in jsonSchema)) continue;
@@ -14702,7 +16011,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         if (!(key in schema) || !schema[key]) continue;
                         jsonSchema[key] = [
                             ...(jsonSchema[key] ?? []),
-                            ...schema[key].map((s: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(s, allSchemas, options, isRoot)),
+                            ...schema[key].map((s: NBTSubSchemaRef): JSONSchemaRef =>
+                                nbtSchemaToJsonSchema(
+                                    typeof s === "object" && s ?
+                                        {
+                                            // This disables the corresponding properties on the referenced schema if they exist on the parent schema of this schema and not directly on this schema (with this schema referring to the current entry in oneOf/anyOf/allOf/etc.).
+                                            // This fixes #5 (when refs are inlined).
+                                            // TEST: Make sure that the issue this fixes doesn't still occur when refs are not inlined.
+                                            ...Object.fromEntries(
+                                                Object.entries(schema)
+                                                    .filter(([k, _v]: [key: string, value: unknown]): boolean =>
+                                                        ["title", "completionDetail", "description", "markdownDescription"].includes(k)
+                                                    )
+                                                    .map(([k, v]: [key: string, value: unknown]): [key: string, value: undefined] => [k, void v])
+                                            ),
+                                            ...s,
+                                        }
+                                    :   s,
+                                    allSchemas,
+                                    options,
+                                    isRoot
+                                )
+                            ),
                         ];
                     }
                     for (const key of ["not"] as const) {
@@ -14834,8 +16164,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     // Only apply top-level items if this schema is a plain JSON array, not an NBT list
                     if (schema.items && schema.type !== NBT.TagType.List) {
                         if (Array.isArray(schema.items)) {
-                            valueSchema.items = schema.items.map(
-                                (item: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(item, allSchemas, options, false)
+                            valueSchema.items = schema.items.map((item: NBTSubSchemaRef): JSONSchemaRef =>
+                                nbtSchemaToJsonSchema(item, allSchemas, options, false)
                             );
                         } else if (typeof schema.items === "object") {
                             valueSchema.items = nbtSchemaToJsonSchema(schema.items, allSchemas, options, false);
@@ -15030,12 +16360,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         case NBT.TagType.Long: {
                             const valueType: JSONSchema = {
                                 type: "array",
+                                minItems: 2,
+                                maxItems: 2,
                                 items: [
                                     { title: "High", type: "integer", minimum: -0x80000000, maximum: 0x7fffffff },
                                     { title: "Low", type: "integer", minimum: -0x80000000, maximum: 0x7fffffff },
                                 ],
-                                minItems: 2,
-                                maxItems: 2,
                                 additionalItems: false,
                             };
                             if (
@@ -15470,7 +16800,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                         nbtSchemaToJsonSchema(v as NBTSubSchema, allSchemas, { ...options, makeValueSchema: true }, true)
                                                     )
                                                 :   nbtSchemaToJsonSchema(schema.items as NBTSubSchema, allSchemas, { ...options, makeValueSchema: true }, true)
-                                            :   {},
+                                            :   undefined,
                                         additionalItems:
                                             typeof schema.additionalItems === "object" ?
                                                 nbtSchemaToJsonSchema(schema.additionalItems, allSchemas, options, false)
@@ -15606,7 +16936,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 keyof NBTSchema &
                                 keyof NBTSchemaFragment)[]) {
                                 if (schema[k] !== undefined) {
-                                    valueType[k] = schema[k];
+                                    (valueType.properties!.value as JSONSchema)[k] = schema[k];
                                 }
                             }
                             return resultSchema;
@@ -16243,20 +17573,31 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * Format a value for use in a TypeScript type.
                  *
                  * @param value The value to format.
+                 * @param type The formatting type. Providing a number is the same as providing `"unset"` or nothing at all. Defaults to `"unset"`.
                  * @returns The formatted value.
                  *
                  * @internal
                  */
-                function formatValue(value: any): string {
+                function formatValue(value: unknown, type: "unset" | "JSDoc" | number = "unset"): string {
+                    const formatValueInner: (value: unknown) => string = (value: unknown): string => formatValue(value, type);
                     if (Array.isArray(value)) {
-                        return value.map(formatValue).join(" | ");
+                        if (type === "JSDoc") return `[${value.map(formatValueInner).join(", ")}]`;
+                        return value.map(formatValueInner).join(" | ");
                     }
                     if (typeof value === "bigint") {
+                        // if (type === "JSDoc") return `([high: ${toLongParts(value).join(", low: ")}] | ${value.toString()}n)`;
+                        if (type === "JSDoc") return `[high: ${toLongParts(value).join(", low: ")}] | ${value.toString()}n`;
                         // return value.toString() + "n"; // preserve as bigint literal
                         return `[high: ${toLongParts(value).join(", low: ")}]`; // Convert the long back to the high and low parts.
                     }
                     if (typeof value === "object" && value !== null) {
-                        if ("value" in value) return formatValue(value.value);
+                        if ("type" in value && "value" in value)
+                            return formatValueInner(
+                                value.type === "long" && Array.isArray(value.value) && typeof value.value[0] === "number" ?
+                                    toLong(value.value as [high: number, low: number])
+                                : value.type === "long" && Array.isArray(value.value) && Array.isArray(value.value[0]) ? value.value.map(toLong)
+                                : value.value
+                            );
                         try {
                             return JSON.stringify(value);
                         } catch {
@@ -16270,17 +17611,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * Format a list of enum values for use in a TypeScript type.
                  *
                  * @param enumValues The enum values to format.
+                 * @param type The formatting type. Providing a number is the same as providing `"unset"` or nothing at all. Defaults to `"unset"`.
                  * @returns The formatted enum values.
                  *
                  * @internal
                  */
-                function formatEnum(enumValues: any[]): string {
+                function formatEnum(enumValues: any[], type: "unset" | "JSDoc" | number = "unset"): string {
                     return enumValues
-                        .map((v) => {
+                        .map((v: any): string => {
                             if (typeof v === "object" && v.value !== undefined) {
-                                return formatValue(v.value);
+                                return formatValue(v.value, type);
                             }
-                            return formatValue(v);
+                            return formatValue(v, type);
                         })
                         .join(" | ");
                 }
@@ -16325,9 +17667,30 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @internal
                  */
-                function renderComment(schema: NBTSubSchema | undefined, symbolReference?: string[] | undefined, indent: string = ""): string {
-                    if (!schema) return "";
-                    const parts: string[] = [];
+                function renderComment(
+                    schema: NBTSubSchema | undefined,
+                    symbolReference?: string[] | undefined,
+                    indent: string = "",
+                    prependParts: string[] = []
+                ): string {
+                    if (!schema && prependParts.length === 0) return "";
+                    const parts: string[] = renderCommentParts(schema, symbolReference, indent, prependParts);
+
+                    if (parts.length === 0) return "";
+                    const lines: string[] = parts
+                        .join("\n\n")
+                        .split("\n")
+                        .map((l: string): string => `${indent} * ${l}`);
+                    return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
+                }
+                function renderCommentParts(
+                    schema: NBTSubSchema | undefined,
+                    symbolReference?: string[] | undefined,
+                    _indent: string = "",
+                    prependParts: string[] = []
+                ): string[] {
+                    if (!schema) return prependParts;
+                    const parts: string[] = [...prependParts];
 
                     if (schema.title) parts.push(schema.title);
                     if (schema.markdownDescription ?? schema.description) parts.push(schema.markdownDescription ?? schema.description!);
@@ -16338,7 +17701,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                     // Handle min/max length
                     if (schema.minLength !== undefined) {
-                        const val: string = formatValue(schema.minLength);
+                        const val: string = formatValue(schema.minLength, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@minLength\n${val}`);
@@ -16347,7 +17710,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         }
                     }
                     if (schema.maxLength !== undefined) {
-                        const val: string = formatValue(schema.maxLength);
+                        const val: string = formatValue(schema.maxLength, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@maxLength\n${val}`);
@@ -16358,7 +17721,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                     // Handle min/max items
                     if (schema.minItems !== undefined) {
-                        const val: string = formatValue(schema.minItems);
+                        const val: string = formatValue(schema.minItems, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@minItems\n${val}`);
@@ -16367,7 +17730,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         }
                     }
                     if (schema.maxItems !== undefined) {
-                        const val: string = formatValue(schema.maxItems);
+                        const val: string = formatValue(schema.maxItems, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@maxItems\n${val}`);
@@ -16378,7 +17741,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                     // Handle min/max properties
                     if (schema.minProperties !== undefined) {
-                        const val: string = formatValue(schema.minProperties);
+                        const val: string = formatValue(schema.minProperties, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@minProperties\n${val}`);
@@ -16387,7 +17750,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         }
                     }
                     if (schema.maxProperties !== undefined) {
-                        const val: string = formatValue(schema.maxProperties);
+                        const val: string = formatValue(schema.maxProperties, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@maxProperties\n${val}`);
@@ -16398,7 +17761,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                     // Handle min/max and exclusive min/max
                     if (schema.minimum !== undefined) {
-                        const val: string = formatValue(schema.minimum);
+                        const val: string = formatValue(schema.minimum, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@minimum\n${val}`);
@@ -16407,7 +17770,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         }
                     }
                     if (schema.maximum !== undefined) {
-                        const val: string = formatValue(schema.maximum);
+                        const val: string = formatValue(schema.maximum, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@maximum\n${val}`);
@@ -16416,7 +17779,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         }
                     }
                     if (schema.exclusiveMinimum !== undefined) {
-                        const val: string = formatValue(schema.exclusiveMinimum);
+                        const val: string = formatValue(schema.exclusiveMinimum, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@exclusiveMinimum\n${val}`);
@@ -16425,7 +17788,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         }
                     }
                     if (schema.exclusiveMaximum !== undefined) {
-                        const val: string = formatValue(schema.exclusiveMaximum);
+                        const val: string = formatValue(schema.exclusiveMaximum, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@exclusiveMaximum\n${val}`);
@@ -16436,7 +17799,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                     // Handle other restriction properties
                     if (schema.multipleOf !== undefined) {
-                        const val: string = formatValue(schema.multipleOf);
+                        const val: string = formatValue(schema.multipleOf, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(val) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(val)) {
                             parts.push(`@multipleOf\n${val}`);
@@ -16458,13 +17821,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                     // Handle const value
                     if (schema.const !== undefined) {
-                        const defVal: string = formatValue(schema.const);
+                        const defVal: string = formatValue(schema.const, "JSDoc");
                         parts.push(`@const\n\`\`\`ts\n${defVal}\n\`\`\``);
                     }
 
                     // Handle default value
                     if (schema.default !== undefined) {
-                        const defVal: string = formatValue(schema.default);
+                        const defVal: string = formatValue(schema.default, "JSDoc");
                         // Put on new line if contains non-alphanumeric characters
                         if (/[^a-zA-Z0-9_.=+-]/.test(defVal) && !/^"[a-zA-Z0-9_.=+-\s]+"$/.test(defVal)) {
                             parts.push(`@default\n${defVal}`);
@@ -16476,7 +17839,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     // Handle examples
                     if (schema.examples && Array.isArray(schema.examples)) {
                         for (const ex of schema.examples) {
-                            const exVal = formatValue(ex);
+                            const exVal = formatValue(ex, "JSDoc");
                             if (/[^a-zA-Z0-9_]/.test(exVal)) {
                                 parts.push(`@example\n${exVal}`);
                             } else {
@@ -16487,7 +17850,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                     // Handle enum
                     if (schema.enum && Array.isArray(schema.enum)) {
-                        parts.push(`@enum ${formatEnum(schema.enum)}`);
+                        parts.push(`@enum ${formatEnum(schema.enum, "JSDoc")}`);
 
                         const enumDescriptions: string[] | undefined =
                             schema.markdownEnumDescriptions ? [...schema.markdownEnumDescriptions]
@@ -16520,12 +17883,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         }
                     }
 
-                    if (parts.length === 0) return "";
-                    const lines: string[] = parts
-                        .join("\n\n")
-                        .split("\n")
-                        .map((l: string): string => `${indent} * ${l}`);
-                    return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
+                    return parts;
                 }
 
                 /**
@@ -16658,7 +18016,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         :   undefined;
                     if (!(opts.inlineRefs ?? false) && schema.allOf !== undefined) {
                         const refAllOfs: (NBTSubSchema & { $ref: string })[] = schema.allOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref && !ref.hideFromTS
                         );
                         if (refAllOfs.length > 0) {
                             allOfRefTypes ??= [] as unknown as [string];
@@ -16673,7 +18031,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let oneOfRefTypes: [string, ...string[]] | undefined = undefined;
                     if (!(opts.inlineRefs ?? false) && schema.oneOf !== undefined) {
                         const refOneOfs: (NBTSubSchema & { $ref: string })[] = schema.oneOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref && !ref.hideFromTS
                         );
                         if (refOneOfs.length > 0) {
                             oneOfRefTypes ??= [] as unknown as [string];
@@ -16688,7 +18046,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let anyOfRefTypes: [string, ...string[]] | undefined = undefined;
                     if (!(opts.inlineRefs ?? false) && schema.anyOf !== undefined) {
                         const refAnyOfs: (NBTSubSchema & { $ref: string })[] = schema.anyOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref && !ref.hideFromTS
                         );
                         if (refAnyOfs.length > 0) {
                             anyOfRefTypes ??= [] as unknown as [string];
@@ -16703,7 +18061,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let allOfNonRefTypes: [string, ...string[]] | undefined = undefined;
                     if (schema.allOf !== undefined) {
                         const nonRefAllOfs: NBTSubSchema[] = schema.allOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || (ref.$ref === undefined && !ref.hideFromTS)
                         );
                         if (nonRefAllOfs.length > 0) {
                             allOfNonRefTypes ??= [] as unknown as [string];
@@ -16721,7 +18079,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let oneOfNonRefTypes: [string, ...string[]] | undefined = undefined;
                     if (schema.oneOf !== undefined) {
                         const nonRefOneOfs: NBTSubSchema[] = schema.oneOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || (ref.$ref === undefined && !ref.hideFromTS)
                         );
                         if (nonRefOneOfs.length > 0) {
                             oneOfNonRefTypes ??= [] as unknown as [string];
@@ -16739,7 +18097,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let anyOfNonRefTypes: [string, ...string[]] | undefined = undefined;
                     if (schema.anyOf !== undefined) {
                         const nonRefAnyOfs: NBTSubSchema[] = schema.anyOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || (ref.$ref === undefined && !ref.hideFromTS)
                         );
                         if (nonRefAnyOfs.length > 0) {
                             anyOfNonRefTypes ??= [] as unknown as [string];
@@ -16810,7 +18168,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             return {
                                 type: '"compound"',
                                 value:
-                                    (opts.inlineRefs ?? false) ?
+                                    (additionalInformation.isListChild && schema.tupleItemLabelTS ? `${schema.tupleItemLabelTS}: (` : "") +
+                                    ((opts.inlineRefs ?? false) ?
                                         `${(allOfRefTypes || oneOfRefTypes || anyOfRefTypes) && /^(?:\{\s*\}|object)$/.test(compoundType.value) ? "" : `(${compoundType.value})`}${
                                             inlineRefTypes.allOf ? ` & ${inlineRefTypes.allOf.join(" & ")}` : ""
                                         }${inlineRefTypes.oneOf ? ` & (ExclusifyUnion<${inlineRefTypes.oneOf.join(" | ")}>)` : ""}${inlineRefTypes.anyOf ? ` & (${inlineRefTypes.anyOf.join(" | ")})` : ""}`
@@ -16819,7 +18178,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         }${oneOfRefTypes ? ` & (ExclusifyUnion<${oneOfRefTypes.join(" | ")}>)` : ""}${anyOfRefTypes ? ` & (${anyOfRefTypes.join(" | ")})` : ""}`.replace(
                                             /^ & /,
                                             ""
-                                        ),
+                                        )) +
+                                    (additionalInformation.isListChild && schema.tupleItemLabelTS ? ")" : ""),
                             };
                         }
                         if (!(opts.inlineRefs ?? false) && schema.$ref) {
@@ -16827,11 +18187,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 ?.type;
                             return {
                                 type: typeof refType === "string" ? `"${refType}"` : "unknown",
-                                value: mainSchemaRefName! + (additionalInformation.isListChild ? '["value"]' : ""),
+                                value:
+                                    (additionalInformation.isListChild && schema.tupleItemLabelTS ? `${schema.tupleItemLabelTS}: (` : "") +
+                                    (mainSchemaRefName! + (additionalInformation.isListChild ? '["value"]' : "")) +
+                                    (additionalInformation.isListChild && schema.tupleItemLabelTS ? ")" : ""),
                             };
                         }
                         // FIXME: This does not have handling for situations where there is no type property on the schema object and the types are purely from allOf, oneOf, and anyOf. (this affects the DynamicProperties NBT schema)
-                        return { type: "unknown", value: "any" };
+                        return {
+                            type: "unknown",
+                            value:
+                                (additionalInformation.isListChild && schema.tupleItemLabelTS ? `${schema.tupleItemLabelTS}: (` : "") +
+                                "any" +
+                                (additionalInformation.isListChild && schema.tupleItemLabelTS ? ")" : ""),
+                        };
                         // UNDONE
                         // if (!(allOfRefTypes || oneOfRefTypes || anyOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes || anyOfNonRefTypes)) {
                         //     return { type: "unknown", value: "any" };
@@ -16869,7 +18238,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     return {
                         type: builtType.type,
                         value:
-                            (opts.inlineRefs ?? false) ?
+                            (additionalInformation.isListChild && schema.tupleItemLabelTS ? `${schema.tupleItemLabelTS}: (` : "") +
+                            ((opts.inlineRefs ?? false) ?
                                 `${(allOfRefTypes || oneOfRefTypes || anyOfRefTypes || oneOfNonRefTypes || allOfNonRefTypes || anyOfNonRefTypes) && /^(?:\{\s*\}|object)$/.test(builtType.value) ? "" : `(${builtType.value})`}${
                                     inlineRefTypes.allOf || allOfNonRefTypes ?
                                         ` & ${[...(inlineRefTypes.allOf ?? []), ...(allOfNonRefTypes ?? [])].join(" & ")}`
@@ -16891,7 +18261,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     :   ""
                                 }${
                                     anyOfRefTypes || anyOfNonRefTypes ? ` & (${[...(anyOfRefTypes ?? []), ...(anyOfNonRefTypes ?? [])].join(" | ")})` : ""
-                                }`.replace(/^ & /, ""),
+                                }`.replace(/^ & /, "")) +
+                            (additionalInformation.isListChild && schema.tupleItemLabelTS ? ")" : ""),
                     };
                 }
 
@@ -17009,8 +18380,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         // homogeneous list
 
                         if (Array.isArray(items)) {
+                            const hasAdditionalItemsSchema: boolean = typeof schema.additionalItems === "object" && schema.additionalItems !== null;
                             const child = refToType(items, indent + "    ", opts, ctx);
-                            function builtTypeValueToTupleList(value: BuiltType["value"]): string[] {
+                            function builtTypeValueToTupleList(value: BuiltType["value"], additionalItems?: BuiltType["value"] | number): string[] {
+                                function resolveAdditionalItem(additionalItems: BuiltType["value"] | undefined): string | undefined {
+                                    if (additionalItems === undefined) return undefined;
+                                    if (typeof additionalItems === "string") return additionalItems;
+                                    if (Array.isArray(additionalItems)) return resolveAdditionalItem(additionalItems.at(-1)!);
+                                    return resolveAdditionalItem(additionalItems.value);
+                                }
                                 if (typeof value === "string") {
                                     if (opts.allowExtraArrayItems) return [value + ", ...any[]"];
                                     else return [value];
@@ -17018,13 +18396,22 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 if (Array.isArray(value)) {
                                     const minItems: number = schema.minItems ?? value.length;
                                     const typeStrings: string[] = [];
+                                    const additionalItem: string | undefined =
+                                        additionalItems && typeof additionalItems !== "number" ? resolveAdditionalItem(additionalItems) : undefined;
                                     for (let itemCount = minItems; itemCount < Math.max(value.length, minItems) + 1; itemCount++) {
                                         typeStrings.push(
-                                            `${value
-                                                .slice(0, itemCount)
-                                                .map(builtTypeValueToTupleList)
-                                                .flat()
-                                                .join(", ")}${opts.allowExtraArrayItems && itemCount === value.length ? ", ...any[]" : ""}`
+                                            `${value.slice(0, itemCount).map(builtTypeValueToTupleList).flat().join(", ")}${
+                                                itemCount === Math.max(value.length, minItems) ?
+                                                    (additionalItem ?
+                                                        // TODO: Maybe make this regex more robust.
+                                                        /^[^0-9()[\]{}:,;'"\s][^()[\]{}:,;'"\s]*?: /.test(additionalItem) ?
+                                                            `, ...${additionalItem.split(" ")[0]} (${additionalItem.split(" ").slice(1).join(" ")})[]`
+                                                        :   `, ...(${additionalItem})[]`
+                                                    : opts.allowExtraArrayItems && itemCount === value.length ? ", ...any[]"
+                                                    : ""
+                                                    ).slice(+!itemCount * 2)
+                                                :   ""
+                                            }`
                                         );
                                     }
                                     return typeStrings;
@@ -17032,9 +18419,25 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 return builtTypeValueToTupleList(value.value);
                             }
 
+                            const comment: string = renderComment(
+                                undefined,
+                                undefined,
+                                indent,
+                                items.reduce(
+                                    (a: string[], b: NBTSubSchemaRef, i: number): string[] => [
+                                        ...a,
+                                        `##### List entry ${i + 1} description:`,
+                                        ...(typeof b === "object" ? renderCommentParts(b, undefined, indent) : ["*No description.*"]),
+                                    ],
+                                    []
+                                )
+                            );
                             return {
                                 type: child.type,
-                                value: `{ type: ${child.value.type}, value: ${builtTypeValueToTupleList(child.value.value)
+                                value: `{ type: ${child.value.type},${comment ? "\n" : " "}${comment}${comment && indent}value: ${builtTypeValueToTupleList(
+                                    child.value.value,
+                                    hasAdditionalItemsSchema ? refToType([schema.additionalItems!], indent + "    ", opts, ctx) : undefined
+                                )
                                     .map((v: string): string => `[${v}]`)
                                     .join(" | ")} }`,
                             };
@@ -17052,7 +18455,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 );
                             }
 
-                            return { type: '"list"', value: `{ type: ${child.type}, value: ${builtTypeValueToUnionList(child.value)}[] }` };
+                            const mainCommentParts: string[] = renderCommentParts(items, undefined, indent);
+                            const comment: string = renderComment(undefined, undefined, indent, [
+                                "##### List entries description:",
+                                ...(mainCommentParts.length ? mainCommentParts : ["*No description.*"]),
+                            ]);
+                            return {
+                                type: '"list"',
+                                value: `{ type: ${child.type},${comment ? "\n" : " "}${comment}${comment && indent}value: ${builtTypeValueToUnionList(child.value)}[] }`,
+                            };
                         }
                     }
 
@@ -17274,7 +18685,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 ): string {
                     const refLookup = opts.refLookup ?? nbtSchemas;
                     const st = schema.type; /* as Exclude<NBTSubSchema["type"], any[]> */
-                    if (st instanceof Array) console.warn(9979.5342, "schemaToType", st, schema); // DEBUG
                     const mainSchemaRefName: string | undefined =
                         schema.$ref ? resolveSchemaRefName(schema.$ref, !(opts.inlineRefs ?? false), opts) : undefined;
                     const resolvedSchema =
@@ -17291,7 +18701,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         :   undefined;
                     if (!(opts.inlineRefs ?? false) && schema.allOf !== undefined) {
                         const refAllOfs: (NBTSubSchema & { $ref: string })[] = schema.allOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref && !ref.hideFromTS
                         );
                         if (refAllOfs.length > 0) {
                             allOfRefTypes ??= [] as unknown as [string];
@@ -17303,7 +18713,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let oneOfRefTypes: [string, ...string[]] | undefined = undefined;
                     if (!(opts.inlineRefs ?? false) && schema.oneOf !== undefined) {
                         const refOneOfs: (NBTSubSchema & { $ref: string })[] = schema.oneOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref && !ref.hideFromTS
                         );
                         if (refOneOfs.length > 0) {
                             oneOfRefTypes ??= [] as unknown as [string];
@@ -17315,7 +18725,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let anyOfRefTypes: [string, ...string[]] | undefined = undefined;
                     if (!(opts.inlineRefs ?? false) && schema.anyOf !== undefined) {
                         const refAnyOfs: (NBTSubSchema & { $ref: string })[] = schema.anyOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema & { $ref: string } => typeof ref === "object" && !!ref.$ref && !ref.hideFromTS
                         );
                         if (refAnyOfs.length > 0) {
                             anyOfRefTypes ??= [] as unknown as [string];
@@ -17327,7 +18737,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let allOfNonRefTypes: [string, ...string[]] | undefined = undefined;
                     if (schema.allOf !== undefined) {
                         const nonRefAllOfs: NBTSubSchema[] = schema.allOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || (ref.$ref === undefined && !ref.hideFromTS)
                         );
                         if (nonRefAllOfs.length > 0) {
                             allOfNonRefTypes ??= [] as unknown as [string];
@@ -17345,7 +18755,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let oneOfNonRefTypes: [string, ...string[]] | undefined = undefined;
                     if (schema.oneOf !== undefined) {
                         const nonRefOneOfs: NBTSubSchema[] = schema.oneOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || (ref.$ref === undefined && !ref.hideFromTS)
                         );
                         if (nonRefOneOfs.length > 0) {
                             oneOfNonRefTypes ??= [] as unknown as [string];
@@ -17363,7 +18773,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     let anyOfNonRefTypes: [string, ...string[]] | undefined = undefined;
                     if (schema.anyOf !== undefined) {
                         const nonRefAnyOfs: NBTSubSchema[] = schema.anyOf.filter(
-                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || ref.$ref === undefined
+                            (ref: NBTSubSchemaRef): ref is NBTSubSchema => typeof ref !== "object" || (ref.$ref === undefined && !ref.hideFromTS)
                         );
                         if (nonRefAnyOfs.length > 0) {
                             anyOfNonRefTypes ??= [] as unknown as [string];
@@ -17869,14 +19279,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         } else if (node.children.length === 1) {
                             out.items =
                                 node.children[0]!.type === "schemaRef" ?
-                                    { ...(node.children[0]!.description ? { description: node.children[0]!.description } : {}), $ref: node.children[0]!.$ref }
+                                    {
+                                        ...(node.children[0]!.description ? { markdownDescription: node.children[0]!.description } : {}),
+                                        $ref: node.children[0]!.$ref,
+                                    }
                                 :   nodeToNBTSchema(node.children[0]!, options);
                         } else {
-                            out.items = node.children.map(
-                                (c: ParsedNode): NBTSubSchema =>
-                                    c.type === "schemaRef" ?
-                                        { ...(c.description ? { description: c.description } : {}), $ref: c.$ref }
-                                    :   nodeToNBTSchema(c, options)
+                            out.items = node.children.map((c: ParsedNode): NBTSubSchema =>
+                                c.type === "schemaRef" ?
+                                    { ...(c.description ? { markdownDescription: c.description } : {}), $ref: c.$ref }
+                                :   nodeToNBTSchema(c, options)
                             );
                         }
 
@@ -18166,7 +19578,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             let result: NBTSchema | NBTSchemaFragment = { ...schema };
                             if (options.generateIDs ?? true) {
                                 result = {
-                                    ...{ id: void 0, title: void 0, description: void 0, type: void 0, required: void 0, properties: void 0 }, // Moves these properties to this position in this order.
+                                    ...{ id: void 0, title: void 0, markdownDescription: void 0, type: void 0, required: void 0, properties: void 0 }, // Moves these properties to this position in this order.
                                     ...result,
                                     id: (options.refNameResolver ?? defaultRefNameResolver)(header, options.category ?? "others"), // Set the ID here to override any value in the result variable .
                                 };
@@ -18177,8 +19589,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             )
                                 result.markdownDescription = wikiToMarkdown(schemaSubContainer.groups!.description!.replace(/:$/, "."));
                             for (const prop of ["id", "title", "description", "markdownDescription", "type", "required", "properties"] as const satisfies (
-                                | keyof NBTSchema
-                                | keyof NBTSchemaFragment
+                                keyof NBTSchema | keyof NBTSchemaFragment
                             )[]) {
                                 if (prop in result && result[prop] === undefined) delete result[prop];
                             }
@@ -18208,9 +19619,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     ...schema,
                 };
                 for (const prop of ["id", "title", "description", "markdownDescription", "type", "required", "properties"] as const satisfies (
-                    | keyof NBTSubSchema
-                    | keyof NBTSchema
-                    | keyof NBTSchemaFragment
+                    keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment
                 )[] as (keyof T)[]) {
                     if (prop in result && !(prop in schema)) delete result[prop];
                 }
@@ -18223,6 +19632,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
      * TypeScript types for the NBT schemas.
      */
     export namespace NBTSchemaTypes {
+        // NBT schema TypeScript types start.
         /**
          * The ActorPrefix schema.
          *
@@ -18321,7 +19731,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * (May not exist) The namespaced ID of this entity and its current and previous component groups.
                  */
-                definitions?: { type: "list"; value: { type: "string"; value: string[] } };
+                definitions?: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        value: string[];
+                    };
+                };
                 /**
                  * Distance the entity has fallen. Larger values cause more damage when the entity lands.
                  */
@@ -18532,8 +19953,31 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 MarkVariant: { type: "int"; value: number };
                 /**
                  * (May not exist) Three TAG_Floats describing the current dX, dY and dZ velocity of the entity in meters per tick.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                Motion?: { type: "list"; value: { type: "float"; value: [number, number, number] } };
+                Motion?: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * dX
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * dY
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * dZ
+                         */
+                        value: [dX: number, dY: number, dZ: number];
+                    };
+                };
                 /**
                  * 1 or 0 (true/false) - true if the entity is touching the ground.
                  *
@@ -18548,7 +19992,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * UNDOCUMENTED. Defaults to -1.
                  *
                  * @default
-                 * [high: -1, low: -1]
+                 * [high: -1, low: -1] | -1n
                  */
                 OwnerNew: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -18567,12 +20011,54 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 PortalCooldown: { type: "int"; value: number };
                 /**
                  * Three TAG_Floats describing the current X, Y and Z position of the entity.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                Pos: { type: "list"; value: { type: "float"; value: [number, number, number] } };
+                Pos: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
                 /**
                  * Two TAG_Floats representing rotation in degrees.
+                 *
+                 * @minItems 2
+                 *
+                 * @maxItems 2
                  */
-                Rotation: { type: "list"; value: { type: "float"; value: [number, number] } };
+                Rotation: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * The entity's rotation clockwise around the Y axis (called yaw). Due south is 0. Does not exceed 360 degrees.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * The entity's declination from the horizon (called pitch). Horizontal is 0. Positive values look downward. Does not exceed positive or negative 90 degrees.
+                         */
+                        value: [yaw: number, pitch: number];
+                    };
+                };
                 /**
                  * 1 or 0 (true/false) - true if this entity is saddled.
                  *
@@ -18634,7 +20120,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * (May not exist) List of [scoreboard tags](https://minecraft.wiki/w/Scoreboard) of this entity.
                  */
-                Tags?: { type: "list"; value: { type: "string"; value: string[] } };
+                Tags?: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A tag.
+                         */
+                        value: string[];
+                    };
+                };
                 /**
                  * The Unique ID of this entity.
                  */
@@ -18735,6 +20232,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A biome.
+                         */
                         value: {
                             /**
                              * The numerical [biome ID](https://minecraft.wiki/w/Biome).
@@ -18767,6 +20269,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A custom biome type.
+                         */
                         value: {
                             /**
                              * The numerical [biome ID](https://minecraft.wiki/w/Biome) for this custom biome. Starts at 30,000.
@@ -19037,7 +20544,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * UNDOCUMENTED.
                  *
                  * @example
-                 * 0 | 0
+                 * [high: 0, low: 0] | 0n
                  */
                 TickQueued?: { type: "long"; value: [high: number, low: number] };
             };
@@ -19155,14 +20662,56 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                  * Exit Portal Location
                                  *
                                  * UNDOCUMENTED. A Vector3.
+                                 *
+                                 * @minItems 3
+                                 *
+                                 * @maxItems 3
                                  */
-                                ExitPortalLocation?: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                ExitPortalLocation?: {
+                                    type: "list";
+                                    value: {
+                                        type: "int";
+                                        /**
+                                         * ##### List entry 1 description:
+                                         *
+                                         * x
+                                         *
+                                         * X component of this vector.
+                                         *
+                                         * ##### List entry 2 description:
+                                         *
+                                         * y
+                                         *
+                                         * Y component of this vector.
+                                         *
+                                         * ##### List entry 3 description:
+                                         *
+                                         * z
+                                         *
+                                         * Z component of this vector.
+                                         */
+                                        value: [x: number, y: number, z: number];
+                                    };
+                                };
                                 /**
                                  * Gateways
                                  *
                                  * UNDOCUMENTED.
                                  */
-                                Gateways?: { type: "list"; value: { type: "int"; value: number[] } };
+                                Gateways?: {
+                                    type: "list";
+                                    value: {
+                                        type: "int";
+                                        /**
+                                         * ##### List entries description:
+                                         *
+                                         * Gateway
+                                         *
+                                         * UNDOCUMENTED.
+                                         */
+                                        value: number[];
+                                    };
+                                };
                                 /**
                                  * Is Respawning
                                  *
@@ -19196,19 +20745,84 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * Gateway
+                                 *
+                                 * UNDOCUMENTED.
+                                 */
                                 value: {
                                     /**
                                      * Entry
                                      *
                                      * UNDOCUMENTED. A Vector3.
+                                     *
+                                     * @minItems 3
+                                     *
+                                     * @maxItems 3
                                      */
-                                    Entry: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                    Entry: {
+                                        type: "list";
+                                        value: {
+                                            type: "int";
+                                            /**
+                                             * ##### List entry 1 description:
+                                             *
+                                             * x
+                                             *
+                                             * X component of this vector.
+                                             *
+                                             * ##### List entry 2 description:
+                                             *
+                                             * y
+                                             *
+                                             * Y component of this vector.
+                                             *
+                                             * ##### List entry 3 description:
+                                             *
+                                             * z
+                                             *
+                                             * Z component of this vector.
+                                             */
+                                            value: [x: number, y: number, z: number];
+                                        };
+                                    };
                                     /**
                                      * Exit
                                      *
                                      * UNDOCUMENTED. A Vector3.
+                                     *
+                                     * @minItems 3
+                                     *
+                                     * @maxItems 3
                                      */
-                                    Exit: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                    Exit: {
+                                        type: "list";
+                                        value: {
+                                            type: "int";
+                                            /**
+                                             * ##### List entry 1 description:
+                                             *
+                                             * x
+                                             *
+                                             * X component of this vector.
+                                             *
+                                             * ##### List entry 2 description:
+                                             *
+                                             * y
+                                             *
+                                             * Y component of this vector.
+                                             *
+                                             * ##### List entry 3 description:
+                                             *
+                                             * z
+                                             *
+                                             * Z component of this vector.
+                                             */
+                                            value: [x: number, y: number, z: number];
+                                        };
+                                    };
                                 }[];
                             };
                         };
@@ -20380,6 +21994,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * "1.21.51"
                  *
                  * @example
+                 * "1.17.20-beta23"
+                 *
+                 * @example
                  * "1.26.10-preview21"
                  */
                 InventoryVersion?: { type: "string"; value: string };
@@ -20502,7 +22119,39 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 lastOpenedWithVersion?: {
                     type: "list";
-                    value: { type: "int"; value: [number, number, number, number] | [number, number, number, number, 0 | 1] };
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * Major
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Minor
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Patch
+                         *
+                         * ##### List entry 4 description:
+                         *
+                         * Build
+                         *
+                         * ##### List entry 5 description:
+                         *
+                         * Preview
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: Release
+                         * - `1`: Beta/Preview
+                         */
+                        value:
+                            | [major: number, minor: number, patch: number, build: number]
+                            | [major: number, minor: number, patch: number, build: number, preview: 0 | 1];
+                    };
                 };
                 /**
                  * Stores a timestamp of when the world was last played as the number of seconds since the epoch (1/1/1970).
@@ -20570,8 +22219,45 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 maxcommandchainlength?: { type: "int"; value: number };
                 /**
                  * Five ints representing the minimum compatible client version that is needed to open the world. Eg. for the [beta/_Preview_ 1.20.30.22](https://minecraft.wiki/w/Bedrock_Edition_Preview_1.20.30.22) the minimum compatible version is `1 20 30 0 0`.
+                 *
+                 * @minItems 5
+                 *
+                 * @maxItems 5
                  */
-                MinimumCompatibleClientVersion?: { type: "list"; value: { type: "int"; value: [number, number, number, number, 0 | 1] } };
+                MinimumCompatibleClientVersion?: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * Major
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Minor
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Patch
+                         *
+                         * ##### List entry 4 description:
+                         *
+                         * Build
+                         *
+                         * ##### List entry 5 description:
+                         *
+                         * Preview
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: Release
+                         * - `1`: Beta/Preview
+                         */
+                        value: [major: number, minor: number, patch: number, build: number, preview: 0 | 1];
+                    };
+                };
                 /**
                  * UNDOCUMENTED.
                  *
@@ -20708,7 +22394,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * A 64-bit integer representing the world size in bits. *verify*
                  *
-                 * This is used for old MCPE versions (it is known to be used from v0.1.2 Alpha until at least v0.10.0).
+                 * This is used for old MCPE versions (it is known to be used from v0.1.0 Alpha until at least v0.10.0).
                  */
                 SizeOnDisk?: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -20719,6 +22405,12 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * This is used for Minecraft versions prior to Pocket Edition v0.2.0 Alpha.
                  */
                 LegacyLastPlayed?: { type: "int"; value: number };
+                /**
+                 * Local player data.
+                 *
+                 * This is used for Minecraft versions from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).
+                 */
+                Player?: FileBasedStoragePlayerData;
                 /**
                  * The `randomtickspeed` [game rule](https://minecraft.wiki/w/game_rule).
                  *
@@ -20888,6 +22580,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 startWithMapEnabled?: { type: "byte"; value: 0 | 1 };
                 /**
+                 * Storage Version
+                 *
                  * Version of _Bedrock Edition_ Storage Tool, currently is 10.
                  *
                  * @default 10
@@ -20907,7 +22601,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * Stores the current "time of day" in ticks. There are 20 ticks per real-life second, and 24000 ticks per Minecraft [daylight cycle](https://minecraft.wiki/w/daylight_cycle), making the full cycle length 20 minutes. 0 is the start of [daytime](https://minecraft.wiki/w/Daylight_cycle#Daytime), 12000 is the start of [sunset](https://minecraft.wiki/w/Daylight_cycle#Sunset/dusk), 13800 is the start of [nighttime](https://minecraft.wiki/w/Daylight_cycle#Nighttime), 22200 is the start of [sunrise](https://minecraft.wiki/w/Daylight_cycle#Sunrise/dawn), and 24000 is daytime again. The value stored in level.dat is always increasing and can be larger than 24000, but the "time of day" is always modulo 24000 of the "Time" field value.
                  *
                  * @default
-                 * [high: 0, low: 0]
+                 * [high: 0, low: 0] | 0n
                  */
                 Time?: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -20993,6 +22687,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     /**
                                      * Bounding Box
@@ -21013,6 +22712,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "list";
                                         value: {
                                             type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * *No description.*
+                                             */
                                             value: {
                                                 /**
                                                  * Bounding Box
@@ -21197,8 +22901,37 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                  * Template Position
                                                  *
                                                  * UNDOCUMENTED. A Vector3.
+                                                 *
+                                                 * @minItems 3
+                                                 *
+                                                 * @maxItems 3
                                                  */
-                                                TemplatePosition: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                                TemplatePosition: {
+                                                    type: "list";
+                                                    value: {
+                                                        type: "int";
+                                                        /**
+                                                         * ##### List entry 1 description:
+                                                         *
+                                                         * x
+                                                         *
+                                                         * X component of this vector.
+                                                         *
+                                                         * ##### List entry 2 description:
+                                                         *
+                                                         * y
+                                                         *
+                                                         * Y component of this vector.
+                                                         *
+                                                         * ##### List entry 3 description:
+                                                         *
+                                                         * z
+                                                         *
+                                                         * Z component of this vector.
+                                                         */
+                                                        value: [x: number, y: number, z: number];
+                                                    };
+                                                };
                                                 /**
                                                  * UNTITLED.
                                                  *
@@ -21261,6 +22994,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     /**
                                      * Bounding Box
@@ -21281,6 +23019,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "list";
                                         value: {
                                             type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * *No description.*
+                                             */
                                             value: ({
                                                 /**
                                                  * Bounding Box
@@ -21338,7 +23081,24 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        *
                                                        * The bounding boxes of the entrances.
                                                        */
-                                                      Entrances: { type: "list"; value: { type: "intArray"; value: number[][] } };
+                                                      Entrances: {
+                                                          type: "list";
+                                                          value: {
+                                                              type: "intArray";
+                                                              /**
+                                                               * ##### List entries description:
+                                                               *
+                                                               * Entrance Bounding Box
+                                                               *
+                                                               * The bounding box of an entrance.
+                                                               *
+                                                               * @minItems 6
+                                                               *
+                                                               * @maxItems 6
+                                                               */
+                                                              value: number[][];
+                                                          };
+                                                      };
                                                   }
                                                 | {
                                                       /**
@@ -21422,6 +23182,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     /**
                                      * Bounding Box
@@ -21442,6 +23207,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "list";
                                         value: {
                                             type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * *No description.*
+                                             */
                                             value: {
                                                 /**
                                                  * Bounding Box
@@ -21521,6 +23291,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     /**
                                      * Bounding Box
@@ -21541,6 +23316,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "list";
                                         value: {
                                             type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * *No description.*
+                                             */
                                             value: ({
                                                 /**
                                                  * Bounding Box
@@ -21748,6 +23528,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     /**
                                      * Bounding Box
@@ -21768,6 +23553,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "list";
                                         value: {
                                             type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * *No description.*
+                                             */
                                             value: {
                                                 /**
                                                  * Bounding Box
@@ -21931,6 +23721,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     /**
                                      * Bounding Box
@@ -21951,6 +23746,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "list";
                                         value: {
                                             type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * *No description.*
+                                             */
                                             value: {
                                                 /**
                                                  * Is Abandoned
@@ -22099,6 +23899,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     /**
                                      * Bounding Box
@@ -22119,6 +23924,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "list";
                                         value: {
                                             type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * *No description.*
+                                             */
                                             value: {
                                                 /**
                                                  * Bounding Box
@@ -22195,6 +24005,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     /**
                                      * Bounding Box
@@ -22215,6 +24030,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         type: "list";
                                         value: {
                                             type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * *No description.*
+                                             */
                                             value: {
                                                 /**
                                                  * Bounding Box
@@ -22325,8 +24145,37 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                  * Template Position
                                                  *
                                                  * UNDOCUMENTED. A Vector3.
+                                                 *
+                                                 * @minItems 3
+                                                 *
+                                                 * @maxItems 3
                                                  */
-                                                TemplatePosition: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                                TemplatePosition: {
+                                                    type: "list";
+                                                    value: {
+                                                        type: "int";
+                                                        /**
+                                                         * ##### List entry 1 description:
+                                                         *
+                                                         * x
+                                                         *
+                                                         * X component of this vector.
+                                                         *
+                                                         * ##### List entry 2 description:
+                                                         *
+                                                         * y
+                                                         *
+                                                         * Y component of this vector.
+                                                         *
+                                                         * ##### List entry 3 description:
+                                                         *
+                                                         * z
+                                                         *
+                                                         * Z component of this vector.
+                                                         */
+                                                        value: [x: number, y: number, z: number];
+                                                    };
+                                                };
                                                 /**
                                                  * UNTITLED.
                                                  *
@@ -22425,7 +24274,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * The Unique ID of the parent map. If there is no parent map, this value is -1.
                  *
                  * @default
-                 * [high: -1, low: -1]
+                 * [high: -1, low: -1] | -1n
                  */
                 parentMapId: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -22475,6 +24324,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An individual decoration.
+                         */
                         value: {
                             /**
                              * Data
@@ -22573,7 +24427,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                            * UNDOCUMENTED.
                                            *
                                            * @default
-                                           * [high: 0, low: 0]
+                                           * [high: 0, low: 0] | 0n
                                            */
                                           entityId: { type: "long"; value: [high: number, low: number] };
                                           /**
@@ -22728,7 +24582,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * UNDOCUMENTED.
                  *
                  * @default
-                 * [high: 0, low: 0]
+                 * [high: 0, low: 0] | 0n
                  */
                 scriptGid: { type: "long"; value: [high: number, low: number] };
             };
@@ -22759,6 +24613,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * *No description.*
+                         */
                         value: {
                             /**
                              * Block State
@@ -22870,6 +24729,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
                                 value: {
                                     DimId?: { type: "int"; value: number };
                                     Span?: { type: "byte"; value: number };
@@ -22959,8 +24823,37 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * Position
                  *
                  * The location of the lodestone the associated lodestone compass points to. A Vector3.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                pos?: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                pos?: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * x
+                         *
+                         * X component of this vector.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * y
+                         *
+                         * Y component of this vector.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * z
+                         *
+                         * Z component of this vector.
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
                 /**
                  * Status
                  *
@@ -23008,6 +24901,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * *No description.*
+                         */
                         value: {
                             /**
                              * Block State
@@ -23055,8 +24953,17 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         export type SchedulerWT = {
             type: "compound";
             value: {
+                /**
+                 * Days Since Last Wandering Trader Spawn
+                 *
+                 * UNDOCMENTED.
+                 */
                 daysSinceLastWTSpawn?: { type: "int"; value: number };
                 /**
+                 * Is Spawning Wandering Trader
+                 *
+                 * UNDOCMENTED.
+                 *
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
@@ -23064,6 +24971,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * - `1`: true
                  */
                 isSpawningWT?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * Next Wandering Trader Spawn Check Tick
+                 *
+                 * UNDOCMENTED.
+                 */
                 nextWTSpawnCheckTick?: { type: "long"; value: [high: number, low: number] };
             };
         };
@@ -23105,6 +25017,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A displayed objective.
+                         */
                         value: {
                             /**
                              * The **display slot** of this objective.
@@ -23136,6 +25053,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An entity.
+                         */
                         value: {
                             /**
                              * The identity type of this entity. 1 = Player, 2 = Entity, 3 = Fake player.
@@ -23178,6 +25100,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An objective.
+                         */
                         value: {
                             /**
                              * The **criterion** of this objective, currently, always `dummy`.
@@ -23200,6 +25127,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 type: "list";
                                 value: {
                                     type: "compound";
+                                    /**
+                                     * ##### List entries description:
+                                     *
+                                     * A tracked entity with a score.
+                                     */
                                     value: {
                                         /**
                                          * The score this entity has on this objective.
@@ -23288,7 +25220,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                *
                                                * The block palette.
                                                */
-                                              block_palette: { type: "list"; value: { type: "compound"; value: Block["value"][] } };
+                                              block_palette: {
+                                                  type: "list";
+                                                  value: {
+                                                      type: "compound";
+                                                      /**
+                                                       * ##### List entries description:
+                                                       *
+                                                       * The block palette array.
+                                                       */
+                                                      value: Block["value"][];
+                                                  };
+                                              };
                                           };
                                       };
                                   };
@@ -23302,7 +25245,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                *
                                * The first layer is the block layer.
                                *
-                               * The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
+                               * The second layer is the snowlog layer, even though it is mainly used for snowlogging, other blocks can be put here to,
                                * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
                                * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
                                *
@@ -23312,30 +25255,140 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                */
                               block_indices: {
                                   type: "list";
-                                  value: { type: "list"; value: [{ type: "int"; value: number[] }, { type: "int"; value: number[] }] };
+                                  value: {
+                                      type: "list";
+                                      /**
+                                       * ##### List entry 1 description:
+                                       *
+                                       * Block Layer
+                                       *
+                                       * The block layer.
+                                       *
+                                       * ##### List entry 2 description:
+                                       *
+                                       * Snowlog Layer
+                                       *
+                                       * The snowlog layer.
+                                       */
+                                      value: [
+                                          blockLayer: {
+                                              type: "int";
+                                              /**
+                                               * ##### List entries description:
+                                               *
+                                               * A block index in this layer.
+                                               */
+                                              value: number[];
+                                          },
+                                          snowlogLayer: {
+                                              type: "int";
+                                              /**
+                                               * ##### List entries description:
+                                               *
+                                               * A block index in this layer.
+                                               */
+                                              value: number[];
+                                          },
+                                      ];
+                                  };
                               };
                               /**
                                * Entities
                                *
                                * The list of entities in the structure.
                                */
-                              entities: { type: "list"; value: { type: "compound"; value: ActorPrefixOrEntity["value"][] } };
+                              entities: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: ActorPrefixOrEntity["value"][];
+                                  };
+                              };
                           };
                       };
                       /**
                        * Size
                        *
                        * The size of the structure, as a tuple of 3 integers.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
                        */
-                      size: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                      size: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The size of the x axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The size of the y axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The size of the z axis.
+                               *
+                               * @minimum 0
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
                       /**
                        * Structure World Origin
                        *
                        * The world origin of the structure, as a tuple of 3 integers.
                        *
                        * This is used for entity and block entity data, to get relative positions.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
                        */
-                      structure_world_origin: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                      structure_world_origin: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The x coordinate.
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The y coordinate.
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The z coordinate.
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
                       /**
                        * @const
                        * ```ts
@@ -23393,7 +25446,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                *
                                                * The block palette.
                                                */
-                                              block_palette: { type: "list"; value: { type: "compound"; value: Block["value"][] } };
+                                              block_palette: {
+                                                  type: "list";
+                                                  value: {
+                                                      type: "compound";
+                                                      /**
+                                                       * ##### List entries description:
+                                                       *
+                                                       * The block palette array.
+                                                       */
+                                                      value: Block["value"][];
+                                                  };
+                                              };
                                           };
                                       };
                                   };
@@ -23407,7 +25471,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                *
                                * The first layer is the block layer.
                                *
-                               * The second layer is the waterlog layer, even though it is mainly used for waterlogging, other blocks can be put here to,
+                               * The second layer is the snowlog layer, even though it is mainly used for snowlogging, other blocks can be put here to,
                                * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
                                * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
                                *
@@ -23415,29 +25479,123 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                *
                                * @maxItems 2
                                */
-                              block_indices: { type: "list"; value: { type: "intArray"; value: [number[]] | [number[], number[]] } };
+                              block_indices: {
+                                  type: "list";
+                                  value: {
+                                      type: "intArray";
+                                      /**
+                                       * ##### List entry 1 description:
+                                       *
+                                       * Block Layer
+                                       *
+                                       * The block layer.
+                                       *
+                                       * ##### List entry 2 description:
+                                       *
+                                       * Snowlog Layer
+                                       *
+                                       * The snowlog layer.
+                                       */
+                                      value: [blockLayer: number[]] | [blockLayer: number[], snowlogLayer: number[]];
+                                  };
+                              };
                               /**
                                * Entities
                                *
                                * The list of entities in the structure.
                                */
-                              entities: { type: "list"; value: { type: "compound"; value: ActorPrefixOrEntity["value"][] } };
+                              entities: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: ActorPrefixOrEntity["value"][];
+                                  };
+                              };
                           };
                       };
                       /**
                        * Size
                        *
                        * The size of the structure, as a tuple of 3 integers.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
                        */
-                      size: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                      size: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The size of the x axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The size of the y axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The size of the z axis.
+                               *
+                               * @minimum 0
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
                       /**
                        * Structure World Origin
                        *
                        * The world origin of the structure, as a tuple of 3 integers.
                        *
                        * This is used for entity and block entity data, to get relative positions.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
                        */
-                      structure_world_origin: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                      structure_world_origin: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The x coordinate.
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The y coordinate.
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The z coordinate.
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
                       /**
                        * @const
                        * ```ts
@@ -23515,6 +25673,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * UNDOCUMENTED.
+                         */
                         value: {
                             /**
                              * UNDOCUMENTED.
@@ -23523,6 +25686,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 type: "list";
                                 value: {
                                     type: "compound";
+                                    /**
+                                     * ##### List entries description:
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
                                     value: {
                                         /**
                                          * UNDOCUMENTED.
@@ -23530,8 +25698,37 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         ID: { type: "long"; value: [high: number, low: number] };
                                         /**
                                          * UNDOCUMENTED.
+                                         *
+                                         * @minItems 3
+                                         *
+                                         * @maxItems 3
                                          */
-                                        last_saved_pos: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                        last_saved_pos: {
+                                            type: "list";
+                                            value: {
+                                                type: "int";
+                                                /**
+                                                 * ##### List entry 1 description:
+                                                 *
+                                                 * x
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * ##### List entry 2 description:
+                                                 *
+                                                 * y
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * ##### List entry 3 description:
+                                                 *
+                                                 * z
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                value: [x: number, y: number, z: number];
+                                            };
+                                        };
                                         /**
                                          * UNDOCUMENTED.
                                          */
@@ -23691,12 +25888,22 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * *No description.*
+                         */
                         value: {
                             VillagerID: { type: "long"; value: [high: number, low: number] };
                             instances: {
                                 type: "list";
                                 value: {
                                     type: "compound";
+                                    /**
+                                     * ##### List entries description:
+                                     *
+                                     * *No description.*
+                                     */
                                     value: {
                                         Capacity: { type: "long"; value: [high: number, low: number] };
                                         InitEvent: { type: "string"; value: string };
@@ -23755,7 +25962,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         /**
                          * The list of UUIDs of the raiders.
                          */
-                        Raiders: { type: "list"; value: { type: "long"; value: [high: number, low: number][] } };
+                        Raiders: {
+                            type: "list";
+                            value: {
+                                type: "long";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * The UUID of a raider.
+                                 */
+                                value: [high: number, low: number][];
+                            };
+                        };
                         /**
                          * UNDOCUMENTED.
                          */
@@ -23812,6 +26030,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Clock
+                         *
+                         * UNDOCUMENTED.
+                         */
                         value: {
                             /**
                              * Is Paused
@@ -23875,7 +26100,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        attackmobs: { type: "byte"; value: 0 | 1 };
+                        attackmobs?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can attack other players.
                          *
@@ -23885,7 +26110,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        attackplayers: { type: "byte"; value: 0 | 1 };
+                        attackplayers?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can place blocks.
                          *
@@ -23895,7 +26120,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        build: { type: "byte"; value: 0 | 1 };
+                        build?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player is able to interact with redstone components.
                          *
@@ -23905,7 +26130,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        doorsandswitches: { type: "byte"; value: 0 | 1 };
+                        doorsandswitches?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player is currently flying.
                          *
@@ -23919,7 +26144,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         /**
                          * The flying speed, always 0.05.
                          */
-                        flySpeed: { type: "float"; value: number };
+                        flySpeed?: { type: "float"; value: number };
                         /**
                          * 1 or 0 (true/false) - true if the player can instantly destroy blocks.
                          *
@@ -23949,7 +26174,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        lightning: { type: "byte"; value: 0 | 1 };
+                        lightning?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player can fly.
                          *
@@ -23969,7 +26194,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        mine: { type: "byte"; value: 0 | 1 };
+                        mine?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player messages cannot be seen by other players.
                          *
@@ -23999,7 +26224,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        op: { type: "byte"; value: 0 | 1 };
+                        op?: { type: "byte"; value: 0 | 1 };
                         /**
                          * 1 or 0 (true/false) - true if the player is able to open containers.
                          *
@@ -24009,7 +26234,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        opencontainers: { type: "byte"; value: 0 | 1 };
+                        opencontainers?: { type: "byte"; value: 0 | 1 };
                         /**
                          * What permissions a player will default to, when joining a world.
                          */
@@ -24027,11 +26252,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * - `0`: false
                          * - `1`: true
                          */
-                        teleport: { type: "byte"; value: 0 | 1 };
+                        teleport?: { type: "byte"; value: 0 | 1 };
                         /**
                          * The walking speed, always 0.1.
                          */
-                        walkSpeed: { type: "float"; value: number };
+                        walkSpeed?: { type: "float"; value: number };
                         /**
                          * 1 or 0 (true/false) - true if the player is a world builder.
                          *
@@ -24082,15 +26307,61 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * (May not exist) List of [Modifiers](https://minecraft.wiki/w/Attribute#Modifiers).
                  */
-                Modifiers?: { type: "list"; value: { type: "compound"; value: AttributeModifier["value"][] } };
+                Modifiers?: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An individual Modifier.
+                         */
+                        value: AttributeModifier["value"][];
+                    };
+                };
                 /**
                  * The name of this Attribute.
                  */
                 Name: { type: "string"; value: string };
                 /**
                  * (May not exist) UNDOCUMENTED.
+                 *
+                 * @minItems 4
+                 *
+                 * @maxItems 4
                  */
-                TemporalBuffs?: { type: "list"; value: { type: unknown; value: [number, number, number, number] } };
+                TemporalBuffs?: {
+                    type: "list";
+                    value: {
+                        type: unknown;
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * Amount
+                         *
+                         * UNDOCUMENTED.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Duration
+                         *
+                         * UNDOCUMENTED.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Lifetime
+                         *
+                         * UNDOCUMENTED.
+                         *
+                         * ##### List entry 4 description:
+                         *
+                         * Type
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        value: [amount: number, duration: number, lifetime: number, type: number];
+                    };
+                };
             };
         };
 
@@ -24099,7 +26370,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          *
          * @see {@link NBTSchemas.nbtSchemas.Attributes}
          */
-        export type Attributes = { type: "list"; value: { type: "compound"; value: Attribute["value"][] } };
+        export type Attributes = {
+            type: "list";
+            value: {
+                type: "compound";
+                /**
+                 * ##### List entries description:
+                 *
+                 * An attribute.
+                 */
+                value: Attribute["value"][];
+            };
+        };
 
         /**
          * NBT structure of an attribute [modifier](https://minecraft.wiki/w/modifier).
@@ -24207,7 +26489,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The params for the output's translation key.
                  */
-                LastOutputParams: { type: "list"; value: { type: "string"; value: string[] } };
+                LastOutputParams: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A param.
+                         */
+                        value: string[];
+                    };
+                };
                 /**
                  * Represents the strength of the analog signal output by redstone comparators attached to this command block.
                  */
@@ -24423,6 +26716,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A potential future spawn.
+                         */
                         value: {
                             /**
                              * UNKNOWN.
@@ -24443,6 +26741,408 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * The radius around which the spawner attempts to place mobs randomly. The spawn area is square, includes the block the spawner is in, and is centered around the spawner's x,z coordinates - not the spawner itself. *needs testing* Default value is 4.
                  */
                 SpawnRange: { type: "short"; value: number };
+            };
+        };
+
+        /**
+         * NBT structure of an item stack from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).
+         *
+         * @see {@link NBTSchemas.nbtSchemas.FileBasedStorageItemStack}
+         */
+        export type FileBasedStorageItemStack = {
+            type: "compound";
+            value: {
+                /**
+                 * Number of items stacked in this inventory slot.
+                 */
+                Count: { type: "byte"; value: number };
+                /**
+                 * The metadata value. Note that this tag does not store items' damage value.
+                 */
+                Damage: { type: "short"; value: number };
+                /**
+                 * The numeric item ID of this item.
+                 */
+                id: { type: "short"; value: number };
+            };
+        };
+
+        /**
+         * NBT structure of a player from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).
+         *
+         * @see {@link NBTSchemas.nbtSchemas.FileBasedStoragePlayerData}
+         */
+        export type FileBasedStoragePlayerData = {
+            type: "compound";
+            value: {
+                /**
+                 * Air
+                 *
+                 * How much air the player has, in ticks.
+                 *
+                 * @default 300
+                 */
+                Air: { type: "short"; value: number };
+                /**
+                 * Armor
+                 *
+                 * The list of items the player is wearing as armor.
+                 *
+                 * @minItems 4
+                 *
+                 * @maxItems 4
+                 *
+                 * @default
+                 * [{"Count":{"type":"byte","value":0},"Damage":{"type":"short","value":0},"id":{"type":"short","value":0}}, {"Count":{"type":"byte","value":0},"Damage":{"type":"short","value":0},"id":{"type":"short","value":0}}, {"Count":{"type":"byte","value":0},"Damage":{"type":"short","value":0},"id":{"type":"short","value":0}}, {"Count":{"type":"byte","value":0},"Damage":{"type":"short","value":0},"id":{"type":"short","value":0}}]
+                 */
+                Armor?: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * The item on the head.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * The item on the chest.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * The item on the legs.
+                         *
+                         * ##### List entry 4 description:
+                         *
+                         * The item on the feet.
+                         */
+                        value: [
+                            head: FileBasedStorageItemStack["value"],
+                            chest: FileBasedStorageItemStack["value"],
+                            legs: FileBasedStorageItemStack["value"],
+                            feet: FileBasedStorageItemStack["value"],
+                        ];
+                    };
+                };
+                /**
+                 * Attack Time
+                 *
+                 * Number of ticks the player attacks for. 0 when not attacking.
+                 *
+                 * @default 0
+                 */
+                AttackTime: { type: "short"; value: number };
+                /**
+                 * Bed Position X
+                 *
+                 * UNDOCMENTED
+                 *
+                 * @default 0
+                 */
+                BedPositionX?: { type: "int"; value: number };
+                /**
+                 * Bed Position Y
+                 *
+                 * UNDOCMENTED
+                 *
+                 * @default 0
+                 */
+                BedPositionY?: { type: "int"; value: number };
+                /**
+                 * Bed Position Z
+                 *
+                 * UNDOCMENTED
+                 *
+                 * @default 0
+                 */
+                BedPositionZ?: { type: "int"; value: number };
+                /**
+                 * Death Time
+                 *
+                 * Number of ticks the player has been dead for. Controls death animations. 0 when alive.
+                 *
+                 * @default 0
+                 */
+                DeathTime: { type: "short"; value: number };
+                /**
+                 * Dimension
+                 *
+                 * The ID of the dimension the player is in.
+                 *
+                 * @default 0
+                 */
+                Dimension: { type: "int"; value: number };
+                /**
+                 * Fall Distance
+                 *
+                 * Distance the player has fallen. Larger values cause more damage when the player lands.
+                 *
+                 * @default 0
+                 */
+                FallDistance: { type: "float"; value: number };
+                /**
+                 * Fire
+                 *
+                 * Number of ticks until the fire is put out. Default 0 when not on fire.
+                 *
+                 * @default -20
+                 */
+                Fire: { type: "short"; value: number };
+                /**
+                 * Health
+                 *
+                 * The health of the player.
+                 *
+                 * @default 20
+                 */
+                Health: { type: "short"; value: number };
+                /**
+                 * Hurt Time
+                 *
+                 * Number of ticks the player turns red for after being hit. 0 when not recently hit.
+                 *
+                 * @default 0
+                 */
+                HurtTime: { type: "short"; value: number };
+                /**
+                 * Inventory
+                 *
+                 * Each compound tag in this list is an item in the player's inventory.
+                 */
+                Inventory: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Inventory Item
+                         *
+                         * An item in the player's inventory.
+                         */
+                        value: ({
+                            /**
+                             * Slot
+                             *
+                             * The slot the item is in.
+                             */
+                            Slot: { type: "byte"; value: number };
+                        } & FileBasedStorageItemStack["value"])[];
+                    };
+                };
+                /**
+                 * Motion
+                 *
+                 * Three TAG_Floats describing the current dX, dY and dZ velocity of the player in meters per tick.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
+                 *
+                 * @default
+                 * [0, 0, 0]
+                 */
+                Motion: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * dX
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * dY
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * dZ
+                         */
+                        value: [dX: number, dY: number, dZ: number];
+                    };
+                };
+                /**
+                 * On Ground
+                 *
+                 * 1 or 0 (true/false) - true if the player is touching the ground.
+                 *
+                 * @default 0
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                OnGround: { type: "byte"; value: 0 | 1 };
+                /**
+                 * Position
+                 *
+                 * Three TAG_Floats describing the current X, Y and Z position of the player.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
+                 *
+                 * @default
+                 * [0, 0, 0]
+                 */
+                Pos: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
+                /**
+                 * Rotation
+                 *
+                 * Two TAG_Floats representing rotation in degrees.
+                 *
+                 * @minItems 2
+                 *
+                 * @maxItems 2
+                 *
+                 * @default
+                 * [0, 0]
+                 */
+                Rotation: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * The player's rotation clockwise around the Y axis (called yaw). Due south is 0. Does not exceed 360 degrees.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * The player's declination from the horizon (called pitch). Horizontal is 0. Positive values look downward. Does not exceed positive or negative 90 degrees.
+                         */
+                        value: [yaw: number, pitch: number];
+                    };
+                };
+                /**
+                 * Sleep Timer
+                 *
+                 * The number of ticks the player had been in bed. 0 when the player is not sleeping. In bed, increases up to 100, then stops. Skips the night after all players in bed have reached 100. When getting out of bed, instantly changes to 100 and then increases for another 9 ticks (up to 109) before returning to 0. *needs testing*
+                 *
+                 * @default 0
+                 */
+                SleepTimer?: { type: "short"; value: number };
+                /**
+                 * Sleeping
+                 *
+                 * 1 or 0 (true/false) - true if the player is sleeping.
+                 *
+                 * @default 0
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                Sleeping?: { type: "byte"; value: 0 | 1 };
+                /**
+                 * Spawn X
+                 *
+                 * The X coordinate of the player's spawn point.
+                 *
+                 * @default 0
+                 */
+                SpawnX?: { type: "int"; value: number };
+                /**
+                 * Spawn Y
+                 *
+                 * The Y coordinate of the player's spawn point.
+                 *
+                 * @default 0
+                 */
+                SpawnY?: { type: "int"; value: number };
+                /**
+                 * Spawn Z
+                 *
+                 * The Z coordinate of the player's spawn point.
+                 *
+                 * @default 0
+                 */
+                SpawnZ?: { type: "int"; value: number };
+                /**
+                 * Score
+                 *
+                 * UNDOCUMENTED.
+                 *
+                 * @default 0
+                 */
+                Score?: { type: "int"; value: number };
+                /**
+                 * Abilities
+                 *
+                 * The player's ability settings.
+                 *
+                 * @default
+                 * {"flying":{"type":"byte","value":0},"instabuild":{"type":"byte","value":0},"invulnerable":{"type":"byte","value":0},"mayfly":{"type":"byte","value":0}}
+                 */
+                abilities?: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * 1 or 0 (true/false) - true if the player is currently flying.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        flying: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * 1 or 0 (true/false) - true if the player can instantly destroy blocks.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        instabuild: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * 1 or 0 (true/false) - true if the player is immune to all damage and harmful effects.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        invulnerable: { type: "byte"; value: 0 | 1 };
+                        /**
+                         * 1 or 0 (true/false) - true if the player can fly.
+                         *
+                         * @enum 0 | 1
+                         *
+                         * @enumDescriptions
+                         * - `0`: false
+                         * - `1`: true
+                         */
+                        mayfly: { type: "byte"; value: 0 | 1 };
+                    };
+                };
             };
         };
 
@@ -24543,17 +27243,60 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * (May not exist) The list of potion effects on this mob.
                  */
-                ActiveEffects?: { type: "list"; value: { type: "compound"; value: MobEffect["value"][] } };
+                ActiveEffects?: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An effect.
+                         */
+                        value: MobEffect["value"][];
+                    };
+                };
                 /**
                  * How much air the living entity has, in ticks.
                  */
                 Air: { type: "short"; value: number };
                 /**
                  * The list of items the mob is wearing as armor.
+                 *
+                 * @minItems 4
+                 *
+                 * @maxItems 4
                  */
                 Armor: {
                     type: "list";
-                    value: { type: "compound"; value: [Item_ItemStack["value"], Item_ItemStack["value"], Item_ItemStack["value"], Item_ItemStack["value"]] };
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * Head
+                         *
+                         * The item on the head.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Chest
+                         *
+                         * The item on the chest.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Legs
+                         *
+                         * The item on the legs.
+                         *
+                         * ##### List entry 4 description:
+                         *
+                         * Feet
+                         *
+                         * The item on the feet.
+                         */
+                        value: [head: Item_ItemStack["value"], chest: Item_ItemStack["value"], legs: Item_ItemStack["value"], feet: Item_ItemStack["value"]];
+                    };
                 };
                 /**
                  * Number of ticks the mob attacks for. 0 when not attacking.
@@ -24562,7 +27305,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * A list of [Attribute](https://minecraft.wiki/w/Attribute)s for this mob. These are used for many purposes in internal calculations. Valid Attributes for a given mob are listed in the [main article](https://minecraft.wiki/w/Attribute).
                  */
-                Attributes: { type: "list"; value: { type: "compound"; value: Attribute["value"][] } };
+                Attributes: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An Attribute.
+                         */
+                        value: Attribute["value"][];
+                    };
+                };
                 /**
                  * (May not exist) UNDOCUMENTED.
                  */
@@ -24638,7 +27392,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The item being held in the mob's main hand.
                  */
-                Mainhand: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
+                Mainhand: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * The item.
+                         */
+                        value: Item_ItemStack["value"][];
+                    };
+                };
                 /**
                  * 1 or 0 (true/false) - true if it is naturally spawned.
                  *
@@ -24652,7 +27417,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The item being held in the mob's off hand.
                  */
-                Offhand: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
+                Offhand: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * The item.
+                         */
+                        value: Item_ItemStack["value"][];
+                    };
+                };
                 /**
                  * (May not exist) UNKNOWN.
                  */
@@ -24843,7 +27619,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * A list of the applied [effect](https://minecraft.wiki/w/effect)s.
                  */
-                mobEffects: { type: "list"; value: { type: "compound"; value: MobEffect["value"][] } };
+                mobEffects: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * *No description.*
+                         */
+                        value: MobEffect["value"][];
+                    };
+                };
                 /**
                  * The Unique ID of the entity who created the cloud. If it has no owner, defaults to -1.
                  */
@@ -24991,7 +27778,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * Effects on a tipped arrow.
                  */
-                mobEffects: { type: "list"; value: { type: "compound"; value: MobEffect["value"][] } };
+                mobEffects: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An effect.
+                         */
+                        value: MobEffect["value"][];
+                    };
+                };
                 /**
                  * The level of [Power](https://minecraft.wiki/w/Power) enchantment on the bow that shot this arrow, where 1 is level 1. 0 if no Power enchantment.
                  */
@@ -25131,6 +27929,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An entry.
+                         */
                         value: {
                             /**
                              * UNDOCUMENTED.
@@ -25321,16 +28124,62 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * List of 3 doubles. Should be identical to Motion. *needs testing*
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                Direction: { type: "list"; value: { type: "float"; value: [number, number, number] } };
+                Direction: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
                 /**
                  * UNDOCUMENTED.
                  */
                 inGround: { type: "byte"; value: number };
                 /**
                  * List of 3 floats that adds to `Direction` every tick. Act as the acceleration.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                power: { type: "list"; value: { type: "float"; value: [number, number, number] } };
+                power: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
             };
         } & ActorPrefixOrEntity &
             Component_Explode;
@@ -25485,7 +28334,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * If present, only the player *needs testing* with this Unique ID can pick up the item.
                  *
                  * @default
-                 * [high: -1, low: -1]
+                 * [high: -1, low: -1] | -1n
                  */
                 OwnerID: { type: "long"; value: [high: number, low: number] };
             };
@@ -25602,6 +28451,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A key-value pair.
+                         */
                         value: {
                             /**
                              * A player's Unique ID.
@@ -25769,6 +28623,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the inventory.
+                         */
                         value: ({
                             /**
                              * The slot the item is in.
@@ -25780,7 +28639,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * UNDOCUMENTED.
                  */
-                fogCommandStack: { type: "list"; value: { type: "string"; value: string[] } };
+                fogCommandStack: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        value: string[];
+                    };
+                };
                 /**
                  * The format version of this NBT.
                  */
@@ -25802,6 +28672,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the inventory, including the slot tag.
+                         */
                         value: ({
                             /**
                              * The slot the item is in.
@@ -25837,6 +28712,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the UI, including the slot tag.
+                         */
                         value: {
                             /**
                              * The slot the item is in.
@@ -25854,7 +28734,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         /**
                          * A list of all recipes the player has unlocked.
                          */
-                        unlocked_recipes: { type: "list"; value: { type: "string"; value: string[] } };
+                        unlocked_recipes: {
+                            type: "list";
+                            value: {
+                                type: "string";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * The name of a recipe, for instance `minecraft:stick` or `minecraft:ladder`.
+                                 */
+                                value: string[];
+                            };
+                        };
                         /**
                          * UNDOCUMENTED. Defaults to 2.
                          */
@@ -25916,7 +28807,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The dimension of the player's spawn point.
                  */
-                SpawnDimension: { type: "int"; value: number };
+                SpawnDimension?: { type: "int"; value: number };
                 /**
                  * The X coordinate of the player's spawn point.
                  */
@@ -26216,6 +29107,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An entry.
+                         */
                         value: {
                             /**
                              * UNDOCUMENTED.
@@ -26247,6 +29143,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A nuisance.
+                         */
                         value: {
                             /**
                              * The Unique ID of the entity that is associated with the anger.
@@ -26544,6 +29445,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An individual pattern.
+                         */
                         value: {
                             /**
                              * The base color of the pattern. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).
@@ -26612,6 +29518,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An entity in the hive.
+                         */
                         value: {
                             /**
                              * The entity in the hive. Always `minecraft:bee<>` in vanilla game. more info
@@ -26697,6 +29608,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the brewing stand, including the slot tag.
+                         */
                         value: ({
                             /**
                              * The slot the item is in.
@@ -26740,6 +29656,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item, including the slot tag.
+                         */
                         value: {
                             /**
                              * The inventory slot the item is in.
@@ -26866,6 +29787,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item, including the slot tag.
+                         */
                         value: {
                             /**
                              * The inventory slot the item is in.
@@ -26908,7 +29834,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * List of books in the bookshelf.
                  */
-                Items: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
+                Items: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the chiseled bookshelf.
+                         */
+                        value: Item_ItemStack["value"][];
+                    };
+                };
                 /**
                  * Last interacted slot (1-6), or 0 if no slot has been interacted with yet.
                  */
@@ -27032,6 +29969,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the crafter, including the slot tag. Crafter slots are numbered 0-8. 0 starts in the top left corner.
+                         */
                         value: {
                             /**
                              * The inventory slot the item is in.
@@ -27058,7 +30000,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * List of sherds on this decorated pot.
                  */
-                sherds: { type: "list"; value: { type: "string"; value: string[] } };
+                sherds: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * [Item ID](https://minecraft.wiki/w/Bedrock_Edition_data_values) of this face. Defaults to `minecraft:brick`.
+                         */
+                        value: string[];
+                    };
+                };
             };
         };
 
@@ -27077,6 +30030,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item, including the slot tag.
+                         */
                         value: {
                             /**
                              * The inventory slot the item is in.
@@ -27129,8 +30087,31 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 Age: { type: "int"; value: number };
                 /**
                  * Location entities are teleported to when entering the portal.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                ExitPortal: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                ExitPortal: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X coordinate of target location.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y coordinate of target location.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z coordinate of target location.
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
             };
         };
 
@@ -27176,6 +30157,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the furnace, including the slot tag.
+                         */
                         value: {
                             /**
                              * The inventory slot the item is in.
@@ -27206,6 +30192,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item, including the slot tag.
+                         */
                         value: {
                             /**
                              * The inventory slot the item is in.
@@ -27358,7 +30349,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 movingBlock: { type: "compound"; value: object } & Block;
                 /**
-                 * The [extra moving block layer](https://minecraft.wiki/w/Waterlogging) represented by this block entity.
+                 * The [extra moving block layer](https://minecraft.wiki/w/Snowlogging) represented by this block entity.
                  */
                 movingBlockExtra: { type: "compound"; value: object } & Block;
                 /**
@@ -27439,13 +30430,35 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             type: "compound";
             value: {
                 /**
-                 * The list of positions of blocks it should move.
+                 * The list of positions of blocks it should move. It is a flat array of block X, Y, and Z coordinates. ex. [x1, y1, z1, x2, y2, z2, x3, y3, z3, ...]
                  */
-                AttachedBlocks: { type: "list"; value: { type: "int"; value: [number, number, number, number, number, number, number] } };
+                AttachedBlocks: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * The X, Y, or Z coordinate of a block.
+                         */
+                        value: number[];
+                    };
+                };
                 /**
-                 * The list of positions of blocks it should break.
+                 * The list of positions of blocks it should break. It is a flat array of block X, Y, and Z coordinates. ex. [x1, y1, z1, x2, y2, z2, x3, y3, z3, ...]
                  */
-                BreakBlocks: { type: "list"; value: { type: "int"; value: [number, number, number, number, number, number, number] } };
+                BreakBlocks: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * The X, Y, or Z coordinate of a block.
+                         */
+                        value: number[];
+                    };
+                };
                 /**
                  * Progress in last tick.
                  */
@@ -27498,6 +30511,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A charge.
+                         */
                         value: {
                             /**
                              * How much power is in the charge.
@@ -27952,6 +30970,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * A potential future spawn. _After_ the spawner makes an attempt at spawning, it chooses one of these entries at random and uses it to prepare for the next spawn.
+                                 */
                                 value: {
                                     /**
                                      * The chance that this spawn gets picked in comparison to other spawn weights. Must be positive and at least 1.
@@ -27975,6 +30998,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * A potential loot table.
+                                 */
                                 value: {
                                     /**
                                      * The chance that this loot table gets picked in comparison to other loot table weights. Must be positive and at least 1.
@@ -28004,6 +31032,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A player UUID.
+                         */
                         value: {
                             /**
                              * The UUID.
@@ -28019,6 +31052,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An entity UUID.
+                         */
                         value: {
                             /**
                              * The UUID.
@@ -28111,11 +31149,33 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         /**
                          * List of item stacks that have been rolled by the loot table and are waiting to be ejected.
                          */
-                        items_to_eject: { type: "list"; value: { type: "compound"; value: Item_ItemStack["value"][] } };
+                        items_to_eject: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * An item stack.
+                                 */
+                                value: Item_ItemStack["value"][];
+                            };
+                        };
                         /**
                          * A set of player UUIDs that have already received their rewards from this vault.
                          */
-                        rewarded_players: { type: "list"; value: { type: "long"; value: [high: number, low: number][] } };
+                        rewarded_players: {
+                            type: "list";
+                            value: {
+                                type: "long";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * A UUID.
+                                 */
+                                value: [high: number, low: number][];
+                            };
+                        };
                         /**
                          * The game time when the vault will process block state changes, such as changing from `unlocking` to `ejecting` after a delay.
                          */
@@ -28144,11 +31204,33 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * (May not exist) Controls what block types this item can destroy.
                  */
-                CanDestroy?: { type: "list"; value: { type: "string"; value: string[] } };
+                CanDestroy?: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A block ID.
+                         */
+                        value: string[];
+                    };
+                };
                 /**
                  * (May not exist) Controls what block types this block may be placed on.
                  */
-                CanPlaceOn?: { type: "list"; value: { type: "string"; value: string[] } };
+                CanPlaceOn?: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A block ID.
+                         */
+                        value: string[];
+                    };
+                };
                 /**
                  * Number of items stacked in this inventory slot.
                  */
@@ -28205,7 +31287,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 /**
                                  * (May not exist) List of strings to display as lore for the item.
                                  */
-                                Lore?: { type: "list"; value: { type: "string"; value: string[] } };
+                                Lore?: {
+                                    type: "list";
+                                    value: {
+                                        type: "string";
+                                        /**
+                                         * ##### List entries description:
+                                         *
+                                         * (May not exist) A line of text for the lore of an item.
+                                         */
+                                        value: string[];
+                                    };
+                                };
                                 /**
                                  * (May not exist) The JSON text component to use to display the item name.
                                  */
@@ -28278,6 +31371,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * A single enchantment.
+                                 */
                                 value: {
                                     /**
                                      * The ID of the enchantment. See [Bedrock Edition data values#Enchantment IDs](https://minecraft.wiki/w/Bedrock_Edition_data_values#Enchantment_IDs).
@@ -28436,6 +31534,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * A single page in the book.
+                                 */
                                 value: {
                                     /**
                                      * Filename of a [photo](https://minecraft.wiki/w/photo) in this page if included.
@@ -28582,7 +31685,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 /**
                                  * List of compounds representing each explosion this firework causes.
                                  */
-                                Explosions: { type: "list"; value: { type: "compound"; value: FireworkExplosion["value"][] } };
+                                Explosions: {
+                                    type: "list";
+                                    value: {
+                                        type: "compound";
+                                        /**
+                                         * ##### List entries description:
+                                         *
+                                         * A explosion effect.
+                                         */
+                                        value: FireworkExplosion["value"][];
+                                    };
+                                };
                                 /**
                                  * Indicates the flight duration of the firework (equals the amount of gunpowder used in crafting the rocket). Can be anything from -128 to 127.
                                  */
@@ -28721,6 +31835,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * An individual pattern.
+                                 */
                                 value: {
                                     /**
                                      * The base color of the pattern. See [Banner#Block_data](https://minecraft.wiki/w/Banner#Block_data).
@@ -28764,6 +31883,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * A single page in the book.
+                                 */
                                 value: {
                                     /**
                                      * Filename of a [photo](https://minecraft.wiki/w/photo) in this page if included.
@@ -28814,6 +31938,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * A recipe.
+                                 */
                                 value: {
                                     /**
                                      * The first 'cost' item.
@@ -28883,6 +32012,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             type: "list";
                             value: {
                                 type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * A tier.
+                                 */
                                 value: {
                                     /**
                                      * Trade xperiences required to become this tier.
@@ -29023,6 +32157,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the inventory, including the slot tag.
+                         */
                         value: ({
                             /**
                              * The slot the item is in.
@@ -29033,6 +32172,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 };
                 /**
                  * e.g. 1.17.20-beta23
+                 *
+                 * @example
+                 * "1.21.51"
+                 *
+                 * @example
+                 * "1.17.20-beta23"
+                 *
+                 * @example
+                 * "1.26.10-preview21"
                  */
                 InventoryVersion: { type: "string"; value: string };
                 /**
@@ -29138,6 +32286,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A gene pair
+                         */
                         value: {
                             /**
                              * the hidden allele.
@@ -29163,8 +32316,31 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             value: {
                 /**
                  * The position of the entity's home.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                HomePos: { type: "list"; value: { type: "float"; value: [number, number, number] } };
+                HomePos: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
                 /**
                  * The dimension where the entity's home is.
                  */
@@ -29280,6 +32456,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A key-value pair.
+                         */
                         value: {
                             /**
                              * A player's Unique ID.
@@ -29309,12 +32490,58 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 TargetID: { type: "long"; value: [high: number, low: number] };
                 /**
                  * UNDOCUMENTED.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                StuckToBlockPos: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                StuckToBlockPos: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
                 /**
                  * UNDOCUMENTED.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                CollisionPos: { type: "list"; value: { type: "float"; value: [number, number, number] } };
+                CollisionPos: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
             };
         };
 
@@ -29330,6 +32557,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An entry.
+                         */
                         value: {
                             /**
                              * UNDOCUMENTED.
@@ -29430,7 +32662,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * UNDOCUMENTED.
                  */
-                fogCommandStack: { type: "list"; value: { type: "string"; value: string[] } };
+                fogCommandStack: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        value: string[];
+                    };
+                };
             };
         };
 
@@ -29480,6 +32723,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Structure Type
+                         *
+                         * A structure type.
+                         */
                         value: {
                             /**
                              * ID
@@ -29548,6 +32798,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Chunk Bounding Box
+                         *
+                         * A chunk bounding box.
+                         */
                         value: {
                             /**
                              * ID
@@ -29603,6 +32860,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Dynamic Spawn Area
+                         *
+                         * A dynamic spawn area.
+                         */
                         value: {
                             /**
                              * Bounding Box ID
@@ -29640,6 +32904,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Static Spawn Area
+                         *
+                         * A static spawn area.
+                         */
                         value: {
                             /**
                              * Bounding Box ID
@@ -29714,6 +32985,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                           type: "list";
                           value: {
                               type: "compound";
+                              /**
+                               * ##### List entries description:
+                               *
+                               * Structure Type
+                               *
+                               * A structure type.
+                               */
                               value: {
                                   /**
                                    * Biome ID
@@ -29847,6 +33125,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                           type: "list";
                           value: {
                               type: "compound";
+                              /**
+                               * ##### List entries description:
+                               *
+                               * Structure Type
+                               *
+                               * A structure type.
+                               */
                               value: {
                                   /**
                                    * Biome ID
@@ -29981,6 +33266,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Border Block
+                         *
+                         * The relative (X, Z) coordinates of the boundary of a border block in the associated chunk.
+                         */
                         value: {
                             /**
                              * X
@@ -30013,6 +33305,219 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
+         * The ChunksDat schema.
+         *
+         * The NBT structure of the parsed data of the ChunksDat content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.ChunksDat}
+         */
+        export type ChunksDat = {
+            type: "compound";
+            value: {
+                /**
+                 * The chunks in the world.
+                 *
+                 * In it is stored as a 2D matrix with [x][z] compounds.
+                 *
+                 * @minItems 16
+                 *
+                 * @maxItems 16
+                 */
+                chunks: {
+                    type: "list";
+                    value: {
+                        type: "list";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Chunk Column
+                         *
+                         * A column of chunks. Its index corresponds to the chunk's X index.
+                         *
+                         * @minItems 16
+                         *
+                         * @maxItems 16
+                         */
+                        value: {
+                            type: "compound";
+                            /**
+                             * ##### List entries description:
+                             *
+                             * A chunk in the world. Its index corresponds to the chunk's Z index.
+                             */
+                            value: ChunksDatChunk["value"][];
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The ChunksDatChunk schema.
+         *
+         * The NBT structure of a chunk in the parsed data of the ChunksDat content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.ChunksDatChunk}
+         */
+        export type ChunksDatChunk = {
+            type: "compound";
+            value: {
+                /**
+                 * Block IDs
+                 *
+                 * 32768 block IDs representing a 16x16x128 chunk.
+                 *
+                 * The blocks are in XZY order.
+                 */
+                block_ids: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block ID
+                         *
+                         * The block ID at a given (x, z, y) coordinate.
+                         *
+                         * @maximum 255
+                         */
+                        value: number[];
+                    };
+                };
+                /**
+                 * Block Data
+                 *
+                 * The data values for each block (0-15).
+                 *
+                 * The blocks are in XZY order.
+                 */
+                block_data: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block Data
+                         *
+                         * The data value at a given (x, z, y) coordinate.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
+                /**
+                 * Sky Light
+                 *
+                 * Sky light nibble for each block (0-15).
+                 *
+                 * The blocks are in XZY order.
+                 */
+                sky_light: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Sky Light
+                         *
+                         * The sky light value at a given (x, z, y) coordinate.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
+                /**
+                 * Block Light
+                 *
+                 * Block light nibble for each block (0-15).
+                 *
+                 * The blocks are in XZY order.
+                 */
+                block_light: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block Light
+                         *
+                         * The block light value for a block.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
+                /**
+                 * The modification states of subchunks, these determine whether the subchunk is sent to other players in multiplayer instead of those players' clients generating it client-side.
+                 *
+                 * The state values are in ZX order. Each bit in each value represents a subchunk: the highest bit is subchunk 7, and the lowest bit is subchunk 0.
+                 */
+                update_map: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * The update states of a chunk. Each bit represents a subchunk: the highest bit is subchunk 7, and the lowest bit is subchunk 0.
+                         *
+                         * @maximum 255
+                         */
+                        value: number[];
+                    };
+                };
+                /**
+                 * Extra Data
+                 *
+                 * Extra bytes in the chunk data.
+                 *
+                 * This is most likely never going to have any data added by the game itself.
+                 */
+                extra_data: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Extra Byte
+                         *
+                         * An extra byte of data.
+                         *
+                         * @maximum 255
+                         */
+                        value: number[];
+                    };
+                };
+            };
+        };
+
+        /**
          * The Data2DLegacy schema.
          *
          * The NBT structure of the parsed data of the Data2DLegacy content type.
@@ -30034,7 +33539,30 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 16
                  */
-                heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                heightMap: {
+                    type: "list";
+                    value: {
+                        type: "list";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A height map row. Its index corresponds to the offset on the x axis.
+                         *
+                         * @minItems 16
+                         *
+                         * @maxItems 16
+                         */
+                        value: {
+                            type: "short";
+                            /**
+                             * ##### List entries description:
+                             *
+                             * A height value. Its index corresponds to the offset on the z axis.
+                             */
+                            value: number[];
+                        }[];
+                    };
+                };
                 /**
                  * The biome data.
                  *
@@ -30046,7 +33574,158 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 biomeData: {
                     type: "list";
-                    value: { type: "list"; value: { type: "list"; value: { type: "byte"; value: [number, number, number, number] }[] }[] };
+                    value: {
+                        type: "list";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A biome data column. Its index corresponds to the offset on the x axis.
+                         *
+                         * @minItems 16
+                         *
+                         * @maxItems 16
+                         */
+                        value: {
+                            type: "list";
+                            /**
+                             * ##### List entries description:
+                             *
+                             * A tuple of the biome data for this xz column. Its index corresponds to the offset on the z axis.
+                             *
+                             * @minItems 4
+                             *
+                             * @maxItems 4
+                             */
+                            value: {
+                                type: "byte";
+                                /**
+                                 * ##### List entry 1 description:
+                                 *
+                                 * Biome ID
+                                 *
+                                 * A biome numeric ID value.
+                                 *
+                                 * @maximum 255
+                                 *
+                                 * ##### List entry 2 description:
+                                 *
+                                 * Red
+                                 *
+                                 * The red channel of the biome color.
+                                 *
+                                 * ##### List entry 3 description:
+                                 *
+                                 * Green
+                                 *
+                                 * The green channel of the biome color.
+                                 *
+                                 * ##### List entry 4 description:
+                                 *
+                                 * Blue
+                                 *
+                                 * The blue channel of the biome color.
+                                 */
+                                value: [
+                                    biomeId: number &
+                                        ExclusifyUnion<
+                                            | 0
+                                            | 1
+                                            | 2
+                                            | 3
+                                            | 4
+                                            | 5
+                                            | 6
+                                            | 7
+                                            | 8
+                                            | 9
+                                            | 10
+                                            | 11
+                                            | 12
+                                            | 13
+                                            | 14
+                                            | 15
+                                            | 16
+                                            | 17
+                                            | 18
+                                            | 19
+                                            | 20
+                                            | 21
+                                            | 22
+                                            | 23
+                                            | 24
+                                            | 25
+                                            | 26
+                                            | 27
+                                            | 28
+                                            | 29
+                                            | 30
+                                            | 31
+                                            | 32
+                                            | 33
+                                            | 34
+                                            | 35
+                                            | 36
+                                            | 37
+                                            | 38
+                                            | 39
+                                            | 40
+                                            | 41
+                                            | 42
+                                            | 43
+                                            | 44
+                                            | 45
+                                            | 46
+                                            | 47
+                                            | 48
+                                            | 49
+                                            | 129
+                                            | 130
+                                            | 131
+                                            | 132
+                                            | 133
+                                            | 134
+                                            | 140
+                                            | 149
+                                            | 151
+                                            | 155
+                                            | 156
+                                            | 157
+                                            | 158
+                                            | 160
+                                            | 161
+                                            | 162
+                                            | 163
+                                            | 164
+                                            | 165
+                                            | 166
+                                            | 167
+                                            | 178
+                                            | 179
+                                            | 180
+                                            | 181
+                                            | 182
+                                            | 183
+                                            | 184
+                                            | 185
+                                            | 186
+                                            | 187
+                                            | 188
+                                            | 189
+                                            | 190
+                                            | 191
+                                            | 192
+                                            | 193
+                                            | 194
+                                            | 195
+                                            | number
+                                        >,
+                                    red: number,
+                                    green: number,
+                                    blue: number,
+                                ];
+                            }[];
+                        }[];
+                    };
                 };
             };
         };
@@ -30085,7 +33764,30 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                        *
                        * @maxItems 16
                        */
-                      heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                      heightMap: {
+                          type: "list";
+                          value: {
+                              type: "list";
+                              /**
+                               * ##### List entries description:
+                               *
+                               * A height map row. Its index corresponds to the offset on the x axis.
+                               *
+                               * @minItems 16
+                               *
+                               * @maxItems 16
+                               */
+                              value: {
+                                  type: "short";
+                                  /**
+                                   * ##### List entries description:
+                                   *
+                                   * A height value. Its index corresponds to the offset on the z axis.
+                                   */
+                                  value: number[];
+                              }[];
+                          };
+                      };
                       /**
                        * The biome data.
                        *
@@ -30095,7 +33797,124 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                        *
                        * @maxItems 16
                        */
-                      biomeData: { type: "list"; value: { type: "list"; value: { type: "byte"; value: number[] }[] } };
+                      biomeData: {
+                          type: "list";
+                          value: {
+                              type: "list";
+                              /**
+                               * ##### List entries description:
+                               *
+                               * A biome data row. Its index corresponds to the offset on the x axis.
+                               *
+                               * @minItems 16
+                               *
+                               * @maxItems 16
+                               */
+                              value: {
+                                  type: "byte";
+                                  /**
+                                   * ##### List entries description:
+                                   *
+                                   * A biome numeric ID value. Its index corresponds to the offset on the z axis.
+                                   *
+                                   * @maximum 255
+                                   */
+                                  value: (number &
+                                      ExclusifyUnion<
+                                          | 0
+                                          | 1
+                                          | 2
+                                          | 3
+                                          | 4
+                                          | 5
+                                          | 6
+                                          | 7
+                                          | 8
+                                          | 9
+                                          | 10
+                                          | 11
+                                          | 12
+                                          | 13
+                                          | 14
+                                          | 15
+                                          | 16
+                                          | 17
+                                          | 18
+                                          | 19
+                                          | 20
+                                          | 21
+                                          | 22
+                                          | 23
+                                          | 24
+                                          | 25
+                                          | 26
+                                          | 27
+                                          | 28
+                                          | 29
+                                          | 30
+                                          | 31
+                                          | 32
+                                          | 33
+                                          | 34
+                                          | 35
+                                          | 36
+                                          | 37
+                                          | 38
+                                          | 39
+                                          | 40
+                                          | 41
+                                          | 42
+                                          | 43
+                                          | 44
+                                          | 45
+                                          | 46
+                                          | 47
+                                          | 48
+                                          | 49
+                                          | 129
+                                          | 130
+                                          | 131
+                                          | 132
+                                          | 133
+                                          | 134
+                                          | 140
+                                          | 149
+                                          | 151
+                                          | 155
+                                          | 156
+                                          | 157
+                                          | 158
+                                          | 160
+                                          | 161
+                                          | 162
+                                          | 163
+                                          | 164
+                                          | 165
+                                          | 166
+                                          | 167
+                                          | 178
+                                          | 179
+                                          | 180
+                                          | 181
+                                          | 182
+                                          | 183
+                                          | 184
+                                          | 185
+                                          | 186
+                                          | 187
+                                          | 188
+                                          | 189
+                                          | 190
+                                          | 191
+                                          | 192
+                                          | 193
+                                          | 194
+                                          | 195
+                                          | number
+                                      >)[];
+                              }[];
+                          };
+                      };
                   };
               }
             | {
@@ -30121,7 +33940,30 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                        *
                        * @maxItems 16
                        */
-                      heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                      heightMap: {
+                          type: "list";
+                          value: {
+                              type: "list";
+                              /**
+                               * ##### List entries description:
+                               *
+                               * A height map row. Its index corresponds to the offset on the x axis.
+                               *
+                               * @minItems 16
+                               *
+                               * @maxItems 16
+                               */
+                              value: {
+                                  type: "short";
+                                  /**
+                                   * ##### List entries description:
+                                   *
+                                   * A height value. Its index corresponds to the offset on the z axis.
+                                   */
+                                  value: number[];
+                              }[];
+                          };
+                      };
                       /**
                        * The biome data.
                        *
@@ -30131,7 +33973,124 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                        *
                        * @maxItems 16
                        */
-                      biomeData: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                      biomeData: {
+                          type: "list";
+                          value: {
+                              type: "list";
+                              /**
+                               * ##### List entries description:
+                               *
+                               * A biome data row. Its index corresponds to the offset on the x axis.
+                               *
+                               * @minItems 16
+                               *
+                               * @maxItems 16
+                               */
+                              value: {
+                                  type: "short";
+                                  /**
+                                   * ##### List entries description:
+                                   *
+                                   * A biome numeric ID value. Its index corresponds to the offset on the z axis.
+                                   *
+                                   * @maximum 65535
+                                   */
+                                  value: (number &
+                                      ExclusifyUnion<
+                                          | 0
+                                          | 1
+                                          | 2
+                                          | 3
+                                          | 4
+                                          | 5
+                                          | 6
+                                          | 7
+                                          | 8
+                                          | 9
+                                          | 10
+                                          | 11
+                                          | 12
+                                          | 13
+                                          | 14
+                                          | 15
+                                          | 16
+                                          | 17
+                                          | 18
+                                          | 19
+                                          | 20
+                                          | 21
+                                          | 22
+                                          | 23
+                                          | 24
+                                          | 25
+                                          | 26
+                                          | 27
+                                          | 28
+                                          | 29
+                                          | 30
+                                          | 31
+                                          | 32
+                                          | 33
+                                          | 34
+                                          | 35
+                                          | 36
+                                          | 37
+                                          | 38
+                                          | 39
+                                          | 40
+                                          | 41
+                                          | 42
+                                          | 43
+                                          | 44
+                                          | 45
+                                          | 46
+                                          | 47
+                                          | 48
+                                          | 49
+                                          | 129
+                                          | 130
+                                          | 131
+                                          | 132
+                                          | 133
+                                          | 134
+                                          | 140
+                                          | 149
+                                          | 151
+                                          | 155
+                                          | 156
+                                          | 157
+                                          | 158
+                                          | 160
+                                          | 161
+                                          | 162
+                                          | 163
+                                          | 164
+                                          | 165
+                                          | 166
+                                          | 167
+                                          | 178
+                                          | 179
+                                          | 180
+                                          | 181
+                                          | 182
+                                          | 183
+                                          | 184
+                                          | 185
+                                          | 186
+                                          | 187
+                                          | 188
+                                          | 189
+                                          | 190
+                                          | 191
+                                          | 192
+                                          | 193
+                                          | 194
+                                          | 195
+                                          | number
+                                      >)[];
+                              }[];
+                          };
+                      };
                   };
               }
         >;
@@ -30158,7 +34117,30 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 16
                  */
-                heightMap: { type: "list"; value: { type: "list"; value: { type: "short"; value: number[] }[] } };
+                heightMap: {
+                    type: "list";
+                    value: {
+                        type: "list";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * A height map row. Its index corresponds to the offset on the x axis.
+                         *
+                         * @minItems 16
+                         *
+                         * @maxItems 16
+                         */
+                        value: {
+                            type: "short";
+                            /**
+                             * ##### List entries description:
+                             *
+                             * A height value. Its index corresponds to the offset on the z axis.
+                             */
+                            value: number[];
+                        }[];
+                    };
+                };
                 /**
                  * The biome data.
                  */
@@ -30166,6 +34148,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * *No description.*
+                         */
                         value: {
                             /**
                              * The biome values.
@@ -30176,7 +34163,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                              *
                              * @maxItems 4096
                              */
-                            values: { type: "list"; value: { type: "int"; value: number[] } };
+                            values: {
+                                type: "list";
+                                value: {
+                                    type: "int";
+                                    /**
+                                     * ##### List entries description:
+                                     *
+                                     * @maximum 4294967295
+                                     */
+                                    value: number[];
+                                };
+                            };
                             /**
                              * The biome palette.
                              *
@@ -30192,6 +34190,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 type: "list";
                                 value: {
                                     type: "int";
+                                    /**
+                                     * ##### List entries description:
+                                     *
+                                     * A biome numeric ID.
+                                     *
+                                     * @maximum 4294967295
+                                     */
                                     value: (number &
                                         ExclusifyUnion<
                                             | 0
@@ -30311,7 +34316,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * The UUIDs of all of the entities in the associated chunk.
                  */
-                entityIds: { type: "list"; value: { type: "long"; value: [high: number, low: number][] } };
+                entityIds: {
+                    type: "list";
+                    value: {
+                        type: "long";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Entity ID
+                         *
+                         * A UUID.
+                         */
+                        value: [high: number, low: number][];
+                    };
+                };
             };
         };
 
@@ -30334,6 +34352,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Hardcoded Spawning Area
+                         *
+                         * A hardcoded spawning area.
+                         */
                         value: {
                             /**
                              * Min X
@@ -30408,20 +34433,107 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * Position
                  *
                  * UNDOCUMENTED. This may be the position of the jigsaw block.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                pos: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                pos: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * x
+                         *
+                         * X component of this vector.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * y
+                         *
+                         * Y component of this vector.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * z
+                         *
+                         * Z component of this vector.
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
                 /**
                  * Min Bounds
                  *
                  * The minimum bounds of the jigsaw structure.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                minBounds: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                minBounds: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * x
+                         *
+                         * X component of this vector.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * y
+                         *
+                         * Y component of this vector.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * z
+                         *
+                         * Z component of this vector.
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
                 /**
                  * Max Bounds
                  *
                  * The maximum bounds of the jigsaw structure.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
                  */
-                maxBounds: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                maxBounds: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * x
+                         *
+                         * X component of this vector.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * y
+                         *
+                         * Y component of this vector.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * z
+                         *
+                         * Z component of this vector.
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
                 /**
                  * Structure ID
                  *
@@ -30437,6 +34549,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Pool Element Structure Section
+                         *
+                         * UNDOCUMENTED.
+                         */
                         value: {
                             /**
                              * Element ID
@@ -30462,22 +34581,109 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                      * Min Bounds
                                      *
                                      * UNDOCUMENTED.
+                                     *
+                                     * @minItems 3
+                                     *
+                                     * @maxItems 3
                                      */
-                                    min: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                    min: {
+                                        type: "list";
+                                        value: {
+                                            type: "int";
+                                            /**
+                                             * ##### List entry 1 description:
+                                             *
+                                             * x
+                                             *
+                                             * X component of this vector.
+                                             *
+                                             * ##### List entry 2 description:
+                                             *
+                                             * y
+                                             *
+                                             * Y component of this vector.
+                                             *
+                                             * ##### List entry 3 description:
+                                             *
+                                             * z
+                                             *
+                                             * Z component of this vector.
+                                             */
+                                            value: [x: number, y: number, z: number];
+                                        };
+                                    };
                                     /**
                                      * Max Bounds
                                      *
                                      * UNDOCUMENTED.
+                                     *
+                                     * @minItems 3
+                                     *
+                                     * @maxItems 3
                                      */
-                                    max: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                    max: {
+                                        type: "list";
+                                        value: {
+                                            type: "int";
+                                            /**
+                                             * ##### List entry 1 description:
+                                             *
+                                             * x
+                                             *
+                                             * X component of this vector.
+                                             *
+                                             * ##### List entry 2 description:
+                                             *
+                                             * y
+                                             *
+                                             * Y component of this vector.
+                                             *
+                                             * ##### List entry 3 description:
+                                             *
+                                             * z
+                                             *
+                                             * Z component of this vector.
+                                             */
+                                            value: [x: number, y: number, z: number];
+                                        };
+                                    };
                                 };
                             };
                             /**
                              * Position
                              *
                              * UNDOCUMENTED.
+                             *
+                             * @minItems 3
+                             *
+                             * @maxItems 3
                              */
-                            position: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                            position: {
+                                type: "list";
+                                value: {
+                                    type: "int";
+                                    /**
+                                     * ##### List entry 1 description:
+                                     *
+                                     * x
+                                     *
+                                     * X component of this vector.
+                                     *
+                                     * ##### List entry 2 description:
+                                     *
+                                     * y
+                                     *
+                                     * Y component of this vector.
+                                     *
+                                     * ##### List entry 3 description:
+                                     *
+                                     * z
+                                     *
+                                     * Z component of this vector.
+                                     */
+                                    value: [x: number, y: number, z: number];
+                                };
+                            };
                             /**
                              * Rotation
                              *
@@ -30493,6 +34699,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 type: "list";
                                 value: {
                                     type: "compound";
+                                    /**
+                                     * ##### List entries description:
+                                     *
+                                     * Jigsaw Junction
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
                                     value: {
                                         /**
                                          * Source X
@@ -30534,6 +34747,33 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
+         * The LANPlayerDat schema.
+         *
+         * The NBT structure of the parsed data of the LANPlayerDat content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LANPlayerDat}
+         */
+        export type LANPlayerDat = {
+            type: "compound";
+            value: {
+                /**
+                 * Storage Version
+                 *
+                 * The storage version of this player's dat file.
+                 *
+                 * @const
+                 * ```ts
+                 * 1
+                 * ```
+                 */
+                StorageVersion: { type: "int"; value: 1 };
+            };
+        } & FileBasedStoragePlayerData;
+
+        /**
          * The LegacyBlockExtraData schema.
          *
          * A custom schema for the NBT structure used by the custom parser and serializer for the LegacyBlockExtraData content type.
@@ -30552,6 +34792,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Extra Data
+                         *
+                         * The data of a block in the secondary block layer.
+                         */
                         value: {
                             /**
                              * Position
@@ -30630,7 +34877,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 32768
                  */
-                block_ids: { type: "list"; value: { type: "byte"; value: number[] } };
+                block_ids: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block ID
+                         *
+                         * The block ID at a given (i, j, y) coordinate.
+                         */
+                        value: number[];
+                    };
+                };
                 /**
                  * Block Data
                  *
@@ -30640,7 +34900,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 32768
                  */
-                block_data: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                block_data: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block Data
+                         *
+                         * The metadata value for a block.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
                 /**
                  * Sky Light
                  *
@@ -30650,7 +34929,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 32768
                  */
-                sky_light: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                sky_light: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Sky Light
+                         *
+                         * The sky light value for a block.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
                 /**
                  * Block Light
                  *
@@ -30660,7 +34958,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 32768
                  */
-                block_light: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                block_light: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block Light
+                         *
+                         * The block light value for a block.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
                 /**
                  * Height Map
                  *
@@ -30670,7 +34987,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 256
                  */
-                height_map: { type: "list"; value: { type: "byte"; value: number[] } };
+                height_map: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Height
+                         *
+                         * A byte representing the height value.
+                         */
+                        value: number[];
+                    };
+                };
                 /**
                  * Grass Color
                  *
@@ -30680,7 +35010,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 1024
                  */
-                grass_color: { type: "list"; value: { type: "byte"; value: number[] } };
+                grass_color: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Grass Color Component
+                         *
+                         * A byte representing one of four components for a column. The components are: BiomeID,R,G,B
+                         */
+                        value: number[];
+                    };
+                };
             };
         };
 
@@ -30838,6 +35181,373 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
+         * The PlayerDat schema.
+         *
+         * The NBT structure of the parsed data of the PlayerDat content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.PlayerDat}
+         */
+        export type PlayerDat = {
+            type: "compound";
+            value: {
+                /**
+                 * Storage Version
+                 *
+                 * The storage version of the player.dat file.
+                 *
+                 * @const
+                 * ```ts
+                 * 1
+                 * ```
+                 */
+                StorageVersion: { type: "int"; value: 1 };
+                /**
+                 * Air
+                 *
+                 * How much air the player has, in ticks.
+                 *
+                 * @default 300
+                 */
+                Air: { type: "short"; value: number };
+                /**
+                 * Fall Distance
+                 *
+                 * Distance the player has fallen. Larger values cause more damage when the player lands.
+                 *
+                 * @default 0
+                 */
+                FallDistance: { type: "float"; value: number };
+                /**
+                 * Fire
+                 *
+                 * Number of ticks until the fire is put out. Default 0 when not on fire.
+                 *
+                 * @default -20
+                 */
+                Fire: { type: "short"; value: number };
+                /**
+                 * Hotbar
+                 *
+                 * Each compound tag in this list is an item in the player's hotbar.
+                 *
+                 * @minItems 9
+                 *
+                 * @maxItems 9
+                 */
+                Hotbar: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * Hotbar Item 1
+                         *
+                         * An item in the player's hotbar.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Hotbar Item 2
+                         *
+                         * An item in the player's hotbar.
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Hotbar Item 3
+                         *
+                         * An item in the player's hotbar.
+                         *
+                         * ##### List entry 4 description:
+                         *
+                         * Hotbar Item 4
+                         *
+                         * An item in the player's hotbar.
+                         *
+                         * ##### List entry 5 description:
+                         *
+                         * Hotbar Item 5
+                         *
+                         * An item in the player's hotbar.
+                         *
+                         * ##### List entry 6 description:
+                         *
+                         * Hotbar Item 6
+                         *
+                         * An item in the player's hotbar.
+                         *
+                         * ##### List entry 7 description:
+                         *
+                         * Hotbar Item 7
+                         *
+                         * An item in the player's hotbar.
+                         *
+                         * ##### List entry 8 description:
+                         *
+                         * Hotbar Item 8
+                         *
+                         * An item in the player's hotbar.
+                         *
+                         * ##### List entry 9 description:
+                         *
+                         * Hotbar Item 9
+                         *
+                         * An item in the player's hotbar.
+                         */
+                        value: [
+                            slot0: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                            slot1: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                            slot2: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                            slot3: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                            slot4: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                            slot5: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                            slot6: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                            slot7: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                            slot8: {
+                                /**
+                                 * Item ID
+                                 *
+                                 * The numeric item ID of this item.
+                                 */
+                                ItemID: { type: "short"; value: number };
+                                /**
+                                 * ?
+                                 *
+                                 * UNKNOWN.
+                                 */
+                                UnknownField1: { type: "short"; value: number };
+                            },
+                        ];
+                    };
+                };
+                /**
+                 * Motion
+                 *
+                 * (May not exist) Three TAG_Floats describing the current dX, dY and dZ velocity of the player in meters per tick.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
+                 *
+                 * @default
+                 * [0, 0, 0]
+                 */
+                Motion: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * dX
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * dY
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * dZ
+                         */
+                        value: [dX: number, dY: number, dZ: number];
+                    };
+                };
+                /**
+                 * On Ground
+                 *
+                 * 1 or 0 (true/false) - true if the player is touching the ground.
+                 *
+                 * @default 0
+                 *
+                 * @enum 0 | 1
+                 *
+                 * @enumDescriptions
+                 * - `0`: false
+                 * - `1`: true
+                 */
+                OnGround: { type: "byte"; value: 0 | 1 };
+                /**
+                 * Position
+                 *
+                 * Three TAG_Floats describing the current X, Y and Z position of the player.
+                 *
+                 * @minItems 3
+                 *
+                 * @maxItems 3
+                 *
+                 * @default
+                 * [0, 0, 0]
+                 */
+                Pos: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * X
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Y
+                         *
+                         * ##### List entry 3 description:
+                         *
+                         * Z
+                         */
+                        value: [x: number, y: number, z: number];
+                    };
+                };
+                /**
+                 * Rotation
+                 *
+                 * Two TAG_Floats representing rotation in degrees.
+                 *
+                 * @minItems 2
+                 *
+                 * @maxItems 2
+                 *
+                 * @default
+                 * [0, 0]
+                 */
+                Rotation: {
+                    type: "list";
+                    value: {
+                        type: "float";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * The player's rotation clockwise around the Y axis (called yaw). Due south is 0. Does not exceed 360 degrees.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * The player's declination from the horizon (called pitch). Horizontal is 0. Positive values look downward. Does not exceed positive or negative 90 degrees.
+                         */
+                        value: [yaw: number, pitch: number];
+                    };
+                };
+                /**
+                 * ?
+                 *
+                 * UNKNOWN.
+                 */
+                UnknownField1: { type: "short"; value: number };
+                /**
+                 * ?
+                 *
+                 * UNKNOWN.
+                 */
+                UnknownField2: { type: "byte"; value: number };
+            };
+        };
+
+        /**
          * The POITypes schema.
          *
          * A custom schema for the NBT structure used by the custom parser and serializer for the POITypes content type.
@@ -30856,6 +35566,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * POI Type
+                         *
+                         * A possible POI type in the world.
+                         */
                         value: {
                             /**
                              * Type
@@ -30951,6 +35668,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * POI Region
+                         *
+                         * A POI region entry in the registry.
+                         */
                         value: {
                             key: { type: "string"; value: string };
                             /**
@@ -30958,7 +35682,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                              *
                              * @maxItems 2
                              */
-                            pos: { type: "list"; value: { type: "int"; value: [number, number] } };
+                            pos: {
+                                type: "list";
+                                value: {
+                                    type: "int";
+                                    /**
+                                     * ##### List entry 1 description:
+                                     *
+                                     * Region X
+                                     *
+                                     * X index of the region.
+                                     *
+                                     * ##### List entry 2 description:
+                                     *
+                                     * Region Z
+                                     *
+                                     * Z index of the region.
+                                     */
+                                    value: [regionX: number, regionZ: number];
+                                };
+                            };
                         }[];
                     };
                 };
@@ -30984,6 +35727,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * POI Entry
+                         *
+                         * A POI entry in the POI region.
+                         */
                         value: {
                             /**
                              * Type
@@ -31002,7 +35752,32 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                              *
                              * @maxItems 3
                              */
-                            pos: { type: "list"; value: { type: "short"; value: [number, number, number] } };
+                            pos: {
+                                type: "list";
+                                value: {
+                                    type: "short";
+                                    /**
+                                     * ##### List entry 1 description:
+                                     *
+                                     * Relative X
+                                     *
+                                     * The relative X coordinate of the block within the region.
+                                     *
+                                     * ##### List entry 2 description:
+                                     *
+                                     * Relative Y
+                                     *
+                                     * The Y coordinate of the block relative to the bottom of the world.
+                                     *
+                                     * ##### List entry 3 description:
+                                     *
+                                     * Relative Z
+                                     *
+                                     * The relative Z coordinate of the block within the region.
+                                     */
+                                    value: [relativeX: number, relativeY: number, relativeZ: number];
+                                };
+                            };
                         }[];
                     };
                 };
@@ -31050,7 +35825,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 4096
                  */
-                block_ids: { type: "list"; value: { type: "byte"; value: number[] } };
+                block_ids: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block ID
+                         *
+                         * The block ID of a block in the subchunk.
+                         */
+                        value: number[];
+                    };
+                };
                 /**
                  * Block Data
                  *
@@ -31060,7 +35848,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 4096
                  */
-                block_data: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                block_data: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block Data
+                         *
+                         * The data value for a block in the subchunk.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
                 /**
                  * Sky Light
                  *
@@ -31070,7 +35877,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 4096
                  */
-                sky_light?: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                sky_light?: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Sky Light
+                         *
+                         * The sky light value for a block in the subchunk.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
                 /**
                  * Block Light
                  *
@@ -31080,7 +35906,26 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 4096
                  */
-                block_light?: { type: "list"; value: { type: "byte"; value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[] } };
+                block_light?: {
+                    type: "list";
+                    value: {
+                        type: "byte";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Block Light
+                         *
+                         * The block light value for a block in the subchunk.
+                         *
+                         * @minimum 0
+                         *
+                         * @maximum 15
+                         *
+                         * @enum 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+                         */
+                        value: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15)[];
+                    };
+                };
             };
         };
 
@@ -31105,7 +35950,25 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * @enum 1
                  */
                 layerCount: { type: "byte"; value: 1 };
-                layers: { type: "list"; value: { type: "compound"; value: [SubChunkPrefixLayer["value"]] } };
+                /**
+                 * @minItems 1
+                 *
+                 * @maxItems 1
+                 */
+                layers: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * Block Layer
+                         *
+                         * The block layer.
+                         */
+                        value: [blockLayer: SubChunkPrefixLayer["value"]];
+                    };
+                };
             };
         };
 
@@ -31128,7 +35991,36 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  */
                 version: { type: "byte"; value: 8 | 9 };
                 layerCount: { type: "byte"; value: number };
-                layers: { type: "list"; value: { type: "compound"; value: SubChunkPrefixLayer["value"][] } };
+                /**
+                 * @minItems 0
+                 */
+                layers: {
+                    type: "list";
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entry 1 description:
+                         *
+                         * Block Layer
+                         *
+                         * The block layer.
+                         *
+                         * ##### List entry 2 description:
+                         *
+                         * Snowlog Layer
+                         *
+                         * The snowlog layer.
+                         */
+                        value:
+                            | []
+                            | [blockLayer: SubChunkPrefixLayer["value"]]
+                            | [
+                                  blockLayer: SubChunkPrefixLayer["value"],
+                                  snowlogLayer: SubChunkPrefixLayer["value"],
+                                  ...additionalLayers: SubChunkPrefixLayer["value"][],
+                              ];
+                    };
+                };
                 subChunkIndex?: { type: "byte"; value: number };
             };
         };
@@ -31154,7 +36046,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  *
                  * @maxItems 4096
                  */
-                block_indices: { type: "list"; value: { type: "int"; value: number[] } };
+                block_indices: {
+                    type: "list";
+                    value: {
+                        type: "int";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * *No description.*
+                         */
+                        value: number[];
+                    };
+                };
             };
         };
 
@@ -31236,6 +36139,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the inventory.
+                         */
                         value: ({
                             /**
                              * The slot the item is in.
@@ -31247,7 +36155,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * UNDOCUMENTED.
                  */
-                fogCommandStack: { type: "list"; value: { type: "string"; value: string[] } };
+                fogCommandStack: {
+                    type: "list";
+                    value: {
+                        type: "string";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        value: string[];
+                    };
+                };
                 /**
                  * The format version of this NBT.
                  */
@@ -31269,6 +36188,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the inventory, including the slot tag.
+                         */
                         value: ({
                             /**
                              * The slot the item is in.
@@ -31304,6 +36228,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * An item in the UI, including the slot tag.
+                         */
                         value: {
                             /**
                              * The slot the item is in.
@@ -31321,7 +36250,18 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         /**
                          * A list of all recipes the player has unlocked.
                          */
-                        unlocked_recipes: { type: "list"; value: { type: "string"; value: string[] } };
+                        unlocked_recipes: {
+                            type: "list";
+                            value: {
+                                type: "string";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * The name of a recipe, for instance `minecraft:stick` or `minecraft:ladder`.
+                                 */
+                                value: string[];
+                            };
+                        };
                         /**
                          * UNDOCUMENTED. Defaults to 2.
                          */
@@ -31383,7 +36323,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * The dimension of the player's spawn point.
                  */
-                SpawnDimension: { type: "int"; value: number };
+                SpawnDimension?: { type: "int"; value: number };
                 /**
                  * The X coordinate of the player's spawn point.
                  */
@@ -31482,6 +36422,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * UNDOCUMENTED.
+                         */
                         value: {
                             /**
                              * UNDOCUMENTED.
@@ -31490,6 +36435,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 type: "list";
                                 value: {
                                     type: "compound";
+                                    /**
+                                     * ##### List entries description:
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
                                     value: {
                                         /**
                                          * UNDOCUMENTED.
@@ -31497,8 +36447,37 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         ID: { type: "long"; value: [high: number, low: number] };
                                         /**
                                          * UNDOCUMENTED.
+                                         *
+                                         * @minItems 3
+                                         *
+                                         * @maxItems 3
                                          */
-                                        last_saved_pos: { type: "list"; value: { type: "int"; value: [number, number, number] } };
+                                        last_saved_pos: {
+                                            type: "list";
+                                            value: {
+                                                type: "int";
+                                                /**
+                                                 * ##### List entry 1 description:
+                                                 *
+                                                 * x
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * ##### List entry 2 description:
+                                                 *
+                                                 * y
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 *
+                                                 * ##### List entry 3 description:
+                                                 *
+                                                 * z
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                value: [x: number, y: number, z: number];
+                                            };
+                                        };
                                         /**
                                          * UNDOCUMENTED.
                                          */
@@ -31658,12 +36637,22 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     type: "list";
                     value: {
                         type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * *No description.*
+                         */
                         value: {
                             VillagerID: { type: "long"; value: [high: number, low: number] };
                             instances: {
                                 type: "list";
                                 value: {
                                     type: "compound";
+                                    /**
+                                     * ##### List entries description:
+                                     *
+                                     * *No description.*
+                                     */
                                     value: {
                                         Capacity: { type: "long"; value: [high: number, low: number] };
                                         InitEvent: { type: "string"; value: string };
@@ -31686,6 +36675,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 };
             };
         };
+        // NBT schema TypeScript types end.
     }
 }
 

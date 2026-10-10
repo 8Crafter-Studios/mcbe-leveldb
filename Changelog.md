@@ -5,6 +5,14 @@
 -   Fixed a bug where the `generateChunkKeyFromIndices` function could mutate the `dimension` property of the object passed to the `indices` parameter and replace the string dimension ID with its numeric counterpart.
 -   Fixed a bug where strings with a value of `"true"` or `"false"` were not quoted when being converted to SNBT, causing them to turn into bytes when parsed back into Prismarine-NBT ([#11](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/11)).
 
+## Breaking Changes
+
+-   The `DBEntryContentType` type has been split into `MCEntryContentType`, `MCDBEntryContentType`, and `MCFileEntryContentType`.
+-   The `DBEntryContentTypes` constant has been split into `MCEntryContentTypes`, `MCDBEntryContentTypes`, and `MCFileEntryContentTypes`.
+-   The `DBChunkKeyEntryContentTypes` constant has been renamed to `MCDBChunkKeyEntryContentTypes`.
+-   The `DBChunkLinkedContentTypes` constant has been renamed to `MCDBChunkLinkedContentTypes`.
+-   The `DBEntryContentTypesGrouping` constant has been renamed to `MCEntryContentTypesGrouping`.
+
 ## Additions
 
 -   The `LevelDat` parser/serializer now supports `StorageVersion` `1`, which was used in MCPE Alpha versions prior to 0.2.0.
@@ -16,9 +24,22 @@
 -   Added the `POIRegionRegistry` NBT schema.
 -   Added the `POIRegion` content type.
 -   Added the `POIRegion` NBT schema.
+-   Added the `PlayerDat` content type.
+-   Added the `PlayerDat` NBT schema.
+-   Added the `LANPlayerDat` content type.
+-   Added the `LANPlayerDat` NBT schema.
+-   Added the `EntitiesDat` content type.
+<!-- -   Added the `EntitiesDat` NBT schema. -->
+-   Added the `ChunksDat` content type.
+-   Added the `ChunksDat` NBT schema.
+-   Added the `ChunksDatChunk` NBT schema.
+-   Added the `ImportedChunksDat` content type.
+<!-- -   Added the `ImportedChunksDat` NBT schema. -->
 -   Added the `LegacyConsolePlayer` content type.
 -   Added a custom serializer and parser for the `LegacyBlockExtraData` content type.
 -   Added the `LegacyBlockExtraData` NBT schema.
+-   Added the `FileBasedStorageItemStack` NBT schema.
+-   Added the `FileBasedStoragePlayerData` NBT schema.
 -   Added the `VersionEnchant` content type (MCCE exclusive).
 -   Added the `VersionMarkInsert` content type (MCCE exclusive).
 -   Added the `unknown0x70` placeholder content type (MCCE exclusive).
@@ -32,11 +53,15 @@
 -   Added the `NeteaseScriptGid` content type (MCCE exclusive).
 -   Added the `NeteaseScriptGid` NBT schema (MCCE exclusive).
 -   The custom serializer and parser for the `LevelDat` content type now can writes the version from the `StorageVersion` field into the header instead of always `10` ([#2](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/2)).
+-   Added the `ChunksDatUtils` namespace, which has utility functions for working with `chunks.dat`.
 -   Added the following constants:
     -   `dimensionsMCCE`
     -   `placeholderContentTypes`
     -   `chinaEditionExclusiveContentTypes`
     -   `levelDatStorageVersionToMCVersionRangeMap`
+-   Added the following functions:
+    -   `chunkBlock128IndexToOffset`
+    -   `offsetToChunkBlock128Index`
 -   Added the following types:
     -   `DimensionMCCE`
     -   `LevelDatStorageVersionToMCVersionRangeMapType`
@@ -59,6 +84,7 @@
     -   `LegacySeed`
     -   `SizeOnDisk`
     -   `LegacyLastPlayed`
+    -   `Player`
 -   Added the following properties to the `PlayerClient` NBT schema:
     -   `PlatformOnlineId`
     -   `PlatformOfflineId`
@@ -71,7 +97,16 @@
     -   `VillageDwellers`
     -   `VillagePlayers`
     -   `VillageRaid`
--   Added support for `format_version` `2` to the `StructureTemplate` NBT schema.
+-   Added support for `format_version` `2` to the `StructureTemplate` NBT schema ([#10](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/10)).
+-   The types in the `NBTSchemas.NBTSchemaTypes` namespace now have JSDoc on the inner `value` property of lists that has the documentation for every item in the list.
+-   The types in the `NBTSchemas.NBTSchemaTypes` namespace now can have labels on items in tuple types in lists.
+-   The types in the `NBTSchemas.NBTSchemaTypes` namespace now show longs in the JSDoc in both the bigint and tuple forms.
+-   Added the `JSONC` type to `EntryContentTypeFormatData`.
+-   Added the `allowComments` and `allowTrailingCommas` properties the `JSON` type of `EntryContentTypeFormatData`.
+-   Added autocomplete and validation for vanilla biome IDs in the `Data2DLegacy` NBT schema.
+-   Added autocomplete and validation for vanilla biome IDs in the `Data2D` NBT schema.
+-   The 1 layer in the `SubChunkPrefix_v1` NBT schema is now documented as the block layer.
+-   The first 2 possible layers in the `SubChunkPrefix_v8` NBT schema are now documented as the block layer and snowlog layer, and additional layers are documented as such.
 
 ## Changes
 
@@ -90,14 +125,44 @@
 -   The `tickList[number].tileID` field of the `PendingTicks` NBT schema is now able to be a `byte` or `int`, rather than just an `int`.
 -   The `version` field of the `PositionTrackingLastId` and `PositionTrackingDB` NBT schemas now has a const value of `1`.
 -   Fixed a bug where the following properties of the `Abilities` NBT subschema were marked as required:
+    -   `attackmobs`
+    -   `attackplayers`
+    -   `build`
+    -   `doorsandswitches`
+    -   `flySpeed`
+    -   `lightning`
+    -   `mine`
     -   `mute`
     -   `noclip`
+    -   `op`
+    -   `opencontainers`
     -   `permissionsLevel`
     -   `playerPermissionsLevel`
+    -   `teleport`
+    -   `walkSpeed`
     -   `worldbuilder`
 -   The `WasPickedUp` property of the `Item_ItemStackBase` NBT schema is now marked as optional.
 -   The `MsaId` and `SelfSignedId` fields of the `PlayerClient` NBT schema are now marked as optional.
+-   The `SpawnDimension` field of the `Entity_Player` NBT schema is now marked as optional.
+-   Fixed a bug where the snowlog layer was called a waterlog layer in many places in the NBT schemas.
 -   Fixed many typos.
+-   Fixed some issues with JSON schema title/description resolution when refs are involved ([#5](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/5)).
+-   Explicitly defined the minmum and maximum number of items of many lists in the NBT schemas, which fixes an issue where lists could allow now specifying all the required items or adding additional items.
+-   The NBT schema to JSON schema converter no longer defaults the `items` field of lists to `{}` if it is not defined on the NBT schema.
+-   The NBT schema to JSON schema converter now correctly copies these fields to the inner `value` of lists rather than the outer one:
+    -   `minItems`
+    -   `maxItems`
+    -   `errorMessage`
+    -   `format`
+    -   `pattern`
+    -   `patternErrorMessage`
+    -   `uniqueItems`
+-   Fixed a bug where the JSDoc of the types in the `NBTSchemas.NBTSchemaTypes` namespace would show tuples as a union of their entry value types instead.
+-   Miscellaneous fixes to the NBT schema to JSON schema converter.
+-   Miscellaneous fixed to the NBT schema to TypeScript converter (and as a result, the types in the `NBTSchemas.NBTSchemaTypes` namespace).
+-   Miscellaneous NBT schema fixes.
+
+<!-- -   Fixed some issues with handling of tuple type `items` properties of NBT schemas by the NBT schema to JSON schema converter. -->
 
 # v1.23.0
 
@@ -355,7 +420,7 @@
 
 ## Critical Fixes
 
--   Fixed a bug where the serializer for the `Data3D` content type deleted all empty sub-chunks, resulting in sub-chunks that were supposed to have empty sub-chunks in between them all being moved to the bottom of the world without any empty gaps in between them, and also resulting in chunks with larger sub-chunk counts having their sub-chunk counts culled. This fix is backwards compatible, older versions of the module can read the serialized data as it is in the same format as Minecraft puts it.
+-   Fixed a bug where the serializer for the `Data3D` content type deleted all empty subchunks, resulting in subchunks that were supposed to have empty subchunks in between them all being moved to the bottom of the world without any empty gaps in between them, and also resulting in chunks with larger subchunk counts having their subchunk counts culled. This fix is backwards compatible, older versions of the module can read the serialized data as it is in the same format as Minecraft puts it.
 
 ## Fixes
 
@@ -496,7 +561,7 @@
 
 ## Critical Fixes
 
--   Fixed an issue where the Data3D serializer could corrupt the data by serializing it with a number of bits per block that 32 was not divisible by (also made the parser able to parse those corrupted sub-chunks, though the referenced palette indices in the values arrays will likely be incorrect for those corrupted sub-chunks).
+-   Fixed an issue where the Data3D serializer could corrupt the data by serializing it with a number of bits per block that 32 was not divisible by (also made the parser able to parse those corrupted subchunks, though the referenced palette indices in the values arrays will likely be incorrect for those corrupted subchunks).
 
 ## Additions
 
@@ -716,7 +781,7 @@
 
 ## Critical fixes
 
--   Fixed a bug where if the object passed into the `indices` parameter of the `generateChunkKeyFromIndices` function had a `subChunkIndex` property with a value of `undefined`, then the function would return the chunk key with the sub-chunk index set to `0` instead of not including the sub-chunk index in the key, which would result in incorrect chunk keys.
+-   Fixed a bug where if the object passed into the `indices` parameter of the `generateChunkKeyFromIndices` function had a `subChunkIndex` property with a value of `undefined`, then the function would return the chunk key with the subchunk index set to `0` instead of not including the subchunk index in the key, which would result in incorrect chunk keys.
 
 ## Additions
 
@@ -743,7 +808,7 @@
 
 ## Fixes
 
--   Fixed a bug where the `getChunkKeyIndices` function returned an object containing a `subChunkIndex` property with a value of `undefined` when the key had no sub-chunk index, instead of not including that property at all.
+-   Fixed a bug where the `getChunkKeyIndices` function returned an object containing a `subChunkIndex` property with a value of `undefined` when the key had no subchunk index, instead of not including that property at all.
 
 ## Performance Improvements
 
@@ -759,7 +824,7 @@
 
 ## Fixes
 
--   Fixed a bug where the `getKeyDisplayName` function did not include the sub-chunk index in the display name if it was 0.
+-   Fixed a bug where the `getKeyDisplayName` function did not include the subchunk index in the display name if it was 0.
 
 # v1.3.2
 
@@ -785,7 +850,7 @@
 
 ## Fixes
 
--   The `getChunkKeyIndices` function now correctly converts the sub-chunk index to a signed integer instead of an unsigned integer.
+-   The `getChunkKeyIndices` function now correctly converts the subchunk index to a signed integer instead of an unsigned integer.
 
 # v1.2.3
 

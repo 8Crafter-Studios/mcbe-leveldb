@@ -7,6 +7,7 @@ import { toLong, toLongParts } from "./SNBTUtils.ts";
 import { __NBT_LE_binary_string_encoding_proto_defs__ } from "./__nbt_le_bin_str_proto_defs__.ts";
 import protodef from "protodef";
 import { decode, encode } from "iconv-lite";
+import type { TupleOf } from "type-fest";
 
 // FIXME (Important): Check all the areas that assume the length to be stored as a single byte, and make sure that they don't actually use the same length storage method as the POI data, also see if strings actually use that method too.
 
@@ -714,11 +715,10 @@ export const dimensionsMCCE = [
  */
 export const gameModes = ["survival", "creative", "adventure", , , "default", "spectator"] as const;
 
-// TODO: Separate this so that file content types and LevelDB content types are separate, and still have a singular array containing all content types.
 /**
- * The content types for LevelDB entries and files.
+ * The content types for LevelDB entries.
  */
-export const DBEntryContentTypes = [
+export const MCDBEntryContentTypes = [
     // Chunk Linked
     "Data3D",
     "Version",
@@ -789,7 +789,6 @@ export const DBEntryContentTypes = [
     "DynamicProperties",
     "LevelChunkMetaDataDictionary",
     "RealmsStoriesData",
-    "LevelDat",
     "WorldClocks",
     "POITypes",
     "POIRegionRegistry",
@@ -806,6 +805,118 @@ export const DBEntryContentTypes = [
     "unknown0x70", // China Edition exclusive. // TEMP: Placeholder.
     "unknown0x71", // China Edition exclusive. // TEMP: Placeholder.
     "Unknown",
+] as const satisfies MCEntryContentType[];
+
+/**
+ * The content types for files.
+ */
+export const MCFileEntryContentTypes = [
+    "LevelDat",
+    "PlayerDat",
+    "LANPlayerDat",
+    "EntitiesDat",
+    "ChunksDat",
+    "ImportedChunksDat",
+    "Unknown",
+] as const satisfies MCEntryContentType[];
+
+/**
+ * The content types for LevelDB entries and files.
+ */
+export const MCEntryContentTypes = [
+    // Chunk Linked
+    "Data3D",
+    "Version",
+    "Data2D",
+    "Data2DLegacy",
+    "SubChunkPrefix",
+    "LegacyTerrain",
+    "BlockEntity",
+    "Entity",
+    "PendingTicks",
+    "LegacyBlockExtraData",
+    "BiomeState",
+    "FinalizedState",
+    "ConversionData",
+    "BorderBlocks",
+    "HardcodedSpawners",
+    "RandomTicks",
+    "Checksums",
+    "GenerationSeed",
+    "GeneratedPreCavesAndCliffsBlending",
+    "BlendingBiomeHeight",
+    "MetaDataHash",
+    "BlendingData",
+    "ActorDigestVersion",
+    "VersionEnchant", // China Edition exclusive.
+    "VersionMarkInsert", // China Edition exclusive.
+    "LegacyVersion",
+    "AABBVolumes",
+    "JigsawStructureBlueprint",
+    "Digest",
+    // Village
+    "VillageDwellers",
+    "VillageInfo",
+    "VillagePOI",
+    "VillagePlayers",
+    "VillageRaid",
+    // Standalone
+    "Player",
+    "PlayerClient",
+    "LegacyConsolePlayer",
+    "ActorPrefix",
+    "ChunkLoadedRequest",
+    "Map",
+    "Portals",
+    "SchedulerWT",
+    "StructureTemplate",
+    "TickingArea",
+    "FlatWorldLayers",
+    "LegacyOverworld",
+    "LegacyNether",
+    "LegacyTheEnd",
+    "MVillages",
+    "Villages", // NOTE: May not exist.
+    "LevelSpawnWasFixed",
+    "PositionTrackingDB",
+    "PositionTrackingLastId",
+    "Scoreboard",
+    "Overworld",
+    "Nether",
+    "TheEnd",
+    "MCChinaDevDimension",
+    "CustomDimension",
+    "AutonomousEntities",
+    "BiomeData",
+    "BiomeIdsTable",
+    "DimensionNameIdTable",
+    "MobEvents",
+    "DynamicProperties",
+    "LevelChunkMetaDataDictionary",
+    "RealmsStoriesData",
+    "WorldClocks",
+    "POITypes",
+    "POIRegionRegistry",
+    "POIRegion",
+    // Dev Version
+    "ForcedWorldCorruption",
+    // China Edition
+    "SSTCommandLog",
+    "SSTHashRegistry",
+    "NeteaseData",
+    "NeteaseScriptGid",
+    // Files
+    "LevelDat",
+    "PlayerDat",
+    "LANPlayerDat",
+    "EntitiesDat",
+    "ChunksDat",
+    "ImportedChunksDat",
+    // Misc.
+    // TEMP: This below two content types need to go right after VersionMarkInsert once they are no longer placeholders.
+    "unknown0x70", // China Edition exclusive. // TEMP: Placeholder.
+    "unknown0x71", // China Edition exclusive. // TEMP: Placeholder.
+    "Unknown",
 ] as const;
 
 // export const worldFileContentTypes // TODO
@@ -815,7 +926,7 @@ export const DBEntryContentTypes = [
 /**
  * The content types for LevelDB entries that are associated with a specific chunk and use a single byte after the dimension and chunk XZ coordinates in the LevelDB key to denote their content type.
  */
-export const DBChunkKeyEntryContentTypes = [
+export const MCDBChunkKeyEntryContentTypes = [
     "Data3D",
     "Version",
     "Data2D",
@@ -846,22 +957,22 @@ export const DBChunkKeyEntryContentTypes = [
     "LegacyVersion",
     "AABBVolumes",
     "JigsawStructureBlueprint",
-] as const satisfies DBEntryContentType[];
+] as const satisfies MCDBEntryContentType[];
 
 /**
  * The list of content types that serve a completely unknown purpose and their name is a placeholder.
  */
-export const placeholderContentTypes = ["unknown0x70", "unknown0x71"] as const satisfies DBEntryContentType[];
+export const placeholderContentTypes = ["unknown0x70", "unknown0x71"] as const satisfies MCEntryContentType[];
 
 /**
  * The list of content types that are exclusive to Minecraft China Edition.
  */
-export const chinaEditionExclusiveContentTypes = ["VersionEnchant", "VersionMarkInsert", "unknown0x70", "unknown0x71"] as const satisfies DBEntryContentType[];
+export const chinaEditionExclusiveContentTypes = ["VersionEnchant", "VersionMarkInsert", "unknown0x70", "unknown0x71"] as const satisfies MCEntryContentType[];
 
 /**
- * The content types for LevelDB entries that are associated with a specific chunk, includes both the content types from {@link DBChunkKeyEntryContentTypes} and other keys that are tied to a specific chunk but use a different key format.
+ * The content types for LevelDB entries that are associated with a specific chunk, includes both the content types from {@link MCDBChunkKeyEntryContentTypes} and other keys that are tied to a specific chunk but use a different key format.
  */
-export const DBChunkLinkedContentTypes = [
+export const MCDBChunkLinkedContentTypes = [
     // Single Appended Byte Format
     "Data3D",
     "Version",
@@ -895,16 +1006,16 @@ export const DBChunkLinkedContentTypes = [
     "JigsawStructureBlueprint",
     // Other Key Format
     "Digest",
-] as const satisfies [...typeof DBChunkKeyEntryContentTypes, ...Exclude<DBEntryContentType, DBChunkKeyEntryContentType>[]];
+] as const satisfies [...typeof MCDBChunkKeyEntryContentTypes, ...Exclude<MCDBEntryContentType, MCDBChunkKeyEntryContentType>[]];
 
 /**
  * Maps content types to grouping labels.
  *
  * Most content types are not grouped, only a few are.
  */
-export const DBEntryContentTypesGrouping = (function __cloneJSDoc<
+export const MCEntryContentTypesGrouping = (function __cloneJSDoc<
     T extends { [contentType in keyof typeof entryContentTypeToFormatMap]: string },
-    // This copies the JSDoc from entryContentTypeToFormatMap to DBEntryContentTypesGrouping.
+    // This copies the JSDoc from entryContentTypeToFormatMap to MCEntryContentTypesGrouping.
 >(data: T): { [contentType in keyof typeof entryContentTypeToFormatMap]: T[contentType] } {
     return data;
 })({
@@ -980,7 +1091,6 @@ export const DBEntryContentTypesGrouping = (function __cloneJSDoc<
     DynamicProperties: "DynamicProperties",
     LevelChunkMetaDataDictionary: "LevelChunkMetaDataDictionary",
     RealmsStoriesData: "RealmsStoriesData",
-    LevelDat: "LevelDat",
     WorldClocks: "WorldClocks",
     POITypes: "POI",
     POIRegionRegistry: "POI",
@@ -992,6 +1102,13 @@ export const DBEntryContentTypesGrouping = (function __cloneJSDoc<
     SSTHashRegistry: "SerializedStringTables",
     NeteaseData: "Netease",
     NeteaseScriptGid: "Netease",
+    // Files
+    LevelDat: "LevelDat",
+    PlayerDat: "PlayerDat",
+    LANPlayerDat: "PlayerDat",
+    EntitiesDat: "EntitiesDat",
+    ChunksDat: "ChunksDat",
+    ImportedChunksDat: "ImportedChunksDat",
     // Misc.
     Unknown: "Unknown",
 } as const satisfies { [contentType in keyof typeof entryContentTypeToFormatMap]: string });
@@ -1983,7 +2100,7 @@ export const entryContentTypeToFormatMap = {
             return NBT.comp({
                 version: NBT.byte<0x08 | 0x09>(version),
                 layerCount: NBT.byte(numStorageBlocks),
-                layers: { type: "list", value: NBT.comp(layers) },
+                layers: { type: "list", value: NBT.comp(layers as NBTSchemas.NBTSchemaTypes.SubChunkPrefix_v8["value"]["layers"]["value"]["value"]) },
                 ...(version >= 0x09 ?
                     {
                         subChunkIndex: NBT.byte(subChunkIndex!),
@@ -2202,7 +2319,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns A promise that resolves with the parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         async parse(data: Buffer): Promise<{
             type: "compound";
@@ -2281,7 +2398,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns A promise that resolves with the parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         async parse(data: Buffer): Promise<{
             type: "compound";
@@ -2445,7 +2562,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns The parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.LegacyBlockExtraData {
             const entries: NBTSchemas.NBTSchemaTypes.LegacyBlockExtraData["value"]["BlockExtraData"]["value"]["value"] = [];
@@ -3400,7 +3517,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns A promise that resolves with the parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.ActorPrefix & Pick<NBT.NBT, "name"> {
             function decodeMaybeUtf8(binaryString: string): string {
@@ -3461,7 +3578,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to serialize.
          * @returns The serialized data, as a buffer.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         serialize(data: NBTSchemas.NBTSchemaTypes.ActorPrefix & Partial<Pick<NBT.NBT, "name">>): Buffer<ArrayBuffer> {
             // function encodeUtf8AsBinary(utf8String: string): string {
@@ -3593,7 +3710,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns A promise that resolves with the parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.Digest> {
             const entityIds: [high: number, low: number][] = [];
@@ -3621,7 +3738,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to serialize.
          * @returns The serialized data, as a buffer.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         serialize(data: NBTSchemas.NBTSchemaTypes.Digest): Buffer<ArrayBuffer> {
             const rawData: Buffer<ArrayBuffer>[] = data.value.entityIds.value.value.map((entityIds: [high: number, low: number]): Buffer<ArrayBuffer> => {
@@ -4000,142 +4117,6 @@ export const entryContentTypeToFormatMap = {
         // TO-DO: Add a default value for this.
     },
     /**
-     * The content type of the `level.dat` and `level.dat_old` files.
-     *
-     * This stores all the world settings.
-     *
-     * @see {@link NBTSchemas.nbtSchemas.LevelDat}
-     */
-    LevelDat: {
-        /**
-         * The format type of the data.
-         */
-        type: "custom",
-        /**
-         * The format type that results from the {@link entryContentTypeToFormatMap.LevelDat.parse | parse} method.
-         */
-        resultType: "JSONNBT",
-        /**
-         * The function to parse the data.
-         *
-         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
-         *
-         * @param data The data to parse, as a buffer.
-         * @returns A promise that resolves with the parsed data.
-         *
-         * @throws {any} If an error occurs while parsing the data.
-         */
-        async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.LevelDat> {
-            const storageVersion: number = data.readUInt32LE(0);
-            if (storageVersion === 1) {
-                return {
-                    type: "compound",
-                    value: {
-                        StorageVersion: {
-                            type: "int",
-                            value: 1,
-                        },
-                        LegacySeed: {
-                            type: "int",
-                            value: data.readInt32BE(8),
-                        },
-                        SpawnX: {
-                            type: "int",
-                            value: data.readInt32BE(12),
-                        },
-                        SpawnY: {
-                            type: "int",
-                            value: data.readInt32BE(16),
-                        },
-                        SpawnZ: {
-                            type: "int",
-                            value: data.readInt32BE(20),
-                        },
-                        SizeOnDisk: {
-                            type: "long",
-                            value: toLongParts(data.readBigUInt64BE(24)),
-                        },
-                        LegacyLastPlayed: {
-                            type: "int",
-                            value: data.readUInt32BE(32),
-                        },
-                        LevelName: {
-                            type: "string",
-                            value: decode(data.subarray(38, 38 + data.readUInt16BE(36)), "cp437"),
-                        },
-                    },
-                };
-            }
-            const parsedData = (await NBT.parse(data)) as { parsed: NBT.NBT & NBTSchemas.NBTSchemaTypes.LevelDat; type: NBT.NBTFormat; metadata: NBT.Metadata };
-            if (!parsedData.parsed.value.StorageVersion) {
-                if (parsedData.metadata.size === data.length - 8) parsedData.parsed.value.StorageVersion = { type: "int", value: storageVersion };
-                else parsedData.parsed.value.StorageVersion = { type: "int", value: 0x0a };
-            }
-            return parsedData.parsed;
-        },
-        /**
-         * The function to serialize the data.
-         *
-         * This result of this can be written directly to the file or LevelDB entry.
-         *
-         * @param data The data to serialize.
-         * @returns The serialized data, as a buffer.
-         *
-         * @throws {TypeError} If {@link data} has a name property at the top level that is not of type string.
-         */
-        serialize(data: NBTSchemas.NBTSchemaTypes.LevelDat): Buffer<ArrayBuffer> {
-            if (data.value.StorageVersion?.value === 1) {
-                const buf: Buffer<ArrayBuffer> = Buffer.alloc(38);
-                buf.writeUInt32LE(1, 0);
-                buf.writeInt32BE(data.value.LegacySeed?.value ?? 0, 8);
-                buf.writeInt32BE(data.value.SpawnX?.value ?? 0, 12);
-                buf.writeInt32BE(data.value.SpawnY?.value ?? 0, 16);
-                buf.writeInt32BE(data.value.SpawnZ?.value ?? 0, 20);
-                // Write a signed bigint because toLong returns a signed bigint.
-                buf.writeBigInt64BE(toLong(data.value.SizeOnDisk?.value ?? [0, 0]), 24);
-                buf.writeUInt32BE((data.value.LegacyLastPlayed?.value ?? 0) & 0xffffffff, 32);
-                if (!data.value.LevelName) {
-                    buf.writeUInt32LE(buf.length, 4);
-                    return buf;
-                }
-                const levelNameBuf: Buffer = encode(data.value.LevelName.value, "cp437");
-                buf.writeUInt16BE(levelNameBuf.length, 36);
-                buf.writeUInt32LE(buf.length + levelNameBuf.length, 4);
-                return Buffer.concat([buf, levelNameBuf]);
-            }
-            const nbtData: Buffer = NBT.writeUncompressed({ name: "", ...data }, "little");
-            return Buffer.concat([
-                // REVIEW: Maybe not all StorageVersions had a header. And if really old ones didn't even have the StorageVersion field then make it use that old StorageVersion if StorageVersion isn't present.
-                writeUInt32LE(typeof data.value.StorageVersion?.value === "number" ? data.value.StorageVersion.value : 10),
-                writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false),
-                nbtData,
-            ]);
-        },
-        /**
-         * The default value to use when initializing a new entry.
-         *
-         * @todo Add a link to the object with the default level.dat value once it is made.
-         */
-        get defaultValue(): Buffer<ArrayBuffer> {
-            // TO-DO: Add a full default level.dat value.
-            const nbtData: Buffer = NBT.writeUncompressed(
-                { name: "", type: "compound", value: {} } as /* @todo Remove this partial later. */ Partial<NBTSchemas.NBTSchemaTypes.LevelDat> & NBT.NBT,
-                "little"
-            );
-            const result: Buffer<ArrayBuffer> = Buffer.concat([
-                Buffer.from("0A000000", "hex"),
-                writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false),
-                nbtData,
-            ]);
-            Object.defineProperty(this, "defaultValue", { value: result, configurable: true, enumerable: true, writable: false });
-            return result;
-        },
-        /**
-         * The raw file extension of the data.
-         */
-        rawFileExtension: "dat",
-    },
-    /**
      * The content type of the `WorldClocks` LevelDB key, which serves an unknown purpose.
      *
      * @see {@link NBTSchemas.nbtSchemas.WorldClocks}
@@ -4213,7 +4194,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns The parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.POITypes {
             if (data.length < 1) {
@@ -4300,7 +4281,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns The parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.POIRegionRegistry {
             if (data.length < 1) {
@@ -4397,7 +4378,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns The parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.POIRegion {
             if (data.length < 1) {
@@ -4731,7 +4712,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns The parsed data.
          *
-         * @throws {any} If an error occurs while parsing the data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.JigsawStructureBlueprint {
             if (data.length < 38) {
@@ -5170,6 +5151,848 @@ export const entryContentTypeToFormatMap = {
         type: "unknown",
     },
     /**
+     * The content type of the `level.dat`, `level.dat_old`, and `level.dat_new` files.
+     *
+     * This stores all the world settings.
+     *
+     * `level.dat_new` only exists while saving `level.dat`.
+     * The game writes to `level.dat_new`, deletes `level.dat_old`,
+     * renames `level.dat` to `level.dat_old`,
+     * and renames `level.dat_new` to `level.dat`.
+     *
+     * @see {@link NBTSchemas.nbtSchemas.LevelDat}
+     */
+    LevelDat: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.LevelDat.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {unknown} If an error occurs while parsing the data.
+         */
+        async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.LevelDat> {
+            const storageVersion: number = data.readUInt32LE(0);
+            if (storageVersion === 1) {
+                return {
+                    type: "compound",
+                    value: {
+                        StorageVersion: {
+                            type: "int",
+                            value: 1,
+                        },
+                        LegacySeed: {
+                            type: "int",
+                            value: data.readInt32BE(8),
+                        },
+                        SpawnX: {
+                            type: "int",
+                            value: data.readInt32BE(12),
+                        },
+                        SpawnY: {
+                            type: "int",
+                            value: data.readInt32BE(16),
+                        },
+                        SpawnZ: {
+                            type: "int",
+                            value: data.readInt32BE(20),
+                        },
+                        // REVIEW: The first 4 bytes of this may be the world absolute time (as in in-game time), and this may not be SizeOnDisk at all.
+                        SizeOnDisk: {
+                            type: "long",
+                            value: toLongParts(data.readBigUInt64BE(24)),
+                        },
+                        LegacyLastPlayed: {
+                            type: "int",
+                            value: data.readUInt32BE(32),
+                        },
+                        LevelName: {
+                            type: "string",
+                            value: decode(data.subarray(38, 38 + data.readUInt16BE(36)), "cp437"),
+                        },
+                    },
+                };
+            }
+            const parsedData = (await NBT.parse(data)) as { parsed: NBT.NBT & NBTSchemas.NBTSchemaTypes.LevelDat; type: NBT.NBTFormat; metadata: NBT.Metadata };
+            if (!parsedData.parsed.value.StorageVersion) {
+                if (parsedData.metadata.size === data.length - 8) parsedData.parsed.value.StorageVersion = { type: "int", value: storageVersion };
+                else parsedData.parsed.value.StorageVersion = { type: "int", value: 0x0a };
+            }
+            return parsedData.parsed;
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If {@link data} has a name property at the top level that is not of type string.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.LevelDat): Buffer<ArrayBuffer> {
+            if (data.value.StorageVersion?.value === 1) {
+                const buf: Buffer<ArrayBuffer> = Buffer.alloc(38);
+                buf.writeUInt32LE(1, 0);
+                buf.writeInt32BE(data.value.LegacySeed?.value ?? 0, 8);
+                buf.writeInt32BE(data.value.SpawnX?.value ?? 0, 12);
+                buf.writeInt32BE(data.value.SpawnY?.value ?? 0, 16);
+                buf.writeInt32BE(data.value.SpawnZ?.value ?? 0, 20);
+                // Write a signed bigint because toLong returns a signed bigint.
+                buf.writeBigInt64BE(toLong(data.value.SizeOnDisk?.value ?? [0, 0]), 24);
+                buf.writeUInt32BE((data.value.LegacyLastPlayed?.value ?? 0) & 0xffffffff, 32);
+                if (!data.value.LevelName) {
+                    buf.writeUInt32LE(buf.length, 4);
+                    return buf;
+                }
+                const levelNameBuf: Buffer = encode(data.value.LevelName.value, "cp437");
+                buf.writeUInt16BE(levelNameBuf.length, 36);
+                buf.writeUInt32LE(buf.length + levelNameBuf.length, 4);
+                return Buffer.concat([buf, levelNameBuf]);
+            }
+            const nbtData: Buffer = NBT.writeUncompressed({ name: "", ...data }, "little");
+            return Buffer.concat([
+                writeUInt32LE(typeof data.value.StorageVersion?.value === "number" ? data.value.StorageVersion.value : 10),
+                writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false),
+                nbtData,
+            ]);
+        },
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * @todo Add a link to the object with the default level.dat value once it is made.
+         */
+        get defaultValue(): Buffer<ArrayBuffer> {
+            // TO-DO: Add a full default level.dat value.
+            const nbtData: Buffer = NBT.writeUncompressed(
+                { name: "", type: "compound", value: {} } as /* @todo Remove this partial later. */ Partial<NBTSchemas.NBTSchemaTypes.LevelDat> & NBT.NBT,
+                "little"
+            );
+            const result: Buffer<ArrayBuffer> = Buffer.concat([
+                Buffer.from("0A000000", "hex"),
+                writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false),
+                nbtData,
+            ]);
+            Object.defineProperty(this, "defaultValue", { value: result, configurable: true, enumerable: true, writable: false });
+            return result;
+        },
+        /**
+         * The raw file extension of the data.
+         */
+        rawFileExtension: "dat",
+    },
+    /**
+     * The content type of the `player.dat` file.
+     *
+     * This stores the data of the local player (host).
+     *
+     * @deprecated Only used in versions < 0.2.0.
+     *
+     * @since 0.1.0
+     *
+     * @todo Add a description for this.
+     * @todo Add a default value for this.
+     */
+    PlayerDat: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.PlayerDat.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {TypeError} If `StorageVersion` in the header of the data is not `1`.
+         * @throws {unknown} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.PlayerDat {
+            const storageVersion: number = data.readUInt32LE(0);
+            if (storageVersion === 1) {
+                return {
+                    type: "compound",
+                    value: {
+                        StorageVersion: {
+                            type: "int",
+                            value: 1,
+                        },
+                        Pos: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [data.readFloatLE(8), data.readFloatLE(12), data.readFloatLE(16)],
+                            },
+                        },
+                        Motion: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [data.readFloatLE(20), data.readFloatLE(24), data.readFloatLE(28)],
+                            },
+                        },
+                        Rotation: {
+                            type: "list",
+                            value: {
+                                type: "float",
+                                value: [data.readFloatLE(36), data.readFloatLE(32)],
+                            },
+                        },
+                        // TEST: See if the falldistance in 0.2.0 is about the same as here.
+                        // This is very likely FallDistance.
+                        // https://github.com/nbcraft-org/mcped/blob/e4eddc3a1df169d8d59d53a00bf3452669ca6b9e/source/world/level/storage/LevelData.cpp#L65
+                        FallDistance: {
+                            type: "float",
+                            value: data.readFloatLE(40),
+                        },
+                        Fire: {
+                            type: "short",
+                            value: data.readInt16LE(44),
+                        },
+                        Air: {
+                            type: "short",
+                            value: data.readInt16LE(46),
+                        },
+                        // TEST: Set this to a custom value and upgrade the world to a newer version and see where that value appears to figure out what it is.
+                        // Maybe this is score? See if it resets when loading the world again.
+                        // Maybe it is spawn point, see if it is the same across world loads, and it if only changes when creating the world.
+                        // This actually seems like the first byte or bit is probably OnGround, based on this: https://github.com/nbcraft-org/mcped/blob/e4eddc3a1df169d8d59d53a00bf3452669ca6b9e/source/world/level/storage/LevelData.cpp#L68
+                        OnGround: {
+                            type: "byte",
+                            value: data[48]! as 0 | 1,
+                        },
+                        UnknownField1: {
+                            type: "short", // It is unknown the data type of this.
+                            value: data.readInt16LE(49),
+                        },
+                        UnknownField2: {
+                            type: "byte", // It is unknown the data type of this.
+                            value: data[51]!,
+                        },
+                        Hotbar: {
+                            type: "list",
+                            value: {
+                                type: "compound",
+                                value: new Array<void>(9).fill(void 0).map(
+                                    (
+                                        _v: void,
+                                        i: number
+                                    ): {
+                                        ItemID: {
+                                            type: "short";
+                                            value: number;
+                                        };
+                                        UnknownField1: {
+                                            type: "short";
+                                            value: number;
+                                        };
+                                    } /* TEMP */ => ({
+                                        ItemID: {
+                                            type: "short",
+                                            value: data.readInt16LE(52 + i * 4),
+                                        },
+                                        // TEST: Set this to a custom value and upgrade the world to a newer version and see where that value appears to figure out what it is.
+                                        // This might be the data value or item count of the item.
+                                        UnknownField1: {
+                                            type: "short",
+                                            value: data.readInt16LE(54 + i * 4),
+                                        },
+                                    })
+                                ) as TupleOf<
+                                    9,
+                                    {
+                                        ItemID: {
+                                            type: "short";
+                                            value: number;
+                                        };
+                                        UnknownField1: {
+                                            type: "short";
+                                            value: number;
+                                        };
+                                    } /* TEMP */
+                                >,
+                            },
+                        },
+                    },
+                };
+            }
+            throw new TypeError(`Unknown PlayerDat StorageVersion: ${storageVersion}`);
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If `StorageVersion` field is not 1.
+         * @throws {unknown} If an error occurs while serializing the data.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.PlayerDat): Buffer<ArrayBuffer> {
+            if (data.value.StorageVersion?.value === 1) {
+                const buf: Buffer<ArrayBuffer> = Buffer.alloc(88);
+                buf.writeUInt32LE(1, 0);
+                buf.writeUInt32LE(80, 4);
+                buf.writeFloatLE(data.value.Pos.value.value[0], 8);
+                buf.writeFloatLE(data.value.Pos.value.value[1], 12);
+                buf.writeFloatLE(data.value.Pos.value.value[2], 16);
+                buf.writeFloatLE(data.value.Motion.value.value[0], 20);
+                buf.writeFloatLE(data.value.Motion.value.value[1], 24);
+                buf.writeFloatLE(data.value.Motion.value.value[2], 28);
+                buf.writeFloatLE(data.value.Rotation.value.value[1], 32);
+                buf.writeFloatLE(data.value.Rotation.value.value[0], 36);
+                buf.writeFloatLE(data.value.FallDistance.value, 40);
+                buf.writeInt16LE(data.value.Fire.value, 44);
+                buf.writeInt16LE(data.value.Air.value, 46);
+                buf.writeUInt8(data.value.OnGround.value, 48);
+                buf.writeInt16LE(data.value.UnknownField1.value, 49);
+                buf.writeUInt8(data.value.UnknownField2.value, 51);
+                for (let i = 0; i < 9; i++) {
+                    buf.writeInt16LE(data.value.Hotbar.value.value[i]!.ItemID.value, 52 + i * 4);
+                    buf.writeInt16LE(data.value.Hotbar.value.value[i]!.UnknownField1.value, 54 + i * 4);
+                }
+                return buf;
+            }
+            throw new TypeError(`Unknown PlayerDat StorageVersion: ${data.value.StorageVersion?.value}`);
+        },
+        /**
+         * The raw file extension of the data.
+         */
+        rawFileExtension: "dat",
+    },
+    /**
+     * The content type of the `players/${numericID}.dat` files.
+     *
+     * This stores the data of a player who is not the local player (host).
+     *
+     * @deprecated Only used in versions < 0.9.0.
+     *
+     * @since 0.2.0 < x <= 0.7.2
+     *
+     * @todo Figure out what version this was added in. It has been observed in a 0.7.2 world, it does not exist in 0.2.0.
+     * @todo Add a description for this.
+     * @todo Add a default value for this.
+     */
+    LANPlayerDat: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.LANPlayerDat.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {TypeError} If `StorageVersion` in the header of the data is not `1`.
+         * @throws {unknown} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): Pick<NBT.NBT, "name"> & NBTSchemas.NBTSchemaTypes.LANPlayerDat {
+            if (data[0] !== 0x50) throw new TypeError(`Expected byte 0 of LANPlayerDat data to be 0x50 but got ${data[0]} instead.`);
+            if (data[1] !== 0x4c) throw new TypeError(`Expected byte 1 of LANPlayerDat data to be 0x4C but got ${data[0]} instead.`);
+            if (data[2] !== 0x52) throw new TypeError(`Expected byte 2 of LANPlayerDat data to be 0x52 but got ${data[0]} instead.`);
+            if (data[3] !== 0x00) throw new TypeError(`Expected byte 3 of LANPlayerDat data to be 0x00 but got ${data[0]} instead.`);
+            const storageVersion: number = data.readUInt32LE(4);
+            const dataLength: number = data.readUInt32LE(8);
+            if (storageVersion === 1) {
+                const parsedData = NBT.parseUncompressed(data.subarray(12, 12 + dataLength), "little") as Pick<NBT.NBT, "name"> &
+                    NBTSchemas.NBTSchemaTypes.LANPlayerDat;
+                parsedData.value.StorageVersion = { type: "int", value: 1 };
+                return parsedData;
+            }
+            throw new TypeError(`Unknown LANPlayerDat StorageVersion: ${storageVersion}`);
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If the `StorageVersion` field is not 1.
+         * @throws {unknown} If an error occurs while serializing the data.
+         */
+        serialize(data: Partial<Pick<NBT.NBT, "name">> & NBTSchemas.NBTSchemaTypes.LANPlayerDat): Buffer<ArrayBuffer> {
+            if (data.value.StorageVersion?.value === 1) {
+                const headerBuf: Buffer<ArrayBuffer> = Buffer.alloc(12);
+                headerBuf.writeUInt32BE(0x504c5200, 0);
+                headerBuf.writeUInt32LE(1, 4);
+                const processedData: NBT.NBT = { name: data.name ?? "", type: "compound", value: { ...data.value } };
+                delete processedData.value.StorageVersion;
+                const serializedData: Buffer = NBT.writeUncompressed(processedData, "little");
+                headerBuf.writeUInt32LE(serializedData.length, 8);
+                return Buffer.concat([headerBuf, serializedData]);
+            }
+            throw new TypeError(`Unknown LANPlayerDat StorageVersion: ${data.value.StorageVersion?.value}`);
+        },
+        /**
+         * The raw file extension of the data.
+         */
+        rawFileExtension: "dat",
+    },
+    /**
+     * The content type of the `entities.dat` file.
+     *
+     * This stores entity and tile entity data.
+     *
+     * @deprecated Only used in versions < 0.9.0.
+     *
+     * @since 0.2.0
+     *
+     * @todo Add a description for this.
+     * @todo Add a schema for this.
+     * @todo Add a default value for this.
+     */
+    EntitiesDat: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.EntitiesDat.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {TypeError} If the header of the data does not start with `0x454E5400`.
+         * @throws {TypeError} If `StorageVersion` in the header of the data is not `1`.
+         * @throws {unknown} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): Pick<NBT.NBT, "name"> & {
+            type: "compound";
+            value: {
+                StorageVersion: {
+                    type: "int";
+                    value: 1;
+                };
+            };
+        } /* TEMP */ {
+            if (data[0] !== 0x45) throw new TypeError(`Expected byte 0 of EntitiesDat data to be 0x45 but got ${data[0]} instead.`);
+            if (data[1] !== 0x4e) throw new TypeError(`Expected byte 1 of EntitiesDat data to be 0x4E but got ${data[0]} instead.`);
+            if (data[2] !== 0x54) throw new TypeError(`Expected byte 2 of EntitiesDat data to be 0x54 but got ${data[0]} instead.`);
+            if (data[3] !== 0x00) throw new TypeError(`Expected byte 3 of EntitiesDat data to be 0x00 but got ${data[0]} instead.`);
+            const storageVersion: number = data.readUInt32LE(4);
+            const dataLength: number = data.readUInt32LE(8);
+            if (storageVersion === 1) {
+                const parsedData = NBT.parseUncompressed(
+                    data.subarray(12, 12 + dataLength),
+                    "little"
+                ); /* TEMP: Add an as statement here once the schema is added. */
+                parsedData.value.StorageVersion = { type: "int", value: 1 };
+                return parsedData as Pick<NBT.NBT, "name"> & {
+                    type: "compound";
+                    value: { StorageVersion: { type: "int"; value: 1 } };
+                } /* TEMP */;
+            }
+            throw new TypeError(`Unknown EntitiesDat StorageVersion: ${storageVersion}`);
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {TypeError} If `StorageVersion` field is not 1.
+         * @throws {unknown} If an error occurs while serializing the data.
+         */
+        // TEMP: `StorageVersion` in the throws tag should be a link once the schema is added.
+        serialize(
+            data: Partial<Pick<NBT.NBT, "name">> &
+                NBT.Compound & {
+                    StorageVersion: {
+                        type: "int";
+                        value: 1;
+                    };
+                } /* TEMP */
+        ): Buffer<ArrayBuffer> {
+            if ((data.value.StorageVersion?.value ?? 1) === 1) {
+                const headerBuf: Buffer<ArrayBuffer> = Buffer.alloc(12);
+                headerBuf.writeUInt32BE(0x454e5400, 0);
+                headerBuf.writeUInt32LE(1, 4);
+                const processedData: NBT.NBT = { name: data.name ?? "", type: "compound", value: { ...data.value } };
+                delete processedData.value.StorageVersion;
+                const serializedData: Buffer = NBT.writeUncompressed(processedData, "little");
+                headerBuf.writeUInt32LE(serializedData.length, 8);
+                return Buffer.concat([headerBuf, serializedData]);
+            }
+            throw new TypeError(`Unknown EntitiesDat StorageVersion: ${data.value.StorageVersion?.value}`);
+        },
+        /**
+         * The raw file extension of the data.
+         */
+        rawFileExtension: "dat",
+    },
+    /**
+     * The content type of the `chunks.dat` file.
+     *
+     * @deprecated Only used in versions < 0.9.0.
+     *
+     * @since 0.1.0
+     *
+     * @todo Add a description for this.
+     * @todo Add a default value for this.
+     */
+    ChunksDat: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.ChunksDat.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {Error} If the data is less than 4096 bytes.
+         * @throws {Error} If a chunk pointer points beyond the length of the data.
+         * @throws {Error} If a chunk's data is truncated.
+         * @throws {unknown} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.ChunksDat {
+            if (data.length < 4096) {
+                throw new Error(`Expected ChunksDat data to be at least 4096 bytes, but got ${data.length} bytes instead.`);
+            }
+
+            function unpackNibbleArray(buf: Buffer): Range<0, 16>[] {
+                const out: Range<0, 16>[] = new Array(buf.length * 2);
+                let offset = 0;
+                for (let i = 0; i < buf.length; i++) {
+                    const byte: number = buf[i]!;
+                    out[offset++] = (byte & 0x0f) as Range<0, 16>;
+                    out[offset++] = (byte >> 4) as Range<0, 16>;
+                }
+                return out;
+            }
+
+            const chunks: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"] = new Array<void>(32)
+                .fill(void 0)
+                .map((_: void): NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][number] => ({
+                    type: "compound",
+                    value: new Array<NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][number]["value"][number]>(32),
+                }));
+
+            let offset = 0;
+
+            for (let z = 0; z < 32; z++) {
+                for (let x = 0; x < 32; x++) {
+                    const sectorCount: number = data[offset]!;
+                    const preSectorCount = data[offset + 1]! | (data[offset + 2]! << 8) | (data[offset + 3]! << 16);
+
+                    offset += 4;
+
+                    if (sectorCount === 0 || preSectorCount === 0) {
+                        // Empty chunk
+                        chunks[x]!.value[z] = {
+                            block_ids: { type: "list", value: { type: "byte", value: [] } },
+                            block_data: { type: "list", value: { type: "byte", value: [] } },
+                            sky_light: { type: "list", value: { type: "byte", value: [] } },
+                            block_light: { type: "list", value: { type: "byte", value: [] } },
+                            update_map: { type: "list", value: { type: "byte", value: [] } },
+                            extra_data: { type: "list", value: { type: "byte", value: [] } },
+                        };
+                        continue;
+                    }
+
+                    const chunkOffset = preSectorCount * 4096;
+
+                    if (chunkOffset + 4 > data.length)
+                        throw new Error(`Chunk at (${x},${z}) points outside file; Expected ${chunkOffset + 4} bytes, got ${data.length} bytes.`);
+
+                    const length: number = data.readUInt32LE(chunkOffset);
+
+                    if (chunkOffset + length > data.length)
+                        throw new Error(`Chunk at (${x},${z}) truncated; Expected ${length} bytes, got ${data.length - chunkOffset} bytes.`);
+
+                    const buf: Buffer = data.subarray(chunkOffset, chunkOffset + length);
+
+                    const blocksEnd = 4 + 32768;
+                    const metadataEnd = blocksEnd + 16384;
+                    const skylightEnd = metadataEnd + 16384;
+                    const blocklightEnd = skylightEnd + 16384;
+                    const updateMapEnd = blocklightEnd + 256;
+
+                    const blocks: number[] = length >= blocksEnd ? [...buf.subarray(4, blocksEnd)] : [];
+
+                    const metadataPacked: Buffer = length >= metadataEnd ? buf.subarray(blocksEnd, metadataEnd) : Buffer.alloc(0);
+
+                    const skylightPacked: Buffer = length >= skylightEnd ? buf.subarray(metadataEnd, skylightEnd) : Buffer.alloc(0);
+
+                    const blocklightPacked: Buffer = length >= blocklightEnd ? buf.subarray(skylightEnd, blocklightEnd) : Buffer.alloc(0);
+
+                    const updateMap: number[] = length >= updateMapEnd ? [...buf.subarray(blocklightEnd, updateMapEnd)] : [];
+
+                    const extra: number[] = length > updateMapEnd ? [...buf.subarray(updateMapEnd, length)] : [];
+
+                    chunks[x]!.value[z] = {
+                        block_ids: { type: "list", value: { type: "byte", value: blocks } },
+                        block_data: { type: "list", value: { type: "byte", value: unpackNibbleArray(metadataPacked) } },
+                        sky_light: { type: "list", value: { type: "byte", value: unpackNibbleArray(skylightPacked) } },
+                        block_light: { type: "list", value: { type: "byte", value: unpackNibbleArray(blocklightPacked) } },
+                        update_map: { type: "list", value: { type: "byte", value: updateMap } },
+                        extra_data: { type: "list", value: { type: "byte", value: extra } },
+                    };
+                }
+            }
+
+            return {
+                type: "compound",
+                value: {
+                    chunks: {
+                        type: "list",
+                        value: {
+                            type: "list",
+                            value: chunks,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {unknown} If an error occurs while serializing the data.
+         */
+        serialize(data: NBTSchemas.NBTSchemaTypes.ChunksDat): Buffer<ArrayBuffer> {
+            function packNibbleArray(arr: Range<0, 16>[]): Buffer<ArrayBuffer> {
+                const out: Buffer<ArrayBuffer> = Buffer.alloc(arr.length / 2);
+                let o = 0;
+                for (let i = 0; i < arr.length; i += 2) {
+                    out[o++] = (arr[i]! & 0x0f) | ((arr[i + 1]! & 0x0f) << 4);
+                }
+                return out;
+            }
+
+            const columns = data.value.chunks.value.value;
+
+            const indexBuf: Buffer<ArrayBuffer> = Buffer.alloc(4096);
+            const chunkBuffers: Buffer<ArrayBuffer>[] = [];
+
+            let sectorOffset = 1;
+            let indexPos = 0;
+
+            for (const column of columns) {
+                for (const chunk of column.value) {
+                    const v = chunk;
+
+                    const blockIds: Buffer<ArrayBuffer> = Buffer.from(v.block_ids.value.value);
+                    const blockDataPacked: Buffer<ArrayBuffer> = packNibbleArray(v.block_data.value.value);
+                    const skyLightPacked: Buffer<ArrayBuffer> = packNibbleArray(v.sky_light.value.value);
+                    const blockLightPacked: Buffer<ArrayBuffer> = packNibbleArray(v.block_light.value.value);
+                    const updateMap: Buffer<ArrayBuffer> = Buffer.from(v.update_map.value.value);
+                    const extra: Buffer<ArrayBuffer> = Buffer.from(v.extra_data.value.value);
+
+                    const length =
+                        4 + blockIds.length + blockDataPacked.length + skyLightPacked.length + blockLightPacked.length + updateMap.length + extra.length;
+
+                    if (length === 4) {
+                        // Empty chunk
+                        indexBuf[indexPos] = 0;
+                        indexBuf[indexPos + 1] = 0;
+                        indexBuf[indexPos + 2] = 0;
+                        indexBuf[indexPos + 3] = 0;
+                        indexPos += 4;
+                        continue;
+                    }
+
+                    const sectorCount: number = Math.ceil(length / 4096);
+                    const preSectorCount: number = sectorOffset;
+
+                    const buf: Buffer<ArrayBuffer> = Buffer.alloc(sectorCount * 4096);
+                    buf.writeUInt32LE(length, 0);
+
+                    let o = 4;
+                    blockIds.copy(buf, o);
+                    o += blockIds.length;
+                    blockDataPacked.copy(buf, o);
+                    o += blockDataPacked.length;
+                    skyLightPacked.copy(buf, o);
+                    o += skyLightPacked.length;
+                    blockLightPacked.copy(buf, o);
+                    o += blockLightPacked.length;
+                    updateMap.copy(buf, o);
+                    o += updateMap.length;
+                    extra.copy(buf, o);
+
+                    indexBuf[indexPos] = sectorCount;
+                    indexBuf[indexPos + 1] = preSectorCount & 0xff;
+                    indexBuf[indexPos + 2] = (preSectorCount >> 8) & 0xff;
+                    indexBuf[indexPos + 3] = (preSectorCount >> 16) & 0xff;
+
+                    indexPos += 4;
+                    sectorOffset += sectorCount;
+
+                    chunkBuffers.push(buf);
+                }
+            }
+
+            return Buffer.concat([indexBuf, ...chunkBuffers]);
+        },
+        /**
+         * The raw file extension of the data.
+         */
+        rawFileExtension: "dat",
+    },
+    /**
+     * The content type of the `importedchunks.dat` file.
+     *
+     * @deprecated Only used in versions < ?.
+     *
+     * @since 0.9.0?
+     *
+     * @todo Figure out what version this was added and removed in. It has been observed in a corrupted 0.7.2 world that seems to have been partially updated to a slightly newer version that has a LevelDB, maybe 0.9.0 or later.
+     * @todo Add a description for this.
+     * @todo Add a schema for this.
+     * @todo Add a default value for this.
+     */
+    // TEST: See if I update a 0.7.2 world to 1.26.50 if this appears.
+    // TEST: See if I update a 0.7.2 world to 0.9.0 if this appears.
+    ImportedChunksDat: {
+        /**
+         * The format type of the data.
+         */
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.ImportedChunksDat.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns The parsed data.
+         *
+         * @throws {Error} If the data is less than 4096 bytes.
+         * @throws {unknown} If an error occurs while parsing the data.
+         */
+        parse(data: Buffer): {
+            type: "compound";
+            value: {
+                ImportState: {
+                    type: "list";
+                    value: {
+                        type: "list";
+                        value: {
+                            type: "byte";
+                            value: number[];
+                        }[];
+                    };
+                };
+            };
+        } /* TEMP */ {
+            if (data.length !== 256) {
+                throw new Error(`Expected ImportedChunksDat data to be 256 bytes, but got ${data.length} bytes instead.`);
+            }
+            // REVIEW: See if importedchunks.dat is larger than 16x16 if a world with an area with actual chunk data larger than 16x16 chunks is upgraded.
+            const columns: { type: "byte"; value: number[] }[] = new Array<void>(16).fill(void 0).map((_: void): { type: "byte"; value: number[] } => ({
+                type: "byte",
+                value: new Array<number>(16),
+            }));
+            let offset = 0;
+            for (let z = 0; z < 16; z++) {
+                for (let x = 0; x < 16; x++) {
+                    columns[x]!.value[z] = data[offset++]!;
+                }
+            }
+            return {
+                type: "compound",
+                value: {
+                    ImportState: {
+                        type: "list",
+                        value: {
+                            type: "list",
+                            value: columns,
+                        },
+                    },
+                },
+            };
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns The serialized data, as a buffer.
+         *
+         * @throws {unknown} If an error occurs while serializing the data.
+         */
+        serialize(
+            data: {
+                type: "compound";
+                value: {
+                    ImportState: {
+                        type: "list";
+                        value: {
+                            type: "list";
+                            value: {
+                                type: "byte";
+                                value: number[];
+                            }[];
+                        };
+                    };
+                };
+            } /* TEMP */
+        ): Buffer<ArrayBuffer> {
+            const buf: Buffer<ArrayBuffer> = Buffer.alloc(256);
+            let offset = 0;
+            for (let z = 0; z < 16; z++) {
+                for (let x = 0; x < 16; x++) {
+                    buf[offset++] = data.value.ImportState.value.value[x]!.value[z]!;
+                }
+            }
+            return buf;
+        },
+        /**
+         * The raw file extension of the data.
+         */
+        rawFileExtension: "dat",
+    },
+    /**
      * All data that has a key that is not recognized.
      */
     Unknown: {
@@ -5179,7 +6002,7 @@ export const entryContentTypeToFormatMap = {
         type: "unknown",
     },
 } as const satisfies {
-    [key in DBEntryContentType]: EntryContentTypeFormatData;
+    [key in MCEntryContentType]: EntryContentTypeFormatData;
 };
 
 /**
@@ -5194,7 +6017,43 @@ export type EntryContentTypeFormatData = (
           /**
            * The format type of the data.
            */
-          readonly type: "JSON" | "SNBT" | "unknown";
+          readonly type: "SNBT" | "unknown";
+      }
+    | {
+          /**
+           * The format type of the data.
+           */
+          readonly type: "JSONC";
+          /**
+           * Whether trailing commas are allowed.
+           *
+           * If not present, `false` should be assumed.
+           *
+           * @default false
+           */
+          readonly allowTrailingCommas?: boolean;
+      }
+    | {
+          /**
+           * The format type of the data.
+           */
+          readonly type: "JSON";
+          /**
+           * Whether comments are allowed.
+           *
+           * If not present, `false` should be assumed.
+           *
+           * @default false
+           */
+          readonly allowComments?: boolean;
+          /**
+           * Whether trailing commas are allowed.
+           *
+           * If not present, `false` should be assumed.
+           *
+           * @default false
+           */
+          readonly allowTrailingCommas?: boolean;
       }
     | {
           /**
@@ -5407,6 +6266,532 @@ export type EntryContentTypeFormatData = (
     readonly defaultValue?: Buffer;
 };
 
+/**
+ * Utilities related to the `chunks.dat` file.
+ *
+ * @see {@link entryContentTypeToFormatMap.ChunksDat}
+ */
+export namespace ChunksDatUtils {
+    /**
+     * Reads a chunk from `chunks.dat`.
+     *
+     * @see {@link entryContentTypeToFormatMap.ChunksDat}
+     *
+     * @param data The buffer of the `chunks.dat` file.
+     * @param chunk The chunk coordinates.
+     * @returns The parsed chunk data.
+     *
+     * @throws {Error} If the data is less than 4096 bytes.
+     * @throws {Error} If a chunk pointer points beyond the length of the data.
+     * @throws {Error} If a chunk's data is truncated.
+     * @throws {unknown} If an error occurs while parsing the data.
+     */
+    export function readChunksDatChunk(
+        data: Buffer,
+        chunk: VectorXZ
+    ): { type: "compound"; value: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][0]["value"][0] } {
+        if (data.length < 4096) {
+            throw new Error(`Expected ChunksDat data to be at least 4096 bytes, but got ${data.length} bytes instead.`);
+        }
+
+        function getOffsetInChunkIndexSector(x: number, z: number): number {
+            return ((z << 5) + x) << 2;
+        }
+        function unpackNibbleArray(buf: Buffer): Range<0, 16>[] {
+            const out: Range<0, 16>[] = new Array(buf.length * 2);
+            let offset = 0;
+            for (let i = 0; i < buf.length; i++) {
+                const byte: number = buf[i]!;
+                out[offset++] = (byte & 0x0f) as Range<0, 16>;
+                out[offset++] = (byte >> 4) as Range<0, 16>;
+            }
+            return out;
+        }
+
+        const offset: number = getOffsetInChunkIndexSector(chunk.x, chunk.z);
+        const sectorCount: number = data[offset]!;
+        const preSectorCount = data[offset + 1]! | (data[offset + 2]! << 8) | (data[offset + 3]! << 16);
+
+        if (sectorCount === 0 || preSectorCount === 0) {
+            // Empty chunk
+            return {
+                type: "compound",
+                value: {
+                    block_ids: { type: "list", value: { type: "byte", value: [] } },
+                    block_data: { type: "list", value: { type: "byte", value: [] } },
+                    sky_light: { type: "list", value: { type: "byte", value: [] } },
+                    block_light: { type: "list", value: { type: "byte", value: [] } },
+                    update_map: { type: "list", value: { type: "byte", value: [] } },
+                    extra_data: { type: "list", value: { type: "byte", value: [] } },
+                },
+            };
+        }
+
+        const chunkOffset = preSectorCount * 4096;
+
+        if (chunkOffset + 4 > data.length)
+            throw new Error(`Chunk at (${chunk.x},${chunk.z}) points outside file; Expected ${chunkOffset + 4} bytes, got ${data.length} bytes.`);
+
+        const length: number = data.readUInt32LE(chunkOffset);
+
+        if (chunkOffset + length > data.length)
+            throw new Error(`Chunk at (${chunk.x},${chunk.z}) truncated; Expected ${length} bytes, got ${data.length - chunkOffset} bytes.`);
+
+        const buf: Buffer = data.subarray(chunkOffset, chunkOffset + length);
+
+        const blocksEnd = 4 + 32768;
+        const metadataEnd = blocksEnd + 16384;
+        const skylightEnd = metadataEnd + 16384;
+        const blocklightEnd = skylightEnd + 16384;
+        const updateMapEnd = blocklightEnd + 256;
+
+        const blocks: number[] = length >= blocksEnd ? [...buf.subarray(4, blocksEnd)] : [];
+
+        const metadataPacked: Buffer = length >= metadataEnd ? buf.subarray(blocksEnd, metadataEnd) : Buffer.alloc(0);
+
+        const skylightPacked: Buffer = length >= skylightEnd ? buf.subarray(metadataEnd, skylightEnd) : Buffer.alloc(0);
+
+        const blocklightPacked: Buffer = length >= blocklightEnd ? buf.subarray(skylightEnd, blocklightEnd) : Buffer.alloc(0);
+
+        const updateMap: number[] = length >= updateMapEnd ? [...buf.subarray(blocklightEnd, updateMapEnd)] : [];
+
+        const extra: number[] = length > updateMapEnd ? [...buf.subarray(updateMapEnd, length)] : [];
+
+        return {
+            type: "compound",
+            value: {
+                block_ids: { type: "list", value: { type: "byte", value: blocks } },
+                block_data: { type: "list", value: { type: "byte", value: unpackNibbleArray(metadataPacked) } },
+                sky_light: { type: "list", value: { type: "byte", value: unpackNibbleArray(skylightPacked) } },
+                block_light: { type: "list", value: { type: "byte", value: unpackNibbleArray(blocklightPacked) } },
+                update_map: { type: "list", value: { type: "byte", value: updateMap } },
+                extra_data: { type: "list", value: { type: "byte", value: extra } },
+            },
+        };
+    }
+
+    /**
+     * Writes a chunk in `chunks.dat`.
+     *
+     * This method does not modifiy the original buffer.
+     *
+     * @see {@link entryContentTypeToFormatMap.ChunksDat}
+     *
+     * @param data The original `chunks.dat` buffer.
+     * @param chunkData The chunk data to write.
+     * @param chunk The chunk coordinates.
+     * @returns A copy of the original buffer with the chunk data written.
+     *
+     * @throws {Error} If the original data buffer is less than 4096 bytes.
+     * @throws {unknown} If an error occurs while serializing the data.
+     */
+    export function writeChunksDatChunk(
+        data: Buffer,
+        chunkData: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][0]["value"][0] },
+        chunk: VectorXZ
+    ): Buffer<ArrayBuffer> {
+        if (data.length < 4096) {
+            throw new Error(`Expected ChunksDat data to be at least 4096 bytes, but got ${data.length} bytes instead.`);
+        }
+
+        function getOffsetInChunkIndexSector(x: number, z: number): number {
+            return ((z << 5) + x) << 2;
+        }
+        function packNibbleArray(arr: Range<0, 16>[]): Buffer<ArrayBuffer> {
+            const out: Buffer<ArrayBuffer> = Buffer.alloc(arr.length / 2);
+            let o = 0;
+            for (let i = 0; i < arr.length; i += 2) {
+                out[o++] = (arr[i]! & 0x0f) | ((arr[i + 1]! & 0x0f) << 4);
+            }
+            return out;
+        }
+
+        const chunkIndexSectorOffset: number = getOffsetInChunkIndexSector(chunk.x, chunk.z);
+        let newPreSectorCount = 0;
+        const origSectorCount: number = data[chunkIndexSectorOffset]!;
+        const origPreSectorCount = data[chunkIndexSectorOffset + 1]! | (data[chunkIndexSectorOffset + 2]! << 8) | (data[chunkIndexSectorOffset + 3]! << 16);
+        preSectorCountGetter: if (origSectorCount === 0 || origPreSectorCount === 0) {
+            let offset = 0;
+
+            for (let z = 0; z < 32; z++) {
+                for (let x = 0; x < 32; x++) {
+                    if (x === chunk.x && z === chunk.z) break preSectorCountGetter;
+                    const sectorCount: number = data[offset]!;
+                    const preSectorCount = data[offset + 1]! | (data[offset + 2]! << 8) | (data[offset + 3]! << 16);
+                    offset += 4;
+                    if (sectorCount === 0 || preSectorCount === 0) continue;
+                    if (preSectorCount + sectorCount > newPreSectorCount) newPreSectorCount = preSectorCount + sectorCount;
+                }
+            }
+        } else newPreSectorCount = origPreSectorCount;
+
+        let preChunkIndexSectorBuf: Buffer = data.subarray(0, chunkIndexSectorOffset);
+        let chunkIndexSectorEntryBuf: Buffer<ArrayBuffer> = Buffer.alloc(4);
+        let postChunkIndexSectorBuf: Buffer = data.subarray(chunkIndexSectorOffset + 4, 4096);
+
+        let preDataBufs: Buffer[];
+        let postDataBufs: Buffer[];
+
+        if (origPreSectorCount && origPreSectorCount !== newPreSectorCount) {
+            if (origPreSectorCount > newPreSectorCount) {
+                preDataBufs = [data.subarray(4096, newPreSectorCount * 4096)];
+                postDataBufs = [
+                    data.subarray(newPreSectorCount * 4096, origPreSectorCount * 4096),
+                    data.subarray((origPreSectorCount + origSectorCount) * 4096),
+                ];
+            } else {
+                preDataBufs = [
+                    data.subarray(0, origPreSectorCount * 4096),
+                    data.subarray((origPreSectorCount + origSectorCount) * 4096, newPreSectorCount * 4096),
+                ];
+                postDataBufs = [data.subarray(newPreSectorCount * 4096)];
+            }
+        } else if (origSectorCount && origPreSectorCount) {
+            preDataBufs = [data.subarray(4096, origPreSectorCount * 4096)];
+            postDataBufs = [data.subarray((origPreSectorCount + origSectorCount) * 4096)];
+        } else {
+            preDataBufs = [data.subarray(4096, newPreSectorCount * 4096)];
+            postDataBufs = [data.subarray(newPreSectorCount * 4096)];
+        }
+
+        const blockIds: Buffer<ArrayBuffer> = Buffer.from(chunkData.value.block_ids.value.value);
+        const blockDataPacked: Buffer<ArrayBuffer> = packNibbleArray(chunkData.value.block_data.value.value);
+        const skyLightPacked: Buffer<ArrayBuffer> = packNibbleArray(chunkData.value.sky_light.value.value);
+        const blockLightPacked: Buffer<ArrayBuffer> = packNibbleArray(chunkData.value.block_light.value.value);
+        const updateMap: Buffer<ArrayBuffer> = Buffer.from(chunkData.value.update_map.value.value);
+        const extra: Buffer<ArrayBuffer> = Buffer.from(chunkData.value.extra_data.value.value);
+
+        const length = 4 + blockIds.length + blockDataPacked.length + skyLightPacked.length + blockLightPacked.length + updateMap.length + extra.length;
+
+        if (length === 4) {
+            return Buffer.concat([preChunkIndexSectorBuf, chunkIndexSectorEntryBuf, postChunkIndexSectorBuf, ...preDataBufs, ...postDataBufs]);
+        }
+
+        const sectorCount: number = Math.ceil(length / 4096);
+
+        const dataBuf: Buffer<ArrayBuffer> = Buffer.alloc(sectorCount * 4096);
+        dataBuf.writeUInt32LE(length, 0);
+
+        let o = 4;
+        blockIds.copy(dataBuf, o);
+        o += blockIds.length;
+        blockDataPacked.copy(dataBuf, o);
+        o += blockDataPacked.length;
+        skyLightPacked.copy(dataBuf, o);
+        o += skyLightPacked.length;
+        blockLightPacked.copy(dataBuf, o);
+        o += blockLightPacked.length;
+        updateMap.copy(dataBuf, o);
+        o += updateMap.length;
+        extra.copy(dataBuf, o);
+
+        chunkIndexSectorEntryBuf[0] = sectorCount;
+        chunkIndexSectorEntryBuf[1] = newPreSectorCount & 0xff;
+        chunkIndexSectorEntryBuf[2] = (newPreSectorCount >> 8) & 0xff;
+        chunkIndexSectorEntryBuf[3] = (newPreSectorCount >> 16) & 0xff;
+
+        return Buffer.concat([preChunkIndexSectorBuf, chunkIndexSectorEntryBuf, postChunkIndexSectorBuf, ...preDataBufs, dataBuf, ...postDataBufs]);
+    }
+
+    /**
+     * Reads a chunk's raw data from `chunks.dat`.
+     *
+     * @see {@link entryContentTypeToFormatMap.ChunksDat}
+     *
+     * @param data The buffer of the `chunks.dat` file.
+     * @param chunk The chunk coordinates.
+     * @returns The raw chunk data.
+     *
+     * @throws {Error} If the data is less than 4096 bytes.
+     * @throws {Error} If a chunk pointer points beyond the length of the data.
+     * @throws {unknown} If an error occurs while parsing the data.
+     */
+    export function readRawChunksDatChunk(data: Buffer, chunk: VectorXZ): Buffer<ArrayBuffer> {
+        if (data.length < 4096) {
+            throw new Error(`Expected ChunksDat data to be at least 4096 bytes, but got ${data.length} bytes instead.`);
+        }
+
+        function getOffsetInChunkIndexSector(x: number, z: number): number {
+            return ((z << 5) + x) << 2;
+        }
+
+        const offset: number = getOffsetInChunkIndexSector(chunk.x, chunk.z);
+        const sectorCount: number = data[offset]!;
+        const preSectorCount = data[offset + 1]! | (data[offset + 2]! << 8) | (data[offset + 3]! << 16);
+
+        if (sectorCount === 0 || preSectorCount === 0) {
+            // Empty chunk
+            return Buffer.alloc(0);
+        }
+
+        const chunkOffset = preSectorCount * 4096;
+
+        if (chunkOffset + 4 > data.length)
+            throw new Error(`Chunk at (${chunk.x},${chunk.z}) points outside file; Expected ${chunkOffset + 4} bytes, got ${data.length} bytes.`);
+
+        return Buffer.from(data.subarray(chunkOffset, chunkOffset + sectorCount * 4096));
+    }
+
+    /**
+     * Extracts a reference to a chunk's raw data from `chunks.dat`.
+     *
+     * This is the same as {@link readRawChunksDatChunk} except that the returned buffer references the same memory as the input data buffer.
+     *
+     * @see {@link entryContentTypeToFormatMap.ChunksDat}
+     *
+     * @param data The buffer of the `chunks.dat` file.
+     * @param chunk The chunk coordinates.
+     * @returns The raw chunk data reference.
+     *
+     * @throws {Error} If the data is less than 4096 bytes.
+     * @throws {Error} If a chunk pointer points beyond the length of the data.
+     * @throws {unknown} If an error occurs while parsing the data.
+     */
+    export function extractRawChunksDatChunk<BufferType extends ArrayBufferLike>(data: Buffer<BufferType>, chunk: VectorXZ): Buffer<BufferType> {
+        if (data.length < 4096) {
+            throw new Error(`Expected ChunksDat data to be at least 4096 bytes, but got ${data.length} bytes instead.`);
+        }
+
+        function getOffsetInChunkIndexSector(x: number, z: number): number {
+            return ((z << 5) + x) << 2;
+        }
+
+        const offset: number = getOffsetInChunkIndexSector(chunk.x, chunk.z);
+        const sectorCount: number = data[offset]!;
+        const preSectorCount = data[offset + 1]! | (data[offset + 2]! << 8) | (data[offset + 3]! << 16);
+
+        if (sectorCount === 0 || preSectorCount === 0) {
+            // Empty chunk
+            return data.subarray(0, 0);
+        }
+
+        const chunkOffset = preSectorCount * 4096;
+
+        if (chunkOffset + 4 > data.length)
+            throw new Error(`Chunk at (${chunk.x},${chunk.z}) points outside file; Expected ${chunkOffset + 4} bytes, got ${data.length} bytes.`);
+
+        return data.subarray(chunkOffset, chunkOffset + sectorCount * 4096);
+    }
+
+    /**
+     * Writes a chunk's raw data to `chunks.dat`.
+     *
+     * This method does not modifiy the original buffer.
+     *
+     * @see {@link entryContentTypeToFormatMap.ChunksDat}
+     *
+     * @param data The original `chunks.dat` buffer.
+     * @param chunkData The chunk data to write.
+     * @param chunk The chunk coordinates.
+     * @returns A copy of the original buffer with the chunk data written.
+     *
+     * @throws {Error} If the original data buffer is less than 4096 bytes.
+     * @throws {unknown} If an error occurs while serializing the data.
+     */
+    export function writeRawChunksDatChunk(data: Buffer, chunkData: Buffer, chunk: VectorXZ): Buffer<ArrayBuffer> {
+        if (data.length < 4096) {
+            throw new Error(`Expected ChunksDat data to be at least 4096 bytes, but got ${data.length} bytes instead.`);
+        }
+
+        function getOffsetInChunkIndexSector(x: number, z: number): number {
+            return ((z << 5) + x) << 2;
+        }
+        function packNibbleArray(arr: Range<0, 16>[]): Buffer<ArrayBuffer> {
+            const out: Buffer<ArrayBuffer> = Buffer.alloc(arr.length / 2);
+            let o = 0;
+            for (let i = 0; i < arr.length; i += 2) {
+                out[o++] = (arr[i]! & 0x0f) | ((arr[i + 1]! & 0x0f) << 4);
+            }
+            return out;
+        }
+
+        const chunkIndexSectorOffset: number = getOffsetInChunkIndexSector(chunk.x, chunk.z);
+        let newPreSectorCount = 0;
+        const origSectorCount: number = data[chunkIndexSectorOffset]!;
+        const origPreSectorCount = data[chunkIndexSectorOffset + 1]! | (data[chunkIndexSectorOffset + 2]! << 8) | (data[chunkIndexSectorOffset + 3]! << 16);
+        preSectorCountGetter: if (origSectorCount === 0 || origPreSectorCount === 0) {
+            let offset = 0;
+
+            for (let z = 0; z < 32; z++) {
+                for (let x = 0; x < 32; x++) {
+                    if (x === chunk.x && z === chunk.z) break preSectorCountGetter;
+                    const sectorCount: number = data[offset]!;
+                    const preSectorCount = data[offset + 1]! | (data[offset + 2]! << 8) | (data[offset + 3]! << 16);
+                    offset += 4;
+                    if (sectorCount === 0 || preSectorCount === 0) continue;
+                    if (preSectorCount + sectorCount > newPreSectorCount) newPreSectorCount = preSectorCount + sectorCount;
+                }
+            }
+        } else newPreSectorCount = origPreSectorCount;
+
+        let preChunkIndexSectorBuf: Buffer = data.subarray(0, chunkIndexSectorOffset);
+        let chunkIndexSectorEntryBuf: Buffer<ArrayBuffer> = Buffer.alloc(4);
+        let postChunkIndexSectorBuf: Buffer = data.subarray(chunkIndexSectorOffset + 4, 4096);
+
+        let preDataBufs: Buffer[];
+        let postDataBufs: Buffer[];
+
+        if (origPreSectorCount && origPreSectorCount !== newPreSectorCount) {
+            if (origPreSectorCount > newPreSectorCount) {
+                preDataBufs = [data.subarray(4096, newPreSectorCount * 4096)];
+                postDataBufs = [
+                    data.subarray(newPreSectorCount * 4096, origPreSectorCount * 4096),
+                    data.subarray((origPreSectorCount + origSectorCount) * 4096),
+                ];
+            } else {
+                preDataBufs = [
+                    data.subarray(0, origPreSectorCount * 4096),
+                    data.subarray((origPreSectorCount + origSectorCount) * 4096, newPreSectorCount * 4096),
+                ];
+                postDataBufs = [data.subarray(newPreSectorCount * 4096)];
+            }
+        } else if (origSectorCount && origPreSectorCount) {
+            preDataBufs = [data.subarray(4096, origPreSectorCount * 4096)];
+            postDataBufs = [data.subarray((origPreSectorCount + origSectorCount) * 4096)];
+        } else {
+            preDataBufs = [data.subarray(4096, newPreSectorCount * 4096)];
+            postDataBufs = [data.subarray(newPreSectorCount * 4096)];
+        }
+
+        if (chunkData.length === 0) {
+            return Buffer.concat([preChunkIndexSectorBuf, chunkIndexSectorEntryBuf, postChunkIndexSectorBuf, ...preDataBufs, ...postDataBufs]);
+        }
+
+        const sectorCount: number = Math.ceil(chunkData.length / 4096);
+
+        chunkIndexSectorEntryBuf[0] = sectorCount;
+        chunkIndexSectorEntryBuf[1] = newPreSectorCount & 0xff;
+        chunkIndexSectorEntryBuf[2] = (newPreSectorCount >> 8) & 0xff;
+        chunkIndexSectorEntryBuf[3] = (newPreSectorCount >> 16) & 0xff;
+
+        return Buffer.concat([preChunkIndexSectorBuf, chunkIndexSectorEntryBuf, postChunkIndexSectorBuf, ...preDataBufs, chunkData, ...postDataBufs]);
+    }
+
+    /**
+     * Parses the raw data of a `chunks.dat` chunk.
+     *
+     * @param data The raw chunk data.
+     * @returns The parsed chunk data.
+     */
+    export function parseRawChunksDatChunk(data: Buffer): {
+        type: "compound";
+        value: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][0]["value"][0];
+    } {
+        function unpackNibbleArray(buf: Buffer): Range<0, 16>[] {
+            const out: Range<0, 16>[] = new Array(buf.length * 2);
+            let offset = 0;
+            for (let i = 0; i < buf.length; i++) {
+                const byte: number = buf[i]!;
+                out[offset++] = (byte & 0x0f) as Range<0, 16>;
+                out[offset++] = (byte >> 4) as Range<0, 16>;
+            }
+            return out;
+        }
+
+        if (data.length === 0) {
+            // Empty chunk
+            return {
+                type: "compound",
+                value: {
+                    block_ids: { type: "list", value: { type: "byte", value: [] } },
+                    block_data: { type: "list", value: { type: "byte", value: [] } },
+                    sky_light: { type: "list", value: { type: "byte", value: [] } },
+                    block_light: { type: "list", value: { type: "byte", value: [] } },
+                    update_map: { type: "list", value: { type: "byte", value: [] } },
+                    extra_data: { type: "list", value: { type: "byte", value: [] } },
+                },
+            };
+        }
+
+        const length: number = data.readUInt32LE(0);
+
+        if (length > data.length) throw new Error(`Raw chunks.dat chunk truncated; Expected ${length} bytes, got ${data.length} bytes.`);
+
+        const blocksEnd = 4 + 32768;
+        const metadataEnd = blocksEnd + 16384;
+        const skylightEnd = metadataEnd + 16384;
+        const blocklightEnd = skylightEnd + 16384;
+        const updateMapEnd = blocklightEnd + 256;
+
+        const blocks: number[] = length >= blocksEnd ? [...data.subarray(4, blocksEnd)] : [];
+
+        const metadataPacked: Buffer = length >= metadataEnd ? data.subarray(blocksEnd, metadataEnd) : Buffer.alloc(0);
+
+        const skylightPacked: Buffer = length >= skylightEnd ? data.subarray(metadataEnd, skylightEnd) : Buffer.alloc(0);
+
+        const blocklightPacked: Buffer = length >= blocklightEnd ? data.subarray(skylightEnd, blocklightEnd) : Buffer.alloc(0);
+
+        const updateMap: number[] = length >= updateMapEnd ? [...data.subarray(blocklightEnd, updateMapEnd)] : [];
+
+        const extra: number[] = length > updateMapEnd ? [...data.subarray(updateMapEnd, length)] : [];
+
+        return {
+            type: "compound",
+            value: {
+                block_ids: { type: "list", value: { type: "byte", value: blocks } },
+                block_data: { type: "list", value: { type: "byte", value: unpackNibbleArray(metadataPacked) } },
+                sky_light: { type: "list", value: { type: "byte", value: unpackNibbleArray(skylightPacked) } },
+                block_light: { type: "list", value: { type: "byte", value: unpackNibbleArray(blocklightPacked) } },
+                update_map: { type: "list", value: { type: "byte", value: updateMap } },
+                extra_data: { type: "list", value: { type: "byte", value: extra } },
+            },
+        };
+    }
+
+    /**
+     * Converts a parsed chunk from `chunks.dat` to its raw binary data.
+     *
+     * @param chunkData The chunk data to convert.
+     * @returns The raw chunk data.
+     */
+    export function chunksDatChunkToRaw(chunkData: {
+        type: "compound";
+        value: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][0]["value"][0];
+    }): Buffer<ArrayBuffer> {
+        function packNibbleArray(arr: Range<0, 16>[]): Buffer<ArrayBuffer> {
+            const out: Buffer<ArrayBuffer> = Buffer.alloc(arr.length / 2);
+            let o = 0;
+            for (let i = 0; i < arr.length; i += 2) {
+                out[o++] = (arr[i]! & 0x0f) | ((arr[i + 1]! & 0x0f) << 4);
+            }
+            return out;
+        }
+
+        const blockIds: Buffer<ArrayBuffer> = Buffer.from(chunkData.value.block_ids.value.value);
+        const blockDataPacked: Buffer<ArrayBuffer> = packNibbleArray(chunkData.value.block_data.value.value);
+        const skyLightPacked: Buffer<ArrayBuffer> = packNibbleArray(chunkData.value.sky_light.value.value);
+        const blockLightPacked: Buffer<ArrayBuffer> = packNibbleArray(chunkData.value.block_light.value.value);
+        const updateMap: Buffer<ArrayBuffer> = Buffer.from(chunkData.value.update_map.value.value);
+        const extra: Buffer<ArrayBuffer> = Buffer.from(chunkData.value.extra_data.value.value);
+
+        const length = 4 + blockIds.length + blockDataPacked.length + skyLightPacked.length + blockLightPacked.length + updateMap.length + extra.length;
+
+        if (length === 4) {
+            return Buffer.alloc(0);
+        }
+
+        const sectorCount: number = Math.ceil(length / 4096);
+
+        const dataBuf: Buffer<ArrayBuffer> = Buffer.alloc(sectorCount * 4096);
+        dataBuf.writeUInt32LE(length, 0);
+
+        let o = 4;
+        blockIds.copy(dataBuf, o);
+        o += blockIds.length;
+        blockDataPacked.copy(dataBuf, o);
+        o += blockDataPacked.length;
+        skyLightPacked.copy(dataBuf, o);
+        o += skyLightPacked.length;
+        blockLightPacked.copy(dataBuf, o);
+        o += blockLightPacked.length;
+        updateMap.copy(dataBuf, o);
+        o += updateMap.length;
+        extra.copy(dataBuf, o);
+
+        return dataBuf;
+    }
+}
+
 //#endregion
 
 // --------------------------------------------------------------------------------
@@ -5520,11 +6905,11 @@ export interface DimensionVectorXZ extends VectorXZ {
 }
 
 /**
- * Represents a two-directional vector with X and Z components and an associated dimension and a sub-chunk index.
+ * Represents a two-directional vector with X and Z components and an associated dimension and a subchunk index.
  */
 export interface SubChunkIndexDimensionVectorXZ extends DimensionVectorXZ {
     /**
-     * The index of this sub-chunk.
+     * The index of this subchunk.
      *
      * Should be between 0 and 15 (inclusive).
      */
@@ -5611,13 +6996,13 @@ export interface StructureSectionData extends NBT.Compound {
  */
 export interface BiomePalette {
     /**
-     * The data for the individual blocks, `null` if this sub-chunk has no biome data and should not be written, or an empty array if this sub-chunk has no biome data and should be written.
+     * The data for the individual blocks, `null` if this subchunk has no biome data and should not be written, or an empty array if this subchunk has no biome data and should be written.
      *
      * The values of this map to the index of the biome in the palette.
      */
     values: number[] | null;
     /**
-     * The palette of biomes as a list of biome numeric IDs, or an empty array if this sub-chunk has no biome data.
+     * The palette of biomes as a list of biome numeric IDs, or an empty array if this subchunk has no biome data.
      */
     palette: number[];
 }
@@ -5625,24 +7010,34 @@ export interface BiomePalette {
 /**
  * The content type of a LevelDB entry.
  */
-export type DBEntryContentType = (typeof DBEntryContentTypes)[number];
+export type MCDBEntryContentType = (typeof MCDBEntryContentTypes)[number];
+
+/**
+ * The content type of a file.
+ */
+export type MCFileEntryContentType = (typeof MCFileEntryContentTypes)[number];
+
+/**
+ * The content type of a LevelDB entry or file.
+ */
+export type MCEntryContentType = (typeof MCEntryContentTypes)[number];
 
 /**
  * A content type of a LevelDB chunk key entry (entries that use the key format of appending a byte representing the content type to the end of the key).
  */
-export type DBChunkKeyEntryContentType = (typeof DBChunkKeyEntryContentTypes)[number];
+export type MCDBChunkKeyEntryContentType = (typeof MCDBChunkKeyEntryContentTypes)[number];
 
 /**
  * A content type of a LevelDB entry that is associated with a specific chunk.
  *
- * This includes the content types from {@link DBChunkKeyEntryContentType} as well as other content types that use different key formats but are still tied to a specific chunk.
+ * This includes the content types from {@link MCDBChunkKeyEntryContentType} as well as other content types that use different key formats but are still tied to a specific chunk.
  */
-export type DBChunkLinkedContentType = (typeof DBChunkLinkedContentTypes)[number];
+export type MCDBChunkLinkedContentType = (typeof MCDBChunkLinkedContentTypes)[number];
 
 /**
  * The a grouping type of LevelDB entry content types.
  */
-export type DBEntryContentTypeGroup = (typeof DBEntryContentTypesGrouping)[DBEntryContentType];
+export type MCEntryContentTypeGroup = (typeof MCEntryContentTypesGrouping)[MCEntryContentType];
 
 //#endregion
 
@@ -5799,10 +7194,12 @@ export function sanitizeDisplayKey(key: string): string {
 }
 
 /**
- * Converts a chunk block index to an offset from the minimum corner of the chunk.
+ * Converts a subchunk block index to an offset from the minimum corner of the subchunk.
  *
- * @param index The chunk block index.
- * @returns The offset from the minimum corner of the chunk.
+ * This indexes in XZY order.
+ *
+ * @param index The subchunk block index.
+ * @returns The offset from the minimum corner of the subchunk.
  */
 export function chunkBlockIndexToOffset(index: number): Vector3 {
     return {
@@ -5813,13 +7210,43 @@ export function chunkBlockIndexToOffset(index: number): Vector3 {
 }
 
 /**
- * Converts an offset from the minimum corner of the chunk to a chunk block index.
+ * Converts an offset from the minimum corner of the subchunk to a subchunk block index.
+ *
+ * This indexes in XZY order.
+ *
+ * @param offset The offset from the minimum corner of the subchunk.
+ * @returns The subchunk block index.
+ */
+export function offsetToChunkBlockIndex(offset: Vector3): number {
+    return ((offset.x & 0xf) << 8) | (offset.y & 0xf) | ((offset.z & 0xf) << 4);
+}
+
+/**
+ * Converts a chunk block index of a 128 block tall chunk to an offset from the minimum corner of the chunk.
+ *
+ * This indexes in XZY order.
+ *
+ * @param index The chunk block index.
+ * @returns The offset from the minimum corner of the chunk.
+ */
+export function chunkBlock128IndexToOffset(index: number): Vector3 {
+    return {
+        x: (index >> 11) & 0xf,
+        y: (index >> 0) & 0x7f,
+        z: (index >> 7) & 0xf,
+    };
+}
+
+/**
+ * Converts an offset from the minimum corner of the 128 block tall chunk to a chunk block index.
+ *
+ * This indexes in XZY order.
  *
  * @param offset The offset from the minimum corner of the chunk.
  * @returns The chunk block index.
  */
-export function offsetToChunkBlockIndex(offset: Vector3): number {
-    return ((offset.x & 0xf) << 8) | (offset.y & 0xf) | ((offset.z & 0xf) << 4);
+export function offsetToChunkBlock128Index(offset: Vector3): number {
+    return ((offset.x & 0xf) << 11) | (offset.y & 0x7f) | ((offset.z & 0xf) << 7);
 }
 
 /**
@@ -6518,7 +7945,7 @@ export function getChunkKeyIndices(
  */
 export function generateChunkKeyFromIndices(
     indices: DimensionVersionDimensionVectorXZ | StructureTypeDimensionVectorXZ | SubChunkIndexDimensionVectorXZ | DimensionVectorXZ,
-    chunkKeyType: DBChunkLinkedContentType
+    chunkKeyType: MCDBChunkLinkedContentType
 ): Buffer<ArrayBuffer> {
     if (typeof indices.dimension === "string") {
         if (dimensions.indexOf(indices.dimension) === -1 && dimensionsMCCE.indexOf(indices.dimension) === -1) {
@@ -6591,7 +8018,7 @@ export function generateChunkKeyFromIndices(
  * @param chunkKeyType The chunk key type.
  * @returns The integer value.
  */
-function getIntFromChunkKeyType(chunkKeyType: DBChunkKeyEntryContentType): number {
+function getIntFromChunkKeyType(chunkKeyType: MCDBChunkKeyEntryContentType): number {
     switch (chunkKeyType) {
         case "Data3D":
             return 0x2b;
@@ -6663,7 +8090,7 @@ function getIntFromChunkKeyType(chunkKeyType: DBChunkKeyEntryContentType): numbe
  * @returns A human-readable version of the key.
  */
 export function getKeyDisplayName(key: Buffer): string {
-    const contentType: DBEntryContentType = getContentTypeFromDBKey(key);
+    const contentType: MCDBEntryContentType = getContentTypeFromDBKey(key);
     switch (contentType) {
         case "Data3D":
         case "Version":
@@ -6723,7 +8150,6 @@ export function getKeyDisplayName(key: Buffer): string {
         case "LegacyNether":
         case "LegacyTheEnd":
         case "LevelChunkMetaDataDictionary":
-        case "LevelDat":
         case "LevelSpawnWasFixed":
         case "PositionTrackingDB":
         case "PositionTrackingLastId":
@@ -6763,7 +8189,7 @@ export function getKeyDisplayName(key: Buffer): string {
  * @param key The key to get the content type for, as a Buffer.
  * @returns The content type of the key.
  */
-export function getContentTypeFromDBKey(key: Buffer): DBEntryContentType {
+export function getContentTypeFromDBKey(key: Buffer): MCDBEntryContentType {
     if ([9, 10, 11, 13, 14, 15].includes(key.length)) {
         if ([9, 13].includes(key.length)) {
             switch (key.at(-1)) {
