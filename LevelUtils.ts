@@ -5263,7 +5263,7 @@ export const entryContentTypeToFormatMap = {
             const nbtData: Buffer = NBT.writeUncompressed({ name: "", ...data }, "little");
             return Buffer.concat([
                 writeUInt32LE(typeof data.value.StorageVersion?.value === "number" ? data.value.StorageVersion.value : 10),
-                writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false),
+                writeUInt32LE(nbtData.length),
                 nbtData,
             ]);
         },
@@ -5278,11 +5278,7 @@ export const entryContentTypeToFormatMap = {
                 { name: "", type: "compound", value: {} } as /* @todo Remove this partial later. */ Partial<NBTSchemas.NBTSchemaTypes.LevelDat> & NBT.NBT,
                 "little"
             );
-            const result: Buffer<ArrayBuffer> = Buffer.concat([
-                Buffer.from("0A000000", "hex"),
-                writeSpecificIntType(Buffer.alloc(4), BigInt(nbtData.length), 4, "LE", false),
-                nbtData,
-            ]);
+            const result: Buffer<ArrayBuffer> = Buffer.concat([Buffer.from("0A000000", "hex"), writeUInt32LE(nbtData.length), nbtData]);
             Object.defineProperty(this, "defaultValue", { value: result, configurable: true, enumerable: true, writable: false });
             return result;
         },
@@ -5878,17 +5874,14 @@ export const entryContentTypeToFormatMap = {
     /**
      * The content type of the `importedchunks.dat` file.
      *
-     * @deprecated Only used in versions < ?.
+     * This stores the import states for the chunks in `chunks.dat`.
+     *
+     * These import states store whether the chunks has been imported into the LevelDB from `chunks.dat`.
      *
      * @since 0.9.0?
      *
-     * @todo Figure out what version this was added and removed in. It has been observed in a corrupted 0.7.2 world that seems to have been partially updated to a slightly newer version that has a LevelDB, maybe 0.9.0 or later.
-     * @todo Add a description for this.
-     * @todo Add a schema for this.
-     * @todo Add a default value for this.
+     * @todo Figure out what version this was added in. It has been observed in a corrupted 0.7.2 world that seems to have been partially updated to a slightly newer version that has a LevelDB, maybe 0.9.0 or later. It has also been observed in a 0.1.2 world that was upgraded to 1.26.51.
      */
-    // TEST: See if I update a 0.7.2 world to 1.26.50 if this appears.
-    // TEST: See if I update a 0.7.2 world to 0.9.0 if this appears.
     ImportedChunksDat: {
         /**
          * The format type of the data.
@@ -5906,36 +5899,24 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns The parsed data.
          *
-         * @throws {Error} If the data is less than 4096 bytes.
+         * @throws {Error} If the data is not 256 bytes.
          * @throws {unknown} If an error occurs while parsing the data.
          */
-        parse(data: Buffer): {
-            type: "compound";
-            value: {
-                ImportState: {
-                    type: "list";
-                    value: {
-                        type: "list";
-                        value: {
-                            type: "byte";
-                            value: number[];
-                        }[];
-                    };
-                };
-            };
-        } /* TEMP */ {
+        parse(data: Buffer): NBTSchemas.NBTSchemaTypes.ImportedChunksDat {
             if (data.length !== 256) {
                 throw new Error(`Expected ImportedChunksDat data to be 256 bytes, but got ${data.length} bytes instead.`);
             }
             // REVIEW: See if importedchunks.dat is larger than 16x16 if a world with an area with actual chunk data larger than 16x16 chunks is upgraded.
-            const columns: { type: "byte"; value: number[] }[] = new Array<void>(16).fill(void 0).map((_: void): { type: "byte"; value: number[] } => ({
-                type: "byte",
-                value: new Array<number>(16),
-            }));
+            const columns: NBTSchemas.NBTSchemaTypes.ImportedChunksDat["value"]["ImportState"]["value"]["value"] = new Array<void>(16)
+                .fill(void 0)
+                .map((_: void): NBTSchemas.NBTSchemaTypes.ImportedChunksDat["value"]["ImportState"]["value"]["value"][number] => ({
+                    type: "byte",
+                    value: new Array<0 | 1>(16),
+                }));
             let offset = 0;
             for (let z = 0; z < 16; z++) {
                 for (let x = 0; x < 16; x++) {
-                    columns[x]!.value[z] = data[offset++]!;
+                    columns[x]!.value[z] = data[offset++]! as 0 | 1;
                 }
             }
             return {
@@ -5961,23 +5942,7 @@ export const entryContentTypeToFormatMap = {
          *
          * @throws {unknown} If an error occurs while serializing the data.
          */
-        serialize(
-            data: {
-                type: "compound";
-                value: {
-                    ImportState: {
-                        type: "list";
-                        value: {
-                            type: "list";
-                            value: {
-                                type: "byte";
-                                value: number[];
-                            }[];
-                        };
-                    };
-                };
-            } /* TEMP */
-        ): Buffer<ArrayBuffer> {
+        serialize(data: NBTSchemas.NBTSchemaTypes.ImportedChunksDat): Buffer<ArrayBuffer> {
             const buf: Buffer<ArrayBuffer> = Buffer.alloc(256);
             let offset = 0;
             for (let z = 0; z < 16; z++) {
@@ -5986,6 +5951,19 @@ export const entryContentTypeToFormatMap = {
                 }
             }
             return buf;
+        },
+        /**
+         * The default value to use when initializing a new entry.
+         *
+         * Bytes:
+         * ```json
+         * [0, ...] // (256 bytes, every byte is 0)
+         * ```
+         */
+        get defaultValue(): Buffer<ArrayBuffer> {
+            const result: Buffer<ArrayBuffer> = Buffer.alloc(256);
+            Object.defineProperty(this, "defaultValue", { value: result, configurable: true, enumerable: true, writable: false });
+            return result;
         },
         /**
          * The raw file extension of the data.

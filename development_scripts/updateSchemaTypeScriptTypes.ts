@@ -36,4 +36,4 @@ const schemaTypesNamespaceEndString: string = `
 
 writeFileSync(path.join(import.meta.dirname, "../nbtSchemas.ts"), nbtSchemasTSContents);
 
-execSync("prettier -w ../nbtSchemas.ts", { cwd: import.meta.dirname, stdio: "inherit" });
+execSync("prettier -w nbtSchemas.ts", { cwd: path.dirname(import.meta.dirname), stdio: "inherit" });

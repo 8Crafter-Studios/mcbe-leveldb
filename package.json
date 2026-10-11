@@ -1,13 +1,13 @@
 {
     "name": "mcbe-leveldb",
-    "version": "1.24.0-beta.2",
+    "version": "1.24.0",
     "main": "index.ts",
     "scripts": {
         "prepublishOnly": "tsc -p ./tsconfig.production.json",
         "postpublish": "node --experimental-transform-types development_scripts/postPublishCleanup.ts",
         "generateNBTSchemaFromWikiData": "node --experimental-transform-types development_scripts/generateNBTSchemaFromWikiData.ts",
         "schemasTest": "node --experimental-transform-types test/schemas.test.ts",
-        "updateSchemaTypes": "node --experimental-transform-types test/updateSchemaTypeScriptTypes.ts",
+        "updateSchemaTypes": "node --experimental-transform-types development_scripts/updateSchemaTypeScriptTypes.ts",
         "prePublishJSOnlyBuild": "node --experimental-transform-types development_scripts/prePublishJSOnlyBuild.ts",
         "postPublishJSOnlyBuild": "node --experimental-transform-types development_scripts/postPublishJSOnlyBuild.ts",
         "publishJSOnly": "npm run prePublishJSOnlyBuild && npm publish --tag jsonly --access public && npm run postPublishJSOnlyBuild",
@@ -42,6 +42,7 @@
     "devDependencies": {
         "@8crafter/leveldb-zlib": "^1.6.0",
         "@types/node": "^24.3.0",
+        "prettier": "3.7.4",
         "prettier-plugin-markdown-list-tabwidth": "^1.2.0"
     },
     "optionalDependencies": {

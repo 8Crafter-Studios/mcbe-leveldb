@@ -1,3 +1,6 @@
+<!-- -   Added the `EntitiesDat` NBT schema. -->
+<!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
+
 # v1.24.0
 
 ## Critical Fixes
@@ -29,12 +32,11 @@
 -   Added the `LANPlayerDat` content type.
 -   Added the `LANPlayerDat` NBT schema.
 -   Added the `EntitiesDat` content type.
-<!-- -   Added the `EntitiesDat` NBT schema. -->
 -   Added the `ChunksDat` content type.
 -   Added the `ChunksDat` NBT schema.
 -   Added the `ChunksDatChunk` NBT schema.
 -   Added the `ImportedChunksDat` content type.
-<!-- -   Added the `ImportedChunksDat` NBT schema. -->
+-   Added the `ImportedChunksDat` NBT schema.
 -   Added the `LegacyConsolePlayer` content type.
 -   Added a custom serializer and parser for the `LegacyBlockExtraData` content type.
 -   Added the `LegacyBlockExtraData` NBT schema.
@@ -162,7 +164,9 @@
 -   Miscellaneous fixed to the NBT schema to TypeScript converter (and as a result, the types in the `NBTSchemas.NBTSchemaTypes` namespace).
 -   Miscellaneous NBT schema fixes.
 
-<!-- -   Fixed some issues with handling of tuple type `items` properties of NBT schemas by the NBT schema to JSON schema converter. -->
+## Performance Improvements
+
+-   Minor optimizations the `LevelDat` serializer.
 
 # v1.23.0
 

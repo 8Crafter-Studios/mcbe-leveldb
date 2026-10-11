@@ -13813,6 +13813,63 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 },
             },
             // NOTE: Verified.
+            ImportedChunksDat: {
+                id: "ImportedChunksDat",
+                title: "The ImportedChunksDat schema.",
+                markdownDescription:
+                    "The NBT structure of the parsed data of the ImportedChunksDat content type.\n\nNote: This NBT structure is specific to the parser and serializer implemented by this module.\nThis is because the actual data is stored in binary format.",
+                type: "compound",
+                required: ["ImportState"],
+                properties: {
+                    ImportState: {
+                        markdownDescription:
+                            "The import states of the chunks in the world. These states track whether a chunk has been imported into the the LevelDB from `chunks.dat`.\n\nIn it is stored as a 2D matrix with [x][z] bytes.",
+                        type: "list",
+                        minItems: 16,
+                        maxItems: 16,
+                        allOf: [
+                            {
+                                // TEST
+                                type: "list",
+                                items: new Array<void>(16).fill(void 0).map((_: void, x: number) => ({
+                                    type: "list",
+                                    items: new Array<void>(16).fill(void 0).map((_: void, z: number) => ({
+                                        title: `Chunk Import State (${x}, ${z})`,
+                                        completionDetail: `(${x}, ${z})`,
+                                    })),
+                                    minItems: 16,
+                                    maxItems: 16,
+                                })),
+                                minItems: 16,
+                                maxItems: 16,
+                                hideFromTS: true,
+                            },
+                        ],
+                        items: {
+                            title: "Chunk Column",
+                            markdownDescription: "A column of chunks. Its index corresponds to the chunk's X index.",
+                            type: "list",
+                            minItems: 16,
+                            maxItems: 16,
+                            items: {
+                                markdownDescription:
+                                    "The import state of a chunk in the world. This state tracks whether this chunk has been imported into the the LevelDB from `chunks.dat`. Its index corresponds to the chunk's Z index.",
+                                type: "byte",
+                                markdownEnumDescriptions: ["Not Imported", "Imported"],
+                                enum: [
+                                    { type: "byte", value: 0 },
+                                    { type: "byte", value: 1 },
+                                ],
+                                default: {
+                                    type: "byte",
+                                    value: 0,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            // NOTE: Verified.
             JigsawStructureBlueprint: {
                 id: "JigsawStructureBlueprint",
                 title: "The JigsawStructureBlueprint schema.",
@@ -16011,27 +16068,28 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         if (!(key in schema) || !schema[key]) continue;
                         jsonSchema[key] = [
                             ...(jsonSchema[key] ?? []),
-                            ...schema[key].map((s: NBTSubSchemaRef): JSONSchemaRef =>
-                                nbtSchemaToJsonSchema(
-                                    typeof s === "object" && s ?
-                                        {
-                                            // This disables the corresponding properties on the referenced schema if they exist on the parent schema of this schema and not directly on this schema (with this schema referring to the current entry in oneOf/anyOf/allOf/etc.).
-                                            // This fixes #5 (when refs are inlined).
-                                            // TEST: Make sure that the issue this fixes doesn't still occur when refs are not inlined.
-                                            ...Object.fromEntries(
-                                                Object.entries(schema)
-                                                    .filter(([k, _v]: [key: string, value: unknown]): boolean =>
-                                                        ["title", "completionDetail", "description", "markdownDescription"].includes(k)
-                                                    )
-                                                    .map(([k, v]: [key: string, value: unknown]): [key: string, value: undefined] => [k, void v])
-                                            ),
-                                            ...s,
-                                        }
-                                    :   s,
-                                    allSchemas,
-                                    options,
-                                    isRoot
-                                )
+                            ...schema[key].map(
+                                (s: NBTSubSchemaRef): JSONSchemaRef =>
+                                    nbtSchemaToJsonSchema(
+                                        typeof s === "object" && s ?
+                                            {
+                                                // This disables the corresponding properties on the referenced schema if they exist on the parent schema of this schema and not directly on this schema (with this schema referring to the current entry in oneOf/anyOf/allOf/etc.).
+                                                // This fixes #5 (when refs are inlined).
+                                                // TEST: Make sure that the issue this fixes doesn't still occur when refs are not inlined.
+                                                ...Object.fromEntries(
+                                                    Object.entries(schema)
+                                                        .filter(([k, _v]: [key: string, value: unknown]): boolean =>
+                                                            ["title", "completionDetail", "description", "markdownDescription"].includes(k)
+                                                        )
+                                                        .map(([k, v]: [key: string, value: unknown]): [key: string, value: undefined] => [k, void v])
+                                                ),
+                                                ...s,
+                                            }
+                                        :   s,
+                                        allSchemas,
+                                        options,
+                                        isRoot
+                                    )
                             ),
                         ];
                     }
@@ -16164,8 +16222,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     // Only apply top-level items if this schema is a plain JSON array, not an NBT list
                     if (schema.items && schema.type !== NBT.TagType.List) {
                         if (Array.isArray(schema.items)) {
-                            valueSchema.items = schema.items.map((item: NBTSubSchemaRef): JSONSchemaRef =>
-                                nbtSchemaToJsonSchema(item, allSchemas, options, false)
+                            valueSchema.items = schema.items.map(
+                                (item: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(item, allSchemas, options, false)
                             );
                         } else if (typeof schema.items === "object") {
                             valueSchema.items = nbtSchemaToJsonSchema(schema.items, allSchemas, options, false);
@@ -19285,10 +19343,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     }
                                 :   nodeToNBTSchema(node.children[0]!, options);
                         } else {
-                            out.items = node.children.map((c: ParsedNode): NBTSubSchema =>
-                                c.type === "schemaRef" ?
-                                    { ...(c.description ? { markdownDescription: c.description } : {}), $ref: c.$ref }
-                                :   nodeToNBTSchema(c, options)
+                            out.items = node.children.map(
+                                (c: ParsedNode): NBTSubSchema =>
+                                    c.type === "schemaRef" ?
+                                        { ...(c.description ? { markdownDescription: c.description } : {}), $ref: c.$ref }
+                                    :   nodeToNBTSchema(c, options)
                             );
                         }
 
@@ -19589,7 +19648,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                             )
                                 result.markdownDescription = wikiToMarkdown(schemaSubContainer.groups!.description!.replace(/:$/, "."));
                             for (const prop of ["id", "title", "description", "markdownDescription", "type", "required", "properties"] as const satisfies (
-                                keyof NBTSchema | keyof NBTSchemaFragment
+                                | keyof NBTSchema
+                                | keyof NBTSchemaFragment
                             )[]) {
                                 if (prop in result && result[prop] === undefined) delete result[prop];
                             }
@@ -19619,7 +19679,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     ...schema,
                 };
                 for (const prop of ["id", "title", "description", "markdownDescription", "type", "required", "properties"] as const satisfies (
-                    keyof NBTSubSchema | keyof NBTSchema | keyof NBTSchemaFragment
+                    | keyof NBTSubSchema
+                    | keyof NBTSchema
+                    | keyof NBTSchemaFragment
                 )[] as (keyof T)[]) {
                     if (prop in result && !(prop in schema)) delete result[prop];
                 }
@@ -34413,6 +34475,65 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                              * - `6`: Deprecated New Village
                              */
                             Type: { type: "byte"; value: 0 | 1 | 2 | 3 | 4 | 5 | 6 };
+                        }[];
+                    };
+                };
+            };
+        };
+
+        /**
+         * The ImportedChunksDat schema.
+         *
+         * The NBT structure of the parsed data of the ImportedChunksDat content type.
+         *
+         * Note: This NBT structure is specific to the parser and serializer implemented by this module.
+         * This is because the actual data is stored in binary format.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.ImportedChunksDat}
+         */
+        export type ImportedChunksDat = {
+            type: "compound";
+            value: {
+                /**
+                 * The import states of the chunks in the world. These states track whether a chunk has been imported into the the LevelDB from `chunks.dat`.
+                 *
+                 * In it is stored as a 2D matrix with [x][z] bytes.
+                 *
+                 * @minItems 16
+                 *
+                 * @maxItems 16
+                 */
+                ImportState: {
+                    type: "list";
+                    value: {
+                        type: "list";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Chunk Column
+                         *
+                         * A column of chunks. Its index corresponds to the chunk's X index.
+                         *
+                         * @minItems 16
+                         *
+                         * @maxItems 16
+                         */
+                        value: {
+                            type: "byte";
+                            /**
+                             * ##### List entries description:
+                             *
+                             * The import state of a chunk in the world. This state tracks whether this chunk has been imported into the the LevelDB from `chunks.dat`. Its index corresponds to the chunk's Z index.
+                             *
+                             * @default 0
+                             *
+                             * @enum 0 | 1
+                             *
+                             * @enumDescriptions
+                             * - `0`: Not Imported
+                             * - `1`: Imported
+                             */
+                            value: (0 | 1)[];
                         }[];
                     };
                 };
