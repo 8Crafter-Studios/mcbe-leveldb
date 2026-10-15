@@ -716,6 +716,11 @@ export const dimensionsMCCE = [
 export const gameModes = ["survival", "creative", "adventure", , , "default", "spectator"] as const;
 
 /**
+ * The list of Minecraft game modes, with their indices corresponding to their numeric gamemode IDs.
+ */
+export const generatorTypes = ["old", "infinite", "flat", , , "void"] as const;
+
+/**
  * The content types for LevelDB entries.
  */
 export const MCDBEntryContentTypes = [
@@ -771,7 +776,7 @@ export const MCDBEntryContentTypes = [
     "LegacyNether",
     "LegacyTheEnd",
     "MVillages",
-    "Villages", // NOTE: May not exist.
+    "Villages",
     "LevelSpawnWasFixed",
     "PositionTrackingDB",
     "PositionTrackingLastId",
@@ -876,7 +881,7 @@ export const MCEntryContentTypes = [
     "LegacyNether",
     "LegacyTheEnd",
     "MVillages",
-    "Villages", // NOTE: May not exist.
+    "Villages",
     "LevelSpawnWasFixed",
     "PositionTrackingDB",
     "PositionTrackingLastId",
@@ -1317,43 +1322,60 @@ export const chunkVersionDetailsMap = {
  * The start of the range is inclusive, the end of the range is exclusive.
  */
 export const levelDatStorageVersionToMCVersionRangeMap = {
-    [0x01]: ["N/A", [0, 2, 0, 0]],
-    [0x02]: [
+    /**
+     * Used prior to Pocket Edition v0.2.0 Alpha, this was the only storage version where the data of `level.dat` was in a binary format rather than NBT.
+     *
+     * Worlds with this storage version used `level.dat`, `player.dat`, and `chunks.dat` to store the world data.
+     */
+    [1 /* 0x01 */]: ["N/A", [0, 2, 0, 0]],
+    // TODO: Document each of these storage versions and their differences/changes.
+    /**
+     * This was the first storage version to store `level.dat` in NBT format rather than a binary format.
+     *
+     * Worlds with this storage version used `level.dat`, `entities.dat`, and `chunks.dat` to store the world data.
+     *
+     * This storage version moved the player data from `player.dat` into `level.dat`, and it is now stored in NBT format rather than a binary format.
+     */
+    [2 /* 0x02 */]: [
         [0, 2, 0, 0],
         [0, 3, 0, 0],
     ],
     // TODO: Figure out what 0.9.0 build this changed in.
-    [0x03]: [
+    // I think this may be where the `players/<PlayerID>.dat` files were added.
+    [3 /* 0x03 */]: [
         [0, 3, 0, 0],
         [0, 9, 0, "?"],
     ],
     // TODO: Figure out what 1.0.0 build this changed in.
-    [0x04]: [
+    /**
+     * This was the first storage version to use a LevelDB.
+     */
+    [4 /* 0x04 */]: [
         [0, 9, 0, "?"],
         [1, 0, 0, "?"],
     ],
-    [0x05]: [
+    [5 /* 0x05 */]: [
         [1, 0, 0, "?"],
         [1, 2, 0, 11],
     ],
     // TODO: Figure out what 1.2.13 beta this changed in.
-    [0x06]: [
+    [6 /* 0x06 */]: [
         [1, 2, 0, 11],
         [1, 2, 13, "?"],
     ],
-    [0x07]: [
+    [7 /* 0x07 */]: [
         [1, 2, 13, "?"],
         [1, 2, 20, 2],
     ], // Earliest known version: 1.2.13.54
-    [0x08]: [
+    [8 /* 0x08 */]: [
         [1, 2, 20, 2],
         [1, 18, 20, 21],
     ],
-    [0x09]: [
+    [9 /* 0x09 */]: [
         [1, 18, 20, 21],
         [1, 19, 40, [20, 2]],
     ],
-    [0x0a]: [[1, 19, 40, [20, 2]], "N/A"],
+    [10 /* 0x0A */]: [[1, 19, 40, [20, 2]], "N/A"],
 } as const satisfies LevelDatStorageVersionToMCVersionRangeMapType;
 
 /**
@@ -3392,11 +3414,10 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
-     * @deprecated It is unknown when this was removed or if it ever existed in the first place.
+     * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.12.0.1 world.
      *
      * @todo Add a schema for this.
      * @todo Add a description for this.
-     * @todo Figure out if this ever actually existed.
      */
     Villages: {
         /**
@@ -6264,10 +6285,7 @@ export namespace ChunksDatUtils {
      * @throws {Error} If a chunk's data is truncated.
      * @throws {unknown} If an error occurs while parsing the data.
      */
-    export function readChunksDatChunk(
-        data: Buffer,
-        chunk: VectorXZ
-    ): { type: "compound"; value: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][0]["value"][0] } {
+    export function readChunksDatChunk(data: Buffer, chunk: VectorXZ): NBTSchemas.NBTSchemaTypes.ChunksDatChunk {
         if (data.length < 4096) {
             throw new Error(`Expected ChunksDat data to be at least 4096 bytes, but got ${data.length} bytes instead.`);
         }
@@ -6363,11 +6381,7 @@ export namespace ChunksDatUtils {
      * @throws {Error} If the original data buffer is less than 4096 bytes.
      * @throws {unknown} If an error occurs while serializing the data.
      */
-    export function writeChunksDatChunk(
-        data: Buffer,
-        chunkData: { type: "compound"; value: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][0]["value"][0] },
-        chunk: VectorXZ
-    ): Buffer<ArrayBuffer> {
+    export function writeChunksDatChunk(data: Buffer, chunkData: NBTSchemas.NBTSchemaTypes.ChunksDatChunk, chunk: VectorXZ): Buffer<ArrayBuffer> {
         if (data.length < 4096) {
             throw new Error(`Expected ChunksDat data to be at least 4096 bytes, but got ${data.length} bytes instead.`);
         }
@@ -6651,10 +6665,7 @@ export namespace ChunksDatUtils {
      * @param data The raw chunk data.
      * @returns The parsed chunk data.
      */
-    export function parseRawChunksDatChunk(data: Buffer): {
-        type: "compound";
-        value: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][0]["value"][0];
-    } {
+    export function parseRawChunksDatChunk(data: Buffer): NBTSchemas.NBTSchemaTypes.ChunksDatChunk {
         function unpackNibbleArray(buf: Buffer): Range<0, 16>[] {
             const out: Range<0, 16>[] = new Array(buf.length * 2);
             let offset = 0;
@@ -6722,10 +6733,7 @@ export namespace ChunksDatUtils {
      * @param chunkData The chunk data to convert.
      * @returns The raw chunk data.
      */
-    export function chunksDatChunkToRaw(chunkData: {
-        type: "compound";
-        value: NBTSchemas.NBTSchemaTypes.ChunksDat["value"]["chunks"]["value"]["value"][0]["value"][0];
-    }): Buffer<ArrayBuffer> {
+    export function chunksDatChunkToRaw(chunkData: NBTSchemas.NBTSchemaTypes.ChunksDatChunk): Buffer<ArrayBuffer> {
         function packNibbleArray(arr: Range<0, 16>[]): Buffer<ArrayBuffer> {
             const out: Buffer<ArrayBuffer> = Buffer.alloc(arr.length / 2);
             let o = 0;

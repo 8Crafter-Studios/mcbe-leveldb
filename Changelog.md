@@ -1,6 +1,20 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.25.0
+
+## Additions
+
+-   Added the `generatorTypes` constant.
+
+## Changes
+
+-   Miscellaneous minor type and documentation changes.
+
+## Fixes
+
+-   Fixes to the `Generator` field of the `LevelDat` NBT schema.
+
 # v1.24.0
 
 ## Critical Fixes

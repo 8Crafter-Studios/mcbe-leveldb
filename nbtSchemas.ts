@@ -1242,6 +1242,9 @@ export namespace NBTSchemas {
                 },
             },
             // NOTE: Verified.
+            // FIXME: Known missing fields (l:lowest found in version, pl?:highest not found in version before lowest, h?:highest found in version, pl?:lowest not found in version after highest):
+            // XBLBroadcast (l:0.16.0), eduLevel (l:0.15.10), fixedInventory, globalPermissions
+            // ~TODO: Add the added/removed versions to the descriptions of all of the fields.
             LevelDat: {
                 id: "LevelDat",
                 title: "The LevelDat schema.",
@@ -2051,6 +2054,7 @@ export namespace NBTSchemas {
                         markdownDescription: "The world type. 0 is Old, 1 is Infinite, 2 is Flat, and 5 is Void.",
                         oneOf: [
                             {
+                                type: "int",
                                 not: {
                                     enum: [
                                         { type: "int", value: 0 },
@@ -2061,6 +2065,7 @@ export namespace NBTSchemas {
                                 },
                             },
                             {
+                                type: "int",
                                 markdownEnumDescriptions: ["Old", "Infinite", "Flat", "Void"],
                                 enum: [
                                     { type: "int", value: 0 },
@@ -2221,7 +2226,8 @@ export namespace NBTSchemas {
                     },
                     LANBroadcast: {
                         type: "byte",
-                        markdownDescription: 'Whether the world has been opened with the "Visible to LAN players" world setting enabled.',
+                        markdownDescription:
+                            'Whether the world has been opened with the "Visible to LAN players" world setting enabled.\n\nIn older versions only this field existed, while the LANBroadcastIntent field didn\'t.',
                         markdownEnumDescriptions: ["false", "true"],
                         enum: [
                             { type: "byte", value: 0 },
@@ -2716,6 +2722,13 @@ export namespace NBTSchemas {
                         type: "int",
                         title: "Storage Version",
                         markdownDescription: "Version of _Bedrock Edition_ Storage Tool, currently is 10.",
+                        // enum: (Object.keys(levelDatStorageVersionToMCVersionRangeMap) as `${keyof typeof levelDatStorageVersionToMCVersionRangeMap}`[]).map(
+                        //     (v: `${keyof typeof levelDatStorageVersionToMCVersionRangeMap}`) => ({
+                        //         type: "int",
+                        //         value: Number(v) as keyof typeof levelDatStorageVersionToMCVersionRangeMap,
+                        //     })
+                        // ),
+                        // enumDescriptions: Object.values(levelDatStorageVersionToMCVersionRangeMap).map(v=>),
                         default: {
                             type: "int",
                             value: 10,
@@ -4711,14 +4724,17 @@ export namespace NBTSchemas {
                 title: "The Portals schema.",
                 markdownDescription: "The portals data.",
                 type: "compound",
+                required: ["data"],
                 properties: {
                     data: {
                         type: "compound",
+                        required: ["PortalRecords"],
                         properties: {
                             PortalRecords: {
                                 type: "list",
                                 items: {
                                     type: "compound",
+                                    required: ["DimId", "Span", "TpX", "TpY", "TpZ", "Xa", "Za"],
                                     properties: {
                                         DimId: {
                                             type: "int",
@@ -22155,6 +22171,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * Whether the world has been opened with the "Visible to LAN players" world setting enabled.
                  *
+                 * In older versions only this field existed, while the LANBroadcastIntent field didn't.
+                 *
                  * @enum 0 | 1
                  *
                  * @enumDescriptions
@@ -24784,10 +24802,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         export type Portals = {
             type: "compound";
             value: {
-                data?: {
+                data: {
                     type: "compound";
                     value: {
-                        PortalRecords?: {
+                        PortalRecords: {
                             type: "list";
                             value: {
                                 type: "compound";
@@ -24797,13 +24815,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                  * *No description.*
                                  */
                                 value: {
-                                    DimId?: { type: "int"; value: number };
-                                    Span?: { type: "byte"; value: number };
-                                    TpX?: { type: "int"; value: number };
-                                    TpY?: { type: "int"; value: number };
-                                    TpZ?: { type: "int"; value: number };
-                                    Xa?: { type: "byte"; value: number };
-                                    Za?: { type: "byte"; value: number };
+                                    DimId: { type: "int"; value: number };
+                                    Span: { type: "byte"; value: number };
+                                    TpX: { type: "int"; value: number };
+                                    TpY: { type: "int"; value: number };
+                                    TpZ: { type: "int"; value: number };
+                                    Xa: { type: "byte"; value: number };
+                                    Za: { type: "byte"; value: number };
                                 }[];
                             };
                         };
