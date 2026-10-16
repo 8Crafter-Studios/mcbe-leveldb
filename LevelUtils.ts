@@ -8237,6 +8237,7 @@ export function getContentTypeFromDBKey(key: Buffer): MCDBEntryContentType {
                 case 0x2f:
                     return "SubChunkPrefix";
                 case 0x6e:
+                    if (key.length === 10) break; // This is handled later to avoid false detections.
                     try {
                         const dimensionVersion: number = readLittleVarint(key.subarray(-1), 0).value;
                         if (dimensionVersion < 1 || dimensionVersion > 127) break;
@@ -8409,6 +8410,17 @@ export function getContentTypeFromDBKey(key: Buffer): MCDBEntryContentType {
             case 0x78:
                 if (key.readUInt32LE(8) > 65535) break; // Invalid dimension numeric ID.
                 return "JigsawStructureBlueprint";
+        }
+    } else if (key.length === 10) {
+        switch (key[9]) {
+            case 0x6e:
+                if (stringKey.startsWith("dimension")) break;
+                try {
+                    const dimensionVersion: number = readLittleVarint(key.subarray(-1), 0).value;
+                    if (dimensionVersion < 1 || dimensionVersion > 127) break;
+                    return "VersionEnchant";
+                } catch {}
+                break;
         }
     }
     // IDEA: Maybe add a way to make this based on the data in the key or the actual custom dimension IDs mapping.

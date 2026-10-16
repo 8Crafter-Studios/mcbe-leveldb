@@ -1,6 +1,12 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.25.1
+
+## Critical Fixes
+
+-   Fixed a bug where the `LegacyOverworld`, `LegacyNether`, and `LegacyTheEnd` content types were detected as the `VersionEnchant` content type.
+
 # v1.25.0
 
 ## Additions
