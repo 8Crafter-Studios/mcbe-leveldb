@@ -649,13 +649,21 @@ export namespace NBTSchemas {
             AutonomousEntities: {
                 id: "AutonomousEntities",
                 title: "The AutonomousEntities schema.",
+                // TODO: Figure out what this is used for.
                 markdownDescription: "The autonomous entities data.",
                 type: "compound",
                 required: ["AutonomousEntityList"],
                 properties: {
                     AutonomousEntityList: {
-                        markdownDescription: "UNKNOWN.",
+                        title: "Autonomous Entity List",
+                        markdownDescription: "UNDOCUMENTED.",
                         type: "list",
+                        items: {
+                            title: "Autonomous Entity",
+                            markdownDescription: "An autonomous entity.",
+                            // REVIEW: See if in the newer versions it doesn't have the EntityStorageKeyComponent, if it does and it also has the other key inside that, maybe make this a oneOf schema of Entity_Entity and ActorPrefix.
+                            $ref: "ActorPrefixOrEntity",
+                        },
                     },
                 },
                 $fragment: false,
@@ -1242,14 +1250,21 @@ export namespace NBTSchemas {
                 },
             },
             // NOTE: Verified.
-            // FIXME: Known missing fields (l:lowest found in version, pl?:highest not found in version before lowest, h?:highest found in version, pl?:lowest not found in version after highest):
-            // XBLBroadcast (l:0.16.0), eduLevel (l:0.15.10), fixedInventory, globalPermissions
+            // INFO: Version range format: (l:lowest found in version, pl?:highest not found in version before lowest, h?:highest found in version, ph?:lowest not found in version after highest) (if the build number is on a full release, it is in parenthesis)
+            // FIXME: Known missing fields:
+            // XBLBroadcast (l:0.15.90.0,pl:0.15.10)
+            // XBLBroadcastMode (l:1.2.2(.3),pl:1.0.0)
+            // eduLevel (l:0.15.10,pl:0.12.0)
+            // globalPermissions
+            // websocketallowed (l:1.0.0,pl:0.16.2)
+            // offerName (l:1.0.0,pl:0.16.2)
             // ~TODO: Add the added/removed versions to the descriptions of all of the fields.
             LevelDat: {
                 id: "LevelDat",
                 title: "The LevelDat schema.",
                 markdownDescription: "World data.",
                 type: "compound",
+                // Only StorageVersion is actually required, the game will load the world with only that.
                 required: ["StorageVersion"],
                 properties: {
                     abilities: {
@@ -1590,7 +1605,7 @@ export namespace NBTSchemas {
                     DayCycleStopTime: {
                         type: "int",
                         markdownDescription:
-                            "UNDOCUMENTED. Currently observed value is -1.\n\nThis was found in a world from 0.12.0.1 Windows 10 Edition Beta, it is unknown when it was added or removed.",
+                            "UNDOCUMENTED. Currently observed value is -1.\n\nThis was found in a world from 0.12.0 Windows 10 Edition Beta, it is unknown when it was added or removed.",
                         default: { type: "int", value: -1 },
                     },
                     daylightCycle: {
@@ -1599,7 +1614,8 @@ export namespace NBTSchemas {
                     },
                     Difficulty: {
                         type: "int",
-                        markdownDescription: "The current difficulty setting. 0 is Peaceful, 1 is Easy, 2 is Normal, and 3 is Hard.",
+                        markdownDescription:
+                            "The current difficulty setting. 0 is Peaceful, 1 is Easy, 2 is Normal, and 3 is Hard.\n\nThis was added in Pocket Edition v0.16.0 Alpha build 1 (0.15.90.0).",
                         markdownEnumDescriptions: ["Peaceful", "Easy", "Normal", "Hard"],
                         enum: [
                             { type: "int", value: 0 },
@@ -1608,8 +1624,9 @@ export namespace NBTSchemas {
                             { type: "int", value: 3 },
                         ],
                     },
-                    // REVIEW: Check if this property actually ever exists.
                     Dimension: {
+                        // (l:0.9.0,pl:0.8.1,h:0.11.2,ph:0.12.0)
+                        // ~TODO: Figure out what 0.9.0 build added this.
                         type: "int",
                         markdownDescription: "The dimension the player is in. 0 is the Overworld, 1 is the Nether, and 2 is the End.",
                         markdownEnumDescriptions: ["Overworld", "Nether", "The End"],
@@ -2295,10 +2312,12 @@ export namespace NBTSchemas {
                         },
                     },
                     lightningLevel: {
+                        // (l:0.12.0,pl:0.11.1,h:N/A)
                         type: "float",
                         markdownDescription: "UNDOCUMENTED.",
                     },
                     lightningTime: {
+                        // (l:0.12.0,pl:0.11.1,h:N/A)
                         type: "int",
                         markdownDescription: "UNDOCUMENTED.",
                     },
@@ -2435,6 +2454,7 @@ export namespace NBTSchemas {
                         ],
                     },
                     NetherScale: {
+                        // (l:beta 1.2.0.2,pl:1.1.5,h:N/A)
                         type: "int",
                         markdownDescription:
                             "Defaults to 8. This is used to tell the game how many Overworld blocks go into one nether block (X blocks in the nether = 1 block in the overworld).",
@@ -2444,13 +2464,15 @@ export namespace NBTSchemas {
                         },
                     },
                     NetworkVersion: {
+                        // (l:0.15.10,pl:0.12.0,h:N/A)
                         type: "int",
                         markdownDescription: "Seems to store the protocol version of the version the world was created or first opened in.",
                     },
                     Platform: {
                         type: "int",
-                        // REVIEW: Check if this is the platform the world was created on or if it is the platform the world was last opened on.
-                        markdownDescription: "Seems to store the platform that the level is created on. Currently observed value is 2.",
+                        // REVIEW: Check if this is the platform the world was created on or if it is the platform the world was last opened on. This may actually just be representing whether it is Bedrock, Education, or China, or maybe Bedrock/Java, or maybe whether it is console or the type of console.
+                        markdownDescription:
+                            "Seems to store the platform that the level is created on. Currently observed value is 2.\n\nThis was added in Pocket Edition v0.2.0 Alpha.",
                         default: {
                             type: "int",
                             value: 2,
@@ -2493,6 +2515,7 @@ export namespace NBTSchemas {
                         markdownDescription: "UNDOCUMENTED.",
                     },
                     prid: {
+                        // (l:1.2.2(.3),pl:1.0.0)
                         type: "string",
                         markdownDescription:
                             "The UUID of the premium world template this world was created with. Used for [Marketplace worlds](https://minecraft.wiki/w/Marketplace#Worlds). *info needed*",
@@ -2520,16 +2543,18 @@ export namespace NBTSchemas {
                         ],
                     },
                     rainLevel: {
+                        // (l:0.12.0,pl:0.11.1,h:N/A)
                         type: "float",
                         markdownDescription: "UNDOCUMENTED.",
                     },
                     rainTime: {
+                        // (l:0.12.0,pl:0.11.1,h:N/A)
                         type: "int",
                         markdownDescription: "UNDOCUMENTED.",
                     },
                     RandomSeed: {
                         type: "long",
-                        markdownDescription: "Level seed.",
+                        markdownDescription: "Level seed.\n\nThis was added in Pocket Edition v0.2.0 Alpha.",
                     },
                     LegacySeed: {
                         type: "int",
@@ -2538,8 +2563,9 @@ export namespace NBTSchemas {
                     SizeOnDisk: {
                         type: "long",
                         // REVIEW: Verify this description is correct.
+                        // ~TODO: Figure out what v0.11.0 build removed this.
                         markdownDescription:
-                            "A 64-bit integer representing the world size in bits. *verify*\n\nThis is used for old MCPE versions (it is known to be used from v0.1.0 Alpha until at least v0.10.0).",
+                            "A 64-bit integer representing the world size in bits. *verify*\n\nThis is used for old MCPE versions (it is known to be used from v0.1.0 Alpha until at least v0.10.4, it is not used in v0.11.0 and later).",
                     },
                     LegacyLastPlayed: {
                         type: "int",
@@ -2551,6 +2577,58 @@ export namespace NBTSchemas {
                             "Local player data.\n\nThis is used for Minecraft versions from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).",
                         $ref: "FileBasedStoragePlayerData",
                         unevaluatedProperties: false,
+                    },
+                    fixedInventory: {
+                        // (l:0.15.90.0,pl:0.15.10,h:beta 1.2.14.3,ph:beta 1.2.20.1)
+                        title: "Fixed Inventory",
+                        // TODO: Add better documentation here.
+                        markdownDescription:
+                            "The fixed inventory data. Items are added to this by things like the [/setfixedinvslot](https://minecraft.wiki/w/Commands/setfixedinvslot) command.\n\nThis is used for Minecraft versions from Pocket Edition v0.16.0 Alpha build 1 (0.15.90.0) (inclusive) to ?.",
+                        type: "compound",
+                        required: ["fixedInventoryItems"],
+                        properties: {
+                            fixedInventoryItems: {
+                                title: "Fixed Inventory Items",
+                                // TODO: Add better documentation here.
+                                markdownDescription: "Each compound tag in this list is a fixed inventory item.",
+                                type: "list",
+                                items: {
+                                    title: "Fixed Inventory Slot",
+                                    markdownDescription: "A fixed inventory slot.",
+                                    $ref: "LegacyItemStackWithSlot",
+                                    unevaluatedProperties: false,
+                                },
+                                default: {
+                                    type: "list",
+                                    value: {
+                                        type: "compound",
+                                        value: [],
+                                    },
+                                },
+                            },
+                        },
+                        default: {
+                            type: "compound",
+                            value: {
+                                fixedInventoryItems: {
+                                    type: "list",
+                                    value: {
+                                        type: "compound",
+                                        value: [],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    fixedInventorySlotCount: {
+                        title: "Fixed Inventory Slot Count",
+                        description:
+                            "The number of fixed inventory slots.\n\nThis is used for Minecraft versions from Pocket Edition v0.16.0 Alpha build 1 (0.15.90.0) (inclusive) to Pocket Edition v0.16.0 Alpha build 4 (0.15.90.7) (exclusive).",
+                        type: "int",
+                        default: {
+                            type: "int",
+                            value: 0,
+                        },
                     },
                     randomtickspeed: {
                         type: "int",
@@ -4256,18 +4334,44 @@ export namespace NBTSchemas {
             // NOTE: Verified.
             LimboEntities: {
                 id: "LimboEntities",
-                markdownDescription: "The limbo entities data.",
+                markdownDescription:
+                    "The limbo entities data. This stores the entities in the dimension that have used a portal to enter the dimension but are waiting for the chunk to be loaded before exiting the portal. If there is no portal, one will be created, which is where the entity will appear when the chunk is loaded.",
                 type: "compound",
                 required: ["data"],
                 properties: {
                     data: {
-                        markdownDescription: "A compound with a list of limbo entities.",
+                        markdownDescription: "A compound with a list of chunks with limbo entities.",
                         type: "compound",
                         required: ["LimboEntities"],
                         properties: {
                             LimboEntities: {
-                                markdownDescription: "UNKNOWN.",
+                                markdownDescription: "The list of chunks with limbo entities.",
                                 type: "list",
+                                items: {
+                                    type: "compound",
+                                    required: ["ChunkX", "ChunkZ", "EntityTagList"],
+                                    properties: {
+                                        ChunkX: {
+                                            title: "Chunk X",
+                                            type: "int",
+                                        },
+                                        ChunkZ: {
+                                            title: "Chunk Z",
+                                            type: "int",
+                                        },
+                                        EntityTagList: {
+                                            title: "Entity Tag List",
+                                            markdownDescription: "The list of limbo entities in this chunk.",
+                                            type: "list",
+                                            items: {
+                                                title: "Limbo Entity",
+                                                markdownDescription: "An entity that is in limbo.",
+                                                // REVIEW: See if in the newer versions it doesn't have the EntityStorageKeyComponent, if it does and it also has the other key inside that, maybe make this a oneOf schema of Entity_Entity and ActorPrefix.
+                                                $ref: "ActorPrefixOrEntity",
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
@@ -6624,9 +6728,9 @@ however when the corresponding block in the block layer is broken, this block ge
                 },
                 $fragment: true,
             },
-            FileBasedStorageItemStack: {
-                id: "FileBasedStorageItemStack",
-                markdownDescription: "NBT structure of an item stack from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).",
+            LegacyItemStack: {
+                id: "LegacyItemStack",
+                markdownDescription: "Legacy numeric ID based NBT structure of an item stack from Pocket Edition v0.2.0 Alpha (inclusive) to ?.",
                 type: "compound",
                 required: ["Count", "Damage", "id"],
                 properties: {
@@ -6641,9 +6745,25 @@ however when the corresponding block in the block layer is broken, this block ge
                     id: {
                         markdownDescription: "The numeric item ID of this item.",
                         type: "short",
-                        // TODO (Important): Add a enum here of all the numeric item IDs from 0.2.0 to 0.9.0 (exclusive), maybe ALSO have an anyOf which shows a dynamic enum for Damage based on the list of data values for the given item ID.
+                        // TODO (Important): Add a enum here of all the numeric item IDs from 0.2.0 to the last version this was used in, maybe ALSO have an anyOf which shows a dynamic enum for Damage based on the list of data values for the given item ID. Make sure the descriptions show the version ranges.
                     },
                 },
+                $fragment: true,
+            },
+            LegacyItemStackWithSlot: {
+                id: "LegacyItemStackWithSlot",
+                markdownDescription:
+                    "Legacy numeric ID based NBT structure of an item stack from Pocket Edition v0.2.0 Alpha (inclusive) to ?. With a field to store the slot number.",
+                type: "compound",
+                required: ["Slot"],
+                properties: {
+                    Slot: {
+                        title: "Slot",
+                        markdownDescription: "The slot the item is in.",
+                        type: "byte",
+                    },
+                },
+                $ref: "LegacyItemStack",
                 $fragment: true,
             },
             FileBasedStoragePlayerData: {
@@ -6687,7 +6807,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription: "The item on the head.",
                                 type: "compound",
                                 // TEST: Make sure this doesn't override the title or description.
-                                $ref: "FileBasedStorageItemStack",
+                                $ref: "LegacyItemStack",
                                 unevaluatedProperties: false,
                             },
                             {
@@ -6695,7 +6815,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription: "The item on the chest.",
                                 type: "compound",
                                 // TEST: Make sure this doesn't override the title or description.
-                                $ref: "FileBasedStorageItemStack",
+                                $ref: "LegacyItemStack",
                                 unevaluatedProperties: false,
                             },
                             {
@@ -6703,7 +6823,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription: "The item on the legs.",
                                 type: "compound",
                                 // TEST: Make sure this doesn't override the title or description.
-                                $ref: "FileBasedStorageItemStack",
+                                $ref: "LegacyItemStack",
                                 unevaluatedProperties: false,
                             },
                             {
@@ -6711,7 +6831,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription: "The item on the feet.",
                                 type: "compound",
                                 // TEST: Make sure this doesn't override the title or description.
-                                $ref: "FileBasedStorageItemStack",
+                                $ref: "LegacyItemStack",
                                 unevaluatedProperties: false,
                             },
                         ],
@@ -6884,15 +7004,7 @@ however when the corresponding block in the block layer is broken, this block ge
                         items: {
                             title: "Inventory Item",
                             markdownDescription: "An item in the player's inventory.",
-                            required: ["Slot"],
-                            properties: {
-                                Slot: {
-                                    title: "Slot",
-                                    markdownDescription: "The slot the item is in.",
-                                    type: "byte",
-                                },
-                            },
-                            $ref: "FileBasedStorageItemStack",
+                            $ref: "LegacyItemStackWithSlot",
                             unevaluatedProperties: false,
                         },
                     },
@@ -20271,24 +20383,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             type: "compound";
             value: {
                 /**
-                 * UNKNOWN.
+                 * Autonomous Entity List
+                 *
+                 * UNDOCUMENTED.
                  */
                 AutonomousEntityList: {
                     type: "list";
-                    value: (
-                        | { type: "byte"; value: number[] }
-                        | { type: "short"; value: number[] }
-                        | { type: "int"; value: number[] }
-                        | { type: "long"; value: [high: number, low: number][] }
-                        | { type: "float"; value: number[] }
-                        | { type: "double"; value: number[] }
-                        | { type: "string"; value: number[] }
-                        | { type: "byteArray"; value: number[][] }
-                        | { type: "intArray"; value: number[][] }
-                        | { type: "longArray"; value: [high: number, low: number][][] }
-                        | { type: "compound"; value: Record<string, any> }
-                        | { type: "list"; value: any[] }
-                    )[];
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Autonomous Entity
+                         *
+                         * An autonomous entity.
+                         */
+                        value: ActorPrefixOrEntity["value"][];
+                    };
                 };
             };
         };
@@ -21559,7 +21670,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * UNDOCUMENTED. Currently observed value is -1.
                  *
-                 * This was found in a world from 0.12.0.1 Windows 10 Edition Beta, it is unknown when it was added or removed.
+                 * This was found in a world from 0.12.0 Windows 10 Edition Beta, it is unknown when it was added or removed.
                  *
                  * @default -1
                  */
@@ -21570,6 +21681,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 daylightCycle?: { type: "int"; value: number };
                 /**
                  * The current difficulty setting. 0 is Peaceful, 1 is Easy, 2 is Normal, and 3 is Hard.
+                 *
+                 * This was added in Pocket Edition v0.16.0 Alpha build 1 (0.15.90.0).
                  *
                  * @enum 0 | 1 | 2 | 3
                  *
@@ -22391,6 +22504,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * Seems to store the platform that the level is created on. Currently observed value is 2.
                  *
+                 * This was added in Pocket Edition v0.2.0 Alpha.
+                 *
                  * @default 2
                  */
                 Platform?: { type: "int"; value: number };
@@ -22463,6 +22578,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 rainTime?: { type: "int"; value: number };
                 /**
                  * Level seed.
+                 *
+                 * This was added in Pocket Edition v0.2.0 Alpha.
                  */
                 RandomSeed?: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -22474,7 +22591,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 /**
                  * A 64-bit integer representing the world size in bits. *verify*
                  *
-                 * This is used for old MCPE versions (it is known to be used from v0.1.0 Alpha until at least v0.10.0).
+                 * This is used for old MCPE versions (it is known to be used from v0.1.0 Alpha until at least v0.10.4, it is not used in v0.11.0 and later).
                  */
                 SizeOnDisk?: { type: "long"; value: [high: number, low: number] };
                 /**
@@ -22491,6 +22608,53 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                  * This is used for Minecraft versions from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).
                  */
                 Player?: FileBasedStoragePlayerData;
+                /**
+                 * Fixed Inventory
+                 *
+                 * The fixed inventory data. Items are added to this by things like the [/setfixedinvslot](https://minecraft.wiki/w/Commands/setfixedinvslot) command.
+                 *
+                 * This is used for Minecraft versions from Pocket Edition v0.16.0 Alpha build 1 (0.15.90.0) (inclusive) to ?.
+                 *
+                 * @default
+                 * {"fixedInventoryItems":{"type":"list","value":{"type":"compound","value":[]}}}
+                 */
+                fixedInventory?: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * Fixed Inventory Items
+                         *
+                         * Each compound tag in this list is a fixed inventory item.
+                         *
+                         * @default
+                         * []
+                         */
+                        fixedInventoryItems: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * Fixed Inventory Slot
+                                 *
+                                 * A fixed inventory slot.
+                                 */
+                                value: LegacyItemStackWithSlot["value"][];
+                            };
+                        };
+                    };
+                };
+                /**
+                 * Fixed Inventory Slot Count
+                 *
+                 * The number of fixed inventory slots.
+                 *
+                 * This is used for Minecraft versions from Pocket Edition v0.16.0 Alpha build 1 (0.15.90.0) (inclusive) to Pocket Edition v0.16.0 Alpha build 4 (0.15.90.7) (exclusive).
+                 *
+                 * @default 0
+                 */
+                fixedInventorySlotCount?: { type: "int"; value: number };
                 /**
                  * The `randomtickspeed` [game rule](https://minecraft.wiki/w/game_rule).
                  *
@@ -24298,7 +24462,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
-         * The limbo entities data.
+         * The limbo entities data. This stores the entities in the dimension that have used a portal to enter the dimension but are waiting for the chunk to be loaded before exiting the portal. If there is no portal, one will be created, which is where the entity will appear when the chunk is loaded.
          *
          * @see {@link NBTSchemas.nbtSchemas.LimboEntities}
          */
@@ -24306,30 +24470,53 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             type: "compound";
             value: {
                 /**
-                 * A compound with a list of limbo entities.
+                 * A compound with a list of chunks with limbo entities.
                  */
                 data: {
                     type: "compound";
                     value: {
                         /**
-                         * UNKNOWN.
+                         * The list of chunks with limbo entities.
                          */
                         LimboEntities: {
                             type: "list";
-                            value: (
-                                | { type: "byte"; value: number[] }
-                                | { type: "short"; value: number[] }
-                                | { type: "int"; value: number[] }
-                                | { type: "long"; value: [high: number, low: number][] }
-                                | { type: "float"; value: number[] }
-                                | { type: "double"; value: number[] }
-                                | { type: "string"; value: number[] }
-                                | { type: "byteArray"; value: number[][] }
-                                | { type: "intArray"; value: number[][] }
-                                | { type: "longArray"; value: [high: number, low: number][][] }
-                                | { type: "compound"; value: Record<string, any> }
-                                | { type: "list"; value: any[] }
-                            )[];
+                            value: {
+                                type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * *No description.*
+                                 */
+                                value: {
+                                    /**
+                                     * Chunk X
+                                     */
+                                    ChunkX: { type: "int"; value: number };
+                                    /**
+                                     * Chunk Z
+                                     */
+                                    ChunkZ: { type: "int"; value: number };
+                                    /**
+                                     * Entity Tag List
+                                     *
+                                     * The list of limbo entities in this chunk.
+                                     */
+                                    EntityTagList: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * Limbo Entity
+                                             *
+                                             * An entity that is in limbo.
+                                             */
+                                            value: ActorPrefixOrEntity["value"][];
+                                        };
+                                    };
+                                }[];
+                            };
                         };
                     };
                 };
@@ -26825,11 +27012,11 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
-         * NBT structure of an item stack from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).
+         * Legacy numeric ID based NBT structure of an item stack from Pocket Edition v0.2.0 Alpha (inclusive) to ?.
          *
-         * @see {@link NBTSchemas.nbtSchemas.FileBasedStorageItemStack}
+         * @see {@link NBTSchemas.nbtSchemas.LegacyItemStack}
          */
-        export type FileBasedStorageItemStack = {
+        export type LegacyItemStack = {
             type: "compound";
             value: {
                 /**
@@ -26846,6 +27033,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                 id: { type: "short"; value: number };
             };
         };
+
+        /**
+         * Legacy numeric ID based NBT structure of an item stack from Pocket Edition v0.2.0 Alpha (inclusive) to ?. With a field to store the slot number.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.LegacyItemStackWithSlot}
+         */
+        export type LegacyItemStackWithSlot = {
+            type: "compound";
+            value: {
+                /**
+                 * Slot
+                 *
+                 * The slot the item is in.
+                 */
+                Slot: { type: "byte"; value: number };
+            };
+        } & LegacyItemStack;
 
         /**
          * NBT structure of a player from Pocket Edition v0.2.0 Alpha (inclusive) to Pocket Edition v0.9.0 Alpha (exclusive).
@@ -26897,10 +27101,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * The item on the feet.
                          */
                         value: [
-                            head: FileBasedStorageItemStack["value"],
-                            chest: FileBasedStorageItemStack["value"],
-                            legs: FileBasedStorageItemStack["value"],
-                            feet: FileBasedStorageItemStack["value"],
+                            head: LegacyItemStack["value"],
+                            chest: LegacyItemStack["value"],
+                            legs: LegacyItemStack["value"],
+                            feet: LegacyItemStack["value"],
                         ];
                     };
                 };
@@ -27000,14 +27204,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          *
                          * An item in the player's inventory.
                          */
-                        value: ({
-                            /**
-                             * Slot
-                             *
-                             * The slot the item is in.
-                             */
-                            Slot: { type: "byte"; value: number };
-                        } & FileBasedStorageItemStack["value"])[];
+                        value: LegacyItemStackWithSlot["value"][];
                     };
                 };
                 /**

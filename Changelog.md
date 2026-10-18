@@ -1,6 +1,27 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.26.0
+
+## Additions
+
+-   Added the types of the items in the `data.LimboEntities` list field of the `LimboEntities` NBT schema.
+-   Added the types of the items in the `AutonomousEntityList` list field of the `AutonomousEntities` NBT schema.
+-   Added proper documentation to the `LimboEntities` NBT schema.
+-   Added the following fields to the `LevelDat` NBT schema:
+    -   `fixedInventory`
+    -   `fixedInventorySlotCount`
+-   Added the version ranges to the following fields of the `LevelDat` NBT schema:
+    -   `Difficulty`
+    -   `Platform`
+    -   `RandomSeed`
+
+## Changes
+
+-   Updated the version ranges to the following fields of the `LevelDat` NBT schema:
+    -   `DayCycleStopTime`
+    -   `SizeOnDisk`
+
 # v1.25.1
 
 ## Critical Fixes
