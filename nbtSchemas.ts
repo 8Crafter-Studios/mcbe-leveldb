@@ -685,8 +685,10 @@ export namespace NBTSchemas {
                             required: ["id", "snowAccumulation"],
                             properties: {
                                 id: {
-                                    markdownDescription: "The numerical [biome ID](https://minecraft.wiki/w/Biome).",
-                                    type: "short",
+                                    // TODO: Figure out what version switched this from a byte to a short and document it here.
+                                    markdownDescription:
+                                        "The numerical [biome ID](https://minecraft.wiki/w/Biome). In older versions this is a byte instead of a short.",
+                                    type: ["byte", "short"],
                                 },
                                 snowAccumulation: {
                                     markdownDescription: "The biome's snow accumulation. Eg. `0.125`.",
@@ -1252,12 +1254,13 @@ export namespace NBTSchemas {
             // NOTE: Verified.
             // INFO: Version range format: (l:lowest found in version, pl?:highest not found in version before lowest, h?:highest found in version, ph?:lowest not found in version after highest) (if the build number is on a full release, it is in parenthesis)
             // FIXME: Known missing fields:
-            // XBLBroadcast (l:0.15.90.0,pl:0.15.10)
+            // XBLBroadcast (l:0.15.90.0,pl:0.15.10,h:1.2.2(.3))
             // XBLBroadcastMode (l:1.2.2(.3),pl:1.0.0)
-            // eduLevel (l:0.15.10,pl:0.12.0)
+            // eduLevel (l:0.15.10,pl:0.12.0,h:1.2.2(.3))
             // globalPermissions
             // websocketallowed (l:1.0.0,pl:0.16.2)
             // offerName (l:1.0.0,pl:0.16.2)
+            // PlatformBroadcast (l:1.2.2(.3))
             // ~TODO: Add the added/removed versions to the descriptions of all of the fields.
             LevelDat: {
                 id: "LevelDat",
@@ -2970,446 +2973,840 @@ export namespace NBTSchemas {
                 },
             },
             // NOTE: Verified.
-            LegacyOverworld: {
-                id: "LegacyOverworld",
-                markdownDescription: "The structure data of the Overworld dimension, this is the data for the `dimension0` LevelDB key.",
+            LegacyOverworldStructures: {
+                id: "LegacyOverworldStructures",
+                markdownDescription:
+                    "The structure data of the Overworld dimension, this is the data for the `dimension0` LevelDB key. This may have fields corresponding to Nether or The End structure types instead if the generator type is set to 3 (Nether) or 4 (The End) respectively.",
                 type: "compound",
-                required: ["mineshaft", "oceans", "scattered", "stronghold", "village"],
-                properties: {
-                    mansion: {
-                        title: "Woodland Mansions",
-                        markdownDescription: "The list of woodland mansions.",
+                // If the generator type is switched, the game wipes out existing structure data, so this is oneOf instead of anyOf.
+                oneOf: [
+                    {
                         type: "compound",
+                        required: ["mineshaft", "oceans", "scattered", "stronghold", "village"],
                         properties: {
-                            structures: {
-                                type: "list",
-                                items: {
-                                    type: "compound",
-                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "IsValid"],
-                                    properties: {
-                                        BB: {
-                                            title: "Bounding Box",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "intArray",
-                                            minItems: 6,
-                                            maxItems: 6,
-                                        },
-                                        Children: {
-                                            title: "Children",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "list",
-                                            items: {
-                                                type: "compound",
-                                                required: ["BB", "ID", "Mirror", "Rotation", "Template", "TemplatePosition", "gendepth", "orientation"],
-                                                properties: {
-                                                    BB: {
-                                                        title: "Bounding Box",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "intArray",
-                                                        minItems: 6,
-                                                        maxItems: 6,
-                                                    },
-                                                    ID: {
-                                                        title: "ID",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    Mirror: {
-                                                        title: "Mirror",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                        markdownEnumDescriptions: ["UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED."],
-                                                        enum: [
-                                                            { type: "int", value: 0 },
-                                                            { type: "int", value: 1 },
-                                                            { type: "int", value: 2 },
-                                                            { type: "int", value: 3 },
-                                                        ],
-                                                    },
-                                                    Rotation: {
-                                                        title: "Rotation",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                        markdownEnumDescriptions: ["UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED."],
-                                                        enum: [
-                                                            { type: "int", value: 0 },
-                                                            { type: "int", value: 1 },
-                                                            { type: "int", value: 2 },
-                                                            { type: "int", value: 3 },
-                                                        ],
-                                                    },
-                                                    Template: {
-                                                        title: "Template",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "string",
-                                                        // [...new Set(data.mansion.value.structures.value.value.flatMap(v=>v.Children.value.value.flatMap(v=>v.Template.value)))].map(v=>({type: "string", value: v}))
-                                                        // TODO: Find more of this structure to find all possible templates, then switch this to an enum.
-                                                        examples: [
-                                                            {
-                                                                type: "string",
-                                                                value: "entrance",
+                            mansion: {
+                                title: "Woodland Mansions",
+                                markdownDescription: "The list of woodland mansions.",
+                                type: "compound",
+                                properties: {
+                                    structures: {
+                                        type: "list",
+                                        items: {
+                                            type: "compound",
+                                            required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "IsValid"],
+                                            properties: {
+                                                BB: {
+                                                    title: "Bounding Box",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "intArray",
+                                                    minItems: 6,
+                                                    maxItems: 6,
+                                                },
+                                                Children: {
+                                                    title: "Children",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "list",
+                                                    items: {
+                                                        type: "compound",
+                                                        required: ["BB", "ID", "Mirror", "Rotation", "Template", "TemplatePosition", "gendepth", "orientation"],
+                                                        properties: {
+                                                            BB: {
+                                                                title: "Bounding Box",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "intArray",
+                                                                minItems: 6,
+                                                                maxItems: 6,
                                                             },
-                                                            {
-                                                                type: "string",
-                                                                value: "wall_flat",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "wall_corner",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "wall_window",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "roof",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "roof_front",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "small_wall",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "small_wall_corner",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "roof_corner",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "roof_inner_corner",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "corridor_floor",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "carpet_east",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "carpet_south",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "carpet_west",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "carpet_north",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "indoors_wall",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "indoors_door",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "2x2_a4",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_a5",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x1_a3",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x1_a4",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "2x2_a3",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_a7",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x1_a2",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_b1",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_a9",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "corridor_floor_2",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "carpet_south_2",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "carpet_west_2",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "indoors_wall_2",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "indoors_door_2",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x1_b4",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x1_b3",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x1_b2",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "2x2_b1",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "2x2_b5",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_c4",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "2x2_b4",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_c_stairs",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_c3",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_c1",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x1_as3",
-                                                            },
-                                                            {
-                                                                type: "string",
-                                                                value: "1x2_d4",
-                                                            },
-                                                        ],
-                                                    },
-                                                    TemplatePosition: {
-                                                        title: "Template Position",
-                                                        markdownDescription: "UNDOCUMENTED. A Vector3.",
-                                                        type: "list",
-                                                        minItems: 3,
-                                                        maxItems: 3,
-                                                        items: [
-                                                            {
-                                                                tupleItemLabelTS: "x",
-                                                                title: "x",
-                                                                markdownDescription: "X component of this vector.",
+                                                            ID: {
+                                                                title: "ID",
+                                                                markdownDescription: "UNDOCUMENTED.",
                                                                 type: "int",
                                                             },
-                                                            {
-                                                                tupleItemLabelTS: "y",
-                                                                title: "y",
-                                                                markdownDescription: "Y component of this vector.",
+                                                            Mirror: {
+                                                                title: "Mirror",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                                markdownEnumDescriptions: ["UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED."],
+                                                                enum: [
+                                                                    { type: "int", value: 0 },
+                                                                    { type: "int", value: 1 },
+                                                                    { type: "int", value: 2 },
+                                                                    { type: "int", value: 3 },
+                                                                ],
+                                                            },
+                                                            Rotation: {
+                                                                title: "Rotation",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                                markdownEnumDescriptions: ["UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED.", "UNDOCUMENTED."],
+                                                                enum: [
+                                                                    { type: "int", value: 0 },
+                                                                    { type: "int", value: 1 },
+                                                                    { type: "int", value: 2 },
+                                                                    { type: "int", value: 3 },
+                                                                ],
+                                                            },
+                                                            Template: {
+                                                                title: "Template",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "string",
+                                                                // [...new Set(data.mansion.value.structures.value.value.flatMap(v=>v.Children.value.value.flatMap(v=>v.Template.value)))].map(v=>({type: "string", value: v}))
+                                                                // TODO: Find more of this structure to find all possible templates, then switch this to an enum.
+                                                                examples: [
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "entrance",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "wall_flat",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "wall_corner",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "wall_window",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "roof",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "roof_front",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "small_wall",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "small_wall_corner",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "roof_corner",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "roof_inner_corner",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "corridor_floor",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "carpet_east",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "carpet_south",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "carpet_west",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "carpet_north",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "indoors_wall",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "indoors_door",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "2x2_a4",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_a5",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x1_a3",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x1_a4",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "2x2_a3",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_a7",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x1_a2",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_b1",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_a9",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "corridor_floor_2",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "carpet_south_2",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "carpet_west_2",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "indoors_wall_2",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "indoors_door_2",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x1_b4",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x1_b3",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x1_b2",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "2x2_b1",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "2x2_b5",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_c4",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "2x2_b4",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_c_stairs",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_c3",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_c1",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x1_as3",
+                                                                    },
+                                                                    {
+                                                                        type: "string",
+                                                                        value: "1x2_d4",
+                                                                    },
+                                                                ],
+                                                            },
+                                                            TemplatePosition: {
+                                                                title: "Template Position",
+                                                                markdownDescription: "UNDOCUMENTED. A Vector3.",
+                                                                type: "list",
+                                                                minItems: 3,
+                                                                maxItems: 3,
+                                                                items: [
+                                                                    {
+                                                                        tupleItemLabelTS: "x",
+                                                                        title: "x",
+                                                                        markdownDescription: "X component of this vector.",
+                                                                        type: "int",
+                                                                    },
+                                                                    {
+                                                                        tupleItemLabelTS: "y",
+                                                                        title: "y",
+                                                                        markdownDescription: "Y component of this vector.",
+                                                                        type: "int",
+                                                                    },
+                                                                    {
+                                                                        tupleItemLabelTS: "z",
+                                                                        title: "z",
+                                                                        markdownDescription: "Z component of this vector.",
+                                                                        type: "int",
+                                                                    },
+                                                                ],
+                                                            },
+                                                            gendepth: {
+                                                                title: "UNTITLED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
                                                                 type: "int",
                                                             },
-                                                            {
-                                                                tupleItemLabelTS: "z",
-                                                                title: "z",
-                                                                markdownDescription: "Z component of this vector.",
+                                                            orientation: {
+                                                                title: "Orientation",
+                                                                markdownDescription: "UNDOCUMENTED.",
                                                                 type: "int",
                                                             },
-                                                        ],
-                                                    },
-                                                    gendepth: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    orientation: {
-                                                        title: "Orientation",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
+                                                        },
                                                     },
                                                 },
+                                                ChunkX: {
+                                                    title: "Chunk X",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ChunkZ: {
+                                                    title: "Chunk Z",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ID: {
+                                                    title: "ID",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                    // IDEA: Observed value is 8, maybe make this a constant?
+                                                },
+                                                IsValid: {
+                                                    title: "Is Valid",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "byte",
+                                                    markdownEnumDescriptions: ["false", "true"],
+                                                    enum: [
+                                                        { type: "byte", value: 0 },
+                                                        { type: "byte", value: 1 },
+                                                    ],
+                                                },
                                             },
-                                        },
-                                        ChunkX: {
-                                            title: "Chunk X",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ChunkZ: {
-                                            title: "Chunk Z",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ID: {
-                                            title: "ID",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                            // IDEA: Observed value is 8, maybe make this a constant?
-                                        },
-                                        IsValid: {
-                                            title: "Is Valid",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "byte",
-                                            markdownEnumDescriptions: ["false", "true"],
-                                            enum: [
-                                                { type: "byte", value: 0 },
-                                                { type: "byte", value: 1 },
-                                            ],
                                         },
                                     },
                                 },
                             },
-                        },
-                    },
-                    mineshaft: {
-                        title: "Mineshafts",
-                        markdownDescription: "The list of mineshafts.",
-                        type: "compound",
-                        properties: {
-                            structures: {
-                                type: "list",
-                                items: {
-                                    type: "compound",
-                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID"],
-                                    properties: {
-                                        BB: {
-                                            title: "Bounding Box",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "intArray",
-                                            minItems: 6,
-                                            maxItems: 6,
-                                        },
-                                        Children: {
-                                            title: "Children",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "list",
-                                            items: {
-                                                type: "compound",
-                                                required: ["BB", "ID", "gendepth", "orientation"],
-                                                properties: {
-                                                    BB: {
-                                                        title: "Bounding Box",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "intArray",
-                                                        minItems: 6,
-                                                        maxItems: 6,
-                                                    },
-                                                    ID: {
-                                                        title: "ID",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    gendepth: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    orientation: {
-                                                        title: "Orientation",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
+                            mineshaft: {
+                                title: "Mineshafts",
+                                markdownDescription: "The list of mineshafts.",
+                                type: "compound",
+                                properties: {
+                                    structures: {
+                                        type: "list",
+                                        items: {
+                                            type: "compound",
+                                            required: ["BB", "Children", "ChunkX", "ChunkZ", "ID"],
+                                            properties: {
+                                                BB: {
+                                                    title: "Bounding Box",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "intArray",
+                                                    minItems: 6,
+                                                    maxItems: 6,
                                                 },
-                                                // TODO: Fix the NBT schema to TypeScript type converter, as it doesn't include the types for these `oneOf` entries.
-                                                oneOf: [
-                                                    {
+                                                Children: {
+                                                    title: "Children",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "list",
+                                                    items: {
                                                         type: "compound",
-                                                        properties: {},
-                                                        not: {
-                                                            oneOf: [{ required: ["D"] }, { required: ["Entrances"] }, { required: ["Num"] }],
-                                                        },
-                                                    },
-                                                    {
-                                                        type: "compound",
-                                                        required: ["D", "tf"],
+                                                        required: ["BB", "ID", "gendepth", "orientation"],
                                                         properties: {
-                                                            D: {
+                                                            BB: {
+                                                                title: "Bounding Box",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "intArray",
+                                                                minItems: 6,
+                                                                maxItems: 6,
+                                                            },
+                                                            ID: {
+                                                                title: "ID",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            gendepth: {
                                                                 title: "UNTITLED.",
                                                                 markdownDescription: "UNDOCUMENTED.",
                                                                 type: "int",
                                                             },
-                                                            tf: {
-                                                                title: "UNTITLED.",
+                                                            orientation: {
+                                                                title: "Orientation",
                                                                 markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
+                                                                type: "int",
                                                             },
                                                         },
-                                                    },
-                                                    {
-                                                        type: "compound",
-                                                        required: ["Entrances"],
-                                                        properties: {
-                                                            Entrances: {
-                                                                title: "Entrances",
-                                                                markdownDescription: "The bounding boxes of the entrances.",
-                                                                type: "list",
-                                                                items: {
-                                                                    title: "Entrance Bounding Box",
-                                                                    markdownDescription: "The bounding box of an entrance.",
-                                                                    type: "intArray",
-                                                                    minItems: 6,
-                                                                    maxItems: 6,
-                                                                    // TODO: Ad a tuple items type here once the converter supports that.
+                                                        // TODO: Fix the NBT schema to TypeScript type converter, as it doesn't include the types for these `oneOf` entries.
+                                                        oneOf: [
+                                                            {
+                                                                type: "compound",
+                                                                properties: {},
+                                                                not: {
+                                                                    oneOf: [{ required: ["D"] }, { required: ["Entrances"] }, { required: ["Num"] }],
                                                                 },
                                                             },
-                                                        },
+                                                            {
+                                                                type: "compound",
+                                                                required: ["D", "tf"],
+                                                                properties: {
+                                                                    D: {
+                                                                        title: "UNTITLED.",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "int",
+                                                                    },
+                                                                    tf: {
+                                                                        title: "UNTITLED.",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                            },
+                                                            {
+                                                                type: "compound",
+                                                                required: ["Entrances"],
+                                                                properties: {
+                                                                    Entrances: {
+                                                                        title: "Entrances",
+                                                                        markdownDescription: "The bounding boxes of the entrances.",
+                                                                        type: "list",
+                                                                        items: {
+                                                                            title: "Entrance Bounding Box",
+                                                                            markdownDescription: "The bounding box of an entrance.",
+                                                                            type: "intArray",
+                                                                            minItems: 6,
+                                                                            maxItems: 6,
+                                                                            // TODO: Ad a tuple items type here once the converter supports that.
+                                                                        },
+                                                                    },
+                                                                },
+                                                            },
+                                                            {
+                                                                type: "compound",
+                                                                required: ["Num", "hps", "hr", "sc"],
+                                                                properties: {
+                                                                    Num: {
+                                                                        title: "UNTITLED.",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "int",
+                                                                    },
+                                                                    hps: {
+                                                                        title: "UNTITLED.",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                    hr: {
+                                                                        title: "UNTITLED.",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                    sc: {
+                                                                        title: "UNTITLED.",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                            },
+                                                        ],
                                                     },
-                                                    {
+                                                },
+                                                ChunkX: {
+                                                    title: "Chunk X",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ChunkZ: {
+                                                    title: "Chunk Z",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ID: {
+                                                    title: "ID",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                    // IDEA: Observed value is 3, maybe make this a constant?
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            oceans: {
+                                title: "Ocean Monuments",
+                                markdownDescription: "The list of ocean monuments.",
+                                type: "compound",
+                                properties: {
+                                    structures: {
+                                        type: "list",
+                                        items: {
+                                            type: "compound",
+                                            required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "iscreated"],
+                                            properties: {
+                                                BB: {
+                                                    title: "Bounding Box",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "intArray",
+                                                    minItems: 6,
+                                                    maxItems: 6,
+                                                },
+                                                Children: {
+                                                    title: "Children",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "list",
+                                                    items: {
                                                         type: "compound",
-                                                        required: ["Num", "hps", "hr", "sc"],
+                                                        required: ["BB", "ID", "gendepth", "orientation"],
                                                         properties: {
-                                                            Num: {
+                                                            BB: {
+                                                                title: "Bounding Box",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "intArray",
+                                                                minItems: 6,
+                                                                maxItems: 6,
+                                                            },
+                                                            ID: {
+                                                                title: "ID",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            gendepth: {
                                                                 title: "UNTITLED.",
                                                                 markdownDescription: "UNDOCUMENTED.",
                                                                 type: "int",
                                                             },
-                                                            hps: {
+                                                            orientation: {
+                                                                title: "Orientation",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                                ChunkX: {
+                                                    title: "Chunk X",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ChunkZ: {
+                                                    title: "Chunk Z",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ID: {
+                                                    title: "ID",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                    // IDEA: Observed value is 4, maybe make this a constant?
+                                                },
+                                                iscreated: {
+                                                    title: "Is Created",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "byte",
+                                                    markdownEnumDescriptions: ["false", "true"],
+                                                    enum: [
+                                                        { type: "byte", value: 0 },
+                                                        { type: "byte", value: 1 },
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            scattered: {
+                                title: "Temples",
+                                markdownDescription: "The list of temples (desert pyramids, jungle pyramids, igloos, and swamp huts).",
+                                type: "compound",
+                                properties: {
+                                    structures: {
+                                        type: "list",
+                                        items: {
+                                            type: "compound",
+                                            required: ["BB", "Children", "ChunkX", "ChunkZ", "ID"],
+                                            properties: {
+                                                BB: {
+                                                    title: "Bounding Box",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "intArray",
+                                                    minItems: 6,
+                                                    maxItems: 6,
+                                                },
+                                                Children: {
+                                                    title: "Children",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "list",
+                                                    items: {
+                                                        type: "compound",
+                                                        required: ["BB", "Depth", "HPos", "Height", "ID", "Width", "gendepth", "orientation"],
+                                                        properties: {
+                                                            BB: {
+                                                                title: "Bounding Box",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "intArray",
+                                                                minItems: 6,
+                                                                maxItems: 6,
+                                                            },
+                                                            Depth: {
+                                                                title: "Depth",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            HPos: {
                                                                 title: "UNTITLED.",
                                                                 markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
+                                                                type: "int",
                                                             },
-                                                            hr: {
+                                                            Height: {
+                                                                title: "Height",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            ID: {
+                                                                title: "ID",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            Width: {
+                                                                title: "Width",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            gendepth: {
                                                                 title: "UNTITLED.",
                                                                 markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            orientation: {
+                                                                title: "Orientation",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                        },
+                                                        oneOf: [
+                                                            {
+                                                                type: "compound",
+                                                                properties: {},
+                                                                not: {
+                                                                    oneOf: [
+                                                                        { required: ["Witch"] },
+                                                                        { required: ["hasPlacedChest0"] },
+                                                                        { required: ["hasPlacedHiddenChest"] },
+                                                                    ],
+                                                                },
+                                                            },
+                                                            {
+                                                                type: "compound",
+                                                                required: ["Witch"],
+                                                                properties: {
+                                                                    Witch: {
+                                                                        title: "Witch",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                            },
+                                                            {
+                                                                type: "compound",
+                                                                required: ["hasPlacedChest0", "hasPlacedChest1", "hasPlacedChest2", "hasPlacedChest3"],
+                                                                properties: {
+                                                                    hasPlacedChest0: {
+                                                                        title: "Has Placed Chest 0",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                    hasPlacedChest1: {
+                                                                        title: "Has Placed Chest 1",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                    hasPlacedChest2: {
+                                                                        title: "Has Placed Chest 2",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                    hasPlacedChest3: {
+                                                                        title: "Has Placed Chest 3",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                            },
+                                                            {
+                                                                type: "compound",
+                                                                required: ["hasPlacedHiddenChest", "hasPlacedMainChest", "hasPlacedTrap0", "hasPlacedTrap1"],
+                                                                properties: {
+                                                                    hasPlacedHiddenChest: {
+                                                                        title: "Has Placed Hidden Chest",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                    hasPlacedMainChest: {
+                                                                        title: "Has Placed Main Chest",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                    hasPlacedTrap0: {
+                                                                        title: "Has Placed Trap 0",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                    hasPlacedTrap1: {
+                                                                        title: "Has Placed Trap 1",
+                                                                        markdownDescription: "UNDOCUMENTED.",
+                                                                        type: "byte",
+                                                                        markdownEnumDescriptions: ["false", "true"],
+                                                                        enum: [
+                                                                            { type: "byte", value: 0 },
+                                                                            { type: "byte", value: 1 },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                            },
+                                                        ],
+                                                    },
+                                                },
+                                                ChunkX: {
+                                                    title: "Chunk X",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ChunkZ: {
+                                                    title: "Chunk Z",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ID: {
+                                                    title: "ID",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                    // IDEA: Observed value is 6 (for all four temple types), maybe make this a constant?
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            stronghold: {
+                                title: "Strongholds",
+                                markdownDescription: "The list of strongholds.",
+                                type: "compound",
+                                properties: {
+                                    structures: {
+                                        type: "list",
+                                        items: {
+                                            type: "compound",
+                                            required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "Valid"],
+                                            properties: {
+                                                BB: {
+                                                    title: "Bounding Box",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "intArray",
+                                                    minItems: 6,
+                                                    maxItems: 6,
+                                                },
+                                                Children: {
+                                                    title: "Children",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "list",
+                                                    items: {
+                                                        type: "compound",
+                                                        required: ["BB", "EntryDoor", "ID", "gendepth", "orientation"],
+                                                        properties: {
+                                                            BB: {
+                                                                title: "Bounding Box",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "intArray",
+                                                                minItems: 6,
+                                                                maxItems: 6,
+                                                            },
+                                                            EntryDoor: {
+                                                                title: "Entry Door",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            ID: {
+                                                                title: "ID",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            Steps: {
+                                                                title: "Steps",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            Left: {
+                                                                title: "Left",
+                                                                markdownDescription: "UNDOCUMENTED.",
                                                                 type: "byte",
                                                                 markdownEnumDescriptions: ["false", "true"],
                                                                 enum: [
@@ -3417,9 +3814,59 @@ export namespace NBTSchemas {
                                                                     { type: "byte", value: 1 },
                                                                 ],
                                                             },
-                                                            sc: {
+                                                            Right: {
+                                                                title: "Right",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            gendepth: {
                                                                 title: "UNTITLED.",
                                                                 markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            leftHigh: {
+                                                                title: "Left High",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            leftLow: {
+                                                                title: "Left Low",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            orientation: {
+                                                                title: "Orientation",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            rightHigh: {
+                                                                title: "Right High",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            rightLow: {
+                                                                title: "Right Low",
+                                                                markdownDescription: "UNDOCUMENTED.",
                                                                 type: "byte",
                                                                 markdownEnumDescriptions: ["false", "true"],
                                                                 enum: [
@@ -3429,615 +3876,199 @@ export namespace NBTSchemas {
                                                             },
                                                         },
                                                     },
-                                                ],
+                                                },
+                                                ChunkX: {
+                                                    title: "Chunk X",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ChunkZ: {
+                                                    title: "Chunk Z",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ID: {
+                                                    title: "ID",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                    // IDEA: Observed value is 5, maybe make this a constant?
+                                                },
+                                                Valid: {
+                                                    title: "Valid",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "byte",
+                                                    markdownEnumDescriptions: ["false", "true"],
+                                                    enum: [
+                                                        { type: "byte", value: 0 },
+                                                        { type: "byte", value: 1 },
+                                                    ],
+                                                },
                                             },
-                                        },
-                                        ChunkX: {
-                                            title: "Chunk X",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ChunkZ: {
-                                            title: "Chunk Z",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ID: {
-                                            title: "ID",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                            // IDEA: Observed value is 3, maybe make this a constant?
                                         },
                                     },
                                 },
                             },
-                        },
-                    },
-                    oceans: {
-                        title: "Ocean Monuments",
-                        markdownDescription: "The list of ocean monuments.",
-                        type: "compound",
-                        properties: {
-                            structures: {
-                                type: "list",
-                                items: {
-                                    type: "compound",
-                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "iscreated"],
-                                    properties: {
-                                        BB: {
-                                            title: "Bounding Box",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "intArray",
-                                            minItems: 6,
-                                            maxItems: 6,
-                                        },
-                                        Children: {
-                                            title: "Children",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "list",
-                                            items: {
-                                                type: "compound",
-                                                required: ["BB", "ID", "gendepth", "orientation"],
-                                                properties: {
-                                                    BB: {
-                                                        title: "Bounding Box",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "intArray",
-                                                        minItems: 6,
-                                                        maxItems: 6,
-                                                    },
-                                                    ID: {
-                                                        title: "ID",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    gendepth: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    orientation: {
-                                                        title: "Orientation",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
+                            village: {
+                                title: "Villages",
+                                markdownDescription: "The list of villages.",
+                                type: "compound",
+                                properties: {
+                                    structures: {
+                                        type: "list",
+                                        items: {
+                                            type: "compound",
+                                            required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "Valid"],
+                                            properties: {
+                                                BB: {
+                                                    title: "Bounding Box",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "intArray",
+                                                    minItems: 6,
+                                                    maxItems: 6,
                                                 },
-                                            },
-                                        },
-                                        ChunkX: {
-                                            title: "Chunk X",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ChunkZ: {
-                                            title: "Chunk Z",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ID: {
-                                            title: "ID",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                            // IDEA: Observed value is 4, maybe make this a constant?
-                                        },
-                                        iscreated: {
-                                            title: "Is Created",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "byte",
-                                            markdownEnumDescriptions: ["false", "true"],
-                                            enum: [
-                                                { type: "byte", value: 0 },
-                                                { type: "byte", value: 1 },
-                                            ],
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    scattered: {
-                        title: "Temples",
-                        markdownDescription: "The list of temples (desert pyramids, jungle pyramids, igloos, and swamp huts).",
-                        type: "compound",
-                        properties: {
-                            structures: {
-                                type: "list",
-                                items: {
-                                    type: "compound",
-                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID"],
-                                    properties: {
-                                        BB: {
-                                            title: "Bounding Box",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "intArray",
-                                            minItems: 6,
-                                            maxItems: 6,
-                                        },
-                                        Children: {
-                                            title: "Children",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "list",
-                                            items: {
-                                                type: "compound",
-                                                required: ["BB", "Depth", "HPos", "Height", "ID", "Width", "gendepth", "orientation"],
-                                                properties: {
-                                                    BB: {
-                                                        title: "Bounding Box",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "intArray",
-                                                        minItems: 6,
-                                                        maxItems: 6,
-                                                    },
-                                                    Depth: {
-                                                        title: "Depth",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    HPos: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    Height: {
-                                                        title: "Height",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    ID: {
-                                                        title: "ID",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    Width: {
-                                                        title: "Width",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    gendepth: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    orientation: {
-                                                        title: "Orientation",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                },
-                                                oneOf: [
-                                                    {
+                                                Children: {
+                                                    title: "Children",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "list",
+                                                    items: {
                                                         type: "compound",
-                                                        properties: {},
-                                                        not: {
-                                                            oneOf: [
-                                                                { required: ["Witch"] },
-                                                                { required: ["hasPlacedChest0"] },
-                                                                { required: ["hasPlacedHiddenChest"] },
-                                                            ],
-                                                        },
-                                                    },
-                                                    {
-                                                        type: "compound",
-                                                        required: ["Witch"],
+                                                        required: [
+                                                            "Abandoned",
+                                                            "BB",
+                                                            "Desert",
+                                                            "HPos",
+                                                            "ID",
+                                                            "Savannah",
+                                                            "Taiga",
+                                                            "VCount",
+                                                            "gendepth",
+                                                            "orientation",
+                                                        ],
                                                         properties: {
-                                                            Witch: {
-                                                                title: "Witch",
-                                                                markdownDescription: "UNDOCUMENTED.",
+                                                            Abandoned: {
+                                                                title: "Is Abandoned",
+                                                                markdownDescription: "Whether this is an village is abandoned.",
                                                                 type: "byte",
                                                                 markdownEnumDescriptions: ["false", "true"],
                                                                 enum: [
                                                                     { type: "byte", value: 0 },
                                                                     { type: "byte", value: 1 },
                                                                 ],
+                                                            },
+                                                            BB: {
+                                                                title: "Bounding Box",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "intArray",
+                                                                minItems: 6,
+                                                                maxItems: 6,
+                                                            },
+                                                            Desert: {
+                                                                title: "Is Desert Village",
+                                                                markdownDescription: "Whether this is a desert village.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            HPos: {
+                                                                title: "UNTITLED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            ID: {
+                                                                title: "ID",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            Savannah: {
+                                                                title: "Is Savannah Village",
+                                                                markdownDescription: "Whether this is a savannah village.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            Taiga: {
+                                                                title: "Is Taiga Village",
+                                                                markdownDescription: "Whether this is a taiga village.",
+                                                                type: "byte",
+                                                                markdownEnumDescriptions: ["false", "true"],
+                                                                enum: [
+                                                                    { type: "byte", value: 0 },
+                                                                    { type: "byte", value: 1 },
+                                                                ],
+                                                            },
+                                                            VCount: {
+                                                                title: "UNTITLED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            gendepth: {
+                                                                title: "UNTITLED.",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
+                                                            },
+                                                            orientation: {
+                                                                title: "Orientation",
+                                                                markdownDescription: "UNDOCUMENTED.",
+                                                                type: "int",
                                                             },
                                                         },
                                                     },
-                                                    {
-                                                        type: "compound",
-                                                        required: ["hasPlacedChest0", "hasPlacedChest1", "hasPlacedChest2", "hasPlacedChest3"],
-                                                        properties: {
-                                                            hasPlacedChest0: {
-                                                                title: "Has Placed Chest 0",
-                                                                markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
-                                                            },
-                                                            hasPlacedChest1: {
-                                                                title: "Has Placed Chest 1",
-                                                                markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
-                                                            },
-                                                            hasPlacedChest2: {
-                                                                title: "Has Placed Chest 2",
-                                                                markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
-                                                            },
-                                                            hasPlacedChest3: {
-                                                                title: "Has Placed Chest 3",
-                                                                markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
-                                                            },
-                                                        },
-                                                    },
-                                                    {
-                                                        type: "compound",
-                                                        required: ["hasPlacedHiddenChest", "hasPlacedMainChest", "hasPlacedTrap0", "hasPlacedTrap1"],
-                                                        properties: {
-                                                            hasPlacedHiddenChest: {
-                                                                title: "Has Placed Hidden Chest",
-                                                                markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
-                                                            },
-                                                            hasPlacedMainChest: {
-                                                                title: "Has Placed Main Chest",
-                                                                markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
-                                                            },
-                                                            hasPlacedTrap0: {
-                                                                title: "Has Placed Trap 0",
-                                                                markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
-                                                            },
-                                                            hasPlacedTrap1: {
-                                                                title: "Has Placed Trap 1",
-                                                                markdownDescription: "UNDOCUMENTED.",
-                                                                type: "byte",
-                                                                markdownEnumDescriptions: ["false", "true"],
-                                                                enum: [
-                                                                    { type: "byte", value: 0 },
-                                                                    { type: "byte", value: 1 },
-                                                                ],
-                                                            },
-                                                        },
-                                                    },
-                                                ],
-                                            },
-                                        },
-                                        ChunkX: {
-                                            title: "Chunk X",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ChunkZ: {
-                                            title: "Chunk Z",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ID: {
-                                            title: "ID",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                            // IDEA: Observed value is 6 (for all four temple types), maybe make this a constant?
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    stronghold: {
-                        title: "Strongholds",
-                        markdownDescription: "The list of strongholds.",
-                        type: "compound",
-                        properties: {
-                            structures: {
-                                type: "list",
-                                items: {
-                                    type: "compound",
-                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "Valid"],
-                                    properties: {
-                                        BB: {
-                                            title: "Bounding Box",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "intArray",
-                                            minItems: 6,
-                                            maxItems: 6,
-                                        },
-                                        Children: {
-                                            title: "Children",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "list",
-                                            items: {
-                                                type: "compound",
-                                                required: ["BB", "EntryDoor", "ID", "gendepth", "orientation"],
-                                                properties: {
-                                                    BB: {
-                                                        title: "Bounding Box",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "intArray",
-                                                        minItems: 6,
-                                                        maxItems: 6,
-                                                    },
-                                                    EntryDoor: {
-                                                        title: "Entry Door",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    ID: {
-                                                        title: "ID",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    Steps: {
-                                                        title: "Steps",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    Left: {
-                                                        title: "Left",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    Right: {
-                                                        title: "Right",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    gendepth: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    leftHigh: {
-                                                        title: "Left High",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    leftLow: {
-                                                        title: "Left Low",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    orientation: {
-                                                        title: "Orientation",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    rightHigh: {
-                                                        title: "Right High",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    rightLow: {
-                                                        title: "Right Low",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
+                                                },
+                                                ChunkX: {
+                                                    title: "Chunk X",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ChunkZ: {
+                                                    title: "Chunk Z",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                },
+                                                ID: {
+                                                    title: "ID",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "int",
+                                                    // IDEA: Observed value is 7, maybe make this a constant?
+                                                },
+                                                Valid: {
+                                                    title: "Valid",
+                                                    markdownDescription: "UNDOCUMENTED.",
+                                                    type: "byte",
+                                                    markdownEnumDescriptions: ["false", "true"],
+                                                    enum: [
+                                                        { type: "byte", value: 0 },
+                                                        { type: "byte", value: 1 },
+                                                    ],
                                                 },
                                             },
                                         },
-                                        ChunkX: {
-                                            title: "Chunk X",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ChunkZ: {
-                                            title: "Chunk Z",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ID: {
-                                            title: "ID",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                            // IDEA: Observed value is 5, maybe make this a constant?
-                                        },
-                                        Valid: {
-                                            title: "Valid",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "byte",
-                                            markdownEnumDescriptions: ["false", "true"],
-                                            enum: [
-                                                { type: "byte", value: 0 },
-                                                { type: "byte", value: 1 },
-                                            ],
-                                        },
                                     },
                                 },
                             },
                         },
                     },
-                    village: {
-                        title: "Villages",
-                        markdownDescription: "The list of villages.",
-                        type: "compound",
-                        properties: {
-                            structures: {
-                                type: "list",
-                                items: {
-                                    type: "compound",
-                                    required: ["BB", "Children", "ChunkX", "ChunkZ", "ID", "Valid"],
-                                    properties: {
-                                        BB: {
-                                            title: "Bounding Box",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "intArray",
-                                            minItems: 6,
-                                            maxItems: 6,
-                                        },
-                                        Children: {
-                                            title: "Children",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "list",
-                                            items: {
-                                                type: "compound",
-                                                required: ["Abandoned", "BB", "Desert", "HPos", "ID", "Savannah", "Taiga", "VCount", "gendepth", "orientation"],
-                                                properties: {
-                                                    Abandoned: {
-                                                        title: "Is Abandoned",
-                                                        markdownDescription: "Whether this is an village is abandoned.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    BB: {
-                                                        title: "Bounding Box",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "intArray",
-                                                        minItems: 6,
-                                                        maxItems: 6,
-                                                    },
-                                                    Desert: {
-                                                        title: "Is Desert Village",
-                                                        markdownDescription: "Whether this is a desert village.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    HPos: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    ID: {
-                                                        title: "ID",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    Savannah: {
-                                                        title: "Is Savannah Village",
-                                                        markdownDescription: "Whether this is a savannah village.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    Taiga: {
-                                                        title: "Is Taiga Village",
-                                                        markdownDescription: "Whether this is a taiga village.",
-                                                        type: "byte",
-                                                        markdownEnumDescriptions: ["false", "true"],
-                                                        enum: [
-                                                            { type: "byte", value: 0 },
-                                                            { type: "byte", value: 1 },
-                                                        ],
-                                                    },
-                                                    VCount: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    gendepth: {
-                                                        title: "UNTITLED.",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                    orientation: {
-                                                        title: "Orientation",
-                                                        markdownDescription: "UNDOCUMENTED.",
-                                                        type: "int",
-                                                    },
-                                                },
-                                            },
-                                        },
-                                        ChunkX: {
-                                            title: "Chunk X",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ChunkZ: {
-                                            title: "Chunk Z",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                        },
-                                        ID: {
-                                            title: "ID",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "int",
-                                            // IDEA: Observed value is 7, maybe make this a constant?
-                                        },
-                                        Valid: {
-                                            title: "Valid",
-                                            markdownDescription: "UNDOCUMENTED.",
-                                            type: "byte",
-                                            markdownEnumDescriptions: ["false", "true"],
-                                            enum: [
-                                                { type: "byte", value: 0 },
-                                                { type: "byte", value: 1 },
-                                            ],
-                                        },
-                                    },
-                                },
-                            },
-                        },
+                    {
+                        title: undefined,
+                        markdownDescription: undefined,
+                        $ref: "LegacyNetherStructures",
                     },
-                },
+                    {
+                        title: undefined,
+                        markdownDescription: undefined,
+                        $ref: "LegacyTheEndStructures",
+                    },
+                ],
                 $fragment: false,
             },
             // NOTE: Verified.
-            LegacyNether: {
-                id: "LegacyNether",
+            LegacyNetherStructures: {
+                id: "LegacyNetherStructures",
                 markdownDescription: "The structure data of the Nether dimension, this is the data for the `dimension1` LevelDB key.",
                 type: "compound",
                 required: ["bridge"],
@@ -4117,8 +4148,8 @@ export namespace NBTSchemas {
                 $fragment: false,
             },
             // NOTE: Verified.
-            LegacyTheEnd: {
-                id: "LegacyTheEnd",
+            LegacyTheEndStructures: {
+                id: "LegacyTheEndStructures",
                 markdownDescription: "The structure data of the End dimension, this is the data for the `dimension2` LevelDB key.",
                 type: "compound",
                 required: ["endcity"],
@@ -5823,13 +5854,38 @@ however when the corresponding block in the block layer is broken, this block ge
             VillagePlayers: {
                 id: "VillagePlayers",
                 title: "The VillagePlayers schema.",
-                markdownDescription: "The village players data.",
+                markdownDescription: "The player reputation data for a village.",
                 type: "compound",
                 required: ["Players"],
                 properties: {
                     Players: {
-                        markdownDescription: "UNKNOWN.",
+                        title: "Players",
+                        markdownDescription: "The reputaion data for the players in this village.",
                         type: "list",
+                        items: {
+                            title: "Player",
+                            markdownDescription: "The reputation data for a player.",
+                            type: "compound",
+                            required: ["ID", "S"],
+                            properties: {
+                                ID: {
+                                    title: "UUID",
+                                    completionDetail: "UUID",
+                                    markdownDescription: "The player's UUID.",
+                                    type: "long",
+                                },
+                                S: {
+                                    title: "Reputation",
+                                    completionDetail: "Reputation",
+                                    markdownDescription: "The player's reputation.",
+                                    type: "int",
+                                    default: {
+                                        type: "int",
+                                        value: 0,
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
                 $fragment: false,
@@ -6002,6 +6058,222 @@ however when the corresponding block in the block layer is broken, this block ge
                             TotalMaxHealth: {
                                 markdownDescription: "UNDOCUMENTED.",
                                 type: "float",
+                            },
+                        },
+                    },
+                },
+                $fragment: false,
+            },
+            // NOTE: Verified.
+            Villages: {
+                id: "Villages",
+                title: "The Villages schema.",
+                markdownDescription: "The village data.", // TODO: Add the version range this was used in into the description.
+                type: "compound",
+                required: ["data"],
+                properties: {
+                    data: {
+                        title: "Data",
+                        markdownDescription: "UNDOCUMENTED.",
+                        type: "compound",
+                        required: ["Tick", "Villages"],
+                        properties: {
+                            Tick: {
+                                title: "Current Tick",
+                                completionDetail: "Current Tick",
+                                markdownDescription: "UNDOCUMENTED.",
+                                type: "int",
+                            },
+                            Villages: {
+                                title: "Villages",
+                                completionDetail: "Villages",
+                                markdownDescription: "UNDOCUMENTED.",
+                                type: "list",
+                                items: {
+                                    markdownDescription: "UNDOCUMENTED.",
+                                    type: "compound",
+                                    required: [
+                                        "ACX",
+                                        "ACY",
+                                        "ACZ",
+                                        "CX",
+                                        "CY",
+                                        "CZ",
+                                        "Doors",
+                                        "Golems",
+                                        "MTick",
+                                        "Players",
+                                        "PopSize",
+                                        "Radius",
+                                        "Stable",
+                                        "Tick",
+                                    ],
+                                    properties: {
+                                        ACX: {
+                                            title: "?",
+                                            completionDetail: "?",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ACY: {
+                                            title: "?",
+                                            completionDetail: "?",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        ACZ: {
+                                            title: "?",
+                                            completionDetail: "?",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        CX: {
+                                            title: "Center X",
+                                            completionDetail: "Center X",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        CY: {
+                                            title: "Center Y",
+                                            completionDetail: "Center Y",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        CZ: {
+                                            title: "Center Z",
+                                            completionDetail: "Center Z",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        Doors: {
+                                            title: "Doors",
+                                            markdownDescription: "The list of doors in the village.",
+                                            type: "list",
+                                            items: {
+                                                title: "Door",
+                                                markdownDescription: "A door in the village.",
+                                                type: "compound",
+                                                required: ["IDX", "IDZ", "TS", "X", "Y", "Z"],
+                                                properties: {
+                                                    IDX: {
+                                                        title: "?",
+                                                        completionDetail: "?",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    IDZ: {
+                                                        title: "?",
+                                                        completionDetail: "?",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    TS: {
+                                                        title: "?",
+                                                        completionDetail: "?",
+                                                        markdownDescription: "UNDOCUMENTED.",
+                                                        type: "int",
+                                                    },
+                                                    X: {
+                                                        title: "X",
+                                                        completionDetail: "X",
+                                                        markdownDescription: "The X coordinate of this door.",
+                                                        type: "int",
+                                                    },
+                                                    Y: {
+                                                        title: "Y",
+                                                        completionDetail: "Y",
+                                                        markdownDescription: "The Y coordinate of this door.",
+                                                        type: "int",
+                                                    },
+                                                    Z: {
+                                                        title: "Z",
+                                                        completionDetail: "Z",
+                                                        markdownDescription: "The Z coordinate of this door.",
+                                                        type: "int",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        Golems: {
+                                            title: "Iron Golems",
+                                            completionDetail: "Iron Golems",
+                                            // TODO: See if this is the number of iron golems currently in the village, how many it initially spawned, or the maximum number of iron golems the village can have. Then, update the title/completionDetail too to reflect this.
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            default: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                        },
+                                        MTick: {
+                                            title: "?",
+                                            completionDetail: "?",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            default: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                        },
+                                        Players: {
+                                            title: "Players",
+                                            markdownDescription: "The reputaion data for the players in the village.",
+                                            type: "list",
+                                            items: {
+                                                title: "Player",
+                                                markdownDescription: "The reputation data for a player.",
+                                                type: "compound",
+                                                required: ["Name", "S"],
+                                                properties: {
+                                                    Name: {
+                                                        title: "Username",
+                                                        completionDetail: "Username",
+                                                        markdownDescription: "The player's username.",
+                                                        type: "long",
+                                                    },
+                                                    S: {
+                                                        title: "Reputation",
+                                                        completionDetail: "Reputation",
+                                                        markdownDescription: "The player's reputation.",
+                                                        type: "int",
+                                                        default: {
+                                                            type: "int",
+                                                            value: 0,
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        PopSize: {
+                                            title: "?",
+                                            completionDetail: "?",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        Radius: {
+                                            title: "Radius",
+                                            completionDetail: "Radius",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        Stable: {
+                                            title: "?",
+                                            completionDetail: "?",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                        },
+                                        Tick: {
+                                            title: "Last Tick",
+                                            completionDetail: "Last Tick",
+                                            markdownDescription: "UNDOCUMENTED.",
+                                            type: "int",
+                                            default: {
+                                                type: "int",
+                                                value: 0,
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
@@ -20428,9 +20700,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          */
                         value: {
                             /**
-                             * The numerical [biome ID](https://minecraft.wiki/w/Biome).
+                             * The numerical [biome ID](https://minecraft.wiki/w/Biome). In older versions this is a byte instead of a short.
                              */
-                            id: { type: "short"; value: number };
+                            id: { type: "byte"; value: number } | { type: "short"; value: number };
                             /**
                              * The biome's snow accumulation. Eg. `0.125`.
                              */
@@ -22912,717 +23184,930 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         };
 
         /**
-         * The structure data of the Overworld dimension, this is the data for the `dimension0` LevelDB key.
+         * The structure data of the Overworld dimension, this is the data for the `dimension0` LevelDB key. This may have fields corresponding to Nether or The End structure types instead if the generator type is set to 3 (Nether) or 4 (The End) respectively.
          *
-         * @see {@link NBTSchemas.nbtSchemas.LegacyOverworld}
+         * @see {@link NBTSchemas.nbtSchemas.LegacyOverworldStructures}
          */
-        export type LegacyOverworld = {
-            type: "compound";
-            value: {
-                /**
-                 * Woodland Mansions
-                 *
-                 * The list of woodland mansions.
-                 */
-                mansion?: {
-                    type: "compound";
-                    value: {
-                        structures?: {
-                            type: "list";
-                            value: {
-                                type: "compound";
-                                /**
-                                 * ##### List entries description:
-                                 *
-                                 * *No description.*
-                                 */
-                                value: {
-                                    /**
-                                     * Bounding Box
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @minItems 6
-                                     *
-                                     * @maxItems 6
-                                     */
-                                    BB: { type: "intArray"; value: number[] };
-                                    /**
-                                     * Children
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    Children: {
-                                        type: "list";
-                                        value: {
-                                            type: "compound";
-                                            /**
-                                             * ##### List entries description:
-                                             *
-                                             * *No description.*
-                                             */
-                                            value: {
-                                                /**
-                                                 * Bounding Box
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @minItems 6
-                                                 *
-                                                 * @maxItems 6
-                                                 */
-                                                BB: { type: "intArray"; value: number[] };
-                                                /**
-                                                 * ID
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                ID: { type: "int"; value: number };
-                                                /**
-                                                 * Mirror
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @enum 0 | 1 | 2 | 3
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: UNDOCUMENTED.
-                                                 * - `1`: UNDOCUMENTED.
-                                                 * - `2`: UNDOCUMENTED.
-                                                 * - `3`: UNDOCUMENTED.
-                                                 */
-                                                Mirror: { type: "int"; value: 0 | 1 | 2 | 3 };
-                                                /**
-                                                 * Rotation
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @enum 0 | 1 | 2 | 3
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: UNDOCUMENTED.
-                                                 * - `1`: UNDOCUMENTED.
-                                                 * - `2`: UNDOCUMENTED.
-                                                 * - `3`: UNDOCUMENTED.
-                                                 */
-                                                Rotation: { type: "int"; value: 0 | 1 | 2 | 3 };
-                                                /**
-                                                 * Template
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @example
-                                                 * "entrance"
-                                                 *
-                                                 * @example
-                                                 * "wall_flat"
-                                                 *
-                                                 * @example
-                                                 * "wall_corner"
-                                                 *
-                                                 * @example
-                                                 * "wall_window"
-                                                 *
-                                                 * @example
-                                                 * "roof"
-                                                 *
-                                                 * @example
-                                                 * "roof_front"
-                                                 *
-                                                 * @example
-                                                 * "small_wall"
-                                                 *
-                                                 * @example
-                                                 * "small_wall_corner"
-                                                 *
-                                                 * @example
-                                                 * "roof_corner"
-                                                 *
-                                                 * @example
-                                                 * "roof_inner_corner"
-                                                 *
-                                                 * @example
-                                                 * "corridor_floor"
-                                                 *
-                                                 * @example
-                                                 * "carpet_east"
-                                                 *
-                                                 * @example
-                                                 * "carpet_south"
-                                                 *
-                                                 * @example
-                                                 * "carpet_west"
-                                                 *
-                                                 * @example
-                                                 * "carpet_north"
-                                                 *
-                                                 * @example
-                                                 * "indoors_wall"
-                                                 *
-                                                 * @example
-                                                 * "indoors_door"
-                                                 *
-                                                 * @example
-                                                 * "2x2_a4"
-                                                 *
-                                                 * @example
-                                                 * "1x2_a5"
-                                                 *
-                                                 * @example
-                                                 * "1x1_a3"
-                                                 *
-                                                 * @example
-                                                 * "1x1_a4"
-                                                 *
-                                                 * @example
-                                                 * "2x2_a3"
-                                                 *
-                                                 * @example
-                                                 * "1x2_a7"
-                                                 *
-                                                 * @example
-                                                 * "1x1_a2"
-                                                 *
-                                                 * @example
-                                                 * "1x2_b1"
-                                                 *
-                                                 * @example
-                                                 * "1x2_a9"
-                                                 *
-                                                 * @example
-                                                 * "corridor_floor_2"
-                                                 *
-                                                 * @example
-                                                 * "carpet_south_2"
-                                                 *
-                                                 * @example
-                                                 * "carpet_west_2"
-                                                 *
-                                                 * @example
-                                                 * "indoors_wall_2"
-                                                 *
-                                                 * @example
-                                                 * "indoors_door_2"
-                                                 *
-                                                 * @example
-                                                 * "1x1_b4"
-                                                 *
-                                                 * @example
-                                                 * "1x1_b3"
-                                                 *
-                                                 * @example
-                                                 * "1x1_b2"
-                                                 *
-                                                 * @example
-                                                 * "2x2_b1"
-                                                 *
-                                                 * @example
-                                                 * "2x2_b5"
-                                                 *
-                                                 * @example
-                                                 * "1x2_c4"
-                                                 *
-                                                 * @example
-                                                 * "2x2_b4"
-                                                 *
-                                                 * @example
-                                                 * "1x2_c_stairs"
-                                                 *
-                                                 * @example
-                                                 * "1x2_c3"
-                                                 *
-                                                 * @example
-                                                 * "1x2_c1"
-                                                 *
-                                                 * @example
-                                                 * "1x1_as3"
-                                                 *
-                                                 * @example
-                                                 * "1x2_d4"
-                                                 */
-                                                Template: { type: "string"; value: string };
-                                                /**
-                                                 * Template Position
-                                                 *
-                                                 * UNDOCUMENTED. A Vector3.
-                                                 *
-                                                 * @minItems 3
-                                                 *
-                                                 * @maxItems 3
-                                                 */
-                                                TemplatePosition: {
-                                                    type: "list";
-                                                    value: {
-                                                        type: "int";
-                                                        /**
-                                                         * ##### List entry 1 description:
-                                                         *
-                                                         * x
-                                                         *
-                                                         * X component of this vector.
-                                                         *
-                                                         * ##### List entry 2 description:
-                                                         *
-                                                         * y
-                                                         *
-                                                         * Y component of this vector.
-                                                         *
-                                                         * ##### List entry 3 description:
-                                                         *
-                                                         * z
-                                                         *
-                                                         * Z component of this vector.
-                                                         */
-                                                        value: [x: number, y: number, z: number];
-                                                    };
-                                                };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                gendepth: { type: "int"; value: number };
-                                                /**
-                                                 * Orientation
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                orientation: { type: "int"; value: number };
-                                            }[];
-                                        };
-                                    };
-                                    /**
-                                     * Chunk X
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkX: { type: "int"; value: number };
-                                    /**
-                                     * Chunk Z
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkZ: { type: "int"; value: number };
-                                    /**
-                                     * ID
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ID: { type: "int"; value: number };
-                                    /**
-                                     * Is Valid
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @enum 0 | 1
-                                     *
-                                     * @enumDescriptions
-                                     * - `0`: false
-                                     * - `1`: true
-                                     */
-                                    IsValid: { type: "byte"; value: 0 | 1 };
-                                }[];
-                            };
-                        };
-                    };
-                };
-                /**
-                 * Mineshafts
-                 *
-                 * The list of mineshafts.
-                 */
-                mineshaft: {
-                    type: "compound";
-                    value: {
-                        structures?: {
-                            type: "list";
-                            value: {
-                                type: "compound";
-                                /**
-                                 * ##### List entries description:
-                                 *
-                                 * *No description.*
-                                 */
-                                value: {
-                                    /**
-                                     * Bounding Box
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @minItems 6
-                                     *
-                                     * @maxItems 6
-                                     */
-                                    BB: { type: "intArray"; value: number[] };
-                                    /**
-                                     * Children
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    Children: {
-                                        type: "list";
-                                        value: {
-                                            type: "compound";
-                                            /**
-                                             * ##### List entries description:
-                                             *
-                                             * *No description.*
-                                             */
-                                            value: ({
-                                                /**
-                                                 * Bounding Box
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @minItems 6
-                                                 *
-                                                 * @maxItems 6
-                                                 */
-                                                BB: { type: "intArray"; value: number[] };
-                                                /**
-                                                 * ID
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                ID: { type: "int"; value: number };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                gendepth: { type: "int"; value: number };
-                                                /**
-                                                 * Orientation
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                orientation: { type: "int"; value: number };
-                                            } & ExclusifyUnion<
-                                                | object
-                                                | {
+        export type LegacyOverworldStructures = { type: "compound"; value: object } & ExclusifyUnion<
+            | LegacyNetherStructures
+            | LegacyTheEndStructures
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Woodland Mansions
+                       *
+                       * The list of woodland mansions.
+                       */
+                      mansion?: {
+                          type: "compound";
+                          value: {
+                              structures?: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: {
+                                          /**
+                                           * Bounding Box
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @minItems 6
+                                           *
+                                           * @maxItems 6
+                                           */
+                                          BB: { type: "intArray"; value: number[] };
+                                          /**
+                                           * Children
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          Children: {
+                                              type: "list";
+                                              value: {
+                                                  type: "compound";
+                                                  /**
+                                                   * ##### List entries description:
+                                                   *
+                                                   * *No description.*
+                                                   */
+                                                  value: {
                                                       /**
-                                                       * UNTITLED.
+                                                       * Bounding Box
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @minItems 6
+                                                       *
+                                                       * @maxItems 6
+                                                       */
+                                                      BB: { type: "intArray"; value: number[] };
+                                                      /**
+                                                       * ID
                                                        *
                                                        * UNDOCUMENTED.
                                                        */
-                                                      D: { type: "int"; value: number };
+                                                      ID: { type: "int"; value: number };
                                                       /**
-                                                       * UNTITLED.
+                                                       * Mirror
                                                        *
                                                        * UNDOCUMENTED.
                                                        *
-                                                       * @enum 0 | 1
+                                                       * @enum 0 | 1 | 2 | 3
                                                        *
                                                        * @enumDescriptions
-                                                       * - `0`: false
-                                                       * - `1`: true
+                                                       * - `0`: UNDOCUMENTED.
+                                                       * - `1`: UNDOCUMENTED.
+                                                       * - `2`: UNDOCUMENTED.
+                                                       * - `3`: UNDOCUMENTED.
                                                        */
-                                                      tf: { type: "byte"; value: 0 | 1 };
-                                                  }
-                                                | {
+                                                      Mirror: { type: "int"; value: 0 | 1 | 2 | 3 };
                                                       /**
-                                                       * Entrances
+                                                       * Rotation
                                                        *
-                                                       * The bounding boxes of the entrances.
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @enum 0 | 1 | 2 | 3
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: UNDOCUMENTED.
+                                                       * - `1`: UNDOCUMENTED.
+                                                       * - `2`: UNDOCUMENTED.
+                                                       * - `3`: UNDOCUMENTED.
                                                        */
-                                                      Entrances: {
+                                                      Rotation: { type: "int"; value: 0 | 1 | 2 | 3 };
+                                                      /**
+                                                       * Template
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @example
+                                                       * "entrance"
+                                                       *
+                                                       * @example
+                                                       * "wall_flat"
+                                                       *
+                                                       * @example
+                                                       * "wall_corner"
+                                                       *
+                                                       * @example
+                                                       * "wall_window"
+                                                       *
+                                                       * @example
+                                                       * "roof"
+                                                       *
+                                                       * @example
+                                                       * "roof_front"
+                                                       *
+                                                       * @example
+                                                       * "small_wall"
+                                                       *
+                                                       * @example
+                                                       * "small_wall_corner"
+                                                       *
+                                                       * @example
+                                                       * "roof_corner"
+                                                       *
+                                                       * @example
+                                                       * "roof_inner_corner"
+                                                       *
+                                                       * @example
+                                                       * "corridor_floor"
+                                                       *
+                                                       * @example
+                                                       * "carpet_east"
+                                                       *
+                                                       * @example
+                                                       * "carpet_south"
+                                                       *
+                                                       * @example
+                                                       * "carpet_west"
+                                                       *
+                                                       * @example
+                                                       * "carpet_north"
+                                                       *
+                                                       * @example
+                                                       * "indoors_wall"
+                                                       *
+                                                       * @example
+                                                       * "indoors_door"
+                                                       *
+                                                       * @example
+                                                       * "2x2_a4"
+                                                       *
+                                                       * @example
+                                                       * "1x2_a5"
+                                                       *
+                                                       * @example
+                                                       * "1x1_a3"
+                                                       *
+                                                       * @example
+                                                       * "1x1_a4"
+                                                       *
+                                                       * @example
+                                                       * "2x2_a3"
+                                                       *
+                                                       * @example
+                                                       * "1x2_a7"
+                                                       *
+                                                       * @example
+                                                       * "1x1_a2"
+                                                       *
+                                                       * @example
+                                                       * "1x2_b1"
+                                                       *
+                                                       * @example
+                                                       * "1x2_a9"
+                                                       *
+                                                       * @example
+                                                       * "corridor_floor_2"
+                                                       *
+                                                       * @example
+                                                       * "carpet_south_2"
+                                                       *
+                                                       * @example
+                                                       * "carpet_west_2"
+                                                       *
+                                                       * @example
+                                                       * "indoors_wall_2"
+                                                       *
+                                                       * @example
+                                                       * "indoors_door_2"
+                                                       *
+                                                       * @example
+                                                       * "1x1_b4"
+                                                       *
+                                                       * @example
+                                                       * "1x1_b3"
+                                                       *
+                                                       * @example
+                                                       * "1x1_b2"
+                                                       *
+                                                       * @example
+                                                       * "2x2_b1"
+                                                       *
+                                                       * @example
+                                                       * "2x2_b5"
+                                                       *
+                                                       * @example
+                                                       * "1x2_c4"
+                                                       *
+                                                       * @example
+                                                       * "2x2_b4"
+                                                       *
+                                                       * @example
+                                                       * "1x2_c_stairs"
+                                                       *
+                                                       * @example
+                                                       * "1x2_c3"
+                                                       *
+                                                       * @example
+                                                       * "1x2_c1"
+                                                       *
+                                                       * @example
+                                                       * "1x1_as3"
+                                                       *
+                                                       * @example
+                                                       * "1x2_d4"
+                                                       */
+                                                      Template: { type: "string"; value: string };
+                                                      /**
+                                                       * Template Position
+                                                       *
+                                                       * UNDOCUMENTED. A Vector3.
+                                                       *
+                                                       * @minItems 3
+                                                       *
+                                                       * @maxItems 3
+                                                       */
+                                                      TemplatePosition: {
                                                           type: "list";
                                                           value: {
-                                                              type: "intArray";
+                                                              type: "int";
                                                               /**
-                                                               * ##### List entries description:
+                                                               * ##### List entry 1 description:
                                                                *
-                                                               * Entrance Bounding Box
+                                                               * x
                                                                *
-                                                               * The bounding box of an entrance.
+                                                               * X component of this vector.
                                                                *
-                                                               * @minItems 6
+                                                               * ##### List entry 2 description:
                                                                *
-                                                               * @maxItems 6
+                                                               * y
+                                                               *
+                                                               * Y component of this vector.
+                                                               *
+                                                               * ##### List entry 3 description:
+                                                               *
+                                                               * z
+                                                               *
+                                                               * Z component of this vector.
                                                                */
-                                                              value: number[][];
+                                                              value: [x: number, y: number, z: number];
                                                           };
                                                       };
-                                                  }
-                                                | {
                                                       /**
                                                        * UNTITLED.
                                                        *
                                                        * UNDOCUMENTED.
                                                        */
-                                                      Num: { type: "int"; value: number };
+                                                      gendepth: { type: "int"; value: number };
+                                                      /**
+                                                       * Orientation
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      orientation: { type: "int"; value: number };
+                                                  }[];
+                                              };
+                                          };
+                                          /**
+                                           * Chunk X
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkX: { type: "int"; value: number };
+                                          /**
+                                           * Chunk Z
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkZ: { type: "int"; value: number };
+                                          /**
+                                           * ID
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ID: { type: "int"; value: number };
+                                          /**
+                                           * Is Valid
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @enum 0 | 1
+                                           *
+                                           * @enumDescriptions
+                                           * - `0`: false
+                                           * - `1`: true
+                                           */
+                                          IsValid: { type: "byte"; value: 0 | 1 };
+                                      }[];
+                                  };
+                              };
+                          };
+                      };
+                      /**
+                       * Mineshafts
+                       *
+                       * The list of mineshafts.
+                       */
+                      mineshaft: {
+                          type: "compound";
+                          value: {
+                              structures?: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: {
+                                          /**
+                                           * Bounding Box
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @minItems 6
+                                           *
+                                           * @maxItems 6
+                                           */
+                                          BB: { type: "intArray"; value: number[] };
+                                          /**
+                                           * Children
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          Children: {
+                                              type: "list";
+                                              value: {
+                                                  type: "compound";
+                                                  /**
+                                                   * ##### List entries description:
+                                                   *
+                                                   * *No description.*
+                                                   */
+                                                  value: ({
+                                                      /**
+                                                       * Bounding Box
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @minItems 6
+                                                       *
+                                                       * @maxItems 6
+                                                       */
+                                                      BB: { type: "intArray"; value: number[] };
+                                                      /**
+                                                       * ID
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      ID: { type: "int"; value: number };
                                                       /**
                                                        * UNTITLED.
                                                        *
                                                        * UNDOCUMENTED.
-                                                       *
-                                                       * @enum 0 | 1
-                                                       *
-                                                       * @enumDescriptions
-                                                       * - `0`: false
-                                                       * - `1`: true
                                                        */
-                                                      hps: { type: "byte"; value: 0 | 1 };
+                                                      gendepth: { type: "int"; value: number };
+                                                      /**
+                                                       * Orientation
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      orientation: { type: "int"; value: number };
+                                                  } & ExclusifyUnion<
+                                                      | object
+                                                      | {
+                                                            /**
+                                                             * UNTITLED.
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             */
+                                                            D: { type: "int"; value: number };
+                                                            /**
+                                                             * UNTITLED.
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            tf: { type: "byte"; value: 0 | 1 };
+                                                        }
+                                                      | {
+                                                            /**
+                                                             * Entrances
+                                                             *
+                                                             * The bounding boxes of the entrances.
+                                                             */
+                                                            Entrances: {
+                                                                type: "list";
+                                                                value: {
+                                                                    type: "intArray";
+                                                                    /**
+                                                                     * ##### List entries description:
+                                                                     *
+                                                                     * Entrance Bounding Box
+                                                                     *
+                                                                     * The bounding box of an entrance.
+                                                                     *
+                                                                     * @minItems 6
+                                                                     *
+                                                                     * @maxItems 6
+                                                                     */
+                                                                    value: number[][];
+                                                                };
+                                                            };
+                                                        }
+                                                      | {
+                                                            /**
+                                                             * UNTITLED.
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             */
+                                                            Num: { type: "int"; value: number };
+                                                            /**
+                                                             * UNTITLED.
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hps: { type: "byte"; value: 0 | 1 };
+                                                            /**
+                                                             * UNTITLED.
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hr: { type: "byte"; value: 0 | 1 };
+                                                            /**
+                                                             * UNTITLED.
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            sc: { type: "byte"; value: 0 | 1 };
+                                                        }
+                                                  >)[];
+                                              };
+                                          };
+                                          /**
+                                           * Chunk X
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkX: { type: "int"; value: number };
+                                          /**
+                                           * Chunk Z
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkZ: { type: "int"; value: number };
+                                          /**
+                                           * ID
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ID: { type: "int"; value: number };
+                                      }[];
+                                  };
+                              };
+                          };
+                      };
+                      /**
+                       * Ocean Monuments
+                       *
+                       * The list of ocean monuments.
+                       */
+                      oceans: {
+                          type: "compound";
+                          value: {
+                              structures?: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: {
+                                          /**
+                                           * Bounding Box
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @minItems 6
+                                           *
+                                           * @maxItems 6
+                                           */
+                                          BB: { type: "intArray"; value: number[] };
+                                          /**
+                                           * Children
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          Children: {
+                                              type: "list";
+                                              value: {
+                                                  type: "compound";
+                                                  /**
+                                                   * ##### List entries description:
+                                                   *
+                                                   * *No description.*
+                                                   */
+                                                  value: {
+                                                      /**
+                                                       * Bounding Box
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @minItems 6
+                                                       *
+                                                       * @maxItems 6
+                                                       */
+                                                      BB: { type: "intArray"; value: number[] };
+                                                      /**
+                                                       * ID
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      ID: { type: "int"; value: number };
                                                       /**
                                                        * UNTITLED.
                                                        *
                                                        * UNDOCUMENTED.
-                                                       *
-                                                       * @enum 0 | 1
-                                                       *
-                                                       * @enumDescriptions
-                                                       * - `0`: false
-                                                       * - `1`: true
                                                        */
-                                                      hr: { type: "byte"; value: 0 | 1 };
+                                                      gendepth: { type: "int"; value: number };
+                                                      /**
+                                                       * Orientation
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      orientation: { type: "int"; value: number };
+                                                  }[];
+                                              };
+                                          };
+                                          /**
+                                           * Chunk X
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkX: { type: "int"; value: number };
+                                          /**
+                                           * Chunk Z
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkZ: { type: "int"; value: number };
+                                          /**
+                                           * ID
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ID: { type: "int"; value: number };
+                                          /**
+                                           * Is Created
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @enum 0 | 1
+                                           *
+                                           * @enumDescriptions
+                                           * - `0`: false
+                                           * - `1`: true
+                                           */
+                                          iscreated: { type: "byte"; value: 0 | 1 };
+                                      }[];
+                                  };
+                              };
+                          };
+                      };
+                      /**
+                       * Temples
+                       *
+                       * The list of temples (desert pyramids, jungle pyramids, igloos, and swamp huts).
+                       */
+                      scattered: {
+                          type: "compound";
+                          value: {
+                              structures?: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: {
+                                          /**
+                                           * Bounding Box
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @minItems 6
+                                           *
+                                           * @maxItems 6
+                                           */
+                                          BB: { type: "intArray"; value: number[] };
+                                          /**
+                                           * Children
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          Children: {
+                                              type: "list";
+                                              value: {
+                                                  type: "compound";
+                                                  /**
+                                                   * ##### List entries description:
+                                                   *
+                                                   * *No description.*
+                                                   */
+                                                  value: ({
+                                                      /**
+                                                       * Bounding Box
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @minItems 6
+                                                       *
+                                                       * @maxItems 6
+                                                       */
+                                                      BB: { type: "intArray"; value: number[] };
+                                                      /**
+                                                       * Depth
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      Depth: { type: "int"; value: number };
                                                       /**
                                                        * UNTITLED.
                                                        *
                                                        * UNDOCUMENTED.
-                                                       *
-                                                       * @enum 0 | 1
-                                                       *
-                                                       * @enumDescriptions
-                                                       * - `0`: false
-                                                       * - `1`: true
                                                        */
-                                                      sc: { type: "byte"; value: 0 | 1 };
-                                                  }
-                                            >)[];
-                                        };
-                                    };
-                                    /**
-                                     * Chunk X
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkX: { type: "int"; value: number };
-                                    /**
-                                     * Chunk Z
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkZ: { type: "int"; value: number };
-                                    /**
-                                     * ID
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ID: { type: "int"; value: number };
-                                }[];
-                            };
-                        };
-                    };
-                };
-                /**
-                 * Ocean Monuments
-                 *
-                 * The list of ocean monuments.
-                 */
-                oceans: {
-                    type: "compound";
-                    value: {
-                        structures?: {
-                            type: "list";
-                            value: {
-                                type: "compound";
-                                /**
-                                 * ##### List entries description:
-                                 *
-                                 * *No description.*
-                                 */
-                                value: {
-                                    /**
-                                     * Bounding Box
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @minItems 6
-                                     *
-                                     * @maxItems 6
-                                     */
-                                    BB: { type: "intArray"; value: number[] };
-                                    /**
-                                     * Children
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    Children: {
-                                        type: "list";
-                                        value: {
-                                            type: "compound";
-                                            /**
-                                             * ##### List entries description:
-                                             *
-                                             * *No description.*
-                                             */
-                                            value: {
-                                                /**
-                                                 * Bounding Box
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @minItems 6
-                                                 *
-                                                 * @maxItems 6
-                                                 */
-                                                BB: { type: "intArray"; value: number[] };
-                                                /**
-                                                 * ID
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                ID: { type: "int"; value: number };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                gendepth: { type: "int"; value: number };
-                                                /**
-                                                 * Orientation
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                orientation: { type: "int"; value: number };
-                                            }[];
-                                        };
-                                    };
-                                    /**
-                                     * Chunk X
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkX: { type: "int"; value: number };
-                                    /**
-                                     * Chunk Z
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkZ: { type: "int"; value: number };
-                                    /**
-                                     * ID
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ID: { type: "int"; value: number };
-                                    /**
-                                     * Is Created
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @enum 0 | 1
-                                     *
-                                     * @enumDescriptions
-                                     * - `0`: false
-                                     * - `1`: true
-                                     */
-                                    iscreated: { type: "byte"; value: 0 | 1 };
-                                }[];
-                            };
-                        };
-                    };
-                };
-                /**
-                 * Temples
-                 *
-                 * The list of temples (desert pyramids, jungle pyramids, igloos, and swamp huts).
-                 */
-                scattered: {
-                    type: "compound";
-                    value: {
-                        structures?: {
-                            type: "list";
-                            value: {
-                                type: "compound";
-                                /**
-                                 * ##### List entries description:
-                                 *
-                                 * *No description.*
-                                 */
-                                value: {
-                                    /**
-                                     * Bounding Box
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @minItems 6
-                                     *
-                                     * @maxItems 6
-                                     */
-                                    BB: { type: "intArray"; value: number[] };
-                                    /**
-                                     * Children
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    Children: {
-                                        type: "list";
-                                        value: {
-                                            type: "compound";
-                                            /**
-                                             * ##### List entries description:
-                                             *
-                                             * *No description.*
-                                             */
-                                            value: ({
-                                                /**
-                                                 * Bounding Box
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @minItems 6
-                                                 *
-                                                 * @maxItems 6
-                                                 */
-                                                BB: { type: "intArray"; value: number[] };
-                                                /**
-                                                 * Depth
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                Depth: { type: "int"; value: number };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                HPos: { type: "int"; value: number };
-                                                /**
-                                                 * Height
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                Height: { type: "int"; value: number };
-                                                /**
-                                                 * ID
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                ID: { type: "int"; value: number };
-                                                /**
-                                                 * Width
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                Width: { type: "int"; value: number };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                gendepth: { type: "int"; value: number };
-                                                /**
-                                                 * Orientation
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                orientation: { type: "int"; value: number };
-                                            } & ExclusifyUnion<
-                                                | object
-                                                | {
+                                                      HPos: { type: "int"; value: number };
                                                       /**
-                                                       * Witch
+                                                       * Height
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      Height: { type: "int"; value: number };
+                                                      /**
+                                                       * ID
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      ID: { type: "int"; value: number };
+                                                      /**
+                                                       * Width
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      Width: { type: "int"; value: number };
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      gendepth: { type: "int"; value: number };
+                                                      /**
+                                                       * Orientation
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      orientation: { type: "int"; value: number };
+                                                  } & ExclusifyUnion<
+                                                      | object
+                                                      | {
+                                                            /**
+                                                             * Witch
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            Witch: { type: "byte"; value: 0 | 1 };
+                                                        }
+                                                      | {
+                                                            /**
+                                                             * Has Placed Chest 0
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hasPlacedChest0: { type: "byte"; value: 0 | 1 };
+                                                            /**
+                                                             * Has Placed Chest 1
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hasPlacedChest1: { type: "byte"; value: 0 | 1 };
+                                                            /**
+                                                             * Has Placed Chest 2
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hasPlacedChest2: { type: "byte"; value: 0 | 1 };
+                                                            /**
+                                                             * Has Placed Chest 3
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hasPlacedChest3: { type: "byte"; value: 0 | 1 };
+                                                        }
+                                                      | {
+                                                            /**
+                                                             * Has Placed Hidden Chest
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hasPlacedHiddenChest: { type: "byte"; value: 0 | 1 };
+                                                            /**
+                                                             * Has Placed Main Chest
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hasPlacedMainChest: { type: "byte"; value: 0 | 1 };
+                                                            /**
+                                                             * Has Placed Trap 0
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hasPlacedTrap0: { type: "byte"; value: 0 | 1 };
+                                                            /**
+                                                             * Has Placed Trap 1
+                                                             *
+                                                             * UNDOCUMENTED.
+                                                             *
+                                                             * @enum 0 | 1
+                                                             *
+                                                             * @enumDescriptions
+                                                             * - `0`: false
+                                                             * - `1`: true
+                                                             */
+                                                            hasPlacedTrap1: { type: "byte"; value: 0 | 1 };
+                                                        }
+                                                  >)[];
+                                              };
+                                          };
+                                          /**
+                                           * Chunk X
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkX: { type: "int"; value: number };
+                                          /**
+                                           * Chunk Z
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkZ: { type: "int"; value: number };
+                                          /**
+                                           * ID
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ID: { type: "int"; value: number };
+                                      }[];
+                                  };
+                              };
+                          };
+                      };
+                      /**
+                       * Strongholds
+                       *
+                       * The list of strongholds.
+                       */
+                      stronghold: {
+                          type: "compound";
+                          value: {
+                              structures?: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: {
+                                          /**
+                                           * Bounding Box
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @minItems 6
+                                           *
+                                           * @maxItems 6
+                                           */
+                                          BB: { type: "intArray"; value: number[] };
+                                          /**
+                                           * Children
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          Children: {
+                                              type: "list";
+                                              value: {
+                                                  type: "compound";
+                                                  /**
+                                                   * ##### List entries description:
+                                                   *
+                                                   * *No description.*
+                                                   */
+                                                  value: {
+                                                      /**
+                                                       * Bounding Box
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       *
+                                                       * @minItems 6
+                                                       *
+                                                       * @maxItems 6
+                                                       */
+                                                      BB: { type: "intArray"; value: number[] };
+                                                      /**
+                                                       * Entry Door
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      EntryDoor: { type: "int"; value: number };
+                                                      /**
+                                                       * ID
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      ID: { type: "int"; value: number };
+                                                      /**
+                                                       * Steps
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      Steps?: { type: "int"; value: number };
+                                                      /**
+                                                       * Left
                                                        *
                                                        * UNDOCUMENTED.
                                                        *
@@ -23632,11 +24117,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      Witch: { type: "byte"; value: 0 | 1 };
-                                                  }
-                                                | {
+                                                      Left?: { type: "byte"; value: 0 | 1 };
                                                       /**
-                                                       * Has Placed Chest 0
+                                                       * Right
                                                        *
                                                        * UNDOCUMENTED.
                                                        *
@@ -23646,9 +24129,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      hasPlacedChest0: { type: "byte"; value: 0 | 1 };
+                                                      Right?: { type: "byte"; value: 0 | 1 };
                                                       /**
-                                                       * Has Placed Chest 1
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      gendepth: { type: "int"; value: number };
+                                                      /**
+                                                       * Left High
                                                        *
                                                        * UNDOCUMENTED.
                                                        *
@@ -23658,9 +24147,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      hasPlacedChest1: { type: "byte"; value: 0 | 1 };
+                                                      leftHigh?: { type: "byte"; value: 0 | 1 };
                                                       /**
-                                                       * Has Placed Chest 2
+                                                       * Left Low
                                                        *
                                                        * UNDOCUMENTED.
                                                        *
@@ -23670,9 +24159,15 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      hasPlacedChest2: { type: "byte"; value: 0 | 1 };
+                                                      leftLow?: { type: "byte"; value: 0 | 1 };
                                                       /**
-                                                       * Has Placed Chest 3
+                                                       * Orientation
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      orientation: { type: "int"; value: number };
+                                                      /**
+                                                       * Right High
                                                        *
                                                        * UNDOCUMENTED.
                                                        *
@@ -23682,11 +24177,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      hasPlacedChest3: { type: "byte"; value: 0 | 1 };
-                                                  }
-                                                | {
+                                                      rightHigh?: { type: "byte"; value: 0 | 1 };
                                                       /**
-                                                       * Has Placed Hidden Chest
+                                                       * Right Low
                                                        *
                                                        * UNDOCUMENTED.
                                                        *
@@ -23696,11 +24189,92 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      hasPlacedHiddenChest: { type: "byte"; value: 0 | 1 };
+                                                      rightLow?: { type: "byte"; value: 0 | 1 };
+                                                  }[];
+                                              };
+                                          };
+                                          /**
+                                           * Chunk X
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkX: { type: "int"; value: number };
+                                          /**
+                                           * Chunk Z
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkZ: { type: "int"; value: number };
+                                          /**
+                                           * ID
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ID: { type: "int"; value: number };
+                                          /**
+                                           * Valid
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @enum 0 | 1
+                                           *
+                                           * @enumDescriptions
+                                           * - `0`: false
+                                           * - `1`: true
+                                           */
+                                          Valid: { type: "byte"; value: 0 | 1 };
+                                      }[];
+                                  };
+                              };
+                          };
+                      };
+                      /**
+                       * Villages
+                       *
+                       * The list of villages.
+                       */
+                      village: {
+                          type: "compound";
+                          value: {
+                              structures?: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: {
+                                          /**
+                                           * Bounding Box
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @minItems 6
+                                           *
+                                           * @maxItems 6
+                                           */
+                                          BB: { type: "intArray"; value: number[] };
+                                          /**
+                                           * Children
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          Children: {
+                                              type: "list";
+                                              value: {
+                                                  type: "compound";
+                                                  /**
+                                                   * ##### List entries description:
+                                                   *
+                                                   * *No description.*
+                                                   */
+                                                  value: {
                                                       /**
-                                                       * Has Placed Main Chest
+                                                       * Is Abandoned
                                                        *
-                                                       * UNDOCUMENTED.
+                                                       * Whether this is an village is abandoned.
                                                        *
                                                        * @enum 0 | 1
                                                        *
@@ -23708,11 +24282,21 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      hasPlacedMainChest: { type: "byte"; value: 0 | 1 };
+                                                      Abandoned: { type: "byte"; value: 0 | 1 };
                                                       /**
-                                                       * Has Placed Trap 0
+                                                       * Bounding Box
                                                        *
                                                        * UNDOCUMENTED.
+                                                       *
+                                                       * @minItems 6
+                                                       *
+                                                       * @maxItems 6
+                                                       */
+                                                      BB: { type: "intArray"; value: number[] };
+                                                      /**
+                                                       * Is Desert Village
+                                                       *
+                                                       * Whether this is a desert village.
                                                        *
                                                        * @enum 0 | 1
                                                        *
@@ -23720,11 +24304,23 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      hasPlacedTrap0: { type: "byte"; value: 0 | 1 };
+                                                      Desert: { type: "byte"; value: 0 | 1 };
                                                       /**
-                                                       * Has Placed Trap 1
+                                                       * UNTITLED.
                                                        *
                                                        * UNDOCUMENTED.
+                                                       */
+                                                      HPos: { type: "int"; value: number };
+                                                      /**
+                                                       * ID
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      ID: { type: "int"; value: number };
+                                                      /**
+                                                       * Is Savannah Village
+                                                       *
+                                                       * Whether this is a savannah village.
                                                        *
                                                        * @enum 0 | 1
                                                        *
@@ -23732,405 +24328,85 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                        * - `0`: false
                                                        * - `1`: true
                                                        */
-                                                      hasPlacedTrap1: { type: "byte"; value: 0 | 1 };
-                                                  }
-                                            >)[];
-                                        };
-                                    };
-                                    /**
-                                     * Chunk X
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkX: { type: "int"; value: number };
-                                    /**
-                                     * Chunk Z
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkZ: { type: "int"; value: number };
-                                    /**
-                                     * ID
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ID: { type: "int"; value: number };
-                                }[];
-                            };
-                        };
-                    };
-                };
-                /**
-                 * Strongholds
-                 *
-                 * The list of strongholds.
-                 */
-                stronghold: {
-                    type: "compound";
-                    value: {
-                        structures?: {
-                            type: "list";
-                            value: {
-                                type: "compound";
-                                /**
-                                 * ##### List entries description:
-                                 *
-                                 * *No description.*
-                                 */
-                                value: {
-                                    /**
-                                     * Bounding Box
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @minItems 6
-                                     *
-                                     * @maxItems 6
-                                     */
-                                    BB: { type: "intArray"; value: number[] };
-                                    /**
-                                     * Children
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    Children: {
-                                        type: "list";
-                                        value: {
-                                            type: "compound";
-                                            /**
-                                             * ##### List entries description:
-                                             *
-                                             * *No description.*
-                                             */
-                                            value: {
-                                                /**
-                                                 * Bounding Box
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @minItems 6
-                                                 *
-                                                 * @maxItems 6
-                                                 */
-                                                BB: { type: "intArray"; value: number[] };
-                                                /**
-                                                 * Entry Door
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                EntryDoor: { type: "int"; value: number };
-                                                /**
-                                                 * ID
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                ID: { type: "int"; value: number };
-                                                /**
-                                                 * Steps
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                Steps?: { type: "int"; value: number };
-                                                /**
-                                                 * Left
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                Left?: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * Right
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                Right?: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                gendepth: { type: "int"; value: number };
-                                                /**
-                                                 * Left High
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                leftHigh?: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * Left Low
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                leftLow?: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * Orientation
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                orientation: { type: "int"; value: number };
-                                                /**
-                                                 * Right High
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                rightHigh?: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * Right Low
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                rightLow?: { type: "byte"; value: 0 | 1 };
-                                            }[];
-                                        };
-                                    };
-                                    /**
-                                     * Chunk X
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkX: { type: "int"; value: number };
-                                    /**
-                                     * Chunk Z
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkZ: { type: "int"; value: number };
-                                    /**
-                                     * ID
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ID: { type: "int"; value: number };
-                                    /**
-                                     * Valid
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @enum 0 | 1
-                                     *
-                                     * @enumDescriptions
-                                     * - `0`: false
-                                     * - `1`: true
-                                     */
-                                    Valid: { type: "byte"; value: 0 | 1 };
-                                }[];
-                            };
-                        };
-                    };
-                };
-                /**
-                 * Villages
-                 *
-                 * The list of villages.
-                 */
-                village: {
-                    type: "compound";
-                    value: {
-                        structures?: {
-                            type: "list";
-                            value: {
-                                type: "compound";
-                                /**
-                                 * ##### List entries description:
-                                 *
-                                 * *No description.*
-                                 */
-                                value: {
-                                    /**
-                                     * Bounding Box
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @minItems 6
-                                     *
-                                     * @maxItems 6
-                                     */
-                                    BB: { type: "intArray"; value: number[] };
-                                    /**
-                                     * Children
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    Children: {
-                                        type: "list";
-                                        value: {
-                                            type: "compound";
-                                            /**
-                                             * ##### List entries description:
-                                             *
-                                             * *No description.*
-                                             */
-                                            value: {
-                                                /**
-                                                 * Is Abandoned
-                                                 *
-                                                 * Whether this is an village is abandoned.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                Abandoned: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * Bounding Box
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 *
-                                                 * @minItems 6
-                                                 *
-                                                 * @maxItems 6
-                                                 */
-                                                BB: { type: "intArray"; value: number[] };
-                                                /**
-                                                 * Is Desert Village
-                                                 *
-                                                 * Whether this is a desert village.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                Desert: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                HPos: { type: "int"; value: number };
-                                                /**
-                                                 * ID
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                ID: { type: "int"; value: number };
-                                                /**
-                                                 * Is Savannah Village
-                                                 *
-                                                 * Whether this is a savannah village.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                Savannah: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * Is Taiga Village
-                                                 *
-                                                 * Whether this is a taiga village.
-                                                 *
-                                                 * @enum 0 | 1
-                                                 *
-                                                 * @enumDescriptions
-                                                 * - `0`: false
-                                                 * - `1`: true
-                                                 */
-                                                Taiga: { type: "byte"; value: 0 | 1 };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                VCount: { type: "int"; value: number };
-                                                /**
-                                                 * UNTITLED.
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                gendepth: { type: "int"; value: number };
-                                                /**
-                                                 * Orientation
-                                                 *
-                                                 * UNDOCUMENTED.
-                                                 */
-                                                orientation: { type: "int"; value: number };
-                                            }[];
-                                        };
-                                    };
-                                    /**
-                                     * Chunk X
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkX: { type: "int"; value: number };
-                                    /**
-                                     * Chunk Z
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ChunkZ: { type: "int"; value: number };
-                                    /**
-                                     * ID
-                                     *
-                                     * UNDOCUMENTED.
-                                     */
-                                    ID: { type: "int"; value: number };
-                                    /**
-                                     * Valid
-                                     *
-                                     * UNDOCUMENTED.
-                                     *
-                                     * @enum 0 | 1
-                                     *
-                                     * @enumDescriptions
-                                     * - `0`: false
-                                     * - `1`: true
-                                     */
-                                    Valid: { type: "byte"; value: 0 | 1 };
-                                }[];
-                            };
-                        };
-                    };
-                };
-            };
-        };
+                                                      Savannah: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * Is Taiga Village
+                                                       *
+                                                       * Whether this is a taiga village.
+                                                       *
+                                                       * @enum 0 | 1
+                                                       *
+                                                       * @enumDescriptions
+                                                       * - `0`: false
+                                                       * - `1`: true
+                                                       */
+                                                      Taiga: { type: "byte"; value: 0 | 1 };
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      VCount: { type: "int"; value: number };
+                                                      /**
+                                                       * UNTITLED.
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      gendepth: { type: "int"; value: number };
+                                                      /**
+                                                       * Orientation
+                                                       *
+                                                       * UNDOCUMENTED.
+                                                       */
+                                                      orientation: { type: "int"; value: number };
+                                                  }[];
+                                              };
+                                          };
+                                          /**
+                                           * Chunk X
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkX: { type: "int"; value: number };
+                                          /**
+                                           * Chunk Z
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ChunkZ: { type: "int"; value: number };
+                                          /**
+                                           * ID
+                                           *
+                                           * UNDOCUMENTED.
+                                           */
+                                          ID: { type: "int"; value: number };
+                                          /**
+                                           * Valid
+                                           *
+                                           * UNDOCUMENTED.
+                                           *
+                                           * @enum 0 | 1
+                                           *
+                                           * @enumDescriptions
+                                           * - `0`: false
+                                           * - `1`: true
+                                           */
+                                          Valid: { type: "byte"; value: 0 | 1 };
+                                      }[];
+                                  };
+                              };
+                          };
+                      };
+                  };
+              }
+        >;
 
         /**
          * The structure data of the Nether dimension, this is the data for the `dimension1` LevelDB key.
          *
-         * @see {@link NBTSchemas.nbtSchemas.LegacyNether}
+         * @see {@link NBTSchemas.nbtSchemas.LegacyNetherStructures}
          */
-        export type LegacyNether = {
+        export type LegacyNetherStructures = {
             type: "compound";
             value: {
                 /**
@@ -24234,9 +24510,9 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         /**
          * The structure data of the End dimension, this is the data for the `dimension2` LevelDB key.
          *
-         * @see {@link NBTSchemas.nbtSchemas.LegacyTheEnd}
+         * @see {@link NBTSchemas.nbtSchemas.LegacyTheEndStructures}
          */
-        export type LegacyTheEnd = {
+        export type LegacyTheEndStructures = {
             type: "compound";
             value: {
                 /**
@@ -26111,7 +26387,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         /**
          * The VillagePlayers schema.
          *
-         * The village players data.
+         * The player reputation data for a village.
          *
          * @see {@link NBTSchemas.nbtSchemas.VillagePlayers}
          */
@@ -26119,24 +26395,38 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             type: "compound";
             value: {
                 /**
-                 * UNKNOWN.
+                 * Players
+                 *
+                 * The reputaion data for the players in this village.
                  */
                 Players: {
                     type: "list";
-                    value: (
-                        | { type: "byte"; value: number[] }
-                        | { type: "short"; value: number[] }
-                        | { type: "int"; value: number[] }
-                        | { type: "long"; value: [high: number, low: number][] }
-                        | { type: "float"; value: number[] }
-                        | { type: "double"; value: number[] }
-                        | { type: "string"; value: number[] }
-                        | { type: "byteArray"; value: number[][] }
-                        | { type: "intArray"; value: number[][] }
-                        | { type: "longArray"; value: [high: number, low: number][][] }
-                        | { type: "compound"; value: Record<string, any> }
-                        | { type: "list"; value: any[] }
-                    )[];
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Player
+                         *
+                         * The reputation data for a player.
+                         */
+                        value: {
+                            /**
+                             * UUID
+                             *
+                             * The player's UUID.
+                             */
+                            ID: { type: "long"; value: [high: number, low: number] };
+                            /**
+                             * Reputation
+                             *
+                             * The player's reputation.
+                             *
+                             * @default 0
+                             */
+                            S: { type: "int"; value: number };
+                        }[];
+                    };
                 };
             };
         };
@@ -26273,6 +26563,221 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                          * UNDOCUMENTED.
                          */
                         TotalMaxHealth: { type: "float"; value: number };
+                    };
+                };
+            };
+        };
+
+        /**
+         * The Villages schema.
+         *
+         * The village data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.Villages}
+         */
+        export type Villages = {
+            type: "compound";
+            value: {
+                /**
+                 * Data
+                 *
+                 * UNDOCUMENTED.
+                 */
+                data: {
+                    type: "compound";
+                    value: {
+                        /**
+                         * Current Tick
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        Tick: { type: "int"; value: number };
+                        /**
+                         * Villages
+                         *
+                         * UNDOCUMENTED.
+                         */
+                        Villages: {
+                            type: "list";
+                            value: {
+                                type: "compound";
+                                /**
+                                 * ##### List entries description:
+                                 *
+                                 * UNDOCUMENTED.
+                                 */
+                                value: {
+                                    /**
+                                     * ?
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ACX: { type: "int"; value: number };
+                                    /**
+                                     * ?
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ACY: { type: "int"; value: number };
+                                    /**
+                                     * ?
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    ACZ: { type: "int"; value: number };
+                                    /**
+                                     * Center X
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    CX: { type: "int"; value: number };
+                                    /**
+                                     * Center Y
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    CY: { type: "int"; value: number };
+                                    /**
+                                     * Center Z
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    CZ: { type: "int"; value: number };
+                                    /**
+                                     * Doors
+                                     *
+                                     * The list of doors in the village.
+                                     */
+                                    Doors: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * Door
+                                             *
+                                             * A door in the village.
+                                             */
+                                            value: {
+                                                /**
+                                                 * ?
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                IDX: { type: "int"; value: number };
+                                                /**
+                                                 * ?
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                IDZ: { type: "int"; value: number };
+                                                /**
+                                                 * ?
+                                                 *
+                                                 * UNDOCUMENTED.
+                                                 */
+                                                TS: { type: "int"; value: number };
+                                                /**
+                                                 * X
+                                                 *
+                                                 * The X coordinate of this door.
+                                                 */
+                                                X: { type: "int"; value: number };
+                                                /**
+                                                 * Y
+                                                 *
+                                                 * The Y coordinate of this door.
+                                                 */
+                                                Y: { type: "int"; value: number };
+                                                /**
+                                                 * Z
+                                                 *
+                                                 * The Z coordinate of this door.
+                                                 */
+                                                Z: { type: "int"; value: number };
+                                            }[];
+                                        };
+                                    };
+                                    /**
+                                     * Iron Golems
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @default 0
+                                     */
+                                    Golems: { type: "int"; value: number };
+                                    /**
+                                     * ?
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @default 0
+                                     */
+                                    MTick: { type: "int"; value: number };
+                                    /**
+                                     * Players
+                                     *
+                                     * The reputaion data for the players in the village.
+                                     */
+                                    Players: {
+                                        type: "list";
+                                        value: {
+                                            type: "compound";
+                                            /**
+                                             * ##### List entries description:
+                                             *
+                                             * Player
+                                             *
+                                             * The reputation data for a player.
+                                             */
+                                            value: {
+                                                /**
+                                                 * Username
+                                                 *
+                                                 * The player's username.
+                                                 */
+                                                Name: { type: "long"; value: [high: number, low: number] };
+                                                /**
+                                                 * Reputation
+                                                 *
+                                                 * The player's reputation.
+                                                 *
+                                                 * @default 0
+                                                 */
+                                                S: { type: "int"; value: number };
+                                            }[];
+                                        };
+                                    };
+                                    /**
+                                     * ?
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    PopSize: { type: "int"; value: number };
+                                    /**
+                                     * Radius
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Radius: { type: "int"; value: number };
+                                    /**
+                                     * ?
+                                     *
+                                     * UNDOCUMENTED.
+                                     */
+                                    Stable: { type: "int"; value: number };
+                                    /**
+                                     * Last Tick
+                                     *
+                                     * UNDOCUMENTED.
+                                     *
+                                     * @default 0
+                                     */
+                                    Tick: { type: "int"; value: number };
+                                }[];
+                            };
+                        };
                     };
                 };
             };
@@ -36929,7 +37434,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         /**
          * The VillagePlayers schema.
          *
-         * The village players data.
+         * The player reputation data for a village.
          *
          * @see {@link NBTSchemas.nbtSchemas.VILLAGE_PLAYERS}
          */
@@ -36937,24 +37442,38 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
             type: "compound";
             value: {
                 /**
-                 * UNKNOWN.
+                 * Players
+                 *
+                 * The reputaion data for the players in this village.
                  */
                 Players: {
                     type: "list";
-                    value: (
-                        | { type: "byte"; value: number[] }
-                        | { type: "short"; value: number[] }
-                        | { type: "int"; value: number[] }
-                        | { type: "long"; value: [high: number, low: number][] }
-                        | { type: "float"; value: number[] }
-                        | { type: "double"; value: number[] }
-                        | { type: "string"; value: number[] }
-                        | { type: "byteArray"; value: number[][] }
-                        | { type: "intArray"; value: number[][] }
-                        | { type: "longArray"; value: [high: number, low: number][][] }
-                        | { type: "compound"; value: Record<string, any> }
-                        | { type: "list"; value: any[] }
-                    )[];
+                    value: {
+                        type: "compound";
+                        /**
+                         * ##### List entries description:
+                         *
+                         * Player
+                         *
+                         * The reputation data for a player.
+                         */
+                        value: {
+                            /**
+                             * UUID
+                             *
+                             * The player's UUID.
+                             */
+                            ID: { type: "long"; value: [high: number, low: number] };
+                            /**
+                             * Reputation
+                             *
+                             * The player's reputation.
+                             *
+                             * @default 0
+                             */
+                            S: { type: "int"; value: number };
+                        }[];
+                    };
                 };
             };
         };

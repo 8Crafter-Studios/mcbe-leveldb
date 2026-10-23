@@ -772,9 +772,9 @@ export const MCDBEntryContentTypes = [
     "StructureTemplate",
     "TickingArea",
     "FlatWorldLayers",
-    "LegacyOverworld",
-    "LegacyNether",
-    "LegacyTheEnd",
+    "LegacyOverworldStructures",
+    "LegacyNetherStructures",
+    "LegacyTheEndStructures",
     "MVillages",
     "Villages",
     "LevelSpawnWasFixed",
@@ -877,9 +877,9 @@ export const MCEntryContentTypes = [
     "StructureTemplate",
     "TickingArea",
     "FlatWorldLayers",
-    "LegacyOverworld",
-    "LegacyNether",
-    "LegacyTheEnd",
+    "LegacyOverworldStructures",
+    "LegacyNetherStructures",
+    "LegacyTheEndStructures",
     "MVillages",
     "Villages",
     "LevelSpawnWasFixed",
@@ -1074,9 +1074,9 @@ export const MCEntryContentTypesGrouping = (function __cloneJSDoc<
     StructureTemplate: "StructureTemplate",
     TickingArea: "TickingArea",
     FlatWorldLayers: "FlatWorldLayers",
-    LegacyOverworld: "LegacyDimension",
-    LegacyNether: "LegacyDimension",
-    LegacyTheEnd: "LegacyDimension",
+    LegacyOverworldStructures: "LegacyDimensionStructures",
+    LegacyNetherStructures: "LegacyDimensionStructures",
+    LegacyTheEndStructures: "LegacyDimensionStructures",
     MVillages: "MVillages",
     Villages: "Villages",
     LevelSpawnWasFixed: "LevelSpawnWasFixed",
@@ -3404,8 +3404,11 @@ export const entryContentTypeToFormatMap = {
     /**
      * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
      *
+     * @since 0.12.0 < x <= 0.15.0
+     *
      * @todo Add a schema for this.
      * @todo Add a description for this.
+     * @todo Figure out what version this was added and removed in.
      */
     MVillages: {
         /**
@@ -3414,10 +3417,16 @@ export const entryContentTypeToFormatMap = {
         type: "NBT",
     },
     /**
+     * The data of all of the villages in the world.
+     *
      * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.12.0.1 world.
      *
-     * @todo Add a schema for this.
+     * @see {@link NBTSchemas.nbtSchemas.Villages}
+     *
+     * @since 0.9.0 <= x <= 0.12.0
+     *
      * @todo Add a description for this.
+     * @todo Figure out what version this was added and removed in.
      */
     Villages: {
         /**
@@ -3979,13 +3988,15 @@ export const entryContentTypeToFormatMap = {
     /**
      * The structure data of the Overworld dimension.
      *
+     * This may have fields corresponding to Nether or The End structure types instead if the generator type is set to 3 (Nether) or 4 (The End) respectively.
+     *
      * This content type coexists with the {@link entryContentTypeToFormatMap.Overworld | Overworld} content type in some versions (such as v1.0.0.16 and v1.1.5.0).
      *
      * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
      *
-     * @see {@link NBTSchemas.nbtSchemas.LegacyOverworld}
+     * @see {@link NBTSchemas.nbtSchemas.LegacyOverworldStructures}
      */
-    LegacyOverworld: {
+    LegacyOverworldStructures: {
         /**
          * The format type of the data.
          */
@@ -3998,9 +4009,9 @@ export const entryContentTypeToFormatMap = {
      *
      * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
      *
-     * @see {@link NBTSchemas.nbtSchemas.LegacyNether}
+     * @see {@link NBTSchemas.nbtSchemas.LegacyNetherStructures}
      */
-    LegacyNether: {
+    LegacyNetherStructures: {
         /**
          * The format type of the data.
          */
@@ -4013,9 +4024,9 @@ export const entryContentTypeToFormatMap = {
      *
      * @deprecated It is unknown when this was removed, it was found in a Windows 10 Edition Beta v0.15.0 world.
      *
-     * @see {@link NBTSchemas.nbtSchemas.LegacyTheEnd}
+     * @see {@link NBTSchemas.nbtSchemas.LegacyTheEndStructures}
      */
-    LegacyTheEnd: {
+    LegacyTheEndStructures: {
         /**
          * The format type of the data.
          */
@@ -5030,6 +5041,10 @@ export const entryContentTypeToFormatMap = {
      * These keys are normally only found when the [`/corruptworld`](https://minecraft.wiki/w/Commands/corruptworld) command is used.
      *
      * Removing these keys fixes the forced world corruption.
+     *
+     * @since 0.12.0 < x < ?
+     *
+     * @todo Figure out what version added support for forced world corruption.
      */
     ForcedWorldCorruption: {
         /**
@@ -8132,9 +8147,9 @@ export function getKeyDisplayName(key: Buffer): string {
         case "DynamicProperties":
         case "FlatWorldLayers":
         case "ForcedWorldCorruption":
-        case "LegacyOverworld":
-        case "LegacyNether":
-        case "LegacyTheEnd":
+        case "LegacyOverworldStructures":
+        case "LegacyNetherStructures":
+        case "LegacyTheEndStructures":
         case "LevelChunkMetaDataDictionary":
         case "LevelSpawnWasFixed":
         case "PositionTrackingDB":
@@ -8313,11 +8328,11 @@ export function getContentTypeFromDBKey(key: Buffer): MCDBEntryContentType {
         case "DedicatedServerForcedCorruption":
             return "ForcedWorldCorruption";
         case "dimension0":
-            return "LegacyOverworld";
+            return "LegacyOverworldStructures";
         case "dimension1":
-            return "LegacyNether";
+            return "LegacyNetherStructures";
         case "dimension2":
-            return "LegacyTheEnd";
+            return "LegacyTheEndStructures";
         case "mVillages":
             return "MVillages";
         case "villages":

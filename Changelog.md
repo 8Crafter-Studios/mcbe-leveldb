@@ -3,11 +3,19 @@
 
 # v1.26.0
 
+## Breaking Changes
+
+-   The `LegacyOverworld`, `LegacyNether`, and `LegacyTheEnd` content types and NBT schemas have been renamed to `LegacyOverworldStructures`, `LegacyNetherStructures`, and `LegacyTheEndStructures` respectively.
+-   The `LegacyDimension` content type group has been renamed to `LegacyDimensionStructures`.
+
 ## Additions
 
+-   Added the `Villages` NBT schema.
 -   Added the types of the items in the `data.LimboEntities` list field of the `LimboEntities` NBT schema.
 -   Added the types of the items in the `AutonomousEntityList` list field of the `AutonomousEntities` NBT schema.
+-   Added the types of the items in the `Players` list field of the `VillagePlayers` NBT schema.
 -   Added proper documentation to the `LimboEntities` NBT schema.
+-   Added proper documentation to the `VillagePlayers` NBT schema.
 -   Added the following fields to the `LevelDat` NBT schema:
     -   `fixedInventory`
     -   `fixedInventorySlotCount`
@@ -21,6 +29,11 @@
 -   Updated the version ranges to the following fields of the `LevelDat` NBT schema:
     -   `DayCycleStopTime`
     -   `SizeOnDisk`
+-   The `LegacyOverworld` NBT schema now uses a `oneOf` union of the old schema, the `LegacyNether` NBT schema, and the `LegacyTheEnd` NBT schema. This is because if the generator type is set to `3` (Nether) or `4` (The End), then the overworld dimension data would use the fields of the `LegacyNether` or `LegacyTheEnd` NBT schemas respectively, instead of the fields it would normally have.
+
+## Fixes
+
+-   Fixed a bug where the `list[number].id` property of the `BiomeData` NBT schema only allowed type `short` instead of either `byte` or `short`.
 
 # v1.25.1
 
