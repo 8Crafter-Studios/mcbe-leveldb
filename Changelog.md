@@ -1,6 +1,12 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.26.1
+
+## Fixes
+
+-   Fixed some incorrect types in the `Villages` NBT schema.
+
 # v1.26.0
 
 ## Breaking Changes

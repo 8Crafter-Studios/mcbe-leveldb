@@ -1170,6 +1170,7 @@ export namespace NBTSchemas {
                         },
                     },
                 },
+                // FIXME: The description of the data field of this ref overwrites that of the data field for this schema.
                 allOf: [{ $ref: "LimboEntities" }],
                 additionalProperties: false,
             },
@@ -4384,10 +4385,12 @@ export namespace NBTSchemas {
                                     properties: {
                                         ChunkX: {
                                             title: "Chunk X",
+                                            markdownDescription: "The X index of the chunk.",
                                             type: "int",
                                         },
                                         ChunkZ: {
                                             title: "Chunk Z",
+                                            markdownDescription: "The Z index of the chunk.",
                                             type: "int",
                                         },
                                         EntityTagList: {
@@ -6090,6 +6093,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                 markdownDescription: "UNDOCUMENTED.",
                                 type: "list",
                                 items: {
+                                    title: "Village",
                                     markdownDescription: "UNDOCUMENTED.",
                                     type: "compound",
                                     required: [
@@ -6229,7 +6233,7 @@ however when the corresponding block in the block layer is broken, this block ge
                                                         title: "Username",
                                                         completionDetail: "Username",
                                                         markdownDescription: "The player's username.",
-                                                        type: "long",
+                                                        type: "string",
                                                     },
                                                     S: {
                                                         title: "Reputation",
@@ -24766,10 +24770,14 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 value: {
                                     /**
                                      * Chunk X
+                                     *
+                                     * The X index of the chunk.
                                      */
                                     ChunkX: { type: "int"; value: number };
                                     /**
                                      * Chunk Z
+                                     *
+                                     * The Z index of the chunk.
                                      */
                                     ChunkZ: { type: "int"; value: number };
                                     /**
@@ -26604,6 +26612,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 /**
                                  * ##### List entries description:
                                  *
+                                 * Village
+                                 *
                                  * UNDOCUMENTED.
                                  */
                                 value: {
@@ -26737,7 +26747,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                                  *
                                                  * The player's username.
                                                  */
-                                                Name: { type: "long"; value: [high: number, low: number] };
+                                                Name: { type: "string"; value: string };
                                                 /**
                                                  * Reputation
                                                  *
