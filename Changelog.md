@@ -5,7 +5,7 @@
 
 ## Fixes
 
--   Fixed some incorrect types in the `Villages` NBT schema.
+-   Fixed an incorrect type for the `data.Villages[number].Players[number].Name` field of the `Villages` NBT schema.
 
 # v1.26.0
 
