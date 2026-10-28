@@ -2019,9 +2019,9 @@ export function prismarineToSNBT<T extends NBT.Tags[NBT.TagType]>(nbt: T): SNBTL
         case "long":
             return `${toLong(nbt.value).toString()}L` as const as any;
         case "float":
-            return `${nbt.value}f` as const as any;
+            return `${Object.is(nbt.value, -0) ? "-0" : nbt.value}f` as const as any;
         case "double":
-            return `${nbt.value}d` as const as any;
+            return `${Object.is(nbt.value, -0) ? "-0" : nbt.value}d` as const as any;
         case "string":
             return formatString(nbt.value) as any;
     }

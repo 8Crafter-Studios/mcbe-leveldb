@@ -1,6 +1,12 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.26.2
+
+## Fixes
+
+-   The `prismarineToSNBT` function now serializes `-0` in floats and doubles as `-0` instead of `0`.
+
 # v1.26.1
 
 ## Fixes
