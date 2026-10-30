@@ -1,6 +1,19 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.27.0
+
+## Additions
+
+-   Added the `compression` field to the `StructureTemplate` NBT schema ([#12](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/12)).
+-   Added a custom serializer and parser for the `StructureTemplate` content type ([#12](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/12)).
+-   Added support for reading and writing zlib-compressed `StructureTemplate` data.
+-   Added the `StructureTemplateRaw` NBT schema.
+
+## Fixes
+
+-   Typo fixes.
+
 # v1.26.2
 
 ## Fixes

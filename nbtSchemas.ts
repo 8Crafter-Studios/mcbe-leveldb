@@ -5423,6 +5423,17 @@ however when the corresponding block in the block layer is broken, this block ge
                         type: "compound",
                         required: ["structure", "size", "structure_world_origin", "format_version"],
                         properties: {
+                            compression: {
+                                title: "Compression",
+                                markdownDescription: "The type of compression this structure is using.\n\nThis is used in Preview 1.26.60.29 and above.",
+                                type: "int",
+                                enum: [
+                                    { type: "int", value: 0 },
+                                    { type: "int", value: 1 },
+                                ],
+                                enumDetails: ["none", "zlib"],
+                                markdownEnumDescriptions: ["no compression", "zlib compression"],
+                            },
                             structure: {
                                 title: "Structure",
                                 markdownDescription: "The structure data.",
@@ -5601,7 +5612,475 @@ however when the corresponding block in the block layer is broken, this block ge
                                 value: 2,
                             },
                         ],
-                        enumDescriptions: [
+                        markdownEnumDescriptions: [
+                            "Format version 1 is supported by all Minecraft versions.",
+                            "Format version 2 is supported in Preview 1.26.50.24 and above.",
+                        ],
+                    },
+                },
+            },
+            // NOTE: Verified.
+            StructureTemplateRaw: {
+                id: "StructureTemplateRaw",
+                title: "The StructureTemplateRaw schema.",
+                markdownDescription:
+                    "This is the same as the StructureTemplate schema, except it is for when you parse it directly as NBT, which means that if the structure is zlib-compressed, the structure field will be a byte array of zlib-compressed data.",
+                type: "compound",
+                oneOf: [
+                    {
+                        type: "compound",
+                        required: ["structure", "size", "structure_world_origin", "format_version"],
+                        properties: {
+                            structure: {
+                                title: "Structure",
+                                markdownDescription: "The structure data.",
+                                type: "compound",
+                                required: ["palette", "block_indices", "entities"],
+                                properties: {
+                                    palette: {
+                                        title: "Palette",
+                                        markdownDescription: "The block palette.",
+                                        type: "compound",
+                                        required: ["default"],
+                                        properties: {
+                                            default: {
+                                                title: "Default Block Palette",
+                                                markdownDescription: "The default block palette.",
+                                                type: "compound",
+                                                required: ["block_position_data", "block_palette"],
+                                                properties: {
+                                                    block_position_data: {
+                                                        title: "Block Position Data",
+                                                        markdownDescription: "The block entity data.",
+                                                        type: "compound",
+                                                        patternProperties: {
+                                                            "[0-9]+": {
+                                                                type: "compound",
+                                                                required: ["block_entity_data"],
+                                                                properties: {
+                                                                    block_entity_data: {
+                                                                        $ref: "BlockEntity",
+                                                                    },
+                                                                },
+                                                            },
+                                                        },
+                                                    },
+                                                    block_palette: {
+                                                        title: "Block Palette",
+                                                        markdownDescription: "The block palette.",
+                                                        type: "list",
+                                                        items: {
+                                                            markdownDescription: "The block palette array.",
+                                                            $ref: "Block",
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                    block_indices: {
+                                        title: "Block Indices",
+                                        markdownDescription: `The block indices.
+
+These are two arrays of indices in the block palette.
+
+The first layer is the block layer.
+
+The second layer is the snowlog layer, even though it is mainly used for snowlogging, other blocks can be put here to,
+which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
+however when the corresponding block in the block layer is broken, this block gets moved to the block layer).`,
+                                        type: "list",
+                                        minItems: 2,
+                                        maxItems: 2,
+                                        items: [
+                                            {
+                                                tupleItemLabelTS: "blockLayer",
+                                                title: "Block Layer",
+                                                markdownDescription: "The block layer.",
+                                                type: "list",
+                                                items: {
+                                                    markdownDescription: "A block index in this layer.",
+                                                    type: "int",
+                                                },
+                                            },
+                                            {
+                                                tupleItemLabelTS: "snowlogLayer",
+                                                title: "Snowlog Layer",
+                                                markdownDescription: "The snowlog layer.",
+                                                type: "list",
+                                                items: {
+                                                    markdownDescription: "A block index in this layer.",
+                                                    type: "int",
+                                                },
+                                            },
+                                        ],
+                                    },
+                                    entities: {
+                                        title: "Entities",
+                                        markdownDescription: "The list of entities in the structure.",
+                                        type: "list",
+                                        items: {
+                                            $ref: "ActorPrefixOrEntity",
+                                        },
+                                    },
+                                },
+                            },
+                            size: {
+                                title: "Size",
+                                markdownDescription: "The size of the structure, as a tuple of 3 integers.",
+                                type: "list",
+                                minItems: 3,
+                                maxItems: 3,
+                                items: [
+                                    {
+                                        tupleItemLabelTS: "x",
+                                        title: "x",
+                                        markdownDescription: "The size of the x axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        tupleItemLabelTS: "y",
+                                        title: "y",
+                                        markdownDescription: "The size of the y axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        tupleItemLabelTS: "z",
+                                        title: "z",
+                                        markdownDescription: "The size of the z axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                ],
+                            },
+                            structure_world_origin: {
+                                title: "Structure World Origin",
+                                markdownDescription:
+                                    "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
+                                type: "list",
+                                minItems: 3,
+                                maxItems: 3,
+                                items: [
+                                    {
+                                        tupleItemLabelTS: "x",
+                                        title: "x",
+                                        markdownDescription: "The x coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        tupleItemLabelTS: "y",
+                                        title: "y",
+                                        markdownDescription: "The y coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        tupleItemLabelTS: "z",
+                                        title: "z",
+                                        markdownDescription: "The z coordinate.",
+                                        type: "int",
+                                    },
+                                ],
+                            },
+                            format_version: {
+                                type: "int",
+                                const: {
+                                    type: "int",
+                                    value: 1,
+                                },
+                            },
+                        },
+                    },
+                    {
+                        type: "compound",
+                        required: ["structure", "size", "structure_world_origin", "format_version"],
+                        properties: {
+                            compression: {
+                                title: "Compression",
+                                markdownDescription: "The type of compression this structure is using.\n\nThis is used in Preview 1.26.60.29 and above.",
+                                type: "int",
+                                const: {
+                                    type: "int",
+                                    value: 0,
+                                },
+                                enum: [
+                                    { type: "int", value: 0 },
+                                    { type: "int", value: 1 },
+                                ],
+                                enumDetails: ["none", "zlib"],
+                                markdownEnumDescriptions: ["no compression", "zlib compression"],
+                            },
+                            structure: {
+                                title: "Structure",
+                                markdownDescription: "The structure data.",
+                                type: "compound",
+                                required: ["palette", "block_indices", "entities"],
+                                properties: {
+                                    palette: {
+                                        title: "Palette",
+                                        markdownDescription: "The block palette.",
+                                        type: "compound",
+                                        required: ["default"],
+                                        properties: {
+                                            default: {
+                                                title: "Default Palette",
+                                                markdownDescription: "The default block palette.",
+                                                type: "compound",
+                                                required: ["block_position_data", "block_palette"],
+                                                properties: {
+                                                    block_position_data: {
+                                                        title: "Block Position Data",
+                                                        markdownDescription: "The block entity data.",
+                                                        type: "compound",
+                                                        patternProperties: {
+                                                            "[0-9]+": {
+                                                                type: "compound",
+                                                                required: ["block_entity_data"],
+                                                                properties: {
+                                                                    block_entity_data: {
+                                                                        $ref: "BlockEntity",
+                                                                    },
+                                                                },
+                                                            },
+                                                        },
+                                                    },
+                                                    block_palette: {
+                                                        title: "Block Palette",
+                                                        markdownDescription: "The block palette.",
+                                                        type: "list",
+                                                        items: {
+                                                            markdownDescription: "The block palette array.",
+                                                            $ref: "Block",
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                    block_indices: {
+                                        title: "Block Indices",
+                                        markdownDescription: `The block indices.
+
+These are two arrays of indices in the block palette.
+
+The first layer is the block layer.
+
+The second layer is the snowlog layer, even though it is mainly used for snowlogging, other blocks can be put here to,
+which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
+however when the corresponding block in the block layer is broken, this block gets moved to the block layer).`,
+                                        type: "list",
+                                        minItems: 1,
+                                        maxItems: 2,
+                                        items: [
+                                            {
+                                                tupleItemLabelTS: "blockLayer",
+                                                title: "Block Layer",
+                                                markdownDescription: "The block layer.",
+                                                type: "intArray",
+                                                items: {
+                                                    markdownDescription: "A block index in this layer.",
+                                                    type: "int",
+                                                },
+                                            },
+                                            {
+                                                tupleItemLabelTS: "snowlogLayer",
+                                                title: "Snowlog Layer",
+                                                markdownDescription: "The snowlog layer.",
+                                                type: "intArray",
+                                                items: {
+                                                    markdownDescription: "A block index in this layer.",
+                                                    type: "int",
+                                                },
+                                            },
+                                        ],
+                                    },
+                                    entities: {
+                                        title: "Entities",
+                                        markdownDescription: "The list of entities in the structure.",
+                                        type: "list",
+                                        items: {
+                                            $ref: "ActorPrefixOrEntity",
+                                        },
+                                    },
+                                },
+                            },
+                            size: {
+                                title: "Size",
+                                markdownDescription: "The size of the structure, as a tuple of 3 integers.",
+                                type: "list",
+                                minItems: 3,
+                                maxItems: 3,
+                                items: [
+                                    {
+                                        tupleItemLabelTS: "x",
+                                        title: "x",
+                                        markdownDescription: "The size of the x axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        tupleItemLabelTS: "y",
+                                        title: "y",
+                                        markdownDescription: "The size of the y axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        tupleItemLabelTS: "z",
+                                        title: "z",
+                                        markdownDescription: "The size of the z axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                ],
+                            },
+                            structure_world_origin: {
+                                title: "Structure World Origin",
+                                markdownDescription:
+                                    "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
+                                type: "list",
+                                minItems: 3,
+                                maxItems: 3,
+                                items: [
+                                    {
+                                        tupleItemLabelTS: "x",
+                                        title: "x",
+                                        markdownDescription: "The x coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        tupleItemLabelTS: "y",
+                                        title: "y",
+                                        markdownDescription: "The y coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        tupleItemLabelTS: "z",
+                                        title: "z",
+                                        markdownDescription: "The z coordinate.",
+                                        type: "int",
+                                    },
+                                ],
+                            },
+                            format_version: {
+                                type: "int",
+                                const: {
+                                    type: "int",
+                                    value: 2,
+                                },
+                            },
+                        },
+                    },
+                    {
+                        type: "compound",
+                        required: ["compression", "structure", "size", "structure_world_origin", "format_version"],
+                        properties: {
+                            compression: {
+                                title: "Compression",
+                                markdownDescription: "The type of compression this structure is using.\n\nThis is used in Preview 1.26.60.29 and above.",
+                                type: "int",
+                                const: {
+                                    type: "int",
+                                    value: 1,
+                                },
+                                enum: [
+                                    { type: "int", value: 0 },
+                                    { type: "int", value: 1 },
+                                ],
+                                enumDetails: ["none", "zlib"],
+                                markdownEnumDescriptions: ["no compression", "zlib compression"],
+                            },
+                            structure: {
+                                title: "Structure",
+                                markdownDescription: "The zlib-compressed structure data.",
+                                type: "byteArray",
+                            },
+                            size: {
+                                title: "Size",
+                                markdownDescription: "The size of the structure, as a tuple of 3 integers.",
+                                type: "list",
+                                minItems: 3,
+                                maxItems: 3,
+                                items: [
+                                    {
+                                        tupleItemLabelTS: "x",
+                                        title: "x",
+                                        markdownDescription: "The size of the x axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        tupleItemLabelTS: "y",
+                                        title: "y",
+                                        markdownDescription: "The size of the y axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                    {
+                                        tupleItemLabelTS: "z",
+                                        title: "z",
+                                        markdownDescription: "The size of the z axis.",
+                                        type: "int",
+                                        minimum: 0,
+                                    },
+                                ],
+                            },
+                            structure_world_origin: {
+                                title: "Structure World Origin",
+                                markdownDescription:
+                                    "The world origin of the structure, as a tuple of 3 integers.\n\nThis is used for entity and block entity data, to get relative positions.",
+                                type: "list",
+                                minItems: 3,
+                                maxItems: 3,
+                                items: [
+                                    {
+                                        tupleItemLabelTS: "x",
+                                        title: "x",
+                                        markdownDescription: "The x coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        tupleItemLabelTS: "y",
+                                        title: "y",
+                                        markdownDescription: "The y coordinate.",
+                                        type: "int",
+                                    },
+                                    {
+                                        tupleItemLabelTS: "z",
+                                        title: "z",
+                                        markdownDescription: "The z coordinate.",
+                                        type: "int",
+                                    },
+                                ],
+                            },
+                            format_version: {
+                                type: "int",
+                                const: {
+                                    type: "int",
+                                    value: 2,
+                                },
+                            },
+                        },
+                    },
+                ],
+                required: ["format_version"],
+                properties: {
+                    format_version: {
+                        title: "Format Version",
+                        markdownDescription: "The format version of the structure.",
+                        type: "int",
+                        enum: [
+                            {
+                                type: "int",
+                                value: 1,
+                            },
+                            {
+                                type: "int",
+                                value: 2,
+                            },
+                        ],
+                        markdownEnumDescriptions: [
                             "Format version 1 is supported by all Minecraft versions.",
                             "Format version 2 is supported in Preview 1.26.50.24 and above.",
                         ],
@@ -25953,6 +26432,20 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                   type: "compound";
                   value: {
                       /**
+                       * Compression
+                       *
+                       * The type of compression this structure is using.
+                       *
+                       * This is used in Preview 1.26.60.29 and above.
+                       *
+                       * @enum 0 | 1
+                       *
+                       * @enumDescriptions
+                       * - `0` (none): no compression
+                       * - `1` (zlib): zlib compression
+                       */
+                      compression?: { type: "int"; value: 0 | 1 };
+                      /**
                        * Structure
                        *
                        * The structure data.
@@ -26069,6 +26562,599 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                               };
                           };
                       };
+                      /**
+                       * Size
+                       *
+                       * The size of the structure, as a tuple of 3 integers.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
+                       */
+                      size: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The size of the x axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The size of the y axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The size of the z axis.
+                               *
+                               * @minimum 0
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
+                      /**
+                       * Structure World Origin
+                       *
+                       * The world origin of the structure, as a tuple of 3 integers.
+                       *
+                       * This is used for entity and block entity data, to get relative positions.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
+                       */
+                      structure_world_origin: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The x coordinate.
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The y coordinate.
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The z coordinate.
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
+                      /**
+                       * @const
+                       * ```ts
+                       * 2
+                       * ```
+                       */
+                      format_version: { type: "int"; value: 2 };
+                  };
+              }
+        >;
+
+        /**
+         * The StructureTemplateRaw schema.
+         *
+         * This is the same as the StructureTemplate schema, except it is for when you parse it directly as NBT, which means that if the structure is zlib-compressed, the structure field will be a byte array of zlib-compressed data.
+         *
+         * @see {@link NBTSchemas.nbtSchemas.StructureTemplateRaw}
+         */
+        export type StructureTemplateRaw = {
+            type: "compound";
+            value: {
+                /**
+                 * Format Version
+                 *
+                 * The format version of the structure.
+                 *
+                 * @enum 1 | 2
+                 *
+                 * @enumDescriptions
+                 * - `1`: Format version 1 is supported by all Minecraft versions.
+                 * - `2`: Format version 2 is supported in Preview 1.26.50.24 and above.
+                 */
+                format_version: { type: "int"; value: 1 | 2 };
+            };
+        } & ExclusifyUnion<
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Structure
+                       *
+                       * The structure data.
+                       */
+                      structure: {
+                          type: "compound";
+                          value: {
+                              /**
+                               * Palette
+                               *
+                               * The block palette.
+                               */
+                              palette: {
+                                  type: "compound";
+                                  value: {
+                                      /**
+                                       * Default Block Palette
+                                       *
+                                       * The default block palette.
+                                       */
+                                      default: {
+                                          type: "compound";
+                                          value: {
+                                              /**
+                                               * Block Position Data
+                                               *
+                                               * The block entity data.
+                                               */
+                                              block_position_data: {
+                                                  type: "compound";
+                                                  value: {
+                                                      [key: `${bigint}`]: {
+                                                          type: "compound";
+                                                          value: {
+                                                              block_entity_data: BlockEntity;
+                                                          };
+                                                      };
+                                                  };
+                                              };
+                                              /**
+                                               * Block Palette
+                                               *
+                                               * The block palette.
+                                               */
+                                              block_palette: {
+                                                  type: "list";
+                                                  value: {
+                                                      type: "compound";
+                                                      /**
+                                                       * ##### List entries description:
+                                                       *
+                                                       * The block palette array.
+                                                       */
+                                                      value: Block["value"][];
+                                                  };
+                                              };
+                                          };
+                                      };
+                                  };
+                              };
+                              /**
+                               * Block Indices
+                               *
+                               * The block indices.
+                               *
+                               * These are two arrays of indices in the block palette.
+                               *
+                               * The first layer is the block layer.
+                               *
+                               * The second layer is the snowlog layer, even though it is mainly used for snowlogging, other blocks can be put here to,
+                               * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
+                               * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
+                               *
+                               * @minItems 2
+                               *
+                               * @maxItems 2
+                               */
+                              block_indices: {
+                                  type: "list";
+                                  value: {
+                                      type: "list";
+                                      /**
+                                       * ##### List entry 1 description:
+                                       *
+                                       * Block Layer
+                                       *
+                                       * The block layer.
+                                       *
+                                       * ##### List entry 2 description:
+                                       *
+                                       * Snowlog Layer
+                                       *
+                                       * The snowlog layer.
+                                       */
+                                      value: [
+                                          blockLayer: {
+                                              type: "int";
+                                              /**
+                                               * ##### List entries description:
+                                               *
+                                               * A block index in this layer.
+                                               */
+                                              value: number[];
+                                          },
+                                          snowlogLayer: {
+                                              type: "int";
+                                              /**
+                                               * ##### List entries description:
+                                               *
+                                               * A block index in this layer.
+                                               */
+                                              value: number[];
+                                          },
+                                      ];
+                                  };
+                              };
+                              /**
+                               * Entities
+                               *
+                               * The list of entities in the structure.
+                               */
+                              entities: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: ActorPrefixOrEntity["value"][];
+                                  };
+                              };
+                          };
+                      };
+                      /**
+                       * Size
+                       *
+                       * The size of the structure, as a tuple of 3 integers.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
+                       */
+                      size: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The size of the x axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The size of the y axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The size of the z axis.
+                               *
+                               * @minimum 0
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
+                      /**
+                       * Structure World Origin
+                       *
+                       * The world origin of the structure, as a tuple of 3 integers.
+                       *
+                       * This is used for entity and block entity data, to get relative positions.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
+                       */
+                      structure_world_origin: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The x coordinate.
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The y coordinate.
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The z coordinate.
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
+                      /**
+                       * @const
+                       * ```ts
+                       * 1
+                       * ```
+                       */
+                      format_version: { type: "int"; value: 1 };
+                  };
+              }
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Compression
+                       *
+                       * The type of compression this structure is using.
+                       *
+                       * This is used in Preview 1.26.60.29 and above.
+                       *
+                       * @const
+                       * ```ts
+                       * 0
+                       * ```
+                       *
+                       * @enum 0 | 1
+                       *
+                       * @enumDescriptions
+                       * - `0` (none): no compression
+                       * - `1` (zlib): zlib compression
+                       */
+                      compression?: { type: "int"; value: 0 };
+                      /**
+                       * Structure
+                       *
+                       * The structure data.
+                       */
+                      structure: {
+                          type: "compound";
+                          value: {
+                              /**
+                               * Palette
+                               *
+                               * The block palette.
+                               */
+                              palette: {
+                                  type: "compound";
+                                  value: {
+                                      /**
+                                       * Default Palette
+                                       *
+                                       * The default block palette.
+                                       */
+                                      default: {
+                                          type: "compound";
+                                          value: {
+                                              /**
+                                               * Block Position Data
+                                               *
+                                               * The block entity data.
+                                               */
+                                              block_position_data: {
+                                                  type: "compound";
+                                                  value: {
+                                                      [key: `${bigint}`]: {
+                                                          type: "compound";
+                                                          value: {
+                                                              block_entity_data: BlockEntity;
+                                                          };
+                                                      };
+                                                  };
+                                              };
+                                              /**
+                                               * Block Palette
+                                               *
+                                               * The block palette.
+                                               */
+                                              block_palette: {
+                                                  type: "list";
+                                                  value: {
+                                                      type: "compound";
+                                                      /**
+                                                       * ##### List entries description:
+                                                       *
+                                                       * The block palette array.
+                                                       */
+                                                      value: Block["value"][];
+                                                  };
+                                              };
+                                          };
+                                      };
+                                  };
+                              };
+                              /**
+                               * Block Indices
+                               *
+                               * The block indices.
+                               *
+                               * These are two arrays of indices in the block palette.
+                               *
+                               * The first layer is the block layer.
+                               *
+                               * The second layer is the snowlog layer, even though it is mainly used for snowlogging, other blocks can be put here to,
+                               * which allows for putting two blocks in the same location, or creating ghost blocks (as blocks in this layer cannot be interacted with,
+                               * however when the corresponding block in the block layer is broken, this block gets moved to the block layer).
+                               *
+                               * @minItems 1
+                               *
+                               * @maxItems 2
+                               */
+                              block_indices: {
+                                  type: "list";
+                                  value: {
+                                      type: "intArray";
+                                      /**
+                                       * ##### List entry 1 description:
+                                       *
+                                       * Block Layer
+                                       *
+                                       * The block layer.
+                                       *
+                                       * ##### List entry 2 description:
+                                       *
+                                       * Snowlog Layer
+                                       *
+                                       * The snowlog layer.
+                                       */
+                                      value: [blockLayer: number[]] | [blockLayer: number[], snowlogLayer: number[]];
+                                  };
+                              };
+                              /**
+                               * Entities
+                               *
+                               * The list of entities in the structure.
+                               */
+                              entities: {
+                                  type: "list";
+                                  value: {
+                                      type: "compound";
+                                      /**
+                                       * ##### List entries description:
+                                       *
+                                       * *No description.*
+                                       */
+                                      value: ActorPrefixOrEntity["value"][];
+                                  };
+                              };
+                          };
+                      };
+                      /**
+                       * Size
+                       *
+                       * The size of the structure, as a tuple of 3 integers.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
+                       */
+                      size: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The size of the x axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The size of the y axis.
+                               *
+                               * @minimum 0
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The size of the z axis.
+                               *
+                               * @minimum 0
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
+                      /**
+                       * Structure World Origin
+                       *
+                       * The world origin of the structure, as a tuple of 3 integers.
+                       *
+                       * This is used for entity and block entity data, to get relative positions.
+                       *
+                       * @minItems 3
+                       *
+                       * @maxItems 3
+                       */
+                      structure_world_origin: {
+                          type: "list";
+                          value: {
+                              type: "int";
+                              /**
+                               * ##### List entry 1 description:
+                               *
+                               * x
+                               *
+                               * The x coordinate.
+                               *
+                               * ##### List entry 2 description:
+                               *
+                               * y
+                               *
+                               * The y coordinate.
+                               *
+                               * ##### List entry 3 description:
+                               *
+                               * z
+                               *
+                               * The z coordinate.
+                               */
+                              value: [x: number, y: number, z: number];
+                          };
+                      };
+                      /**
+                       * @const
+                       * ```ts
+                       * 2
+                       * ```
+                       */
+                      format_version: { type: "int"; value: 2 };
+                  };
+              }
+            | {
+                  type: "compound";
+                  value: {
+                      /**
+                       * Compression
+                       *
+                       * The type of compression this structure is using.
+                       *
+                       * This is used in Preview 1.26.60.29 and above.
+                       *
+                       * @const
+                       * ```ts
+                       * 1
+                       * ```
+                       *
+                       * @enum 0 | 1
+                       *
+                       * @enumDescriptions
+                       * - `0` (none): no compression
+                       * - `1` (zlib): zlib compression
+                       */
+                      compression: { type: "int"; value: 1 };
+                      /**
+                       * Structure
+                       *
+                       * The zlib-compressed structure data.
+                       */
+                      structure: { type: "byteArray"; value: number[] };
                       /**
                        * Size
                        *

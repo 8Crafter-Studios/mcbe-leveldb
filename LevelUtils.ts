@@ -1409,6 +1409,226 @@ export const protoLEBinaryStringEncoding: CompiledProtoDef = ((): CompiledProtoD
 })();
 
 /**
+ * Compresses raw data into a zlib payload.
+ * Automatically switches between Node.js native zlib and Web Compression Streams API.
+ *
+ * @param inputData - The uncompressed payload.
+ * @returns The compressed zlib buffer.
+ */
+async function universalCompress(inputData: Uint8Array | Buffer | ArrayBuffer | number[]): Promise<Uint8Array> {
+    const u8Array: Uint8Array | Buffer = inputData instanceof Uint8Array ? inputData : new Uint8Array(inputData);
+
+    if (typeof process !== "undefined" && process.versions && process.versions.node && typeof globalThis.require !== "undefined") {
+        const zlib: typeof import("zlib") = globalThis.require("zlib");
+        const nodeBuffer: Buffer = Buffer.from(u8Array.buffer, u8Array.byteOffset, u8Array.byteLength);
+
+        const compressedNodeBuffer: Buffer = await new Promise((resolve: (value: Buffer) => void, reject: (reason: Error) => void): void =>
+            zlib.deflate(
+                nodeBuffer,
+                {
+                    level: 9,
+                    windowBits: 15,
+                    memLevel: 8,
+                    strategy: zlib.constants.Z_DEFAULT_STRATEGY,
+                },
+                (error: Error | null, result: Buffer): void => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            )
+        );
+
+        return new Uint8Array(compressedNodeBuffer.buffer, compressedNodeBuffer.byteOffset, compressedNodeBuffer.byteLength);
+    }
+
+    if (typeof (globalThis as { CompressionStream?: unknown }).CompressionStream !== "undefined") {
+        const stream = new CompressionStream("deflate");
+        const writer = stream.writable.getWriter();
+
+        await writer.write(u8Array);
+        await writer.close();
+
+        const response = new Response(stream.readable);
+        const arrayBuffer = await response.arrayBuffer();
+        return new Uint8Array(arrayBuffer);
+    }
+
+    throw new Error("Unsupported execution environment: No valid zlib or CompressionStream engine found.");
+}
+
+/**
+ * Decompresses a zlib payload.
+ *
+ * @param compressedData - The compressed zlib block.
+ * @returns The original uncompressed payload.
+ */
+async function universalDecompress(compressedData: Uint8Array | Buffer | ArrayBuffer | number[]): Promise<Uint8Array> {
+    const u8Array: Uint8Array | Buffer = compressedData instanceof Uint8Array ? compressedData : new Uint8Array(compressedData);
+
+    if (typeof process !== "undefined" && process.versions && process.versions.node && typeof globalThis.require !== "undefined") {
+        const zlib: typeof import("zlib") = globalThis.require("zlib");
+        const nodeBuffer: Buffer = Buffer.from(u8Array.buffer, u8Array.byteOffset, u8Array.byteLength);
+        const decompressedNodeBuffer: Buffer = await new Promise((resolve: (value: Buffer) => void, reject: (reason: Error) => void): void =>
+            zlib.inflate(nodeBuffer, (error: Error | null, result: Buffer): void => {
+                if (error) reject(error);
+                else resolve(result);
+            })
+        );
+        return new Uint8Array(decompressedNodeBuffer.buffer, decompressedNodeBuffer.byteOffset, decompressedNodeBuffer.byteLength);
+    }
+
+    if (typeof (globalThis as { DecompressionStream?: unknown }).DecompressionStream !== "undefined") {
+        const stream = new DecompressionStream("deflate");
+        const writer = stream.writable.getWriter();
+
+        await writer.write(u8Array);
+        await writer.close();
+
+        const response = new Response(stream.readable);
+        const arrayBuffer = await response.arrayBuffer();
+        return new Uint8Array(arrayBuffer);
+    }
+
+    throw new Error("Unsupported execution environment: No valid zlib or DecompressionStream engine found.");
+}
+
+/**
+ * Decompresses a `StructureTemplate`.
+ *
+ * @param data The data of the `StructureTemplate`.
+ * @returns The decompressed data.
+ */
+export async function decompressStructureTemplate(
+    data: NBTSchemas.NBTSchemaTypes.StructureTemplate | NBTSchemas.NBTSchemaTypes.StructureTemplateRaw
+): Promise<NBTSchemas.NBTSchemaTypes.StructureTemplate> {
+    if (!data.value.format_version?.value) return data as never;
+    if (data.value.format_version.value === 1) {
+        return data as Extract<NBTSchemas.NBTSchemaTypes.StructureTemplateRaw, { value: { format_version: { value: 1 } } }>;
+    }
+    if (data.value.format_version.value === 2) {
+        function fakeAssertIsStructureTemplateV2_x(
+            data: unknown
+        ): asserts data is Extract<NBTSchemas.NBTSchemaTypes.StructureTemplateRaw, { value: { format_version: { value: 2 } } }> {
+            void data;
+        }
+        fakeAssertIsStructureTemplateV2_x(data);
+        if (!data.value.compression) {
+            return data as Extract<NBTSchemas.NBTSchemaTypes.StructureTemplateRaw, { value: { format_version: { value: 2 }; compression?: never } }>;
+        }
+        if (data.value.compression.value === 0) {
+            return data as Extract<NBTSchemas.NBTSchemaTypes.StructureTemplateRaw, { value: { format_version: { value: 2 }; compression: { value: 0 } } }>;
+        }
+        if (data.value.compression.value === 1) {
+            function fakeAssertIsStructureTemplateV2_1_compressed(
+                data: unknown
+            ): asserts data is Exclude<
+                Extract<NBTSchemas.NBTSchemaTypes.StructureTemplateRaw, { value: { format_version: { value: 2 }; compression: { value: number } } }>,
+                { value: { compression: { value: 0 } } }
+            > {
+                void data;
+            }
+            fakeAssertIsStructureTemplateV2_1_compressed(data);
+            if (!data.value.structure?.value || data.value.structure.type !== "byteArray") return data as never;
+            const decompressedStructureData: Uint8Array = await universalDecompress(data.value.structure.value);
+            return {
+                ...data,
+                value: {
+                    ...data.value,
+                    structure: NBT.parseUncompressed(
+                        Buffer.from(decompressedStructureData.buffer, decompressedStructureData.byteOffset, decompressedStructureData.byteLength),
+                        "little",
+                        {
+                            noArraySizeCheck: true,
+                        }
+                    ) as Extract<NBTSchemas.NBTSchemaTypes.StructureTemplate, { value: { format_version: { value: 2 } } }>["value"]["structure"] &
+                        Pick<NBT.NBT, "name">,
+                },
+            } satisfies Extract<NBTSchemas.NBTSchemaTypes.StructureTemplate, { value: { format_version: { value: 2 } } }>;
+        }
+        console.warn(`Unknown StructureTemplate compression type: ${(data.value.compression as NBT.Int)?.value}`);
+        return data as never;
+    }
+    console.warn(`Unknown StructureTemplate format version: ${(data.value.format_version as NBT.Int)?.value}`);
+    return data as never;
+}
+
+/**
+ * Compresses a `StructureTemplate`.
+ *
+ * @param data The data of the `StructureTemplate`
+ * @param options The options for the compression.
+ * @returns The compressed data.
+ */
+export async function compressStructureTemplate(
+    data: NBTSchemas.NBTSchemaTypes.StructureTemplate | NBTSchemas.NBTSchemaTypes.StructureTemplateRaw,
+    options: {
+        /**
+         * If set to `true`, the value of the `structure` field will use a regular array instead of a `Int8Array`.
+         */
+        disableInt8ArrayStructureValue: boolean;
+    }
+): Promise<NBTSchemas.NBTSchemaTypes.StructureTemplateRaw> {
+    if (!data.value.format_version?.value) return data as never;
+    if (data.value.format_version.value === 1) {
+        return data as Extract<NBTSchemas.NBTSchemaTypes.StructureTemplate, { value: { format_version: { value: 1 } } }>;
+    }
+    if (data.value.format_version.value === 2) {
+        function fakeAssertIsStructureTemplateV2_x(
+            data: unknown
+        ): asserts data is Extract<NBTSchemas.NBTSchemaTypes.StructureTemplate, { value: { format_version: { value: 2 } } }> {
+            void data;
+        }
+        fakeAssertIsStructureTemplateV2_x(data);
+        if (!data.value.compression) {
+            return data as Extract<NBTSchemas.NBTSchemaTypes.StructureTemplate, { value: { format_version: { value: 2 }; compression?: never } }>;
+        }
+        if (data.value.compression.value === 0) {
+            return data as Extract<NBTSchemas.NBTSchemaTypes.StructureTemplate, { value: { format_version: { value: 2 }; compression: { value: 0 } } }>;
+        }
+        function fakeAssertIsStructureTemplateV2_1_compressed(data: unknown): asserts data is Extract<
+            NBTSchemas.NBTSchemaTypes.StructureTemplate,
+            { value: { format_version: { value: 2 } } }
+        > & {
+            value: { compression: { value: 1 } };
+        } {
+            void data;
+        }
+        if (data.value.compression.value === 1) {
+            fakeAssertIsStructureTemplateV2_1_compressed(data);
+            if (!data.value.structure?.value || data.value.structure.type !== "compound") return data as never;
+            if (options.disableInt8ArrayStructureValue) {
+                return {
+                    ...data,
+                    value: {
+                        ...data.value,
+                        structure: {
+                            type: "byteArray",
+                            value: Array.from(await universalCompress(NBT.writeUncompressed({ name: "", ...data.value.structure }, "little"))),
+                        },
+                    },
+                };
+            } else {
+                const compressedData: Uint8Array = await universalCompress(NBT.writeUncompressed({ name: "", ...data.value.structure }, "little"));
+                return {
+                    ...data,
+                    value: {
+                        ...data.value,
+                        structure: {
+                            type: "byteArray",
+                            value: new Int8Array(compressedData.buffer, compressedData.byteOffset, compressedData.byteLength) as unknown as number[], // NBT.writeUncompressed treats typed arrays as regular arrays, so this can be used to allow larger arrays.
+                        },
+                    },
+                };
+            }
+        }
+        console.warn(`Unknown StructureTemplate compression type: ${data.value.compression?.value}`);
+        return data as never;
+    }
+    console.warn(`Unknown StructureTemplate format version: ${(data.value.format_version as NBT.Int)?.value}`);
+    return data as never;
+}
+
+/**
  * The content type to format mapping for LevelDB entries.
  */
 export const entryContentTypeToFormatMap = {
@@ -3893,12 +4113,45 @@ export const entryContentTypeToFormatMap = {
      * The data for a structure (the kind saved by a structure block or the [`/structure`](https://minecraft.wiki/w/Commands/structure) command).
      *
      * @see {@link NBTSchemas.nbtSchemas.StructureTemplate}
+     * @see {@link NBTSchemas.nbtSchemas.StructureTemplateRaw} (if you parse it directly as NBT)
      */
     StructureTemplate: {
         /**
          * The format type of the data.
          */
-        type: "NBT",
+        type: "custom",
+        /**
+         * The format type that results from the {@link entryContentTypeToFormatMap.StructureTemplate.parse | parse} method.
+         */
+        resultType: "JSONNBT",
+        /**
+         * The function to parse the data.
+         *
+         * The {@link data} parameter should be the buffer read directly from the file or LevelDB entry.
+         *
+         * @param data The data to parse, as a buffer.
+         * @returns A promise that resolves with the parsed data.
+         *
+         * @throws {unknown} If an error occurs while parsing the data.
+         */
+        async parse(data: Buffer): Promise<NBTSchemas.NBTSchemaTypes.StructureTemplate> {
+            return await decompressStructureTemplate(
+                NBT.parseUncompressed(data, "little", { noArraySizeCheck: true }) as NBTSchemas.NBTSchemaTypes.StructureTemplateRaw & Pick<NBT.NBT, "name">
+            );
+        },
+        /**
+         * The function to serialize the data.
+         *
+         * This result of this can be written directly to the file or LevelDB entry.
+         *
+         * @param data The data to serialize.
+         * @returns A promise that resolves with the serialized data, as a buffer.
+         *
+         * @throws {unknown} If an error occurs while serializing the data.
+         */
+        async serialize(data: NBTSchemas.NBTSchemaTypes.StructureTemplate | NBTSchemas.NBTSchemaTypes.StructureTemplateRaw): Promise<Buffer> {
+            return NBT.writeUncompressed({ name: "", ...(await compressStructureTemplate(data, { disableInt8ArrayStructureValue: false })) }, "little");
+        },
         /**
          * The raw file extension of the data.
          */

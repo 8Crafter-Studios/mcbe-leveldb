@@ -187,7 +187,7 @@ export function getKeysOfTypesG<T extends MCDBEntryContentType[] | readonly MCDB
  * or make a pull request.
  *
  * @param db The LevelDB. Should match the type of the {@link LevelDB} class from the {@link https://www.npmjs.com/package/@8crafter/leveldb-zlib | @8crafter/leveldb-zlib} package. It does not have to be the one from that package, as long as the types match.
- * @param uuid The UUID of the play to get the name of.
+ * @param uuid The UUID of the player to get the name of.
  * @returns The name of the player, or `null` if the player's name cannot be found or the world has no dynamic properties.
  *
  * @throws {any} If there was an error reading the DynamicProperties from the DB.
@@ -210,7 +210,7 @@ export async function getPlayerNameFromUUID(db: LevelDB, uuid: string | bigint):
  * or make a pull request.
  *
  * @param dynamicProperties The dynamic properties data, should be the data from the `DynamicProperties` LevelDB key.
- * @param uuid The UUID of the play to get the name of.
+ * @param uuid The UUID of the player to get the name of.
  * @returns The name of the player, or `null` if the player's name cannot be found .
  */
 export function getPlayerNameFromUUIDSync(dynamicProperties: NBT.NBT, uuid: string | bigint): string | null {
