@@ -9,6 +9,9 @@
 -   Added a custom serializer and parser for the `StructureTemplate` content type ([#12](https://github.com/8Crafter-Studios/mcbe-leveldb/issues/12)).
 -   Added support for reading and writing zlib-compressed `StructureTemplate` data.
 -   Added the `StructureTemplateRaw` NBT schema.
+-   Added the following methods:
+    -   `decompressStructureTemplate`
+    -   `compressStructureTemplate`
 
 ## Fixes
 
