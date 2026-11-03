@@ -5268,7 +5268,6 @@ export namespace NBTSchemas {
                                         title: "Palette",
                                         markdownDescription: "The block palette.",
                                         type: "compound",
-                                        required: ["default"],
                                         properties: {
                                             default: {
                                                 title: "Default Block Palette",
@@ -5444,7 +5443,6 @@ however when the corresponding block in the block layer is broken, this block ge
                                         title: "Palette",
                                         markdownDescription: "The block palette.",
                                         type: "compound",
-                                        required: ["default"],
                                         properties: {
                                             default: {
                                                 title: "Default Palette",
@@ -5641,7 +5639,6 @@ however when the corresponding block in the block layer is broken, this block ge
                                         title: "Palette",
                                         markdownDescription: "The block palette.",
                                         type: "compound",
-                                        required: ["default"],
                                         properties: {
                                             default: {
                                                 title: "Default Block Palette",
@@ -5821,7 +5818,6 @@ however when the corresponding block in the block layer is broken, this block ge
                                         title: "Palette",
                                         markdownDescription: "The block palette.",
                                         type: "compound",
-                                        required: ["default"],
                                         properties: {
                                             default: {
                                                 title: "Default Palette",
@@ -17103,13 +17099,16 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     }
 
                     // Only apply top-level items if this schema is a plain JSON array, not an NBT list
-                    if (schema.items && schema.type !== NBT.TagType.List) {
+                    if (schema.items !== undefined && schema.type !== NBT.TagType.List) {
                         if (Array.isArray(schema.items)) {
                             valueSchema.items = schema.items.map(
-                                (item: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(item, allSchemas, options, false)
+                                (item: NBTSubSchemaRef): JSONSchemaRef => nbtSchemaToJsonSchema(item, allSchemas, options, true)
                             );
                         } else if (typeof schema.items === "object") {
-                            valueSchema.items = nbtSchemaToJsonSchema(schema.items, allSchemas, options, false);
+                            valueSchema.items = nbtSchemaToJsonSchema(schema.items, allSchemas, options, true);
+                        } else {
+                            // REVIEW: Maybe this boolean/null clause shouldn't be here.
+                            valueSchema.items = schema.items;
                         }
                     }
 
@@ -26226,7 +26225,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                        *
                                        * The default block palette.
                                        */
-                                      default: {
+                                      default?: {
                                           type: "compound";
                                           value: {
                                               /**
@@ -26466,7 +26465,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                        *
                                        * The default block palette.
                                        */
-                                      default: {
+                                      default?: {
                                           type: "compound";
                                           value: {
                                               /**
@@ -26699,7 +26698,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                        *
                                        * The default block palette.
                                        */
-                                      default: {
+                                      default?: {
                                           type: "compound";
                                           value: {
                                               /**
@@ -26944,7 +26943,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                        *
                                        * The default block palette.
                                        */
-                                      default: {
+                                      default?: {
                                           type: "compound";
                                           value: {
                                               /**

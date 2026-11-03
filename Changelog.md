@@ -1,6 +1,13 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.27.2
+
+## Fixes
+
+-   Fixed a bug where the `structure.palette.default` field of the `StructureTemplate` and `StructureTemplateRaw` NBT schemas was marked as required (it isn't present when saving blocks is disabled).
+-   Fixed the types of the items in the `intArray`s in the `structure.block_indices` list field of the `StructureTemplate` and `StructureTemplateRaw` NBT schemas when the schemas are converted to JSON schemas.
+
 # v1.27.0
 
 ## Additions
