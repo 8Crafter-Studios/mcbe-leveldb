@@ -3,7 +3,7 @@ import { getContentTypeFromDBKey, type MCDBEntryContentType } from "./LevelUtils
 import NBT from "prismarine-nbt";
 import { JSONB } from "./utils/JSONB.ts";
 
-// TO-DO: Make an abstract class version of the LevelDB class to use as the type of the db parameter.
+// TODO: Make an abstract class version of the LevelDB class to use as the type of the db parameter.
 
 /**
  * Gets the keys from the LevelDB with a specific content type.

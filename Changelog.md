@@ -1,6 +1,36 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.28.0
+
+## Critical Fixes
+
+-   Fixed bugs where the SNBT parser could not parse single quoted strings or keys with escaped single quotes or escaped double quotes, or parse double quoted strings or keys with escaped single quotes or escaped double quotes.
+
+## Additions
+
+-   Added support for `NaN`, `Infinity`, and `-Infinity` for float and double values.
+-   The `prettyPrintSNBT` function now quotes all string values.
+-   The string value quoting logic of the `prettyPrintSNBT` function now matches the format specified on the [Minecraft Wiki](https://minecraft.wiki/w/NBT_format#Conversion_to_SNBT).
+
+## Changes
+
+-   The `Data3D` parser/serializer can now read data that only has empty subchunks, the previous check has been removed since the game will actually write all subchunks as empty subchunks to `Data3D` if the `Data3D` data was previously corrupted.
+-   The `0x` and `0b` number base prefixes are now case sensitive in the SNBT parser.
+
+## Fixes
+
+-   Fixed a bug where the `biomes.palette` field of the `Data3D` NBT schemas had the `minItems` and `maxItems` set to `4096` instead of being undefined.
+-   Fixed a bug where the SNBT parser would parse single quoted strings or keys that had an even number of unescaped single quotes in them as if they were escaped instead of throwing an error.
+-   The SNBT parser now allows `+` or `-` prefixes on binary base numbers (ex. `-0b1001`).
+-   The SNBT parser no longer allows decimal values in bytes, shorts, ints, and longs.
+-   The SNBT parser no longer allows exponential notation on bytes, shorts, ints, and longs.
+-   The SNBT parser no longer allows the `0x` and `0b` number base prefixes in floats and doubles.
+-   The SNBT parser no longer allows lone `+`, `-`, or `.` characters as numbers.
+-   The SNBT parser no longer allows lone `+.` or `-.` as numbers.
+-   The SNBT parser no longer allows exponential notation numbers that don't have any digits before the `e`.
+-   The `prettyPrintSNBT` function no longer quotes keys with a name of `true` or `false`.
+
 # v1.27.2
 
 ## Fixes

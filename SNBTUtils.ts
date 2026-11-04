@@ -1,6 +1,14 @@
 import NBT, { type Compound } from "prismarine-nbt";
 import type { OmitNeverValueKeys, VerifyConstraint } from "./types.js";
 
+// TODO: Add a way to disallow parsing shortArrays.
+
+// REVIEW: Maybe things like .d shouldn't be allowed.
+
+// IDEA: Maybe add support for undefined in lists, or maybe sparse lists.
+
+// TODO: Add support for signedness suffixes: https://minecraft.wiki/w/NBT_format#Signedness_suffixes
+
 function toPrimitive(tag: any): number {
     switch (tag.type) {
         case "byte":
@@ -726,10 +734,10 @@ function parseSNBTPrimitive(
                 return structureResult("errors" in baseVal ? baseVal.value : baseVal.value);
             }
 
-            const match: RegExpMatchArray | null = raw.match(/^([-+]?0x[\da-fA-F]+|0b[01]+|[-+]?\d*\.?\d*(?:[eE][-+]?\d+)?)([bsilfdBSILFD])?$/i);
-            if (match) {
-                const numStr: string = match[1]!;
-                const suffix: string | undefined = match[2]?.toLowerCase();
+            const intNumMatch: RegExpMatchArray | null = raw.match(/^([-+]?0x[\da-fA-F]+|[-+]?0b[01]+|[-+]?\d+)([bsilBSIL])?$/);
+            if (intNumMatch) {
+                const numStr: string = intNumMatch[1]!;
+                const suffix: string | undefined = intNumMatch[2]?.toLowerCase();
                 let value: number | bigint;
                 if (numStr.startsWith("0x")) value = parseInt(numStr, 16);
                 else if (numStr.startsWith("0b")) value = parseInt(numStr.slice(2), 2);
@@ -745,13 +753,40 @@ function parseSNBTPrimitive(
                         return structureResult(NBT.int(Number(value)));
                     case "l":
                         return structureResult(NBT.long(toLongParts(BigInt(value))));
-                    case "f":
-                        return structureResult(NBT.float(Number(value)));
-                    case "d":
-                        return structureResult(NBT.double(Number(value)));
                     default:
                         if (typeof value === "bigint") return structureResult(NBT.long(toLongParts(value)));
-                        if (Number.isInteger(value)) return structureResult(NBT.int(value));
+                        return structureResult(NBT.int(value));
+                }
+            }
+
+            const decNumMatch: RegExpMatchArray | null = raw.match(/^([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)([fdFD])?$/);
+            if (decNumMatch) {
+                const numStr: string = decNumMatch[1]!;
+                const suffix: string | undefined = decNumMatch[2]?.toLowerCase();
+                let value: number = Number(numStr);
+
+                switch (suffix) {
+                    case "f":
+                        return structureResult(NBT.float(value));
+                    case "d":
+                        return structureResult(NBT.double(value));
+                    default:
+                        return structureResult(NBT.double(value));
+                }
+            }
+
+            const nonFiniteNumMatch: RegExpMatchArray | null = raw.match(/^(NaN|Infinity|-Infinity)([fdFD])?$/);
+            if (nonFiniteNumMatch) {
+                const numStr: string = nonFiniteNumMatch[1]!;
+                const suffix: string | undefined = nonFiniteNumMatch[2]?.toLowerCase();
+                const value: number = Number(numStr);
+
+                switch (suffix) {
+                    case "f":
+                        return structureResult(NBT.float(value));
+                    case "d":
+                        return structureResult(NBT.double(value));
+                    default:
                         return structureResult(NBT.double(value));
                 }
             }
@@ -1301,7 +1336,7 @@ export function parseSNBTCompoundString(input: string, options: ParseSNBTBaseOpt
         if (depth < 0) break;
         const c: string | undefined = input[i];
 
-        if (c === '"' || c === "'") {
+        if ((c === '"' || c === "'") && (i === 0 || !/(?:^|[^\\])(?:\\\\)*\\$/.test(input.slice(0, i)))) {
             if (inString === c) inString = null;
             else if (!inString) inString = c;
         }
@@ -1518,7 +1553,7 @@ export function extractSNBT(input: string, options: ParseSNBTBaseOptions = {}): 
     for (i; i < input.length; i++) {
         const c: string | undefined = input[i];
 
-        if (c === '"' || c === "'") {
+        if ((c === '"' || c === "'") && (i === 0 || !/(?:^|[^\\])(?:\\\\)*\\$/.test(input.slice(0, i)))) {
             if (inString === c) inString = null;
             else if (!inString) inString = c;
         }
@@ -1771,13 +1806,22 @@ export function snbtToPrismarine(snbt: any): Compound {
     return { type: NBT.TagType.Compound, value };
 }
 
-function formatString(s: string): string {
+function formatString(s: string, options?: { alwaysQuoteString?: boolean | undefined; isKey?: boolean | undefined }): string {
     const unquotedPattern = /^[A-Za-z_][A-Za-z0-9_\-+.]*$/;
-    if (unquotedPattern.test(s) && !/^true|false$/.test(s)) return s;
+    if (
+        !(options?.alwaysQuoteString ?? options?.isKey !== true) &&
+        unquotedPattern.test(s) &&
+        // REVIEW: See if I should actually add support for null and undefined.
+        (options?.isKey === true || !/^true|false|(?:NaN|Infinity|-Infinity)[fdFD]?|null|undefined$/.test(s))
+    ) {
+        return s;
+    }
 
     let quote: '"' | "'" = '"';
-    if (!s.includes("'") && s.includes('"')) {
-        quote = "'";
+    if (s.includes('"')) {
+        if (!s.includes("'") || s.indexOf('"') < s.indexOf("'")) {
+            quote = "'";
+        }
     }
 
     const escaped: string = s
@@ -1798,13 +1842,25 @@ function formatString(s: string): string {
 function formatKey(key: string): string {
     const unquotedPattern = /^[A-Za-z0-9_\-+.]+$/;
     if (unquotedPattern.test(key)) return key;
-    return formatString(key);
+    return formatString(key, { alwaysQuoteString: false, isKey: true });
 }
 
 function parseFormattedString(string: string): string {
     return (
-        string.startsWith('"') && string.endsWith('"') ? JSON.parse(string)
-        : string.startsWith("'") && string.endsWith("'") ? JSON.parse('"' + string.replaceAll('"', '\\"').slice(1, -1) + '"')
+        string.startsWith('"') && string.endsWith('"') ? JSON.parse(string.replaceAll(/(?<=(?:^|[^\\])(?:\\\\)*)\\'/g, "'"))
+        : string.startsWith("'") && string.endsWith("'") ?
+            /(?<!(?:^|[^\\])(?:\\\\)*\\)'/g.test(string.slice(1, -1)) ?
+                ((): never => {
+                    throw new SyntaxError("Unescaped single quote in single quoted SNBT string: " + string);
+                })()
+            :   JSON.parse(
+                    '"' +
+                        string
+                            .slice(1, -1)
+                            .replaceAll("\\'", "'")
+                            .replaceAll(/(?<!(?:^|[^\\])(?:\\\\)*\\)"/g, '\\"') +
+                        '"'
+                )
         : /^[A-Za-z_][A-Za-z0-9_\-+.]*$/.test(string) ? string
         : ((): never => {
                 throw new SyntaxError("Invalid SNBT string: " + string);
@@ -1815,8 +1871,20 @@ function parseFormattedString(string: string): string {
 function parseFormattedKey(key: string): string {
     return (
         /^[A-Za-z0-9_\-+.]+$/.test(key) ? key
-        : key.startsWith('"') && key.endsWith('"') ? JSON.parse(key)
-        : key.startsWith("'") && key.endsWith("'") ? JSON.parse('"' + key.replaceAll('"', '\\"').slice(1, -1) + '"')
+        : key.startsWith('"') && key.endsWith('"') ? JSON.parse(key.replaceAll(/(?<=(?:^|[^\\])(?:\\\\)*)\\'/g, "'"))
+        : key.startsWith("'") && key.endsWith("'") ?
+            /(?<!(?:^|[^\\])(?:\\\\)*\\)'/g.test(key.slice(1, -1)) ?
+                ((): never => {
+                    throw new SyntaxError("Unescaped single quote in single quoted SNBT key: " + key);
+                })()
+            :   JSON.parse(
+                    '"' +
+                        key
+                            .slice(1, -1)
+                            .replaceAll("\\'", "'")
+                            .replaceAll(/(?<!(?:^|[^\\])(?:\\\\)*\\)"/g, '\\"') +
+                        '"'
+                )
         : /^[A-Za-z_][A-Za-z0-9_\-+.]*$/.test(key) ? key
         : ((): never => {
                 throw new SyntaxError("Invalid SNBT key: " + key);

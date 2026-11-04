@@ -14559,8 +14559,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     markdownDescription:
                                         "The biome palette.\n\nThis is an array of the biome numeric IDs.\n\nThe IDs should either be valid vanilla biome IDs or be at least 10000 if it is a custom biome ID.",
                                     type: "list",
-                                    minItems: 4096,
-                                    maxItems: 4096,
                                     items: {
                                         markdownDescription: "A biome numeric ID.",
                                         type: "int",

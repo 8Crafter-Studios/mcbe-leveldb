@@ -289,9 +289,10 @@ export function readData3dValue(rawvalue: Uint8Array | null): {
     let biomes: BiomePalette[] = readChunkBiomes(biomeBytes);
 
     // Validate Biome Data
-    if (biomes.length === 0 || biomes[0]!.values === null) {
-        throw new Error("Value does not contain at least one subchunk of biome data.");
-    }
+    // UNDONE: The game actually writes empty biome data like this if the data was corrupted.
+    // if (biomes.length === 0 || biomes[0]!.values === null) {
+    //     throw new Error("Value does not contain at least one subchunk of biome data.");
+    // }
 
     // Enlarge list to length 24 if necessary
     // REVIEW: Maybe this should be removed.
@@ -1654,7 +1655,7 @@ export const entryContentTypeToFormatMap = {
          * @param data The data to parse, as a buffer.
          * @returns The parsed data.
          *
-         * @throws {Error} If the value does not contain at least one subchunk of biome data.
+         * @throws {unknown} If an error occurs while parsing the data.
          */
         parse(data: Buffer): NBTSchemas.NBTSchemaTypes.Data3D {
             const result = readData3dValue(data);
