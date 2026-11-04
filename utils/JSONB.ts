@@ -1,9 +1,11 @@
+/* eslint-disable */
 /**
  * JSONB.ts
  * An improved version of {@link JSON}
  * @module
  * @description This file contains the `JSONB` class.
  * @author 8Crafter
+ * @version v1.2.1 (10/28/2026 11:14 AM PDT)
  */
 
 // This version of the JSONB class is modified to not be on globalThis.
@@ -13,6 +15,13 @@
  *
  * This is an improved version of {@link JSON}.
  *
+ * JSONB's features include:
+ * - `-0` stringification support
+ * - bigint support
+ * - Infinity, -Infinity, and NaN support
+ * - getter and setter stringification support (disabled by default, only supported for stringify, not parse)
+ * - function stringification support (disabled by default, only supported for stringify, not parse)
+ *
  * @author 8Crafter
  */
 export const JSONB: JSONB = {} as any;
@@ -21,6 +30,13 @@ export const JSONB: JSONB = {} as any;
  * An intrinsic object that provides functions to convert JavaScript values to and from the JavaScript Object Notation (JSON) format.
  *
  * This is an improved version of {@link JSON}.
+ *
+ * JSONB's features include:
+ * - `-0` stringification support
+ * - bigint support
+ * - Infinity, -Infinity, and NaN support
+ * - getter and setter stringification support (disabled by default, only supported for stringify, not parse)
+ * - function stringification support (disabled by default, only supported for stringify, not parse)
  *
  * @author 8Crafter
  *
@@ -145,7 +161,7 @@ export interface JSONB {
     ): string;
 }
 
-(function () {
+(function (): void {
     "use strict";
 
     /**
@@ -181,20 +197,20 @@ export interface JSONB {
 
     if (typeof Date.prototype.toJSON !== "function") {
         Date.prototype.toJSON = function () {
-            return isFinite(this.valueOf())
-                ? this.getUTCFullYear() +
-                      "-" +
-                      f(this.getUTCMonth() + 1) +
-                      "-" +
-                      f(this.getUTCDate()) +
-                      "T" +
-                      f(this.getUTCHours()) +
-                      ":" +
-                      f(this.getUTCMinutes()) +
-                      ":" +
-                      f(this.getUTCSeconds()) +
-                      "Z"
-                : (null as never);
+            return isFinite(this.valueOf()) ?
+                    this.getUTCFullYear() +
+                        "-" +
+                        f(this.getUTCMonth() + 1) +
+                        "-" +
+                        f(this.getUTCDate()) +
+                        "T" +
+                        f(this.getUTCHours()) +
+                        ":" +
+                        f(this.getUTCMinutes()) +
+                        ":" +
+                        f(this.getUTCSeconds()) +
+                        "Z"
+                :   (null as never);
         }; /*
 
         Boolean.prototype.toJSON = this_value;
@@ -214,14 +230,14 @@ export interface JSONB {
         // sequences.
 
         rx_escapable.lastIndex = 0;
-        return rx_escapable.test(string)
-            ? '"' +
-                  string.replace(rx_escapable, function (a) {
-                      var c = meta[a];
-                      return typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
-                  }) +
-                  '"'
-            : '"' + string + '"';
+        return rx_escapable.test(string) ?
+                '"' +
+                    string.replace(rx_escapable, function (a) {
+                        var c = meta[a];
+                        return typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+                    }) +
+                    '"'
+            :   '"' + string + '"';
     }
 
     function str(key: string | number, holder: any, options: Parameters<typeof JSONB.stringify>[3]): string | undefined {
@@ -290,28 +306,32 @@ export interface JSONB {
             case "number":
                 // JSONB numbers must be finite. Encode non-finite numbers as null.
 
-                return isFinite(value)
-                    ? String(value)
-                    : value == Infinity
-                    ? options?.Infinity ?? true
-                        ? "Infinity"
-                        : "null"
-                    : value == -Infinity
-                    ? options?.NegativeInfinity ?? true
-                        ? "-Infinity"
-                        : "null"
-                    : Number.isNaN(value)
-                    ? options?.NaN ?? true
-                        ? "NaN"
-                        : "null"
-                    : "null";
+                return (
+                    isFinite(value) ?
+                        Object.is(value, -0) ?
+                            "-0"
+                        :   String(value)
+                    : value == Infinity ?
+                        (options?.Infinity ?? true) ?
+                            "Infinity"
+                        :   "null"
+                    : value == -Infinity ?
+                        (options?.NegativeInfinity ?? true) ?
+                            "-Infinity"
+                        :   "null"
+                    : Number.isNaN(value) ?
+                        (options?.NaN ?? true) ?
+                            "NaN"
+                        :   "null"
+                    :   "null"
+                );
 
             case "bigint":
-                return options?.bigint ?? true ? String(value) + "n" : "null";
+                return (options?.bigint ?? true) ? String(value) + "n" : "null";
             case "undefined":
-                return options?.undefined ?? true ? "undefined" : undefined;
+                return (options?.undefined ?? true) ? "undefined" : undefined;
             case "function":
-                return options?.function ?? false ? value.toString() : undefined;
+                return (options?.function ?? false) ? value.toString() : undefined;
             case "boolean":
             // @ts-ignore
             case "null":
@@ -351,7 +371,10 @@ export interface JSONB {
                     // Join all of the elements together, separated with commas, and wrap them in
                     // brackets.
 
-                    v = partial.length === 0 ? "[]" : gap ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : "[" + partial.join(",") + "]";
+                    v =
+                        partial.length === 0 ? "[]"
+                        : gap ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+                        : "[" + partial.join(",") + "]";
                     gap = mind;
                     return v;
                 }
@@ -385,7 +408,10 @@ export interface JSONB {
                 // Join all of the member texts together, separated with commas,
                 // and wrap them in braces.
 
-                v = partial.length === 0 ? "{}" : gap ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : "{" + partial.join(",") + "}";
+                v =
+                    partial.length === 0 ? "{}"
+                    : gap ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+                    : "{" + partial.join(",") + "}";
                 gap = mind;
                 return v;
         }
@@ -481,10 +507,10 @@ export interface JSONB {
 
             var j;
             var rx_three_b = RegExp(
-                `"[^"\\\\\\n\\r]*"|true|false|null|${options.undefined ?? true ? "undefined|" : ""}${options.Infinity ?? true ? "Infinity|" : ""}${
-                    options.NegativeInfinity ?? true ? "-Infinity|" : ""
-                }${options.NaN ?? true ? "NaN|" : ""}-?\\d+${
-                    options.bigint ?? true ? `(?:n|(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)` : `(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?`
+                `"[^"\\\\\\n\\r]*"|true|false|null|${(options.undefined ?? true) ? "undefined|" : ""}${(options.Infinity ?? true) ? "Infinity|" : ""}${
+                    (options.NegativeInfinity ?? true) ? "-Infinity|" : ""
+                }${(options.NaN ?? true) ? "NaN|" : ""}-?\\d+${
+                    (options.bigint ?? true) ? `(?:n|(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)` : `(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?`
                 }`,
                 "g"
             );
