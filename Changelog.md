@@ -5,16 +5,16 @@
 
 ## Critical Fixes
 
--   Fixed bugs where the SNBT parser could not parse single quoted strings or keys with escaped single quotes or escaped double quotes, or parse double quoted strings or keys with escaped single quotes or escaped double quotes.
+-   Fixed bugs where the SNBT parser could not parse single quoted strings or keys that had escaped single quotes or escaped double quotes, or parse double quoted strings or keys that had escaped single quotes or escaped double quotes.
 
 ## Additions
 
 -   Added support for `NaN`, `Infinity`, and `-Infinity` for float and double values.
--   The `prettyPrintSNBT` function now quotes all string values.
--   The string value quoting logic of the `prettyPrintSNBT` function now matches the format specified on the [Minecraft Wiki](https://minecraft.wiki/w/NBT_format#Conversion_to_SNBT).
 
 ## Changes
 
+-   The `prettyPrintSNBT` function now quotes all string values.
+-   The string value quoting logic of the `prettyPrintSNBT` function now matches the format specified on the [Minecraft Wiki](https://minecraft.wiki/w/NBT_format#Conversion_to_SNBT).
 -   The `Data3D` parser/serializer can now read data that only has empty subchunks, the previous check has been removed since the game will actually write all subchunks as empty subchunks to `Data3D` if the `Data3D` data was previously corrupted.
 -   The `0x` and `0b` number base prefixes are now case sensitive in the SNBT parser.
 
