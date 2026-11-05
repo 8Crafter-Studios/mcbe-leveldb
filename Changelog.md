@@ -1,6 +1,17 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.28.1
+
+## Critical Fixes
+
+-   Fixed a bug where the SNBT parser would throw an error for the last item of a typed array if there was neither a trailing comma somewhere after it nor a closing bracket immediately after it.
+
+## Fixes
+
+-   The SNBT parser now allows `+` prefixes on numbers in typed arrays.
+-   The SNBT parser now allows `+` prefixes on `Infinity` for float and double values.
+
 # v1.28.0
 
 ## Critical Fixes

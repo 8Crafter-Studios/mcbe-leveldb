@@ -775,7 +775,7 @@ function parseSNBTPrimitive(
                 }
             }
 
-            const nonFiniteNumMatch: RegExpMatchArray | null = raw.match(/^(NaN|Infinity|-Infinity)([fdFD])?$/);
+            const nonFiniteNumMatch: RegExpMatchArray | null = raw.match(/^(NaN|[+-]?Infinity)([fdFD])?$/);
             if (nonFiniteNumMatch) {
                 const numStr: string = nonFiniteNumMatch[1]!;
                 const suffix: string | undefined = nonFiniteNumMatch[2]?.toLowerCase();
@@ -907,9 +907,10 @@ function parseTypedArray(
     const values: any[] = [];
 
     let i: number = 0;
-    for (const x of items) {
+    for (const rawX of items) {
+        const x: string = rawX.trim();
         try {
-            if (/^-?\d+b$/i.test(x)) {
+            if (/^[+-]?\d+b$/i.test(x)) {
                 const n: number = Number(x.slice(0, -1));
                 if (type === "L") values.push(toLongParts(BigInt(n)));
                 else if (!["B", "S", "I", "L"].includes(type))
@@ -934,7 +935,7 @@ function parseTypedArray(
                         },
                     });
                 else values.push(n);
-            } else if (/^-?\d+s$/i.test(x)) {
+            } else if (/^[+-]?\d+s$/i.test(x)) {
                 const n: number = Number(x.slice(0, -1));
                 if (type === "L") values.push(toLongParts(BigInt(n)));
                 else if (!["S", "I", "L"].includes(type))
@@ -959,7 +960,7 @@ function parseTypedArray(
                         },
                     });
                 else values.push(n);
-            } else if (/^-?\d+l$/i.test(x)) {
+            } else if (/^[+-]?\d+l$/i.test(x)) {
                 if (type !== "L")
                     throw new SNBTParseError(`Long value not allowed in ${TypedArrayLetterTypes[type]} array: ${x}`, {
                         cause: {
@@ -982,7 +983,7 @@ function parseTypedArray(
                         },
                     });
                 values.push(parseLong(x));
-            } else if (/^-?\d+i?$/.test(x)) {
+            } else if (/^[+-]?\d+i?$/.test(x)) {
                 const n: number = x.toLowerCase().endsWith("i") ? Number(x.slice(0, -1)) : Number(x);
                 if (type === "L") values.push(toLongParts(BigInt(n)));
                 else if (!["I", "L"].includes(type))
@@ -1812,7 +1813,7 @@ function formatString(s: string, options?: { alwaysQuoteString?: boolean | undef
         !(options?.alwaysQuoteString ?? options?.isKey !== true) &&
         unquotedPattern.test(s) &&
         // REVIEW: See if I should actually add support for null and undefined.
-        (options?.isKey === true || !/^true|false|(?:NaN|Infinity|-Infinity)[fdFD]?|null|undefined$/.test(s))
+        (options?.isKey === true || !/^true|false|(?:NaN|[+-]?Infinity)[fdFD]?|null|undefined$/.test(s))
     ) {
         return s;
     }
