@@ -734,9 +734,11 @@ function parseSNBTPrimitive(
                 return structureResult("errors" in baseVal ? baseVal.value : baseVal.value);
             }
 
-            const intNumMatch: RegExpMatchArray | null = raw.match(/^([-+]?0x[\da-fA-F]+|[-+]?0b[01]+|[-+]?\d+)([bsilBSIL])?$/);
+            const intNumMatch: RegExpMatchArray | null = raw.match(
+                /^([-+]?0x[\da-fA-F](?:[\da-fA-F]|_(?=[\da-fA-F_]))*|[-+]?0b[01](?:[01]|_(?=[01_]))*|[-+]?\d(?:\d|_(?=[\d_]))*)([bsilBSIL])?$/
+            );
             if (intNumMatch) {
-                const numStr: string = intNumMatch[1]!;
+                const numStr: string = intNumMatch[1]!.replaceAll("_", "");
                 const suffix: string | undefined = intNumMatch[2]?.toLowerCase();
                 let value: number | bigint;
                 if (numStr.startsWith("0x")) value = parseInt(numStr, 16);
@@ -759,9 +761,11 @@ function parseSNBTPrimitive(
                 }
             }
 
-            const decNumMatch: RegExpMatchArray | null = raw.match(/^([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)([fdFD])?$/);
+            const decNumMatch: RegExpMatchArray | null = raw.match(
+                /^([-+]?(?:\d(?:\d|_(?=[\d_]))*(?:\.(?:\d(?:\d|_(?=[\d_]))*)?)?|\.\d(?:\d|_(?=[\d_]))*)(?:[eE][-+]?\d(?:\d|_(?=[\d_]))*)?)([fdFD])?$/
+            );
             if (decNumMatch) {
-                const numStr: string = decNumMatch[1]!;
+                const numStr: string = decNumMatch[1]!.replaceAll("_", "");
                 const suffix: string | undefined = decNumMatch[2]?.toLowerCase();
                 let value: number = Number(numStr);
 
@@ -904,14 +908,14 @@ function parseTypedArray(
     options: ParseSNBTBaseOptions = {}
 ): TypedArray | { value: TypedArray; errors: SNBTParseError[] } {
     const errors: SNBTParseError[] = [];
-    const values: any[] = [];
+    const values: (number | [high: number, low: number])[] = [];
 
     let i: number = 0;
     for (const rawX of items) {
         const x: string = rawX.trim();
         try {
-            if (/^[+-]?\d+b$/i.test(x)) {
-                const n: number = Number(x.slice(0, -1));
+            if (/^[+-]?\d(?:\d|_(?=[\d_]))*b$/i.test(x)) {
+                const n: number = Number(x.slice(0, -1).replaceAll("_", ""));
                 if (type === "L") values.push(toLongParts(BigInt(n)));
                 else if (!["B", "S", "I", "L"].includes(type))
                     throw new SNBTParseError(`Byte value not allowed in ${TypedArrayLetterTypes[type]} array: ${x}`, {
@@ -935,8 +939,8 @@ function parseTypedArray(
                         },
                     });
                 else values.push(n);
-            } else if (/^[+-]?\d+s$/i.test(x)) {
-                const n: number = Number(x.slice(0, -1));
+            } else if (/^[+-]?\d(?:\d|_(?=[\d_]))*s$/i.test(x)) {
+                const n: number = Number(x.slice(0, -1).replaceAll("_", ""));
                 if (type === "L") values.push(toLongParts(BigInt(n)));
                 else if (!["S", "I", "L"].includes(type))
                     throw new SNBTParseError(`Short value not allowed in ${TypedArrayLetterTypes[type]} array: ${x}`, {
@@ -960,7 +964,7 @@ function parseTypedArray(
                         },
                     });
                 else values.push(n);
-            } else if (/^[+-]?\d+l$/i.test(x)) {
+            } else if (/^[+-]?\d(?:\d|_(?=[\d_]))*l$/i.test(x)) {
                 if (type !== "L")
                     throw new SNBTParseError(`Long value not allowed in ${TypedArrayLetterTypes[type]} array: ${x}`, {
                         cause: {
@@ -982,9 +986,9 @@ function parseTypedArray(
                             ],
                         },
                     });
-                values.push(parseLong(x));
-            } else if (/^[+-]?\d+i?$/.test(x)) {
-                const n: number = x.toLowerCase().endsWith("i") ? Number(x.slice(0, -1)) : Number(x);
+                values.push(parseLong(x.replaceAll("_", "")));
+            } else if (/^[+-]?\d(?:\d|_(?=[\d_]))*i?$/.test(x)) {
+                const n: number = x.toLowerCase().endsWith("i") ? Number(x.slice(0, -1).replaceAll("_", "")) : Number(x.replaceAll("_", ""));
                 if (type === "L") values.push(toLongParts(BigInt(n)));
                 else if (!["I", "L"].includes(type))
                     throw new SNBTParseError(`Int value not allowed in ${TypedArrayLetterTypes[type]} array: ${x}`, {
@@ -1009,6 +1013,7 @@ function parseTypedArray(
                     });
                 else values.push(n);
             } else if (["true", "false"].includes(x)) {
+                if (type === "L") values.push([0, +(x === "true")]);
                 values.push(+(x === "true"));
             } else {
                 throw new SNBTParseError(`Unsupported value in ${TypedArrayLetterTypes[type]} array: ${x}`, {
@@ -2113,7 +2118,7 @@ export function toLongParts(longVal: bigint): [high: number, low: number] {
 /**
  * Converts a long as a string to a tuple of two signed 32-bit integers.
  *
- * The string would be formatted like `"0n"`.
+ * The string would be formatted like `"0n"`, `"0l"`, or `"0L"`.
  *
  * @param literal A long as a string.
  * @returns The long as a tuple.

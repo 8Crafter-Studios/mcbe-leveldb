@@ -4,6 +4,8 @@ import { toLong, toLongParts } from "./SNBTUtils.ts";
 import type { Full, LooseAutocomplete, MutableDeep } from "./types.js";
 import __biome_data__ from "./__biome_data__.ts";
 import type { ExclusifyUnion, TupleOf } from "type-fest";
+import type { toJSONSafePrismarineNBT } from "./PrismarineNBTUtils.ts";
+import { JSONB } from "./utils/JSONB.ts";
 
 // TODO: Add NBT schemas for newer entities, like the sulfur cube.
 
@@ -16155,6 +16157,10 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
     /**
      * The JSON schema for Prismarine-NBT JSON.
+     *
+     * This is used for type data type after {@link toJSONSafePrismarineNBT} is used to make it fully JSON serializable.
+     *
+     * @todo The list type of this is incomplete, it doesn't verify nested data.
      */
     export const GenericPrismarineJSONNBTSchema: JSONSchema = {
         $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -16218,7 +16224,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 {
                                     properties: {
                                         type: { const: "float" },
-                                        value: { type: "number" },
+                                        value: { oneOf: [{ type: "number" }, { type: "string", enum: ["NaN", "Infinity", "-Infinity"] }] },
                                     },
                                     required: ["type", "value"],
                                     additionalProperties: false,
@@ -16226,7 +16232,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 {
                                     properties: {
                                         type: { const: "double" },
-                                        value: { type: "number" },
+                                        value: { oneOf: [{ type: "number" }, { type: "string", enum: ["NaN", "Infinity", "-Infinity"] }] },
                                     },
                                     required: ["type", "value"],
                                     additionalProperties: false,
@@ -16245,6 +16251,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                         value: {
                                             type: "object",
                                             properties: {
+                                                // FIXME: This is incomplete, it does not specify all the valid list types and make values based on that type.
                                                 type: { type: "string" },
                                                 value: {
                                                     type: "array",
@@ -16404,6 +16411,30 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
          * @todo Add checks to make sure the value of this is a valid identifier.
          */
         tupleItemLabelTS?: string | undefined;
+        /**
+         * Whether to allow `NaN` values.
+         *
+         * Only applies to floats and doubles.
+         *
+         * @default true
+         */
+        allowNaN?: boolean | undefined;
+        /**
+         * Whether to allow `Infinity` values.
+         *
+         * Only applies to floats and doubles.
+         *
+         * @default true // Unless maximum or exclusiveMaximum is set
+         */
+        allowInfinity?: boolean | undefined;
+        /**
+         * Whether to allow `-Infinity` values.
+         *
+         * Only applies to floats and doubles.
+         *
+         * @default true // Unless minimum or exclusiveMinimum is set
+         */
+        allowNegativeInfinity?: boolean | undefined;
         /**
          * The ID of this schema.
          */
@@ -16784,6 +16815,8 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
         export namespace Conversion {
             /**
              * Utilities for converting NBT schemas to JSON schemas.
+             *
+             * The generated JSON schemas are intended to be used with Prismarine-NBT data that has been made JSON serializable with {@link toJSONSafePrismarineNBT}.
              */
             export namespace ToJSONSchema {
                 /**
@@ -17443,7 +17476,67 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
 
                         case NBT.TagType.Float:
                         case NBT.TagType.Double: {
-                            const valueType: JSONSchema = { type: "number" };
+                            const allowNaN: boolean = schema.allowNaN ?? true;
+                            const allowInfinity: boolean = schema.allowInfinity ?? (schema.maximum === undefined && schema.exclusiveMaximum === undefined);
+                            const allowNegativeInfinity: boolean =
+                                schema.allowNegativeInfinity ?? (schema.minimum === undefined && schema.exclusiveMinimum === undefined);
+                            const valueType: JSONSchema =
+                                allowNaN || allowInfinity || allowNegativeInfinity ?
+                                    schema.const === undefined && schema.enum === undefined ?
+                                        {
+                                            oneOf: [
+                                                { type: "number" },
+                                                {
+                                                    type: "string",
+                                                    enum: [
+                                                        ...(allowNaN ? ["NaN"] : []),
+                                                        ...(allowInfinity ? ["Infinity"] : []),
+                                                        ...(allowNegativeInfinity ? ["-Infinity"] : []),
+                                                    ],
+                                                },
+                                            ],
+                                        } // REVIEW (Possible Bug): See if the minimum, maximum, etc. attributes actually need to be on the same level as the type: "number".
+                                    : (
+                                        ((): boolean => {
+                                            const constValue = (
+                                                (
+                                                    typeof schema.const === "object" &&
+                                                    schema.const &&
+                                                    "type" in schema.const &&
+                                                    "value" in schema.const &&
+                                                    schema.const.type === type
+                                                ) ?
+                                                    schema.const.value
+                                                :   schema.const) as (NBT.Float | NBT.Double)["value"];
+                                            if (typeof constValue === "number") {
+                                                if (allowNaN && Number.isNaN(constValue)) return true;
+                                                if (allowInfinity && constValue === Infinity) return true;
+                                                if (allowNegativeInfinity && constValue === -Infinity) return true;
+                                            }
+                                            if (typeof schema.enum !== "object" || !schema.enum || !Array.isArray(schema.enum)) return false;
+                                            const enumValues = schema.enum.filter((v) => v.type === type).map((v) => v.value);
+                                            return (
+                                                !!enumValues.length &&
+                                                enumValues.some((v) => {
+                                                    if (typeof v === "number") {
+                                                        if (allowNaN && Number.isNaN(v)) return true;
+                                                        if (allowInfinity && v === Infinity) return true;
+                                                        if (allowNegativeInfinity && v === -Infinity) return true;
+                                                    }
+                                                })
+                                            );
+                                        })()
+                                    ) ?
+                                        {
+                                            oneOf: [
+                                                { type: "number" },
+                                                {
+                                                    type: "string", // It is not necessary to define an enum here as that is handled by the const/enum on the schema.
+                                                },
+                                            ],
+                                        } // REVIEW (Possible Bug): See if the minimum, maximum, etc. attributes actually need to be on the same level as the type: "number".
+                                    :   { type: "number" }
+                                :   { type: "number" };
                             if (
                                 (schema.description === undefined && schema.markdownDescription === undefined) ||
                                 !((options.makeValueSchema ?? defaultConvertOptions.makeValueSchema) && isRoot)
@@ -17451,7 +17544,17 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 valueType.description = valueType.markdownDescription = `A ${type}.`;
                             }
                             if (schema.enum?.some((v) => v.type === type)) {
-                                valueType.enum = schema.enum.filter((v) => v.type === type).map((v) => v.value);
+                                valueType.enum = schema.enum
+                                    .filter((v) => v.type === type)
+                                    .map((v) =>
+                                        typeof v.value === "bigint" ? toLongParts(v.value)
+                                        : typeof v.value === "number" ?
+                                            Number.isNaN(v.value) ? "NaN"
+                                            : v.value === Infinity ? "Infinity"
+                                            : v.value === -Infinity ? "-Infinity"
+                                            : v.value
+                                        :   v.value
+                                    );
                                 if (schema.enumDescriptions) {
                                     valueType.enumDescriptions = schema.enum
                                         .map((v, i) => [v.type, i] as const)
@@ -17472,11 +17575,42 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const = JSON.parse(
-                                    JSON.stringify(
+                                valueType.const = JSONB.parse(
+                                    JSONB.stringify(
                                         "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
-                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
-                                    )
+                                        (_k: string, v: unknown): unknown =>
+                                            typeof v === "bigint" ? toLongParts(v)
+                                            : typeof v === "number" ?
+                                                Number.isNaN(v) ? "NaN"
+                                                : v === Infinity ? "Infinity"
+                                                : v === -Infinity ? "-Infinity"
+                                                : v
+                                            :   v,
+                                        undefined,
+                                        {
+                                            bigint: false,
+                                            undefined: false,
+                                            Infinity: false,
+                                            NegativeInfinity: false,
+                                            NaN: false,
+                                            get: false,
+                                            set: false,
+                                            function: false,
+                                            class: false,
+                                        }
+                                    ),
+                                    undefined,
+                                    {
+                                        bigint: false,
+                                        undefined: false,
+                                        Infinity: false,
+                                        NegativeInfinity: false,
+                                        NaN: false,
+                                        get: false,
+                                        set: false,
+                                        function: false,
+                                        class: false,
+                                    }
                                 );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
@@ -17487,6 +17621,13 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     "type" in schema.default && "value" in schema.default && schema.default.type === type ?
                                         schema.default.value
                                     :   schema.default;
+                                if (typeof valueType.default === "number") {
+                                    valueType.default =
+                                        Number.isNaN(valueType.default) ? "NaN"
+                                        : valueType.default === Infinity ? "Infinity"
+                                        : valueType.default === -Infinity ? "-Infinity"
+                                        : valueType.default;
+                                }
                             }
 
                             let resultSchema: JSONSchema = valueType;
@@ -17506,8 +17647,42 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     keyof NBTSchema &
                                     keyof NBTSchemaFragment)[]) {
                                     if (schema[k] !== undefined) {
-                                        resultSchema[k] = JSON.parse(
-                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        resultSchema[k] = JSONB.parse(
+                                            JSONB.stringify(
+                                                schema[k],
+                                                (_k: string, v: unknown): unknown =>
+                                                    typeof v === "bigint" ? toLongParts(v)
+                                                    : typeof v === "number" ?
+                                                        Number.isNaN(v) ? "NaN"
+                                                        : v === Infinity ? "Infinity"
+                                                        : v === -Infinity ? "-Infinity"
+                                                        : v
+                                                    :   v,
+                                                undefined,
+                                                {
+                                                    bigint: false,
+                                                    undefined: false,
+                                                    Infinity: false,
+                                                    NegativeInfinity: false,
+                                                    NaN: false,
+                                                    get: false,
+                                                    set: false,
+                                                    function: false,
+                                                    class: false,
+                                                }
+                                            ),
+                                            undefined,
+                                            {
+                                                bigint: false,
+                                                undefined: false,
+                                                Infinity: false,
+                                                NegativeInfinity: false,
+                                                NaN: false,
+                                                get: false,
+                                                set: false,
+                                                function: false,
+                                                class: false,
+                                            }
                                         );
                                     }
                                 }
@@ -17780,11 +17955,42 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const = JSON.parse(
-                                    JSON.stringify(
+                                valueType.const = JSONB.parse(
+                                    JSONB.stringify(
                                         "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
-                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
-                                    )
+                                        (_k: string, v: unknown): unknown =>
+                                            typeof v === "bigint" ? toLongParts(v)
+                                            : typeof v === "number" ?
+                                                Number.isNaN(v) ? "NaN"
+                                                : v === Infinity ? "Infinity"
+                                                : v === -Infinity ? "-Infinity"
+                                                : v
+                                            :   v,
+                                        undefined,
+                                        {
+                                            bigint: false,
+                                            undefined: false,
+                                            Infinity: false,
+                                            NegativeInfinity: false,
+                                            NaN: false,
+                                            get: false,
+                                            set: false,
+                                            function: false,
+                                            class: false,
+                                        }
+                                    ),
+                                    undefined,
+                                    {
+                                        bigint: false,
+                                        undefined: false,
+                                        Infinity: false,
+                                        NegativeInfinity: false,
+                                        NaN: false,
+                                        get: false,
+                                        set: false,
+                                        function: false,
+                                        class: false,
+                                    }
                                 );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
@@ -17814,8 +18020,42 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     keyof NBTSchema &
                                     keyof NBTSchemaFragment)[]) {
                                     if (schema[k] !== undefined) {
-                                        resultSchema[k] = JSON.parse(
-                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        resultSchema[k] = JSONB.parse(
+                                            JSONB.stringify(
+                                                schema[k],
+                                                (_k: string, v: unknown): unknown =>
+                                                    typeof v === "bigint" ? toLongParts(v)
+                                                    : typeof v === "number" ?
+                                                        Number.isNaN(v) ? "NaN"
+                                                        : v === Infinity ? "Infinity"
+                                                        : v === -Infinity ? "-Infinity"
+                                                        : v
+                                                    :   v,
+                                                undefined,
+                                                {
+                                                    bigint: false,
+                                                    undefined: false,
+                                                    Infinity: false,
+                                                    NegativeInfinity: false,
+                                                    NaN: false,
+                                                    get: false,
+                                                    set: false,
+                                                    function: false,
+                                                    class: false,
+                                                }
+                                            ),
+                                            undefined,
+                                            {
+                                                bigint: false,
+                                                undefined: false,
+                                                Infinity: false,
+                                                NegativeInfinity: false,
+                                                NaN: false,
+                                                get: false,
+                                                set: false,
+                                                function: false,
+                                                class: false,
+                                            }
                                         );
                                     }
                                 }
@@ -17930,14 +18170,46 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                 }
                             }
                             if (schema.const !== undefined) {
-                                valueType.const = JSON.parse(
-                                    JSON.stringify(
+                                valueType.const = JSONB.parse(
+                                    JSONB.stringify(
                                         "type" in schema.const && "value" in schema.const && schema.const.type === type ? schema.const.value : schema.const,
-                                        (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v)
-                                    )
+                                        (_k: string, v: unknown): unknown =>
+                                            typeof v === "bigint" ? toLongParts(v)
+                                            : typeof v === "number" ?
+                                                Number.isNaN(v) ? "NaN"
+                                                : v === Infinity ? "Infinity"
+                                                : v === -Infinity ? "-Infinity"
+                                                : v
+                                            :   v,
+                                        undefined,
+                                        {
+                                            bigint: false,
+                                            undefined: false,
+                                            Infinity: false,
+                                            NegativeInfinity: false,
+                                            NaN: false,
+                                            get: false,
+                                            set: false,
+                                            function: false,
+                                            class: false,
+                                        }
+                                    ),
+                                    undefined,
+                                    {
+                                        bigint: false,
+                                        undefined: false,
+                                        Infinity: false,
+                                        NegativeInfinity: false,
+                                        NaN: false,
+                                        get: false,
+                                        set: false,
+                                        function: false,
+                                        class: false,
+                                    }
                                 );
                             }
                             if (schema.examples?.some((v) => v.type === type)) {
+                                // BUG: This might need to be normalizing bigints and NaN/Infinity/-Infinity.
                                 valueType.examples = schema.examples.filter((v) => v.type === type).map((v) => v.value);
                             }
                             if (schema.default !== undefined) {
@@ -17964,8 +18236,42 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                                     keyof NBTSchema &
                                     keyof NBTSchemaFragment)[]) {
                                     if (schema[k] !== undefined) {
-                                        resultSchema[k] = JSON.parse(
-                                            JSON.stringify(schema[k], (_k: string, v: unknown): unknown => (typeof v === "bigint" ? toLongParts(v) : v))
+                                        resultSchema[k] = JSONB.parse(
+                                            JSONB.stringify(
+                                                schema[k],
+                                                (_k: string, v: unknown): unknown =>
+                                                    typeof v === "bigint" ? toLongParts(v)
+                                                    : typeof v === "number" ?
+                                                        Number.isNaN(v) ? "NaN"
+                                                        : v === Infinity ? "Infinity"
+                                                        : v === -Infinity ? "-Infinity"
+                                                        : v
+                                                    :   v,
+                                                undefined,
+                                                {
+                                                    bigint: false,
+                                                    undefined: false,
+                                                    Infinity: false,
+                                                    NegativeInfinity: false,
+                                                    NaN: false,
+                                                    get: false,
+                                                    set: false,
+                                                    function: false,
+                                                    class: false,
+                                                }
+                                            ),
+                                            undefined,
+                                            {
+                                                bigint: false,
+                                                undefined: false,
+                                                Infinity: false,
+                                                NegativeInfinity: false,
+                                                NaN: false,
+                                                get: false,
+                                                set: false,
+                                                function: false,
+                                                class: false,
+                                            }
                                         );
                                     }
                                 }
@@ -18528,16 +18834,40 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                         // return value.toString() + "n"; // preserve as bigint literal
                         return `[high: ${toLongParts(value).join(", low: ")}]`; // Convert the long back to the high and low parts.
                     }
+                    if (typeof value === "number") {
+                        if (type === "JSDoc") {
+                            if (Number.isNaN(value)) return "NaN";
+                            if (value === Infinity) return "Infinity";
+                            if (value === -Infinity) return "-Infinity";
+                        } else {
+                            if (Number.isNaN(value)) return "typeof NaN";
+                            // if (value === Infinity) return "typeof Infinity";
+                            // if (value === -Infinity) return "typeof -Infinity";
+                            if (value === Infinity) return "PositiveInfinity";
+                            if (value === -Infinity) return "NegativeInfinity";
+                        }
+                    }
                     if (typeof value === "object" && value !== null) {
-                        if ("type" in value && "value" in value)
+                        if ("type" in value && "value" in value) {
                             return formatValueInner(
                                 value.type === "long" && Array.isArray(value.value) && typeof value.value[0] === "number" ?
                                     toLong(value.value as [high: number, low: number])
                                 : value.type === "long" && Array.isArray(value.value) && Array.isArray(value.value[0]) ? value.value.map(toLong)
                                 : value.value
                             );
+                        }
                         try {
-                            return JSON.stringify(value);
+                            return JSONB.stringify(value, undefined, undefined, {
+                                bigint: false,
+                                undefined: false,
+                                Infinity: false,
+                                NegativeInfinity: false,
+                                NaN: false,
+                                get: false,
+                                set: false,
+                                function: false,
+                                class: false,
+                            }); // REVIEW: Maybe this should use have handling for bigints, NaN, Infinity, and -Infinity.
                         } catch {
                             return String(value);
                         }
@@ -18747,6 +19077,7 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                     }
 
                     // Handle deprecation
+                    // TODO: Add .deprecated handling if there isn't already.
                     if (schema.deprecationMessage !== undefined) {
                         const msg: string = schema.deprecationMessage;
                         // Put on new line if contains non-alphanumeric characters
@@ -36056,10 +36387,6 @@ pillager outpost or witch hut; for most structures, this is \`0\`.`,
                              * This is an array of the biome numeric IDs.
                              *
                              * The IDs should either be valid vanilla biome IDs or be at least 10000 if it is a custom biome ID.
-                             *
-                             * @minItems 4096
-                             *
-                             * @maxItems 4096
                              */
                             palette: {
                                 type: "list";

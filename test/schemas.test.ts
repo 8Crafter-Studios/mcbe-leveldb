@@ -26,7 +26,7 @@ writeFileSync(
 
 writeFileSync(
     path.join(import.meta.dirname, "./nbtSchemaTypeScriptInterfaces.d.ts"),
-    `import type { ExclusifyUnion } from "type-fest";\n\n${Object.entries(NBTSchemas.nbtSchemas)
+    `import type { ExclusifyUnion, PositiveInfinity, NegativeInfinity } from "type-fest";\n\n${Object.entries(NBTSchemas.nbtSchemas)
         .map(([name, schema]) =>
             NBTSchemas.Utils.Conversion.ToTypeScriptType.nbtSchemaToTypeScriptType(schema, name, {
                 schemaIDToSymbolNameResolver(schemaID: string): string {

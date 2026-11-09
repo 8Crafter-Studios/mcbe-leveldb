@@ -1,6 +1,23 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.29.0
+
+## Additions
+
+-   The SNBT parser now allows `_` numeric separators in numbers.
+-   The NBT schemas now support `NaN`, `Infinity`, and `-Infinity` float and double values.
+-   The NBT schema to JSON schema converter now supports `NaN`, `Infinity`, and `-Infinity` float and double values by having the numeric value be a string, while still being a float or double type, data can be converted from and to this JSON serializable format of Prismarine-NBT data with the `toJSONSafePrismarineNBT` and `fromJSONSafePrismarineNBT` functions, which convert between JSON serializable Prismarine-NBT data and regular Prismarine-NBT data.
+-   The NBT schema to JSON schema converter now preserves `-0` for float and double values.
+-   Added the `JSONSafePrismarineNBT` namespace.
+-   Added the following functions:
+    -   `toJSONSafePrismarineNBT`
+    -   `fromJSONSafePrismarineNBT`
+
+## Fixes
+
+-   Fixed a bug where `true` or `false` values in longArrays would be parsed by the SNBT parser as numbers instead of long tuples.
+
 # v1.28.1
 
 ## Critical Fixes

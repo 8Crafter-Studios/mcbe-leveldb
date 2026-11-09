@@ -1,4 +1,4 @@
-import { extractSNBT, prettyPrintSNBT, prismarineToSNBT, toLongParts } from "../SNBTUtils.ts";
+import { extractSNBT, prettyPrintSNBT, prismarineToSNBT } from "../SNBTUtils.ts";
 import { JSONB } from "../utils/JSONB.ts";
 
 const HEADER_PREFIX = "\x1b[40m\x1b[95m";
@@ -96,6 +96,23 @@ try {
 try {
     logHeader("-Infinityd test");
     console.log("\x1b[92mTest passed; result:" + END_FORMATTING, JSONB.stringify(extractSNBT("{ testVal: -Infinityd }").value));
+    passed++;
+} catch (e) {
+    console.error("\x1b[91mTest failed; error:" + END_FORMATTING, e);
+    failed++;
+}
+// TODO: Add more tests for the _ numeric separators.
+try {
+    logHeader("5_5 test");
+    console.log("\x1b[92mTest passed; result:" + END_FORMATTING, JSONB.stringify(extractSNBT("{ testVal: 5_5 }").value));
+    passed++;
+} catch (e) {
+    console.error("\x1b[91mTest failed; error:" + END_FORMATTING, e);
+    failed++;
+}
+try {
+    logHeader("5_5.2_1e2_4 test");
+    console.log("\x1b[92mTest passed; result:" + END_FORMATTING, JSONB.stringify(extractSNBT("{ testVal: 5_5.2_1e2_4 }").value));
     passed++;
 } catch (e) {
     console.error("\x1b[91mTest failed; error:" + END_FORMATTING, e);
