@@ -7586,13 +7586,13 @@ export function writeBlockIndices(buffer: Buffer, blockDataOffset: number, block
  * Converts the dimension of a dimension vector to a numeric ID.
  *
  * @param dimension The dimension to convert.
- * @returns The numeric ID of the dimension.
+ * @returns The numeric ID of the dimension, or `-1` if the dimension is a string and the dimension is not recognized.
  */
-export function dimensionVectorDimensionToInt(dimension: Dimension | number): number {
+export function dimensionVectorDimensionToInt(dimension: Dimension | DimensionMCCE | number): number {
     if (typeof dimension === "string") {
-        const indexMCBE: number = dimensions.indexOf(dimension);
+        const indexMCBE: number = dimensions.indexOf(dimension as Dimension);
         if (indexMCBE !== -1) return indexMCBE;
-        const indexMCCE: number = dimensionsMCCE.indexOf(dimension);
+        const indexMCCE: number = dimensionsMCCE.indexOf(dimension as DimensionMCCE);
         return indexMCCE;
     }
     return dimension;

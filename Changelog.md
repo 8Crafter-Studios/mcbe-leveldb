@@ -1,6 +1,17 @@
 <!-- -   Added the `EntitiesDat` NBT schema. -->
 <!-- -   Added the `LegacyConsolePlayer` NBT schema. -->
 
+# v1.30.0
+
+## Additions
+
+-   Added support for the Editor Edition of "8Crafter's Server Utilities & Debug Sticks" add-on for getting player's names from their UUIDs from the dynamic properties.
+-   Added the `playerUUIDToNameParserSupportedAddOnUUIDs` constant.
+
+## Fixes
+
+-   The type definition for the `dimensionVectorDimensionToInt` function now allows the `DimensionMCCE` type as a valid value for the `dimension` parameter
+
 # v1.29.0
 
 ## Additions

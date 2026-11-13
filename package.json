@@ -1,6 +1,6 @@
 {
     "name": "mcbe-leveldb",
-    "version": "1.29.0",
+    "version": "1.30.0",
     "main": "index.ts",
     "scripts": {
         "prepublishOnly": "tsc -p ./tsconfig.production.json",

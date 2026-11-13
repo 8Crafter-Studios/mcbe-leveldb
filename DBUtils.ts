@@ -263,6 +263,10 @@ export const playerUUIDToNameDynamicPropertyParsers: PlayerUUIDToNameDynamicProp
             "53170125-3e79-4659-9bba-e49eb90b6ded",
             // Release version
             "53170125-3e79-4659-9bba-e49eb90b6dea",
+            // Internal development version (Editor Edition)
+            "80bf4eb3-95ab-4444-8a53-d0a8ac6d7597",
+            // Release version (Editor Edition)
+            "80bf4eb3-95ab-4444-8a53-d0a8ac6d759a",
         ];
         for (const addOnUUID of addOnUUIDs) {
             const addonDynamicProperties: NBT.Compound["value"] | null =
@@ -282,4 +286,22 @@ export const playerUUIDToNameDynamicPropertyParsers: PlayerUUIDToNameDynamicProp
         }
         return null;
     },
+];
+
+/**
+ * The list of UUIDs of behavior packs that the {@link playerUUIDToNameDynamicPropertyParsers} has a parser for.
+ */
+export const playerUUIDToNameParserSupportedAddOnUUIDs: string[] = [
+    // ==== BWE Player Name Saver ====
+    "9736e748-93a5-4306-ba68-ac6af30c44b2",
+
+    // ==== 8Crafter's Server Utilities ====
+    // Internal development version
+    "53170125-3e79-4659-9bba-e49eb90b6ded",
+    // Release version
+    "53170125-3e79-4659-9bba-e49eb90b6dea",
+    // Internal development version (Editor Edition)
+    "80bf4eb3-95ab-4444-8a53-d0a8ac6d7597",
+    // Release version (Editor Edition)
+    "80bf4eb3-95ab-4444-8a53-d0a8ac6d759a",
 ];
